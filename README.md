@@ -1,11 +1,21 @@
-<div align="center">
+# پوسته حقوقی و وکالت SedRazavi (SedRazavi Law Firm WordPress Theme)
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+پوسته اختصاصی، فوق‌پیشرفته و هوشمند **SedRazavi** طراحی‌شده برای دفاتر وکالت، مشاوران حقوقی، و موسسات داوری بین‌المللی.
 
-  <h1>Built with AI Studio</h2>
+## قابلیت‌های کلیدی
+- طراحی لوکس و اختصاصی با تایپوگرافی رسمی و پالت رنگی سورمه‌ای شب/طلایی
+- سامانه نوبت‌دهی آنلاین و پورتال استعلام لحظه‌ای پرونده موکلین
+- ۲۵ بلاک اختصاصی Elementor 3.x
+- ۱۵ کد کوتاه (Shortcode) داینامیک و امن
+- مدیریت چندشعبه‌ای (Multisite Support)
+- اتصال هوشمند به وب‌هوک و پنل‌های پیامکی
+- خط لوله CI/CD با GitHub Actions جهت بیلد خودکار پکیج‌های زیپ قابل نصب در وردپرس
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## نیازمندی‌های سرور
+- وردپرس نسخه 6.0 یا بالاتر (سازگار با 6.7)
+- PHP نسخه 8.0 یا بالاتر (توصیه: PHP 8.2+)
+- MySQL نسخه 5.7+ یا MariaDB نسخه 10.4+
+- افزونه فعال cURL و GD / ImageMagick جهت تبدیل خودکار به WebP
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
-
-</div>
+## نصب و راه‌اندازی
+لطفاً فایل `INSTALL.md` را مطالعه نمایید.
