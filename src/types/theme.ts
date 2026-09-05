@@ -53,6 +53,58 @@ export interface ArticleItem {
   views: number;
 }
 
+export interface VideoChapter {
+  time: string;
+  seconds: number;
+  title: string;
+}
+
+export interface VideoItem {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  category: string;
+  duration: string;
+  date: string;
+  thumbnail: string;
+  videoUrl: string;
+  views: number;
+  tags: string[];
+  presenter: string;
+  presenterRole: string;
+  description: string;
+  chapters?: VideoChapter[];
+  transcript?: string;
+}
+
+export interface CommentItem {
+  id: string;
+  author: string;
+  authorEmail: string;
+  avatar?: string;
+  content: string;
+  date: string;
+  postTitle: string;
+  postType: 'article' | 'video' | 'service';
+  postId: string;
+  status: 'approved' | 'pending' | 'spam' | 'trash';
+  rating?: number;
+  likes: number;
+  replies?: CommentItem[];
+  parentCommentId?: string | null;
+}
+
+export interface PracticeArea {
+  id: string;
+  title: string;
+  slug: string;
+  icon: string;
+  description: string;
+  caseCount: number;
+  badge?: string;
+}
+
 export interface StorySlide {
   image: string;
   title: string;

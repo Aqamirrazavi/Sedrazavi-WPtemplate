@@ -1,4 +1,15 @@
-import { ServiceItem, CaseItem, TestimonialItem, ArticleItem, StoryItem, FaqItem, ElementorBlockDef } from '../types/theme';
+import {
+  ServiceItem,
+  CaseItem,
+  TestimonialItem,
+  ArticleItem,
+  StoryItem,
+  FaqItem,
+  ElementorBlockDef,
+  PracticeArea,
+  VideoItem,
+  CommentItem,
+} from '../types/theme';
 
 export const ATTORNEY_INFO = {
   name: 'سرکار خانم دکتر سیده مریم رضوی (SedRazavi)',
@@ -335,6 +346,66 @@ export const ARTICLES_DATA: ArticleItem[] = [
     date: '۱۵ تیر ۱۴۰۳',
     thumbnail: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800',
     views: 3410
+  },
+  {
+    id: 'art-4',
+    title: 'نحوه ابطال رأی داور در دادگاه‌های عمومی حقوقی؛ جهات بطلان و مواعد قانونی',
+    slug: 'annulment-arbitral-award-iran',
+    summary: 'بررسی ماده ۴۸۹ قانون آیین دادرسی مدنی و مواردی که منجر به بطلان رأی داور و توقف اجرای آن می‌شود.',
+    content: `داوری به عنوان یکی از کارآمدترین شیوه‌های حل و فصل اختلافات قراردادی، گاه با چالش عدم رعایت اصول دادرسی عادلانه یا مخالفت با قوانین موجد حق مواجه می‌شود. در چنین شرایطی، متضرر می‌تواند ظرف ۲۰ روز از تاریخ ابلاغ رأی داور (برای اشخاص مقیم خارج ۲ ماه) دادخواست ابطال رأی داور را به دادگاهی که صلاحیت رسیدگی به اصل دعوا را دارد تقدیم کند.
+
+جهات هفت‌گانه بطلان رأی داور:
+۱. رأی صادره مخالف با قوانین موجد حق باشد.
+۲. داور نسبت به مطلبی که موضوع داوری نبوده رأی صادر کرده باشد.
+۳. داور خارج از حدود اختیارات خود مبادرت به صدور رأی نموده باشد.
+۴. رأی داور پس از انقضای مدت داوری صادر و تسلیم شده باشد.
+۵. رأی داور با اسناد رسمی یا مندرجات دفتر املاک در تضاد باشد.
+۶. رأی به غیر از طرفین دعوا یا به ضرر شخص ثالث بدون حضور وی صادر شده باشد.
+۷. قرارداد داوری بی‌اعتبار یا باطل بوده باشد.`,
+    category: 'داوری بین‌المللی',
+    tags: ['ابطال رأی داور', 'داوری تجاری', 'آیین دادرسی مدنی', 'دادگاه تجدیدنظر'],
+    readTime: '۷ دقیقه مطالعه',
+    date: '۵ تیر ۱۴۰۳',
+    thumbnail: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=800',
+    views: 1890
+  },
+  {
+    id: 'art-5',
+    title: 'مسئولیت کیفری و مدنی مدیران شرکت‌های تجاری در برابر سهامداران و اشخاص ثالث',
+    slug: 'directors-liability-commercial-companies',
+    summary: 'بررسی مواد ۱۴۲ و ۱۴۳ لایحه قانونی اصلاح قسمتی از قانون تجارت و تبیین مسئولیت تضامنی هیئت مدیره.',
+    content: `مدیران شرکت‌های سهامی، امین شرکت محسوب می‌شوند و در صورت تخطی از اساسنامه، تصمیمات مجامع عمومی یا مقررات قانونی، نه تنها در برابر شرکت بلکه در برابر تک‌تک سهامداران و بستانکاران دارای مسئولیت انفرادی یا مشترک هستند.
+
+مصادیق بارز مسئولیت مدیران:
+- تقسیم منافع موهوم یا غیرواقعی بدون ترازنامه مصوب.
+- سوءاستفاده از اموال و اعتبارات شرکت به نفع شخصی (خیانت در امانت).
+- انجام معاملات رقیب با شرکت بدون اخذ مجوز ماده ۱۲۹ قانون تجارت.
+- عدم ارائه به موقع صورت‌های مالی و دعوت از مجامع سالیانه.`,
+    category: 'دعاوی تجاری',
+    tags: ['شرکت‌های تجاری', 'مسئولیت مدیران', 'قانون تجارت', 'دعاوی سهامداران'],
+    readTime: '۹ دقیقه مطالعه',
+    date: '۲۰ خرداد ۱۴۰۳',
+    thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800',
+    views: 2750
+  },
+  {
+    id: 'art-6',
+    title: 'اصول تنظیم قراردادهای عدم افشای اطلاعات محرمانه (NDA) در شرکت‌های دانش‌بنیان',
+    slug: 'nda-contract-guidelines-startups',
+    summary: 'چگونه از فرمول‌ها، کدهای برنامه‌نویسی و استراتژی‌های تجاری در جریان مذاکرات سرمایه‌گذاری صیانت کنیم؟',
+    content: `در دنیای فناوری اطلاعات و شرکت‌های استارتاپی، اطلاعات محرمانه ارزشمندترین دارایی نامشهود هستند. یک قرارداد NDA یک‌جانبه یا دوجانبه اصولی، ریسک افشای کدهای منبع یا داده‌های مشتریان را به حداقل می‌رساند.
+
+بخش‌های کلیدی یک قرارداد NDA استاندارد:
+۱. تعریف جامع و دقیق اطلاعات محرمانه با ذکر مصادیق و استثنائات (مانند اطلاعات موجود در قلمرو عمومی).
+۲. تعیین طول مدت محرمانگی (معمولاً ۲ تا ۵ سال پس از خاتمه مذاکرات).
+۳. تعیین وجه التزام و خسارت تخلف از عدم افشا به صورت مقطوع.
+۴. تعیین مرجع داوری تخصصی در حوزه فناوری اطلاعات جهت حل فوری اختلافات.`,
+    category: 'استارتاپ‌ها و قراردادها',
+    tags: ['قرارداد NDA', 'مالکیت فکری', 'استارتاپ', 'اسرار تجاری'],
+    readTime: '۴ دقیقه مطالعه',
+    date: '۲ خرداد ۱۴۰۳',
+    thumbnail: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=800',
+    views: 4120
   }
 ];
 
@@ -686,3 +757,292 @@ export const ELEMENTOR_BLOCKS_DATA: ElementorBlockDef[] = [
     ]
   }
 ];
+
+export const PRACTICE_AREAS_DATA: PracticeArea[] = [
+  {
+    id: 'pa-1',
+    title: 'دعاوی ملکی، ثبتی و سرقفلی',
+    slug: 'real-estate',
+    icon: 'Building2',
+    description: 'الزام به تنظیم سند، خلع ید، افراز و دستور فروش، پیش‌فروش و سرقفلی',
+    caseCount: 420,
+    badge: 'بیشترین تقاضا'
+  },
+  {
+    id: 'pa-2',
+    title: 'دعاوی تجاری، شرکت‌ها و ورشکستگی',
+    slug: 'corporate-law',
+    icon: 'Briefcase',
+    description: 'تنظیم قراردادهای سهامداری، وصول مطالبات، چک، اسناد تجاری و انحلال',
+    caseCount: 310,
+    badge: 'تخصصی'
+  },
+  {
+    id: 'pa-3',
+    title: 'دعاوی کیفری، کلاهبرداری و اقتصادی',
+    slug: 'criminal-defense',
+    icon: 'ShieldAlert',
+    description: 'جرایم اقتصادی، اختلاس، خیانت در امانت، کلاهبرداری اینترنتی و تعزیرات',
+    caseCount: 285
+  },
+  {
+    id: 'pa-4',
+    title: 'حقوق خانواده، مهریه و ارث',
+    slug: 'family-inheritance',
+    icon: 'Users',
+    description: 'طلاق توافقی، حضانت، تقسیم ترکه، وصیت، تحریر ماترک و نفقه‌',
+    caseCount: 390
+  },
+  {
+    id: 'pa-5',
+    title: 'داوری بین‌المللی و بازرگانی',
+    slug: 'international-arbitration',
+    icon: 'Globe2',
+    description: 'حل اختلافات قراردادهای صادرات/واردات، اینکوترمز و داوری اتاق بازرگانی',
+    caseCount: 95,
+    badge: 'بین‌المللی'
+  },
+  {
+    id: 'pa-6',
+    title: 'استارتاپ‌ها، مالکیت فکری و NDA',
+    slug: 'startups-ip',
+    icon: 'FileCode2',
+    description: 'قراردادهای هم‌بنیان‌گذاران، جذب سرمایه، علائم تجاری و کپی‌رایت',
+    caseCount: 140
+  },
+  {
+    id: 'pa-7',
+    title: 'دعاوی کار، تأمین اجتماعی و دیوان',
+    slug: 'labor-administrative',
+    icon: 'Scale',
+    description: 'اختلافات کارگری/کارفرمایی، بیمه، سنوات و ابطال مصوبات در دیوان عدالت',
+    caseCount: 180
+  },
+  {
+    id: 'pa-8',
+    title: 'تنظیم، بازبینی و نظارت بر قراردادها',
+    slug: 'contract-drafting',
+    icon: 'FileSignature',
+    description: 'تنظیم جامع انواع قراردادهای مدنی، بانکی، پیمانکاری و بین‌المللی',
+    caseCount: 520,
+    badge: 'خدمت فوری'
+  }
+];
+
+export const VIDEOS_DATA: VideoItem[] = [
+  {
+    id: 'vid-1',
+    title: 'وبینار تخصصی: راهنمای گام‌به‌گام پیگیری و صدور اجراییه چک صیادی در دادگاه',
+    slug: 'sayad-check-legal-webinar',
+    summary: 'بررسی جامع ماده ۲۳ قانون صدور چک، نحوه درخواست صدور اجراییه مستقیم و ترفندهای توقیف فوری حساب‌های بانکی.',
+    category: 'دعاوی تجاری',
+    duration: '۲۴:۱۵',
+    date: '۱۲ مرداد ۱۴۰۳',
+    thumbnail: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=1000',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    views: 4890,
+    tags: ['چک صیادی', 'اجراییه دادگاه', 'توقیف حساب', 'دعاوی تجاری'],
+    presenter: 'دکتر سیده مریم رضوی',
+    presenterRole: 'وکیل پایه یک دادگستری و مدرس دانشگاه',
+    description: 'در این کارگاه آموزشی ویدئویی، سرکار خانم دکتر سیده مریم رضوی به تحلیل موشکافانه مقررات جدید چک صیادی پرداخته و مسیرهای میان‌بر قانونی جهت وصول مطالبات تجاری بدون نیاز به دادرسی طولانی را آموزش می‌دهند.',
+    chapters: [
+      { time: '۰۰:۰۰', seconds: 0, title: 'مقدمه و تغییرات بنیادین قانون جدید صدور چک' },
+      { time: '۰۴:۲۰', seconds: 260, title: 'شرایط صدور گواهی عدم پرداخت با کد رهگیری' },
+      { time: '۰۹:۱۵', seconds: 555, title: 'نحوه ثبت دادخواست صدور اجراییه در دفاتر خدمات قضایی' },
+      { time: '۱۵:۳۰', seconds: 930, title: 'استعلام همزمان اموال و توقیف دارایی‌ها در سامانه سهام و حساب‌ها' },
+      { time: '۲۱:۰۰', seconds: 1260, title: 'پاسخ به سوالات متداول شرکت‌کنندگان' }
+    ],
+    transcript: 'بسم الله الرحمن الرحیم. با سلام خدمت همراهان گرامی مؤسسه حقوقی SedRazavi. در این جلسه ویدئویی، پیرامون مهم‌ترین ابزار مالی بازرگانان یعنی چک صیادی صحبت می‌کنیم. طبق اصلاحات جدید قانون چک، اگر چک در سامانه صیاد ثبت نشده باشد، سند عادی تلقی شده و از امتیازات اسناد تجاری محروم است...'
+  },
+  {
+    id: 'vid-2',
+    title: 'کارگاه آموزشی: نکات طلایی قراردادهای مشارکت در ساخت و پیش‌فروش آپارتمان',
+    slug: 'construction-partnership-guide',
+    summary: 'تحلیل ریسک‌های حقوقی مالکین زمین و سازندگان، تعیین خسارت دیرکرد، تضمین‌های بانکی و شرایط فسخ قرارداد.',
+    category: 'دعاوی ملکی',
+    duration: '۳۱:۴۰',
+    date: '۲ مرداد ۱۴۰۳',
+    thumbnail: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    views: 6120,
+    tags: ['مشارکت در ساخت', 'پیش‌فروش', 'الزام به سند', 'حقوق املاک'],
+    presenter: 'دکتر سیده مریم رضوی',
+    presenterRole: 'وکیل پایه یک دادگستری',
+    description: 'قراردادهای مشارکت در ساخت همواره آبستن بیشترین دعاوی ملکی هستند. در این ویدیوی آموزشی، ۵ شرط حیاتی که مانع از مصادره یا بن‌بست پروژه‌های ساختمانی می‌شود مورد بررسی قرار گرفته است.',
+    chapters: [
+      { time: '۰۰:۰۰', seconds: 0, title: 'مقدمه و اهمیت پیش‌نویس اصولی قرارداد مشارکت' },
+      { time: '۰۶:۱۵', seconds: 375, title: 'فرمول تعیین قدرالسهم و تقسیم طبقات' },
+      { time: '۱۴:۴۰', seconds: 880, title: 'شرط داوری تخصصی در قرارداد مشارکت' },
+      { time: '۲۳:۱۰', seconds: 1390, title: 'نحوه انتقال سند به نام سازنده به نسبت پیشرفت فیزیکی' }
+    ],
+    transcript: 'سلام بر همه مخاطبان گرامی. مشارکت در ساخت یکی از پرسودترین و در عین حال پرریسک‌ترین عقود نامعین است. اولین نکته‌ای که مالکین محترم باید مدنظر داشته باشند، عدم تفویض وکالت بلاعزل فروش به سازنده قبل از رسیدن پروژه به مرحله سفت‌کاری است...'
+  },
+  {
+    id: 'vid-3',
+    title: 'جلسه تخصصی: نحوه اثبات کلاهبرداری رایانه‌ای و دفاع در دادسرای جرایم اقتصادی',
+    slug: 'cybercrime-defense-strategies',
+    summary: 'بررسی ردپای دیجیتال، مستندسازی تراکنش‌های مالی مشکوک، استعلام IP و اخذ دستور توقیف در پلیس فتا.',
+    category: 'حقوق کیفری',
+    duration: '۱۹:۱۰',
+    date: '۲۰ تیر ۱۴۰۳',
+    thumbnail: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=1000',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    views: 3290,
+    tags: ['جرایم رایانه‌ای', 'پلیس فتا', 'دادسرا', 'دفاع کیفری'],
+    presenter: 'دکتر سیده مریم رضوی',
+    presenterRole: 'وکیل دعاوی کیفری و اقتصادی',
+    description: 'تحلیل راهکارهای اثبات ادعا و تنظیم شکواییه تأثیرگذار در پرونده‌های جرایم سایبری، پولشویی و فیشینگ بانکی.',
+    chapters: [
+      { time: '۰۰:۰۰', seconds: 0, title: 'ماهیت ادله الکترونیکی در قانون مجازات اسلامی' },
+      { time: '۰۵:۳۰', seconds: 330, title: 'اقدامات ۲۴ ساعت نخست پس از وقوع فیشینگ' },
+      { time: '۱۲:۴۵', seconds: 765, title: 'شناسایی و احضار متهمین در شعب ویژه دادسرا' }
+    ]
+  },
+  {
+    id: 'vid-4',
+    title: 'داوری تجاری بین‌المللی: مزایا، شروط داوری و نحوه اجرای آراء در ایران',
+    slug: 'international-commercial-arbitration-guide',
+    summary: 'چرا تجار و شرکت‌های خارجی داوری را به دادگاه ترجیح می‌دهند؟ بررسی کنوانسیون نیویورک و اتاق بازرگانی.',
+    category: 'داوری بین‌المللی',
+    duration: '۲۷:۵۰',
+    date: '۲۸ خرداد ۱۴۰۳',
+    thumbnail: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=1000',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    views: 2450,
+    tags: ['داوری بین‌المللی', 'اتاق بازرگانی', 'کنوانسیون نیویورک', 'قرارداد تجاری'],
+    presenter: 'دکتر سیده مریم رضوی',
+    presenterRole: 'داور ارشد مرکز داوری اتاق بازرگانی',
+    description: 'بررسی تخصصی سازوکار حل اختلاف در قراردادهای بین‌المللی و نحوه نگارش شرط داوری صحیح (Arbitration Clause).'
+  },
+  {
+    id: 'vid-5',
+    title: 'حقوق خانواده: نحوه محاسبه و مطالبه نحله، اجرت‌المثل و تنصیف دارایی',
+    slug: 'family-rights-assets-division',
+    summary: 'بررسی حقوق مالی زوجه در زمان طلاق، شروط ضمن عقد نکاح و نحوه تعیین ارزش دارایی‌های زوج.',
+    category: 'حقوق خانواده',
+    duration: '۲۱:۱۵',
+    date: '۱۵ خرداد ۱۴۰۳',
+    thumbnail: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=1000',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+    views: 5310,
+    tags: ['حقوق خانواده', 'اجرت‌المثل', 'تنصیف دارایی', 'مهریه'],
+    presenter: 'دکتر سیده مریم رضوی',
+    presenterRole: 'وکیل پایه یک دادگستری',
+    description: 'آموزش شرایط قانونی تنصیف دارایی‌های حاصل از زندگی مشترک و رویه قضایی دادگاه‌های تجدیدنظر استان تهران.'
+  },
+  {
+    id: 'vid-6',
+    title: 'حقوق استارتاپ‌ها: تنظیم قراردادهای سهامداری (SHA) و اعطای اختیار سهام (Vesting)',
+    slug: 'startup-sha-vesting-agreements',
+    summary: 'چگونه از خروج زودهنگام هم‌بنیان‌گذاران و تضییع سهام شرکت نوپا با قرارداد وستینگ جلوگیری کنیم؟',
+    category: 'استارتاپ‌ها و قراردادها',
+    duration: '۲۵:۰۰',
+    date: '۱ خرداد ۱۴۰۳',
+    thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=1000',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4',
+    views: 3880,
+    tags: ['استارتاپ', 'قرارداد سهامداری', 'Vesting', 'قرارداد سرمایه‌گذاری'],
+    presenter: 'دکتر سیده مریم رضوی',
+    presenterRole: 'مشاور حقوقی شرکت‌های دانش‌بنیان',
+    description: 'راهنمای حقوقی کارآفرینان و مدیران استارتاپ‌ها جهت محافظت از دارایی‌های نامشهود و سهام شرکت.'
+  }
+];
+
+export const COMMENTS_INITIAL_DATA: CommentItem[] = [
+  {
+    id: 'comm-1',
+    author: 'دکتر مسعود انصاری',
+    authorEmail: 'ansari.law@gmail.com',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150',
+    content: 'ضمن تشکر از تحلیل بسیار دقیق سرکار خانم دکتر رضوی درباره ماده ۲۳ قانون صدور چک، سوالی داشتم: آیا در صورت فوت صادرکننده چک قبل از صدور اجراییه، امکان صدور مستقیم اجراییه علیه وراث در دایره اجرای احکام مدنی دادگاه وجود دارد یا باید حتماً دادخواست مطالبه وجه به طرفیت وراث اقامه شود؟',
+    date: '۱۴۰۳/۰۵/۱۴ - ساعت ۱۱:۳۰',
+    postTitle: 'راهنمای گام‌به‌گام پیگیری و صدور اجراییه چک صیادی در دادگاه',
+    postType: 'video',
+    postId: 'vid-1',
+    status: 'approved',
+    rating: 5,
+    likes: 18,
+    replies: [
+      {
+        id: 'comm-1-rep',
+        author: 'دکتر سیده مریم رضوی (پاسخ وکیل)',
+        authorEmail: 'info@sedrazavi.law',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150',
+        content: 'درود بر شما جناب دکتر انصاری گرامی. با توجه به رأی وحدت رویه و ماهیت قائم‌مقامی عام وراث، در صورتی که گواهی حصر وراثت اخذ شده باشد، اجراییه مستقیماً علیه ماترک متوفی در ید وراث صادر می‌شود و نیازی به اقامه دعوای ماهوی مجدد نیست؛ مشروط بر اینکه وراث ترکه را رد نکرده باشند.',
+        date: '۱۴۰۳/۰۵/۱۴ - ساعت ۱۴:۱۵',
+        postTitle: 'راهنمای گام‌به‌گام پیگیری و صدور اجراییه چک صیادی در دادگاه',
+        postType: 'video',
+        postId: 'vid-1',
+        status: 'approved',
+        likes: 12,
+        parentCommentId: 'comm-1'
+      }
+    ]
+  },
+  {
+    id: 'comm-2',
+    author: 'مهندس سهراب پناهی',
+    authorEmail: 's.panahi.eng@yahoo.com',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150',
+    content: 'در قرارداد مشارکت در ساخت ما، سازنده پس از ۶ ماه از تاریخ مقرر هنوز پروانه ساختمانی را اخذ نکرده است. آیا بدون ارسال اظهارنامه رسمی می‌توانیم از حق فسخ مندرج در قرارداد استفاده کنیم؟',
+    date: '۱۴۰۳/۰۵/۱۲ - ساعت ۰۹:۴۵',
+    postTitle: 'تفاوت‌های حقوقی بنیادین میان عقد بیع، صلح‌نامه و مبایعه‌نامه عادی',
+    postType: 'article',
+    postId: 'art-2',
+    status: 'approved',
+    rating: 5,
+    likes: 8
+  },
+  {
+    id: 'comm-3',
+    author: 'خانم مهسا کمالی',
+    authorEmail: 'mahsa.kamali98@gmail.com',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150',
+    content: 'آیا برای مطالبه اجرت‌المثل ایام زوجیت در صورتی که زوج فوت کرده باشد، می‌توان علیه سایر ورثه از محل ترکه دادخواست داد؟ ممنون از وب‌سایت غنی و کاربردی شما.',
+    date: '۱۴۰۳/۰۵/۱۰ - ساعت ۱۶:۲۰',
+    postTitle: 'راهکارهای حقوقی و فرآیند قانونی مطالبه اجرت‌المثل ایام زوجیت',
+    postType: 'article',
+    postId: 'art-3',
+    status: 'pending',
+    rating: 4,
+    likes: 3
+  },
+  {
+    id: 'comm-4',
+    author: 'علی نوری‌پور (صاحب کسب‌وکار)',
+    authorEmail: 'nooripour.trading@gmail.com',
+    content: 'جهت رزرو وقت مشاوره حضوری در رابطه با پرونده مالیاتی شرکت در کمیسیون ماده ۲۱۶، آیا مدارک را قبل از جلسه باید ایمیل کنیم یا در جلسه اول تحویل دهیم؟',
+    date: '۱۴۰۳/۰۵/۰۸ - ساعت ۱۹:۱۰',
+    postTitle: 'دعاوی تجاری و قراردادهای بازرگانی',
+    postType: 'service',
+    postId: 'srv-1',
+    status: 'approved',
+    rating: 5,
+    likes: 6
+  },
+  {
+    id: 'comm-5',
+    author: 'ربات تبلیغاتی ارز دیجیتال',
+    authorEmail: 'crypto_pump_2024@spammail.com',
+    content: 'Buy crypto fast! Best bitcoin signals and pump channels at cheap prices. Visit http://cryptospam.xyz for 500% profit daily!',
+    date: '۱۴۰۳/۰۵/۰۵ - ساعت ۰۳:۱۵',
+    postTitle: 'راهنمای جامع اثبات ادعای کلاهبرداری اینترنتی',
+    postType: 'article',
+    postId: 'art-1',
+    status: 'spam',
+    likes: 0
+  },
+  {
+    id: 'comm-6',
+    author: 'پیام تست حذف شده',
+    authorEmail: 'test.user@dummy.com',
+    content: 'این یک کامنت تستی است که به سطل زباله منتقل شده است.',
+    date: '۱۴۰۳/۰۵/۰۱ - ساعت ۱۰:۰۰',
+    postTitle: 'وبینار چک صیادی',
+    postType: 'video',
+    postId: 'vid-1',
+    status: 'trash',
+    likes: 0
+  }
+];
+

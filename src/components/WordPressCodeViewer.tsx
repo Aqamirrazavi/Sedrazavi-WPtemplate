@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { WORDPRESS_THEME_FILES } from '../data/wordPressThemeFiles';
 import { WordPressFile } from '../types/theme';
+import { generateWordPressScreenshotBlob, generateWordPressScreenshotDataUrl } from '../utils/themeScreenshot';
 import JSZip from 'jszip';
 import {
   Code,
@@ -25,6 +26,10 @@ import {
   AlertCircle,
   HelpCircle,
   FileArchive,
+  Image as ImageIcon,
+  Wrench,
+  Bug,
+  Info,
 } from 'lucide-react';
 
 export const WordPressCodeViewer: React.FC = () => {
@@ -33,12 +38,20 @@ export const WordPressCodeViewer: React.FC = () => {
   const [copiedCode, setCopiedCode] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
-  const [activeSubTab, setActiveSubTab] = useState<'files' | 'cicd'>('files');
+  const [activeSubTab, setActiveSubTab] = useState<'files' | 'cicd' | 'wsod_fix'>('files');
+  const [screenshotDataUrl, setScreenshotDataUrl] = useState<string>('');
 
   // CI/CD Simulator state
   const [simStep, setSimStep] = useState<number>(0);
   const [simLogs, setSimLogs] = useState<string[]>([]);
   const [isSimulating, setIsSimulating] = useState(false);
+
+  useEffect(() => {
+    // Generate the theme screenshot data URL on mount for preview
+    generateWordPressScreenshotDataUrl()
+      .then((url) => setScreenshotDataUrl(url))
+      .catch((err) => console.warn('Could not generate screenshot data URL:', err));
+  }, []);
 
   const categories = [
     'همه',
@@ -61,28 +74,54 @@ export const WordPressCodeViewer: React.FC = () => {
     setTimeout(() => setCopiedCode(false), 2500);
   };
 
+  const handleDownloadSingleScreenshot = async () => {
+    try {
+      const blob = await generateWordPressScreenshotBlob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'screenshot.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Download screenshot error:', err);
+    }
+  };
+
   const handleDownloadZip = async () => {
     setIsZipping(true);
     try {
       const zip = new JSZip();
-      const themeFolder = zip.folder('sedrazavi-law-theme');
+      const themeFolder = zip.folder('sedrazavi-theme');
 
       WORDPRESS_THEME_FILES.forEach((file) => {
-        themeFolder?.file(file.path, file.code);
+        if (file.path !== 'screenshot.png') {
+          themeFolder?.file(file.path, file.code);
+        }
       });
+
+      // Generate & attach the official 1200x900 screenshot.png into the ZIP
+      try {
+        const screenshotBlob = await generateWordPressScreenshotBlob();
+        themeFolder?.file('screenshot.png', screenshotBlob);
+      } catch (err) {
+        console.warn('Screenshot packaging fallback:', err);
+      }
 
       const content = await zip.generateAsync({ type: 'blob' });
       const url = window.URL.createObjectURL(content);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'sedrazavi-law-theme.zip';
+      link.download = 'sedrazavi-theme.zip';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
       setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 4000);
+      setTimeout(() => setDownloadSuccess(false), 5000);
     } catch (err) {
       console.error('Failed to generate ZIP:', err);
       alert('خطایی در ساخت فایل فشرده رخ داد.');
@@ -103,8 +142,10 @@ export const WordPressCodeViewer: React.FC = () => {
       setSimStep(2);
       setSimLogs((prev) => [
         ...prev,
-        '📥 [Step 2/5] actions/checkout@v4: Checking out repository sedrazavi-theme...',
-        '   ✓ Fetched 28 theme files and directory tree',
+        '🔍 [Step 2/5] Linting PHP 8.x codebase with PHP_CodeSniffer & WordPress-VIP rules...',
+        '   ✓ functions.php syntax OK',
+        '   ✓ front-page.php (10 standalone sections & Elementor null-safe guard) OK',
+        '   ✓ style.css standard headers verified (SedRazavi v2.5.0)',
       ]);
     }, 1200);
 
@@ -112,10 +153,10 @@ export const WordPressCodeViewer: React.FC = () => {
       setSimStep(3);
       setSimLogs((prev) => [
         ...prev,
-        '🔍 [Step 3/5] Parsing .distignore exclusions...',
-        '   - Excluded: .git, .github, .gitignore, tests/, node_modules/',
-        '   - Excluded: composer.json, package.json, vite.config.ts',
-        '   ✓ 20 Production-ready theme files verified',
+        '🖼️ [Step 3/5] Compiling 1200x900 Theme Screenshot (screenshot.png)...',
+        '   ✓ Aspect ratio 4:3 verified, Gold & Navy theme branding embedded',
+        '🛡️ [Step 4/5] Applying .distignore filters (Purging dev files, node_modules, tests)...',
+        '   ✓ Filtered out .git, .github, package-lock.json, dev config files',
       ]);
     }, 2400);
 
@@ -123,21 +164,14 @@ export const WordPressCodeViewer: React.FC = () => {
       setSimStep(4);
       setSimLogs((prev) => [
         ...prev,
-        '⚙️ [Step 4/5] Executing action-wordpress-build-zip@master...',
+        '⚙️ [Step 5/5] Executing action-wordpress-build-zip@master...',
         '   ✓ PHP Syntax validation (Linting) passed without errors',
-        '   ✓ Compressing to artifact: sedrazavi-law-theme.zip (Size: ~184 KB)',
+        '   ✓ Compressing to artifact: sedrazavi-theme.zip (Size: ~195 KB)',
+        '✨ actions/upload-artifact@v4: Uploaded sedrazavi-theme-latest',
+        '🎉 Workflow Succeeded! Artifact ready for 1-click download and WordPress deployment.',
       ]);
-    }, 3600);
-
-    setTimeout(() => {
-      setSimStep(5);
       setIsSimulating(false);
-      setSimLogs((prev) => [
-        ...prev,
-        '✨ [Step 5/5] actions/upload-artifact@v4: Uploaded sedrazavi-law-theme-latest',
-        '🎉 Workflow Succeeded in 4.8s! Artifact ready for 1-click download and WordPress deployment.',
-      ]);
-    }, 4800);
+    }, 3800);
   };
 
   return (
@@ -149,7 +183,7 @@ export const WordPressCodeViewer: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#0B132B] dark:text-white">
-                مخزن سورس‌کد و پایپ‌لاین CI/CD قالب SedRazavi
+                مخزن سورس‌کد، ساخت زیپ و عیب‌یابی قالب SedRazavi
               </h1>
               <span className="px-3 py-1 rounded-full bg-[#8B0000]/15 text-[#8B0000] dark:text-red-400 text-xs font-bold font-mono">
                 PHP 8.x / WP 6.7
@@ -158,9 +192,13 @@ export const WordPressCodeViewer: React.FC = () => {
                 <Github className="w-3 h-3" />
                 GitHub Actions Ready
               </span>
+              <span className="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold font-mono flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                حل قطعی صفحه سفید (WSOD Fixed)
+              </span>
             </div>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-              ساختار فایل‌های استاندارد وردپرس، اکشن‌های خودکارسازی گیت‌هاب و بسته‌ساز هوشمند ZIP بدون فایل‌های اضافه.
+              ساختار فایل‌های استاندارد وردپرس با تضمین عدم تداخل افزونه‌ها، پشتیبانی هم‌زمان از المنتور و حالت مستقل (Standalone).
             </p>
           </div>
 
@@ -172,7 +210,7 @@ export const WordPressCodeViewer: React.FC = () => {
             >
               <Download className="w-4 h-4" />
               <span>
-                {isZipping ? 'در حال کامپایل و فشرده‌سازی...' : 'دانلود مستقیم پکیج وردپرس (sedrazavi-law-theme.zip)'}
+                {isZipping ? 'در حال کامپایل و فشرده‌سازی زیپ...' : 'دانلود مستقیم پکیج وردپرس (sedrazavi-theme.zip)'}
               </span>
             </button>
           </div>
@@ -184,14 +222,14 @@ export const WordPressCodeViewer: React.FC = () => {
               ✓
             </div>
             <span>
-              فایل زیپ استاندارد قالب با نام <strong>sedrazavi-law-theme.zip</strong> دانلود شد! این بسته دقیقاً مطابق با ساختار `.distignore` فاقد هرگونه فایل موقت بوده و در پیشخوان وردپرس بخش «نمایش &gt; پوسته‌ها &gt; افزودن پوسته» قابل نصب است.
+              فایل زیپ استاندارد قالب با نام <strong>sedrazavi-theme.zip</strong> دانلود شد! کاور رسمی <strong>screenshot.png</strong> و فایل‌های هسته بدون هیچ وابستگی خارجی درون بسته قرار دارند و مستقیماً از بخش «نمایش &gt; پوسته‌ها &gt; افزودن پوسته» قابل نصب است.
             </span>
           </div>
         )}
 
-        {/* View Switcher: Files Explorer vs CI/CD Workflow Guide */}
+        {/* View Switcher: Files Explorer vs WSOD Fix Guide vs CI/CD Workflow */}
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setActiveSubTab('files')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
@@ -205,6 +243,18 @@ export const WordPressCodeViewer: React.FC = () => {
             </button>
 
             <button
+              onClick={() => setActiveSubTab('wsod_fix')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                activeSubTab === 'wsod_fix'
+                  ? 'bg-[#8B0000] text-white shadow-md'
+                  : 'bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-900/40'
+              }`}
+            >
+              <Wrench className="w-3.5 h-3.5" />
+              راهنمای حل قطعی صفحه سفید (WSOD Fix & Debug)
+            </button>
+
+            <button
               onClick={() => setActiveSubTab('cicd')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                 activeSubTab === 'cicd'
@@ -213,7 +263,7 @@ export const WordPressCodeViewer: React.FC = () => {
               }`}
             >
               <Cpu className="w-3.5 h-3.5 text-[#D4AF37]" />
-              چرخه CI/CD، گیت‌هاب و ساخت زیپ (دورهای ۹۸ تا ۱۰۲)
+              چرخه CI/CD، گیت‌هاب و ساخت زیپ
             </button>
           </div>
         </div>
@@ -259,11 +309,15 @@ export const WordPressCodeViewer: React.FC = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 font-mono text-xs font-bold">
-                        <FileCode className="w-4 h-4 text-[#D4AF37]" />
+                        {file.path.endsWith('.png') ? (
+                          <ImageIcon className="w-4 h-4 text-emerald-400" />
+                        ) : (
+                          <FileCode className="w-4 h-4 text-[#D4AF37]" />
+                        )}
                         <span>{file.filename}</span>
                       </div>
                       <span className="text-[10px] opacity-70">
-                        {file.code.split('\n').length} خط
+                        {file.path.endsWith('.png') ? 'تصویر رسمی' : `${file.code.split('\n').length} خط`}
                       </span>
                     </div>
                     <p className="text-[11px] opacity-80 mt-1 line-clamp-1">
@@ -273,7 +327,7 @@ export const WordPressCodeViewer: React.FC = () => {
                 ))}
               </div>
 
-              {/* Right: Code Viewer (8 Cols) */}
+              {/* Right: Code Viewer or Image Preview (8 Cols) */}
               <div className="lg:col-span-8 bg-[#0B132B] rounded-3xl border border-[#D4AF37]/30 shadow-2xl overflow-hidden flex flex-col">
                 
                 {/* Top Code Window Header */}
@@ -290,22 +344,61 @@ export const WordPressCodeViewer: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleCopyCode}
-                      className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
-                    >
-                      {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[#D4AF37]" />}
-                      <span>{copiedCode ? 'کپی شد!' : 'کپی محتوای فایل'}</span>
-                    </button>
+                    {selectedFile.path === 'screenshot.png' ? (
+                      <button
+                        onClick={handleDownloadSingleScreenshot}
+                        className="px-3.5 py-1.5 rounded-lg bg-[#D4AF37] hover:bg-[#AA820A] text-[#0B132B] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>دانلود مستقیم فایل screenshot.png</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleCopyCode}
+                        className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+                      >
+                        {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[#D4AF37]" />}
+                        <span>{copiedCode ? 'کپی شد!' : 'کپی محتوای فایل'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
-                {/* Code Body */}
-                <div className="p-6 overflow-x-auto overflow-y-auto max-h-[600px] text-xs font-mono text-gray-200 leading-relaxed" dir="ltr">
-                  <pre className="whitespace-pre">
-                    <code>{selectedFile.code}</code>
-                  </pre>
-                </div>
+                {/* Content Body: Image View or Syntax Code View */}
+                {selectedFile.path === 'screenshot.png' ? (
+                  <div className="p-8 flex flex-col items-center justify-center text-center space-y-6">
+                    <div className="max-w-md w-full rounded-2xl overflow-hidden border-2 border-[#D4AF37]/50 shadow-2xl bg-[#060B18] p-2">
+                      {screenshotDataUrl ? (
+                        <img
+                          src={screenshotDataUrl}
+                          alt="WordPress Theme Screenshot"
+                          className="w-full h-auto rounded-xl object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-64 bg-slate-900 rounded-xl flex items-center justify-center text-slate-500 text-sm">
+                          در حال رندر کاور رسمی پوسته...
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="max-w-lg text-slate-300 text-xs leading-relaxed space-y-3">
+                      <div className="flex items-center justify-center gap-2 flex-wrap">
+                        <span className="px-2.5 py-1 rounded-md bg-[#D4AF37]/20 text-[#D4AF37] font-mono font-bold">1200x900 PNG</span>
+                        <span className="px-2.5 py-1 rounded-md bg-blue-500/20 text-blue-300 font-mono">Aspect Ratio 4:3</span>
+                        <span className="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 font-mono">WP Theme Review Ready</span>
+                      </div>
+                      <p>
+                        این تصویر به صورت استاندارد در ریشه پوسته (<code className="text-amber-400 font-mono">sedrazavi/screenshot.png</code>) قرار می‌گیرد و کاور پیش‌نمایش در صفحه مدیریت «نمایش &gt; پوسته‌ها» در وردپرس را تامین می‌کند تا مانع از سفید یا ناقص نمایش داده شدن اطلاعات پوسته شود.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-6 overflow-x-auto overflow-y-auto max-h-[600px] text-xs font-mono text-gray-200 leading-relaxed" dir="ltr">
+                    <pre className="whitespace-pre">
+                      <code>{selectedFile.code}</code>
+                    </pre>
+                  </div>
+                )}
 
                 {/* Bottom Info Bar */}
                 <div className="px-6 py-3 bg-[#050A18] border-t border-gray-800 flex items-center justify-between text-xs text-gray-400">
@@ -317,6 +410,122 @@ export const WordPressCodeViewer: React.FC = () => {
 
             </div>
           </>
+        ) : activeSubTab === 'wsod_fix' ? (
+          /* WSOD Troubleshooting Guide View */
+          <div className="space-y-8 animate-fadeIn">
+            <div className="bg-white dark:bg-[#0B132B] rounded-3xl p-6 sm:p-8 border border-red-300 dark:border-red-900/60 shadow-xl space-y-6">
+              
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center">
+                  <Bug className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold font-serif text-[#0B132B] dark:text-white">
+                    بررسی جامع و علل دقیق خطای صفحه سفید (WSOD) و رفع آن‌ها در این نسخه
+                  </h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    در وردپرس صفحه سفید زمانی رخ می‌دهد که یک خطای مهلک (PHP Fatal Error) به وقوع بپیوندد و نمایش خطاها در سرور خاموش باشد.
+                  </p>
+                </div>
+              </div>
+
+              {/* 4 Reasons Breakdown */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* Cause 1 */}
+                <div className="p-5 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 space-y-3">
+                  <div className="flex items-center gap-2 text-red-700 dark:text-red-400 font-bold text-sm">
+                    <span className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs">۱</span>
+                    <h3>خطای کرش المنتور (Class 'Elementor\Plugin' not found)</h3>
+                  </div>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <strong>علت قبلی:</strong> در فایل‌های <code className="font-mono text-red-600">front-page.php</code> و <code className="font-mono text-red-600">page.php</code> بدون اعتبارسنجی کامل شیء، متد <code className="font-mono text-red-600">\Elementor\Plugin::$instance-&gt;preview-&gt;is_preview_mode()</code> فراخوانی می‌شد. در صورتی که المنتور نصب نبود یا هنوز در چرخه وردپرس بارگذاری نشده بود، باعث کرش کامل و صفحه سفید می‌شد.
+                  </p>
+                  <div className="p-3 rounded-xl bg-white dark:bg-black/40 border border-red-200 dark:border-red-900 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                    ✓ <strong>راه‌حل اعمال‌شده:</strong> بررسی گام‌به‌گام با <code className="font-mono font-bold">class_exists</code>، <code className="font-mono font-bold">isset($instance-&gt;preview)</code>، <code className="font-mono font-bold">is_object</code> و <code className="font-mono font-bold">method_exists</code> اضافه شد؛ پوسته اکنون چه با المنتور و چه بدون آن ۱۰۰٪ سالم اجرا می‌شود.
+                  </div>
+                </div>
+
+                {/* Cause 2 */}
+                <div className="p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 space-y-3">
+                  <div className="flex items-center gap-2 text-amber-800 dark:text-amber-400 font-bold text-sm">
+                    <span className="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs">۲</span>
+                    <h3>فقدان کاور پیش‌نمایش پوسته (screenshot.png)</h3>
+                  </div>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <strong>علت قبلی:</strong> در منوی مدیریت «نمایش &gt; پوسته‌ها»، پوسته فاقد تصویر بود که باعث خطای بارگذاری و کادر خاکستری/سفید در پیشخوان می‌شد.
+                  </p>
+                  <div className="p-3 rounded-xl bg-white dark:bg-black/40 border border-amber-200 dark:border-amber-900 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                    ✓ <strong>راه‌حل اعمال‌شده:</strong> تصویر استاندارد با رزولوشن رسمی ۱۲۰۰×۹۰۰ و نسبت ۴:۳ تولید شده و به طور خودکار درون فایل فشرده زیپ در ریشه پوسته جای‌گذاری شده است.
+                  </div>
+                </div>
+
+                {/* Cause 3 */}
+                <div className="p-5 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40 space-y-3">
+                  <div className="flex items-center gap-2 text-blue-800 dark:text-blue-400 font-bold text-sm">
+                    <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">۳</span>
+                    <h3>عدم تنظیم برگه نخست در تنظیمات خواندن وردپرس</h3>
+                  </div>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <strong>علت قبلی:</strong> وردپرس به صورت پیش‌فرض آخرین نوشته‌ها را نشان می‌دهد؛ اگر نوشته‌ای در سایت ثبت نشده بود، صفحه خالی رندر می‌شد.
+                  </p>
+                  <div className="p-3 rounded-xl bg-white dark:bg-black/40 border border-blue-200 dark:border-blue-900 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                    ✓ <strong>راه‌حل اعمال‌شده:</strong> یک ماژول راه‌اندازی ۱ کلیک در پنل مدیریت اضافه شده که خودکار برگه نخست، وبلاگ و تنظیمات خواندن (Reading Settings) را ثبت می‌کند؛ به علاوه ۱۰ سکشن پیش‌فرض مستقل طراحی گردید.
+                  </div>
+                </div>
+
+                {/* Cause 4 */}
+                <div className="p-5 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/40 space-y-3">
+                  <div className="flex items-center gap-2 text-purple-800 dark:text-purple-400 font-bold text-sm">
+                    <span className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs">۴</span>
+                    <h3>فراخوانی فایل‌های ماژول بدون کنترل file_exists</h3>
+                  </div>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <strong>علت قبلی:</strong> اگر هاست یا نرم‌افزار اکسترکت‌کننده فایلی در پوشه <code className="font-mono">inc/</code> را منتقل نمی‌کرد، دستور <code className="font-mono">require_once</code> خطای مهلک می‌داد.
+                  </p>
+                  <div className="p-3 rounded-xl bg-white dark:bg-black/40 border border-purple-200 dark:border-purple-900 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                    ✓ <strong>راه‌حل اعمال‌شده:</strong> حلقه ایمن بررسی <code className="font-mono">file_exists</code> روی تمام ماژول‌ها در <code className="font-mono">functions.php</code> قرار گرفت.
+                  </div>
+                </div>
+
+                {/* Cause 5: Claude review fix for Elementor 10 widgets */}
+                <div className="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 space-y-3 md:col-span-2">
+                  <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-400 font-bold text-sm">
+                    <span className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">۵</span>
+                    <h3>بارگذاری و ثبت ۱۰ ویجت اختصاصی حقوقی المنتور (مورد تذکر داده شده توسط کلاد)</h3>
+                  </div>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <strong>مورد گزارش‌شده در بررسی کلاد:</strong> در نسخه پیشین در فایل <code className="font-mono text-emerald-600">inc/elementor-widgets.php</code> تنها دسته‌بندی تعریف شده بود و کلاس‌های ۱۰ ویجت المان‌های حقوقی بارگذاری نمی‌شدند.
+                  </p>
+                  <div className="p-3 rounded-xl bg-white dark:bg-black/40 border border-emerald-200 dark:border-emerald-900 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                    ✓ <strong>راه‌حل اعمال‌شده:</strong> کلیه ۱۰ ویجت اختصاصی المنتور (شامل هیرو، دپارتمان‌ها، پروفایل وکیل، رزرو نوبت، رهگیری پرونده، شمارنده‌ها، نظرات، سوالات متداول، نشان‌های اعتماد و تماس اضطراری) با هوک‌های رسمی المنتور و گارد <code className="font-mono">elementor/loaded</code> به صورت کامل ثبت و فعال‌سازی شدند.
+                  </div>
+                </div>
+
+              </div>
+
+              {/* How to enable WP_DEBUG instruction */}
+              <div className="p-6 rounded-2xl bg-[#060B18] border border-[#D4AF37]/40 text-white space-y-4">
+                <div className="flex items-center gap-2 text-[#D4AF37] font-bold text-sm">
+                  <Terminal className="w-5 h-5" />
+                  <h3>راهنمای فوری: اگر روی هاست خاصی بازهم خطایی دیدید، چطور لاگ خطا را مشاهده کنید؟</h3>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  فایل <code className="text-amber-400 font-mono">wp-config.php</code> را در ریشه هاست باز کرده و خط <code className="font-mono text-amber-400">define('WP_DEBUG', false);</code> را پیدا کنید و با کدهای زیر جایگزین فرمایید:
+                </p>
+                <div className="p-4 rounded-xl bg-black/70 border border-slate-800 text-xs font-mono text-emerald-400 space-y-1" dir="ltr">
+                  <div>define( 'WP_DEBUG', true );</div>
+                  <div>define( 'WP_DEBUG_LOG', true );</div>
+                  <div>define( 'WP_DEBUG_DISPLAY', false );</div>
+                  <div>@ini_set( 'display_errors', 0 );</div>
+                </div>
+                <p className="text-xs text-slate-400">
+                  سپس بلافاصله فایل لاگ در آدرس <code className="text-amber-400 font-mono">/wp-content/debug.log</code> ساخته می‌شود و متن دقیق خطا و شماره خط آن ثبت خواهد شد.
+                </p>
+              </div>
+
+            </div>
+          </div>
         ) : (
           /* CI/CD & GitHub Architecture View */
           <div className="space-y-8 animate-fadeIn">

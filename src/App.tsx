@@ -15,6 +15,8 @@ import { ElementorBuilder } from './components/ElementorBuilder';
 import { ShortcodesHub } from './components/ShortcodesHub';
 import { SystemArchitectureHub } from './components/SystemArchitectureHub';
 import { WordPressCodeViewer } from './components/WordPressCodeViewer';
+import { ArchiveView } from './components/ArchiveView';
+import { SingleContentView } from './components/SingleContentView';
 import { OnboardingTour } from './components/OnboardingTour';
 import { HelpAndDocsModal } from './components/HelpAndDocsModal';
 import { SurveyWidgetModal } from './components/SurveyWidgetModal';
@@ -35,6 +37,12 @@ export default function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isSurveyOpen, setIsSurveyOpen] = useState(false);
   const [selectedServiceToBook, setSelectedServiceToBook] = useState<string>('');
+  
+  // Single and Archive view states
+  const [singleContentType, setSingleContentType] = useState<'article' | 'video'>('article');
+  const [selectedArticleId, setSelectedArticleId] = useState<string>(ARTICLES_DATA[0]?.id || '1');
+  const [selectedVideoId, setSelectedVideoId] = useState<string>('vid-1');
+  const [archiveInitialType, setArchiveInitialType] = useState<'all' | 'article' | 'video'>('all');
 
   useEffect(() => {
     if (isDarkMode) {
@@ -71,6 +79,26 @@ export default function App() {
     }, 100);
   };
 
+  const handleSelectArticle = (articleId: string) => {
+    setSelectedArticleId(articleId);
+    setSingleContentType('article');
+    setActiveView('single');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectVideo = (videoId: string) => {
+    setSelectedVideoId(videoId);
+    setSingleContentType('video');
+    setActiveView('single');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenArchive = (type: 'all' | 'article' | 'video' = 'all') => {
+    setArchiveInitialType(type);
+    setActiveView('archive');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-[#F4F6F9] dark:bg-[#070D1E] text-[#0B132B] dark:text-gray-100 transition-colors duration-300 font-persian">
       {/* Sticky Header */}
@@ -82,6 +110,16 @@ export default function App() {
         onOpenHelp={() => setIsHelpOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
         onOpenSurvey={() => setIsSurveyOpen(true)}
+        onSelectService={(serviceSlug) => {
+          setActiveView('preview');
+          setTimeout(() => {
+            const el = document.getElementById('services');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        }}
+        onOpenArticleArchive={() => handleOpenArchive('article')}
+        onOpenVideoArchive={() => handleOpenArchive('video')}
+        onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
       />
 
       {/* Main Content Area based on active view */}
@@ -113,7 +151,11 @@ export default function App() {
             <TestimonialsSlider testimonials={TESTIMONIALS_DATA} />
 
             {/* 7. Legal Articles */}
-            <ArticlesSection articles={ARTICLES_DATA} />
+            <ArticlesSection
+              articles={ARTICLES_DATA}
+              onOpenArchive={() => handleOpenArchive('article')}
+              onSelectArticle={handleSelectArticle}
+            />
 
             {/* 8. FAQ Accordion */}
             <FaqSection faqs={FAQ_DATA} />
@@ -124,6 +166,29 @@ export default function App() {
             {/* 10. Footer */}
             <Footer />
           </div>
+        )}
+
+        {/* Dynamic Archive View (archive.php & archive-video.php) */}
+        {activeView === 'archive' && (
+          <ArchiveView
+            initialType={archiveInitialType}
+            onSelectArticle={handleSelectArticle}
+            onSelectVideo={handleSelectVideo}
+            onBackToHome={() => setActiveView('preview')}
+          />
+        )}
+
+        {/* Dynamic Single Post/Video View (single.php & single-video.php) */}
+        {activeView === 'single' && (
+          <SingleContentView
+            contentType={singleContentType}
+            articleId={selectedArticleId}
+            videoId={selectedVideoId}
+            onBackToArchive={() => setActiveView('archive')}
+            onSelectRelatedArticle={handleSelectArticle}
+            onSelectRelatedVideo={handleSelectVideo}
+            onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
+          />
         )}
 
         {activeView === 'dashboard' && <LawyerDashboard />}

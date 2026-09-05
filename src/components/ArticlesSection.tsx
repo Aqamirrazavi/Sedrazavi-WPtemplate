@@ -5,10 +5,24 @@ import { Sparkles, Calendar, Clock, ArrowLeft, BookOpen } from 'lucide-react';
 
 interface ArticlesSectionProps {
   articles: ArticleItem[];
+  onOpenArchive?: () => void;
+  onSelectArticle?: (id: string) => void;
 }
 
-export const ArticlesSection: React.FC<ArticlesSectionProps> = ({ articles }) => {
+export const ArticlesSection: React.FC<ArticlesSectionProps> = ({
+  articles,
+  onOpenArchive,
+  onSelectArticle,
+}) => {
   const [selectedArticle, setSelectedArticle] = useState<ArticleItem | null>(null);
+
+  const handleArticleClick = (article: ArticleItem) => {
+    if (onSelectArticle) {
+      onSelectArticle(article.id);
+    } else {
+      setSelectedArticle(article);
+    }
+  };
 
   return (
     <section id="articles" className="py-20 bg-white dark:bg-[#0B132B] relative">
@@ -35,7 +49,7 @@ export const ArticlesSection: React.FC<ArticlesSectionProps> = ({ articles }) =>
           {articles.map((article) => (
             <article
               key={article.id}
-              onClick={() => setSelectedArticle(article)}
+              onClick={() => handleArticleClick(article)}
               className="group cursor-pointer bg-[#F4F6F9] dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-md hover:shadow-2xl hover:border-[#D4AF37]/60 transition-all duration-300 flex flex-col justify-between"
             >
               {/* Thumbnail Container */}
@@ -76,13 +90,27 @@ export const ArticlesSection: React.FC<ArticlesSectionProps> = ({ articles }) =>
                 </div>
 
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between text-xs font-bold text-[#AA820A] dark:text-[#F3E5AB]">
-                  <span>مطالعه کامل مقاله</span>
+                  <span>مطالعه کامل مقاله (single.php)</span>
                   <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                 </div>
               </div>
             </article>
           ))}
         </div>
+
+        {/* View Full Archive Button */}
+        {onOpenArchive && (
+          <div className="mt-12 text-center">
+            <button
+              onClick={onOpenArchive}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gray-100 dark:bg-gray-800 hover:bg-[#D4AF37]/20 border border-gray-200 dark:border-gray-700 text-xs sm:text-sm font-bold text-[#0B132B] dark:text-white hover:text-[#D4AF37] transition-all shadow-sm"
+            >
+              <BookOpen className="w-4 h-4 text-[#D4AF37]" />
+              <span>مشاهده آرشیو کامل مقالات و یادداشت‌ها (قالب archive.php)</span>
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
       </div>
 

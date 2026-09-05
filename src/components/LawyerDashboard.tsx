@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CASES_INITIAL_DATA, SERVICES_DATA } from '../data/mockData';
 import { CaseItem } from '../types/theme';
+import { FrontendCommentsModeration } from './FrontendCommentsModeration';
 import {
   Scale,
   Plus,
@@ -18,9 +19,12 @@ import {
   Download,
   Trash2,
   Edit3,
+  MessageSquare,
+  Briefcase,
 } from 'lucide-react';
 
 export const LawyerDashboard: React.FC = () => {
+  const [activeSubTab, setActiveSubTab] = useState<'cases' | 'comments'>('cases');
   const [cases, setCases] = useState<CaseItem[]>(CASES_INITIAL_DATA);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('همه');
@@ -116,22 +120,55 @@ export const LawyerDashboard: React.FC = () => {
               </span>
             </div>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-              مدیریت لحظه‌ای پرونده‌های قضایی، جلسات محاکم، نوبت‌های رزرو شده و لوایح دفاعی.
+              مدیریت لحظه‌ای پرونده‌های قضایی، جلسات محاکم، نوبت‌های رزرو شده و دیدگاه‌های موکلین.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="btn-gold text-xs sm:text-sm px-5 py-2.5 rounded-xl flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>ثبت پرونده جدید</span>
-            </button>
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Sub-tab Switchers */}
+            <div className="flex items-center p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => setActiveSubTab('cases')}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+                  activeSubTab === 'cases'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#0B132B] dark:text-white shadow-sm border border-[#D4AF37]/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
+                }`}
+              >
+                <Briefcase className="w-3.5 h-3.5 text-[#2A9D8F]" />
+                <span>پرونده‌ها و تقویم دادگاه</span>
+              </button>
+
+              <button
+                onClick={() => setActiveSubTab('comments')}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+                  activeSubTab === 'comments'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#0B132B] dark:text-white shadow-sm border border-[#D4AF37]/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
+                }`}
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <span>مدیریت دیدگاه‌ها (template-comments)</span>
+              </button>
+            </div>
+
+            {activeSubTab === 'cases' && (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="btn-gold text-xs sm:text-sm px-4 py-2 rounded-xl flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>ثبت پرونده جدید</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* 4 Stat Cards with Golden/Emerald/Crimson Right Borders */}
+        {activeSubTab === 'comments' ? (
+          <FrontendCommentsModeration />
+        ) : (
+          <>
+            {/* 4 Stat Cards with Golden/Emerald/Crimson Right Borders */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           
           <div className="bg-white dark:bg-[#0B132B] p-5 rounded-2xl border-r-4 border-r-[#D4AF37] border-y border-l border-gray-200 dark:border-gray-800 shadow-sm flex items-center justify-between">
@@ -432,6 +469,9 @@ export const LawyerDashboard: React.FC = () => {
           </div>
 
         </div>
+
+          </>
+        )}
 
       </div>
 
