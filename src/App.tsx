@@ -21,6 +21,18 @@ import { OnboardingTour } from './components/OnboardingTour';
 import { HelpAndDocsModal } from './components/HelpAndDocsModal';
 import { SurveyWidgetModal } from './components/SurveyWidgetModal';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
+import { GoldScrollSidebar } from './components/GoldScrollSidebar';
+import { AboutPageView } from './components/AboutPageView';
+import { ServicesPageView } from './components/ServicesPageView';
+import { ContactPageView } from './components/ContactPageView';
+import { CaseTrackingPageView } from './components/CaseTrackingPageView';
+import { OtpAuthModal } from './components/OtpAuthModal';
+import { QuickCallbackModal } from './components/QuickCallbackModal';
+import { LawyerHeroSlider } from './components/LawyerHeroSlider';
+import {
+  LawyerSiteProfile,
+  getStoredLawyerProfile,
+} from './utils/lawyerCustomizationStorage';
 
 import {
   SERVICES_DATA,
@@ -36,7 +48,27 @@ export default function App() {
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isSurveyOpen, setIsSurveyOpen] = useState(false);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [isQuickCallbackOpen, setIsQuickCallbackOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userPhone, setUserPhone] = useState('');
+  const [userName, setUserName] = useState('');
   const [selectedServiceToBook, setSelectedServiceToBook] = useState<string>('');
+
+  // Dynamic Lawyer Customization Profile (Allows attorney to fully customize without Elementor)
+  const [lawyerProfile, setLawyerProfile] = useState<LawyerSiteProfile>(getStoredLawyerProfile());
+
+  useEffect(() => {
+    const handleProfileUpdate = (e: any) => {
+      if (e.detail) {
+        setLawyerProfile(e.detail);
+      } else {
+        setLawyerProfile(getStoredLawyerProfile());
+      }
+    };
+    window.addEventListener('lawyer-profile-updated', handleProfileUpdate);
+    return () => window.removeEventListener('lawyer-profile-updated', handleProfileUpdate);
+  }, []);
   
   // Single and Archive view states
   const [singleContentType, setSingleContentType] = useState<'article' | 'video'>('article');
@@ -110,6 +142,7 @@ export default function App() {
         onOpenHelp={() => setIsHelpOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
         onOpenSurvey={() => setIsSurveyOpen(true)}
+        lawyerProfile={lawyerProfile}
         onSelectService={(serviceSlug) => {
           setActiveView('preview');
           setTimeout(() => {
@@ -120,78 +153,205 @@ export default function App() {
         onOpenArticleArchive={() => handleOpenArchive('article')}
         onOpenVideoArchive={() => handleOpenArchive('video')}
         onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+        onOpenOtpAuth={() => setIsOtpModalOpen(true)}
+        onOpenQuickCallback={() => setIsQuickCallbackOpen(true)}
+        isLoggedIn={isLoggedIn}
+        currentUserPhone={userPhone}
+        onLogout={() => {
+          setIsLoggedIn(false);
+          setUserPhone('');
+          setUserName('');
+        }}
+      />
+
+      {/* Floating Yellow/Gold Scroll Sidebar & ScrollSpy Progress Tracker */}
+      <GoldScrollSidebar
+        isMainPage={activeView === 'preview'}
+        onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+        onOpenCaseTracker={handleOpenCaseTracker}
+        onNavigateSection={(sectionId) => {
+          if (activeView !== 'preview') {
+            setActiveView('preview');
+            setTimeout(() => {
+              const el = document.getElementById(sectionId);
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+          } else {
+            const el = document.getElementById(sectionId);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
       />
 
       {/* Main Content Area based on active view */}
       <main>
         {activeView === 'preview' && (
           <div>
-            {/* 1. Legal Stories Bar */}
-            <StoryBar stories={STORIES_DATA} />
+            {/* 1. Legal Stories Bar (Editable in Admin Panel) */}
+            <div id="stories">
+              <StoryBar
+                stories={lawyerProfile.stories && lawyerProfile.stories.length > 0 ? lawyerProfile.stories : STORIES_DATA}
+                onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+              />
+            </div>
 
-            {/* 2. Hero Section */}
-            <HeroSection
-              onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
-              onOpenCaseTracker={handleOpenCaseTracker}
-            />
+            {/* 1.5. Dynamic Lawyer Hero Slider / Carousel (Under Stories) */}
+            {lawyerProfile.heroSlider && lawyerProfile.heroSlider.length > 0 && (
+              <div id="slider" className="border-b border-gray-200/60 dark:border-gray-800">
+                <LawyerHeroSlider
+                  slides={lawyerProfile.heroSlider}
+                  lawyerName={lawyerProfile.lawyerName}
+                  onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+                  onOpenQuickCallback={() => setIsQuickCallbackOpen(true)}
+                />
+              </div>
+            )}
+
+            {/* 2. Hero Section (Dynamic Profile Connected) */}
+            <div id="hero">
+              <HeroSection
+                profile={lawyerProfile}
+                onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+                onOpenCaseTracker={handleOpenCaseTracker}
+                onOpenQuickCallback={() => setIsQuickCallbackOpen(true)}
+                onOpenOtpAuth={() => setIsOtpModalOpen(true)}
+              />
+            </div>
 
             {/* 3. Trust Counters */}
-            <TrustBadges />
+            <div id="stats">
+              <TrustBadges experienceYears={lawyerProfile.experienceYears} />
+            </div>
 
             {/* 4. Services Grid & Modals */}
-            <ServicesSection
-              services={SERVICES_DATA}
-              onBookService={handleBookService}
-            />
+            <div id="services">
+              <ServicesSection
+                services={SERVICES_DATA}
+                onBookService={handleBookService}
+              />
+            </div>
 
-            {/* 5. About Attorney & Bio */}
-            <AboutSection />
+            {/* 5. About Attorney & Bio (Dynamic Profile Connected) */}
+            <div id="about">
+              <AboutSection profile={lawyerProfile} />
+            </div>
 
             {/* 6. Testimonials Slider */}
-            <TestimonialsSlider testimonials={TESTIMONIALS_DATA} />
+            <div id="testimonials">
+              <TestimonialsSlider testimonials={TESTIMONIALS_DATA} />
+            </div>
 
             {/* 7. Legal Articles */}
-            <ArticlesSection
-              articles={ARTICLES_DATA}
-              onOpenArchive={() => handleOpenArchive('article')}
-              onSelectArticle={handleSelectArticle}
-            />
+            <div id="articles">
+              <ArticlesSection
+                articles={ARTICLES_DATA}
+                onOpenArchive={() => handleOpenArchive('article')}
+                onSelectArticle={handleSelectArticle}
+              />
+            </div>
 
             {/* 8. FAQ Accordion */}
-            <FaqSection faqs={FAQ_DATA} />
+            <div id="faq">
+              <FaqSection faqs={FAQ_DATA} />
+            </div>
 
             {/* 9. Contact, Booking & Case Status Tracker */}
-            <ContactAndBookingSection preselectedService={selectedServiceToBook} />
+            <div id="booking">
+              <div id="tracking"></div>
+              <div id="cases"></div>
+              <ContactAndBookingSection preselectedService={selectedServiceToBook} />
+            </div>
 
             {/* 10. Footer */}
-            <Footer />
+            <Footer profile={lawyerProfile} />
+          </div>
+        )}
+
+        {/* Dedicated Standalone Pages (کل برگه‌ها) */}
+        {activeView === 'about-page' && (
+          <div>
+            <AboutPageView
+              onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
+              onBackToHome={() => setActiveView('preview')}
+            />
+            <Footer profile={lawyerProfile} />
+          </div>
+        )}
+
+        {activeView === 'services-page' && (
+          <div>
+            <ServicesPageView
+              onBookService={handleBookService}
+              onBackToHome={() => setActiveView('preview')}
+            />
+            <Footer profile={lawyerProfile} />
+          </div>
+        )}
+
+        {activeView === 'contact-page' && (
+          <div>
+            <ContactPageView onBackToHome={() => setActiveView('preview')} />
+            <Footer profile={lawyerProfile} />
+          </div>
+        )}
+
+        {activeView === 'tracking-page' && (
+          <div>
+            <CaseTrackingPageView
+              onBackToHome={() => setActiveView('preview')}
+              onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
+            />
+            <Footer profile={lawyerProfile} />
           </div>
         )}
 
         {/* Dynamic Archive View (archive.php & archive-video.php) */}
         {activeView === 'archive' && (
-          <ArchiveView
-            initialType={archiveInitialType}
-            onSelectArticle={handleSelectArticle}
-            onSelectVideo={handleSelectVideo}
-            onBackToHome={() => setActiveView('preview')}
-          />
+          <div>
+            <ArchiveView
+              initialType={archiveInitialType}
+              onSelectArticle={handleSelectArticle}
+              onSelectVideo={handleSelectVideo}
+              onBackToHome={() => setActiveView('preview')}
+            />
+            <Footer profile={lawyerProfile} />
+          </div>
         )}
 
         {/* Dynamic Single Post/Video View (single.php & single-video.php) */}
         {activeView === 'single' && (
-          <SingleContentView
-            contentType={singleContentType}
-            articleId={selectedArticleId}
-            videoId={selectedVideoId}
-            onBackToArchive={() => setActiveView('archive')}
-            onSelectRelatedArticle={handleSelectArticle}
-            onSelectRelatedVideo={handleSelectVideo}
-            onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
-          />
+          <div>
+            <SingleContentView
+              contentType={singleContentType}
+              articleId={selectedArticleId}
+              videoId={selectedVideoId}
+              onBackToArchive={() => setActiveView('archive')}
+              onSelectRelatedArticle={handleSelectArticle}
+              onSelectRelatedVideo={handleSelectVideo}
+              onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
+            />
+            <Footer profile={lawyerProfile} />
+          </div>
         )}
 
-        {activeView === 'dashboard' && <LawyerDashboard />}
+        {activeView === 'dashboard' && (
+          <div>
+            <LawyerDashboard
+              initialPortalMode={isLoggedIn ? 'client' : 'attorney'}
+              userPhoneNumber={userPhone}
+              userName={userName}
+              lawyerProfile={lawyerProfile}
+              onUpdateLawyerProfile={(updated) => setLawyerProfile(updated)}
+              onLogout={() => {
+                setIsLoggedIn(false);
+                setUserPhone('');
+                setUserName('');
+              }}
+              onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+            />
+            <Footer profile={lawyerProfile} />
+          </div>
+        )}
 
         {activeView === 'elementor' && <ElementorBuilder />}
 
@@ -201,6 +361,26 @@ export default function App() {
 
         {activeView === 'code' && <WordPressCodeViewer />}
       </main>
+
+      {/* OTP Login & Client Registration Modal */}
+      <OtpAuthModal
+        isOpen={isOtpModalOpen}
+        onClose={() => setIsOtpModalOpen(false)}
+        onOpenQuickCallback={() => setIsQuickCallbackOpen(true)}
+        onLoginSuccess={(phone, name) => {
+          setIsLoggedIn(true);
+          setUserPhone(phone);
+          setUserName(name || 'موکل گرامی');
+          setActiveView('dashboard');
+        }}
+      />
+
+      {/* Quick Callback Request Modal (Without Registration - Priority #1) */}
+      <QuickCallbackModal
+        isOpen={isQuickCallbackOpen}
+        onClose={() => setIsQuickCallbackOpen(false)}
+        onOpenOtpLogin={() => setIsOtpModalOpen(true)}
+      />
 
       {/* Interactive Onboarding Tour Modal */}
       <OnboardingTour

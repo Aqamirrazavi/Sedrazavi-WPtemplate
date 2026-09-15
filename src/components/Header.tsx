@@ -27,11 +27,26 @@ import {
   Video,
   FolderKanban,
   FileText,
+  KeyRound,
+  UserCheck,
 } from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
+import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
 import { MegaMenu } from './MegaMenu';
 
-export type ThemeViewMode = 'preview' | 'dashboard' | 'elementor' | 'shortcodes' | 'architecture' | 'code' | 'archive' | 'single';
+export type ThemeViewMode =
+  | 'preview'
+  | 'about-page'
+  | 'services-page'
+  | 'contact-page'
+  | 'tracking-page'
+  | 'dashboard'
+  | 'elementor'
+  | 'shortcodes'
+  | 'architecture'
+  | 'code'
+  | 'archive'
+  | 'single';
 
 interface HeaderProps {
   activeView: ThemeViewMode;
@@ -45,6 +60,12 @@ interface HeaderProps {
   onOpenVideoArchive?: () => void;
   onSelectService?: (serviceSlug: string) => void;
   onOpenBooking?: () => void;
+  onOpenOtpAuth?: () => void;
+  onOpenQuickCallback?: () => void;
+  isLoggedIn?: boolean;
+  currentUserPhone?: string;
+  onLogout?: () => void;
+  lawyerProfile?: LawyerSiteProfile;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -59,12 +80,25 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenVideoArchive,
   onSelectService,
   onOpenBooking,
+  onOpenOtpAuth,
+  onOpenQuickCallback,
+  isLoggedIn,
+  currentUserPhone,
+  onLogout,
+  lawyerProfile,
 }) => {
+  const brandName = lawyerProfile?.siteTitle || 'SedRazavi';
+  const licenseNumber = lawyerProfile?.licenseNumber || ATTORNEY_INFO.licenseNumber;
+  const workingHours = lawyerProfile?.workingHours || ATTORNEY_INFO.workingHours;
+  const phoneNumber = lawyerProfile?.phone || ATTORNEY_INFO.phone;
+  const lawyerTitle = lawyerProfile?.lawyerTitle || 'دفتر وکالت و مشاوره حقوقی تخصصی';
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+  const [pagesDropdownOpen, setPagesDropdownOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pagesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -93,12 +127,12 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5 text-[#D4AF37] font-semibold">
               <Shield className="w-3.5 h-3.5" />
-              {ATTORNEY_INFO.licenseNumber}
+              {licenseNumber}
             </span>
             <span className="hidden sm:inline-block text-gray-500">|</span>
             <span className="hidden sm:inline-block text-gray-300">
               <Clock className="w-3 h-3 inline-block ml-1 text-gray-400" />
-              {ATTORNEY_INFO.workingHours}
+              {workingHours}
             </span>
           </div>
 
@@ -127,9 +161,9 @@ export const Header: React.FC<HeaderProps> = ({
               آکادمی و مستندات
             </button>
             <span className="text-gray-600">|</span>
-            <a href={`tel:${ATTORNEY_INFO.phone}`} className="text-gray-200 hover:text-[#D4AF37] font-mono flex items-center gap-1">
+            <a href={`tel:${phoneNumber}`} className="text-gray-200 hover:text-[#D4AF37] font-mono flex items-center gap-1">
               <Phone className="w-3 h-3 text-[#D4AF37]" />
-              {ATTORNEY_INFO.phone}
+              {phoneNumber}
             </a>
           </div>
         </div>
@@ -154,14 +188,14 @@ export const Header: React.FC<HeaderProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xl font-bold font-serif text-[#0B132B] dark:text-white leading-tight">
-                    SedRazavi
+                    {brandName}
                   </span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#D4AF37]/15 text-[#AA820A] dark:text-[#F3E5AB] font-bold border border-[#D4AF37]/30">
                     پوسته رسمی وردپرس
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                  دفتر وکالت و مشاوره حقوقی تخصصی
+                  {lawyerTitle}
                 </p>
               </div>
             </div>
@@ -219,40 +253,153 @@ export const Header: React.FC<HeaderProps> = ({
                 />
               </div>
 
+              {/* All Pages Dropdown (کل برگه‌ها) */}
+              <div
+                className="relative"
+                onMouseEnter={() => {
+                  if (pagesTimeoutRef.current) clearTimeout(pagesTimeoutRef.current);
+                  setPagesDropdownOpen(true);
+                }}
+                onMouseLeave={() => {
+                  pagesTimeoutRef.current = setTimeout(() => {
+                    setPagesDropdownOpen(false);
+                  }, 200);
+                }}
+              >
+                <button
+                  onClick={() => setPagesDropdownOpen(!pagesDropdownOpen)}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
+                    ['about-page', 'services-page', 'contact-page', 'tracking-page'].includes(activeView)
+                      ? 'text-[#D4AF37] font-bold bg-[#D4AF37]/10'
+                      : 'hover:text-[#D4AF37] hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                  }`}
+                >
+                  <span>کل برگه‌ها</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${pagesDropdownOpen ? 'rotate-180 text-[#D4AF37]' : ''}`} />
+                </button>
+
+                {pagesDropdownOpen && (
+                  <div className="absolute top-full right-0 mt-1 w-64 rounded-2xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-2xl p-2 z-50 text-right space-y-1 animate-fadeIn">
+                    <div className="px-3 py-1.5 text-[11px] font-bold text-gray-400 border-b border-gray-100 dark:border-gray-800">
+                      قالب‌های اختصاصی پوسته و افزونه
+                    </div>
+                    <button
+                      onClick={() => {
+                        setActiveView('preview');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">صفحه اصلی (front-page.php)</span>
+                      <Layout className="w-3.5 h-3.5 text-gray-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('about-page');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">برگه درباره وکیل (page-about.php)</span>
+                      <Scale className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('services-page');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">برگه خدمات حقوقی (page-services.php)</span>
+                      <Shield className="w-3.5 h-3.5 text-blue-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('contact-page');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">برگه تماس و رزرو (page-contact.php)</span>
+                      <Calendar className="w-3.5 h-3.5 text-emerald-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('tracking-page');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">سامانه پیگیری پرونده (page-tracking.php)</span>
+                      <FileCheck2 className="w-3.5 h-3.5 text-purple-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('archive');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">آرشیو مقالات و ویدیو (archive.php)</span>
+                      <FolderKanban className="w-3.5 h-3.5 text-amber-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('single');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">برگه تکی مطلب (single.php)</span>
+                      <FileText className="w-3.5 h-3.5 text-indigo-500" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <button
-                onClick={() => setActiveView('archive')}
+                onClick={() => setActiveView('about-page')}
                 className={`px-3 py-2 rounded-lg transition-colors ${
-                  activeView === 'archive'
+                  activeView === 'about-page'
                     ? 'text-[#D4AF37] font-bold bg-[#D4AF37]/10'
                     : 'hover:text-[#D4AF37] hover:bg-gray-50 dark:hover:bg-gray-800/50'
                 }`}
               >
-                آرشیو مقالات و ویدیوها
+                درباره وکیل
               </button>
 
-              <a
-                href="#about"
-                onClick={() => setActiveView('preview')}
-                className="px-3 py-2 rounded-lg hover:text-[#D4AF37] hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+              <button
+                onClick={() => setActiveView('services-page')}
+                className={`px-3 py-2 rounded-lg transition-colors ${
+                  activeView === 'services-page'
+                    ? 'text-[#D4AF37] font-bold bg-[#D4AF37]/10'
+                    : 'hover:text-[#D4AF37] hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                }`}
               >
-                درباره وکیل
-              </a>
+                خدمات حقوقی
+              </button>
 
-              <a
-                href="#cases"
-                onClick={() => setActiveView('preview')}
-                className="px-3 py-2 rounded-lg hover:text-[#D4AF37] hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+              <button
+                onClick={() => setActiveView('tracking-page')}
+                className={`px-3 py-2 rounded-lg transition-colors ${
+                  activeView === 'tracking-page'
+                    ? 'text-[#D4AF37] font-bold bg-[#D4AF37]/10'
+                    : 'hover:text-[#D4AF37] hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                }`}
               >
                 پیگیری پرونده
-              </a>
+              </button>
 
-              <a
-                href="#faq"
-                onClick={() => setActiveView('preview')}
-                className="px-3 py-2 rounded-lg hover:text-[#D4AF37] hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+              <button
+                onClick={() => setActiveView('contact-page')}
+                className={`px-3 py-2 rounded-lg transition-colors ${
+                  activeView === 'contact-page'
+                    ? 'text-[#D4AF37] font-bold bg-[#D4AF37]/10'
+                    : 'hover:text-[#D4AF37] hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                }`}
               >
-                سوالات متداول
-              </a>
+                تماس و رزرو
+              </button>
             </nav>
 
             {/* View Switchers Tabs (Interactive Theme Controls) */}
@@ -363,7 +510,46 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Right Action Icons */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
+              {/* Quick Guest Callback (Priority #1 - No registration needed) */}
+              {onOpenQuickCallback && (
+                <button
+                  type="button"
+                  onClick={onOpenQuickCallback}
+                  className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border border-emerald-600/30 text-xs font-bold transition-all"
+                  title="درخواست تماس سریع بدون نیاز به ساخت حساب"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>تماس فوری (بدون ثبت‌نام)</span>
+                </button>
+              )}
+
+              {/* OTP Login / Client Portal Button */}
+              {isLoggedIn ? (
+                <button
+                  type="button"
+                  onClick={() => setActiveView('dashboard')}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#0B132B] dark:bg-gray-800 text-white border border-[#D4AF37] text-xs font-bold shadow-sm"
+                  title="ورود به کارتابل موکل"
+                >
+                  <UserCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  <span>پرتال من ({currentUserPhone ? currentUserPhone.slice(-4) : 'موکل'})</span>
+                </button>
+              ) : (
+                onOpenOtpAuth && (
+                  <button
+                    type="button"
+                    onClick={onOpenOtpAuth}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-[#F3E5AB] border border-amber-500/30 text-xs font-bold transition-all"
+                    title="ورود و ثبت‌نام سریع با شماره موبایل و کد پیامکی"
+                  >
+                    <KeyRound className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <span className="hidden sm:inline">ورود موکلین (پیامکی)</span>
+                    <span className="sm:hidden">ورود</span>
+                  </button>
+                )
+              )}
+
               {/* Dark Mode Switcher */}
               <button
                 onClick={() => setIsDarkMode(!isDarkMode)}
@@ -382,7 +568,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-white font-semibold text-xs shadow-md shadow-[#D4AF37]/25 hover:shadow-lg hover:shadow-[#D4AF37]/40 hover:-translate-y-0.5 transition-all"
               >
                 <Calendar className="w-3.5 h-3.5" />
-                رزرو نوبت مشاوره
+                رزرو نوبت
               </a>
 
               {/* Mobile Menu Button */}
@@ -632,6 +818,45 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 📅 رزرو آنلاین نوبت مشاوره
               </a>
+
+              {onOpenQuickCallback && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenQuickCallback();
+                  }}
+                  className="w-full text-right block py-2.5 px-3 rounded-lg bg-emerald-600 text-white font-bold"
+                >
+                  📞 تماس فوری با وکیل (بدون ثبت‌نام)
+                </button>
+              )}
+
+              {isLoggedIn ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setActiveView('dashboard');
+                  }}
+                  className="w-full text-right block py-2.5 px-3 rounded-lg bg-[#0B132B] dark:bg-gray-800 text-[#D4AF37] font-bold border border-[#D4AF37]"
+                >
+                  👤 ورود به کارتابل موکل ({currentUserPhone || 'من'})
+                </button>
+              ) : (
+                onOpenOtpAuth && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenOtpAuth();
+                    }}
+                    className="w-full text-right block py-2.5 px-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold border border-gray-300 dark:border-gray-700"
+                  >
+                    🔑 ورود / عضویت پیامکی موکلین (OTP)
+                  </button>
+                )
+              )}
             </div>
           </div>
         )}

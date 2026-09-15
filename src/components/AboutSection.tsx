@@ -1,8 +1,20 @@
 import React from 'react';
 import { ATTORNEY_INFO } from '../data/mockData';
+import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
 import { ShieldCheck, Award, GraduationCap, CheckCircle2, Quote, Sparkles } from 'lucide-react';
 
-export const AboutSection: React.FC = () => {
+interface AboutSectionProps {
+  profile?: LawyerSiteProfile;
+}
+
+export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
+  const lawyerName = profile?.lawyerName || ATTORNEY_INFO.name;
+  const lawyerTitle = profile?.lawyerTitle || ATTORNEY_INFO.title;
+  const licenseNumber = profile?.licenseNumber || ATTORNEY_INFO.licenseNumber;
+  const portraitImage = profile?.portraitImage || ATTORNEY_INFO.portraitImage;
+  const bio = profile?.bio || `سرکار خانم دکتر سیده مریم رضوی پس از فراغت از تحصیل در مقطع دکترای حقوق بین‌الملل و خصوصی از دانشگاه تهران و گذراندن دوره‌های تخصصی داوری بین‌المللی، دفتر وکالت خود را با نام مؤسسه حقوقی SedRazavi بنا نهاد. ایشان تاکنون وکالت بیش از ۱۲۸۰ پرونده سنگین حقوقی، ملکی، تجاری و داوری را با بالاترین درصد موفقیت بر عهده داشته است.`;
+  const quote = profile?.quote || `«وکالت در پیشگاه قانون، نه صرفاً یک پیشه، بلکه عهدنامه‌ای مقدس برای احقاق حق مظلوم، پایبندی به شرافت حرفه‌ای و برقراری توازن عدالت است.»`;
+
   return (
     <section id="about" className="py-20 bg-white dark:bg-[#0B132B] relative overflow-hidden">
       {/* Background golden glow */}
@@ -18,8 +30,8 @@ export const AboutSection: React.FC = () => {
 
               <div className="relative rounded-2xl overflow-hidden border-2 border-[#D4AF37]/40 shadow-2xl bg-white dark:bg-gray-800">
                 <img
-                  src={ATTORNEY_INFO.portraitImage}
-                  alt={ATTORNEY_INFO.name}
+                  src={portraitImage}
+                  alt={lawyerName}
                   className="w-full h-[520px] object-cover object-top"
                 />
 
@@ -42,15 +54,15 @@ export const AboutSection: React.FC = () => {
             
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 text-[#AA820A] dark:text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/30">
               <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-              درباره وکیل دکتر سیده مریم رضوی (SedRazavi)
+              درباره {lawyerName}
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-bold font-serif text-[#0B132B] dark:text-white leading-tight">
               دو دهه پاسداری متعهدانه از حقوق و منافع مشروع موکلین
             </h2>
 
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
-              سرکار خانم دکتر سیده مریم رضوی پس از فراغت از تحصیل در مقطع دکترای حقوق بین‌الملل و خصوصی از دانشگاه تهران و گذراندن دوره‌های تخصصی داوری بین‌المللی، دفتر وکالت خود را با نام مؤسسه حقوقی SedRazavi بنا نهاد. ایشان تاکنون وکالت بیش از ۱۲۸۰ پرونده سنگین حقوقی، ملکی، تجاری و داوری را با بالاترین درصد موفقیت بر عهده داشته است.
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+              {bio}
             </p>
 
             {/* Core Values / Principles */}
@@ -86,13 +98,13 @@ export const AboutSection: React.FC = () => {
             <div className="p-5 rounded-2xl bg-gradient-to-r from-[#D4AF37]/10 via-[#D4AF37]/5 to-transparent border-r-4 border-[#D4AF37] relative">
               <Quote className="w-8 h-8 text-[#D4AF37]/30 absolute top-3 left-4" />
               <p className="text-sm sm:text-base font-serif italic text-gray-800 dark:text-gray-200 leading-relaxed">
-                «وکالت در پیشگاه قانون، نه صرفاً یک پیشه، بلکه عهدنامه‌ای مقدس برای احقاق حق مظلوم، پایبندی به شرافت حرفه‌ای و برقراری توازن عدالت است.»
+                {quote}
               </p>
               <div className="mt-3 flex items-center justify-between">
                 <span className="text-xs font-bold text-[#AA820A] dark:text-[#F3E5AB]">
-                  — دکتر سیده مریم رضوی (SedRazavi)، وکیل پایه یک دادگستری
+                  — {lawyerName}، {lawyerTitle}
                 </span>
-                <span className="text-xs text-gray-400">شماره پروانه ۱۸۴۵۲</span>
+                <span className="text-xs text-gray-400">شماره پروانه {licenseNumber}</span>
               </div>
             </div>
 

@@ -150,7 +150,7 @@ export interface ElementorBlockDef {
 export interface WordPressFile {
   path: string;
   filename: string;
-  category: 'قالب اصلی (Templates)' | 'بخش‌های داخلی (Inc)' | 'برگه‌ها و آرشیوها' | 'استایل و دارایی‌ها (Assets)' | 'پیکربندی گیت و CI/CD (.github)' | 'مستندات و زبان';
+  category: 'قالب اصلی (Templates)' | 'بخش‌های داخلی (Inc)' | 'برگه‌ها و آرشیوها' | 'استایل و دارایی‌ها (Assets)' | 'پیکربندی گیت و CI/CD (.github)' | 'مستندات و زبان' | 'افزونه مکمل (Plugin Addons)' | 'ماژول‌های افزونه (Plugin Includes)';
   description: string;
   code: string;
 }

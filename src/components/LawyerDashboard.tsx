@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CASES_INITIAL_DATA, SERVICES_DATA } from '../data/mockData';
 import { CaseItem } from '../types/theme';
 import { FrontendCommentsModeration } from './FrontendCommentsModeration';
+import { ClientPortalView } from './ClientPortalView';
+import { LawyerCustomizerTab } from './LawyerCustomizerTab';
+import { ManualAccountCreatorModal } from './ManualAccountCreatorModal';
+import {
+  LawyerSiteProfile,
+  getStoredLawyerProfile,
+} from '../utils/lawyerCustomizationStorage';
 import {
   Scale,
   Plus,
@@ -21,14 +28,55 @@ import {
   Edit3,
   MessageSquare,
   Briefcase,
+  Sliders,
+  Sparkles,
+  UserPlus,
+  KeyRound,
 } from 'lucide-react';
 
-export const LawyerDashboard: React.FC = () => {
-  const [activeSubTab, setActiveSubTab] = useState<'cases' | 'comments'>('cases');
+interface LawyerDashboardProps {
+  initialPortalMode?: 'attorney' | 'client';
+  userPhoneNumber?: string;
+  userName?: string;
+  onLogout?: () => void;
+  onOpenBooking?: () => void;
+  lawyerProfile?: LawyerSiteProfile;
+  onUpdateLawyerProfile?: (profile: LawyerSiteProfile) => void;
+}
+
+export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
+  initialPortalMode = 'attorney',
+  userPhoneNumber,
+  userName,
+  onLogout,
+  onOpenBooking,
+  lawyerProfile: externalProfile,
+  onUpdateLawyerProfile,
+}) => {
+  const [portalMode, setPortalMode] = useState<'attorney' | 'client'>(initialPortalMode);
+  const [activeSubTab, setActiveSubTab] = useState<'cases' | 'comments' | 'customizer'>('cases');
+  const [lawyerProfile, setLawyerProfile] = useState<LawyerSiteProfile>(
+    externalProfile || getStoredLawyerProfile()
+  );
+
+  useEffect(() => {
+    if (externalProfile) {
+      setLawyerProfile(externalProfile);
+    }
+  }, [externalProfile]);
+
+  const handleProfileUpdated = (updated: LawyerSiteProfile) => {
+    setLawyerProfile(updated);
+    if (onUpdateLawyerProfile) {
+      onUpdateLawyerProfile(updated);
+    }
+  };
+
   const [cases, setCases] = useState<CaseItem[]>(CASES_INITIAL_DATA);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('همه');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showManualAccountModal, setShowManualAccountModal] = useState(false);
 
   // New Case Form state
   const [newCaseNumber, setNewCaseNumber] = useState(`۱۴۰۳-${(cases.length + 1).toString().padStart(3, '0')}`);
@@ -108,6 +156,52 @@ export const LawyerDashboard: React.FC = () => {
     <div className="py-8 bg-[#F4F6F9] dark:bg-[#070D1E] min-h-screen">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
+        {/* Main Portal Role Switcher: Attorney Console vs Client Portal */}
+        <div className="p-2 rounded-2xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2 pr-2">
+            <Scale className="w-5 h-5 text-[#D4AF37]" />
+            <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
+              انتخاب بخش کاربری سامانه:
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setPortalMode('attorney')}
+              className={`flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                portalMode === 'attorney'
+                  ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-md'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+              }`}
+            >
+              <Briefcase className="w-4 h-4 text-[#D4AF37]" />
+              <span>🛡️ پنل مدیریت وکیل و دفتر</span>
+            </button>
+
+            <button
+              onClick={() => setPortalMode('client')}
+              className={`flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                portalMode === 'client'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] shadow-md shadow-[#D4AF37]/30'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-[#D4AF37]'
+              }`}
+            >
+              <User className="w-4 h-4" />
+              <span>👤 پرتال کاربری موکلین و مراجعین</span>
+            </button>
+          </div>
+        </div>
+
+        {portalMode === 'client' ? (
+          <ClientPortalView
+            userPhoneNumber={userPhoneNumber}
+            userName={userName}
+            onLogout={onLogout}
+            onOpenBooking={onOpenBooking}
+            onBackToMainDashboard={() => setPortalMode('attorney')}
+          />
+        ) : (
+          <div className="space-y-8">
         {/* Dashboard Title & Top Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800">
           <div>
@@ -148,23 +242,53 @@ export const LawyerDashboard: React.FC = () => {
                 }`}
               >
                 <MessageSquare className="w-3.5 h-3.5 text-[#D4AF37]" />
-                <span>مدیریت دیدگاه‌ها (template-comments)</span>
+                <span>مدیریت دیدگاه‌ها</span>
+              </button>
+
+              <button
+                onClick={() => setActiveSubTab('customizer')}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+                  activeSubTab === 'customizer'
+                    ? 'bg-[#D4AF37] text-[#0B132B] shadow-sm font-black'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
+                }`}
+              >
+                <Sliders className="w-3.5 h-3.5 text-[#AA820A] dark:text-[#0B132B]" />
+                <span>شخصی‌سازی هویت سایت و وکیل</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-red-500 text-white font-mono">جدید</span>
               </button>
             </div>
 
-            {activeSubTab === 'cases' && (
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => setShowAddModal(true)}
-                className="btn-gold text-xs sm:text-sm px-4 py-2 rounded-xl flex items-center gap-2"
+                onClick={() => setShowManualAccountModal(true)}
+                className="px-3.5 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
+                title="ساخت اکانت برای موکل بدون نیاز به پیامک (با تولید پسورد تصادفی و تحویل در پیام‌رسان)"
               >
-                <Plus className="w-4 h-4" />
-                <span>ثبت پرونده جدید</span>
+                <UserPlus className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>ساخت اکانت بدون SMS</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-600 text-white font-mono">پیام‌رسان</span>
               </button>
-            )}
+
+              {activeSubTab === 'cases' && (
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="btn-gold text-xs sm:text-sm px-4 py-2 rounded-xl flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>ثبت پرونده جدید</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {activeSubTab === 'comments' ? (
+        {activeSubTab === 'customizer' ? (
+          <LawyerCustomizerTab
+            profile={lawyerProfile}
+            onUpdateProfile={handleProfileUpdated}
+          />
+        ) : activeSubTab === 'comments' ? (
           <FrontendCommentsModeration />
         ) : (
           <>
@@ -472,6 +596,8 @@ export const LawyerDashboard: React.FC = () => {
 
           </>
         )}
+          </div>
+        )}
 
       </div>
 
@@ -592,6 +718,16 @@ export const LawyerDashboard: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Manual Client Account Creator Modal (Without SMS) */}
+      <ManualAccountCreatorModal
+        isOpen={showManualAccountModal}
+        onClose={() => setShowManualAccountModal(false)}
+        lawyerName={lawyerProfile?.lawyerName}
+        lawyerPhone={lawyerProfile?.phone}
+        onAccountCreated={(acc) => {
+          // Add notification or handle state if needed
+        }}
+      />
     </div>
   );
 };

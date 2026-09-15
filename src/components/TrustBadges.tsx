@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Award, CheckCircle, Scale, Briefcase } from 'lucide-react';
 
-export const TrustBadges: React.FC = () => {
+interface TrustBadgesProps {
+  experienceYears?: number;
+}
+
+export const TrustBadges: React.FC<TrustBadgesProps> = ({ experienceYears = 20 }) => {
   const [counts, setCounts] = useState({
     cases: 0,
     satisfaction: 0,
@@ -21,7 +25,7 @@ export const TrustBadges: React.FC = () => {
       setCounts({
         cases: Math.floor(1280 * progress),
         satisfaction: Math.floor(98 * progress),
-        experience: Math.floor(20 * progress),
+        experience: Math.floor(experienceYears * progress),
         contracts: Math.floor(450 * progress),
       });
 
@@ -30,14 +34,14 @@ export const TrustBadges: React.FC = () => {
         setCounts({
           cases: 1280,
           satisfaction: 98,
-          experience: 20,
+          experience: experienceYears,
           contracts: 450,
         });
       }
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [experienceYears]);
 
   const stats = [
     {

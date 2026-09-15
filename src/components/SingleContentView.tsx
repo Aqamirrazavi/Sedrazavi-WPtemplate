@@ -163,7 +163,8 @@ export const SingleContentView: React.FC<SingleContentViewProps> = ({
   const tags = article ? article.tags : video?.tags || [];
 
   return (
-    <div className="space-y-8 text-right" id="wordpress-single-template">
+    <div className="min-h-screen bg-[#F4F6F9] dark:bg-[#060B18] py-6 sm:py-10 overflow-x-hidden" id="wordpress-single-template">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-8 text-right">
       
       {/* Breadcrumb Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 text-xs shadow-sm">
@@ -383,7 +384,7 @@ export const SingleContentView: React.FC<SingleContentViewProps> = ({
             )}
 
             {/* Structured Text Content */}
-            <div className="space-y-4 whitespace-pre-line leading-loose text-justify">
+            <div className="space-y-4 whitespace-pre-line leading-loose text-justify break-words [overflow-wrap:anywhere] overflow-hidden text-sm sm:text-base">
               {article ? article.content : video?.description}
             </div>
 
@@ -775,7 +776,7 @@ export const SingleContentView: React.FC<SingleContentViewProps> = ({
         </div>
 
       </div>
-
     </div>
-  );
+  </div>
+);
 };

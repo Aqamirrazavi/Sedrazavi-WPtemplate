@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { WORDPRESS_THEME_FILES } from '../data/wordPressThemeFiles';
+import { WORDPRESS_PLUGIN_FILES } from '../data/wordPressPluginFiles';
 import { WordPressFile } from '../types/theme';
 import { generateWordPressScreenshotBlob, generateWordPressScreenshotDataUrl } from '../utils/themeScreenshot';
 import JSZip from 'jszip';
@@ -30,14 +31,17 @@ import {
   Wrench,
   Bug,
   Info,
+  Sliders,
+  FileText,
 } from 'lucide-react';
 
 export const WordPressCodeViewer: React.FC = () => {
+  const [activeSource, setActiveSource] = useState<'theme' | 'plugin'>('theme');
   const [selectedFile, setSelectedFile] = useState<WordPressFile>(WORDPRESS_THEME_FILES[0]);
   const [activeCategory, setActiveCategory] = useState<string>('همه');
   const [copiedCode, setCopiedCode] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
-  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [downloadSuccessMessage, setDownloadSuccessMessage] = useState<string | null>(null);
   const [activeSubTab, setActiveSubTab] = useState<'files' | 'cicd' | 'wsod_fix'>('files');
   const [screenshotDataUrl, setScreenshotDataUrl] = useState<string>('');
 
@@ -53,7 +57,7 @@ export const WordPressCodeViewer: React.FC = () => {
       .catch((err) => console.warn('Could not generate screenshot data URL:', err));
   }, []);
 
-  const categories = [
+  const themeCategories = [
     'همه',
     'قالب اصلی (Templates)',
     'بخش‌های داخلی (Inc)',
@@ -63,7 +67,22 @@ export const WordPressCodeViewer: React.FC = () => {
     'مستندات و زبان',
   ];
 
-  const filteredFiles = WORDPRESS_THEME_FILES.filter((f) => {
+  const pluginCategories = [
+    'همه',
+    'هسته افزونه (Plugin Core)',
+    'ماژول‌های افزونه (Includes)',
+  ];
+
+  const currentFiles = activeSource === 'theme' ? WORDPRESS_THEME_FILES : WORDPRESS_PLUGIN_FILES;
+  const currentCategories = activeSource === 'theme' ? themeCategories : pluginCategories;
+
+  const handleSourceChange = (source: 'theme' | 'plugin') => {
+    setActiveSource(source);
+    setActiveCategory('همه');
+    setSelectedFile(source === 'theme' ? WORDPRESS_THEME_FILES[0] : WORDPRESS_PLUGIN_FILES[0]);
+  };
+
+  const filteredFiles = currentFiles.filter((f) => {
     if (activeCategory === 'همه') return true;
     return f.category === activeCategory;
   });
@@ -90,7 +109,7 @@ export const WordPressCodeViewer: React.FC = () => {
     }
   };
 
-  const handleDownloadZip = async () => {
+  const handleDownloadThemeZip = async () => {
     setIsZipping(true);
     try {
       const zip = new JSZip();
@@ -120,11 +139,126 @@ export const WordPressCodeViewer: React.FC = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 5000);
+      setDownloadSuccessMessage('فایل زیپ قالب (sedrazavi-theme.zip) با موفقیت دانلود شد. آماده نصب از پیشخوان وردپرس > نمایش > پوسته‌ها.');
+      setTimeout(() => setDownloadSuccessMessage(null), 6000);
     } catch (err) {
-      console.error('Failed to generate ZIP:', err);
-      alert('خطایی در ساخت فایل فشرده رخ داد.');
+      console.error('Failed to generate Theme ZIP:', err);
+      alert('خطایی در ساخت فایل فشرده پوسته رخ داد.');
+    } finally {
+      setIsZipping(false);
+    }
+  };
+
+  const handleDownloadPluginZip = async () => {
+    setIsZipping(true);
+    try {
+      const zip = new JSZip();
+      const pluginFolder = zip.folder('sedrazavi-addons');
+
+      WORDPRESS_PLUGIN_FILES.forEach((file) => {
+        pluginFolder?.file(file.path, file.code);
+      });
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = window.URL.createObjectURL(content);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'sedrazavi-addons.zip';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      setDownloadSuccessMessage('فایل زیپ افزونه مکمل (sedrazavi-addons.zip) با موفقیت دانلود شد. شامل سیستم لودر ضد خرابی و لاگر خودکار.');
+      setTimeout(() => setDownloadSuccessMessage(null), 6000);
+    } catch (err) {
+      console.error('Failed to generate Plugin ZIP:', err);
+      alert('خطایی در ساخت فایل فشرده افزونه رخ داد.');
+    } finally {
+      setIsZipping(false);
+    }
+  };
+
+  const handleDownloadCompleteBundle = async () => {
+    setIsZipping(true);
+    try {
+      // 1. Generate standalone Theme ZIP (ready for Themes uploader)
+      const themeZip = new JSZip();
+      const themeFolder = themeZip.folder('sedrazavi-theme');
+      WORDPRESS_THEME_FILES.forEach((file) => {
+        if (file.path !== 'screenshot.png') {
+          themeFolder?.file(file.path, file.code);
+        }
+      });
+      try {
+        const screenshotBlob = await generateWordPressScreenshotBlob();
+        themeFolder?.file('screenshot.png', screenshotBlob);
+      } catch (err) {
+        console.warn('Screenshot packaging fallback:', err);
+      }
+      const themeBlob = await themeZip.generateAsync({ type: 'blob' });
+
+      // 2. Generate standalone Plugin ZIP (ready for Plugins uploader with valid headers)
+      const pluginZip = new JSZip();
+      const pluginFolder = pluginZip.folder('sedrazavi-addons');
+      WORDPRESS_PLUGIN_FILES.forEach((file) => {
+        pluginFolder?.file(file.path, file.code);
+      });
+      const pluginBlob = await pluginZip.generateAsync({ type: 'blob' });
+
+      // 3. Generate Master Bundle containing the two clean, pre-compressed ZIP files
+      const masterZip = new JSZip();
+      masterZip.file('1-پوسته-قالب-sedrazavi-theme.zip', themeBlob);
+      masterZip.file('2-افزونه-مکمل-sedrazavi-addons.zip', pluginBlob);
+
+      const guideText = `================================================================================
+دفتر وکالت و داوری تخصصی سید رضوی - راهنمای نصب سریع و بدون خطا
+================================================================================
+
+کاربر گرامی،
+این بسته شامل دو فایل زیپ استاندارد و آماده بارگذاری مستقیم در وردپرس است.
+جهت جلوگیری از خطای «افزونه فاقد یک سربرگ معتبر است»، لطفاً مراحل زیر را دنبال فرمایید:
+
+مرحله اول: نصب پوسته (Theme)
+----------------------------------------
+۱. در پیشخوان وردپرس به مسیر «نمایش > پوسته‌ها > افزودن پوسته تازه > بارگذاری پوسته» بروید.
+۲. فایل زیپ شماره ۱ یعنی «1-پوسته-قالب-sedrazavi-theme.zip» را انتخاب و دکمه «نصب» را بزنید.
+۳. پس از پایان نصب، روی «فعال‌سازی» کلیک کنید.
+
+مرحله دوم: نصب افزونه مکمل (Plugin)
+----------------------------------------
+۱. در پیشخوان وردپرس به مسیر «افزونه‌ها > افزودن افزونه تازه > بارگذاری افزونه» بروید.
+۲. فایل زیپ شماره ۲ یعنی «2-افزونه-مکمل-sedrazavi-addons.zip» را انتخاب و دکمه «نصب» را بزنید.
+۳. پس از پایان نصب، روی «فعال‌کردن افزونه» کلیک نمایید.
+
+نکته مهم:
+وردپرس اجازه نمی‌دهد پوسته و افزونه در یک فایل زیپ تودرتو آپلود شوند. به همین دلیل دو فایل
+فوق به صورت کاملاً مجزا و استاندارد درون این پوشه برای شما قرار گرفته‌اند تا هیچ‌گونه خطای
+سربرگ یا صفحه سفیدی رخ ندهد.
+================================================================================`;
+
+      masterZip.file('راهنمای_مهم_نصب_بدون_خطا.txt', guideText);
+
+      const installDoc = WORDPRESS_THEME_FILES.find((f) => f.path === 'INSTALL.md');
+      if (installDoc) {
+        masterZip.file('INSTALL.md', installDoc.code);
+      }
+
+      const content = await masterZip.generateAsync({ type: 'blob' });
+      const url = window.URL.createObjectURL(content);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'sedrazavi-complete-suite.zip';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      setDownloadSuccessMessage('پکیج جامع (sedrazavi-complete-suite.zip) با موفقیت دانلود شد. حاوی هر دو فایل زیپ مستقل (پوسته و افزونه) جهت نصب بدون ارور سربرگ.');
+      setTimeout(() => setDownloadSuccessMessage(null), 7000);
+    } catch (err) {
+      console.error('Failed to generate Complete Bundle:', err);
+      alert('خطایی در ساخت بسته کامل رخ داد.');
     } finally {
       setIsZipping(false);
     }
@@ -179,51 +313,90 @@ export const WordPressCodeViewer: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Header & Download Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-gray-200 dark:border-gray-800">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#0B132B] dark:text-white">
-                مخزن سورس‌کد، ساخت زیپ و عیب‌یابی قالب SedRazavi
+                مخزن سورس‌کد و پکیج نهایی سید رضوی (SedRazavi v2.5.0)
               </h1>
               <span className="px-3 py-1 rounded-full bg-[#8B0000]/15 text-[#8B0000] dark:text-red-400 text-xs font-bold font-mono">
                 PHP 8.x / WP 6.7
               </span>
-              <span className="px-3 py-1 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 text-xs font-bold font-mono flex items-center gap-1">
-                <Github className="w-3 h-3" />
-                GitHub Actions Ready
-              </span>
               <span className="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold font-mono flex items-center gap-1">
+                <Shield className="w-3 h-3" />
+                تضمین ضد WSOD
+              </span>
+              <span className="px-3 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 text-xs font-bold font-mono flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" />
-                حل قطعی صفحه سفید (WSOD Fixed)
+                تست شده با php -l (صفر خطا)
               </span>
             </div>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-              ساختار فایل‌های استاندارد وردپرس با تضمین عدم تداخل افزونه‌ها، پشتیبانی هم‌زمان از المنتور و حالت مستقل (Standalone).
+              تفکیک اصولی پوسته و افزونه مکمل (Resilient Architecture)، سیستم لاگ خودکار در پوشه آپلودها، و حذف کامل عوامل صفحه سفید.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* 3 Download Buttons */}
+          <div className="flex items-center gap-2.5 flex-wrap">
             <button
-              onClick={handleDownloadZip}
+              onClick={handleDownloadThemeZip}
               disabled={isZipping}
-              className="btn-gold text-xs sm:text-sm px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg shadow-[#D4AF37]/25 cursor-pointer"
+              className="btn-gold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-[#D4AF37]/25 cursor-pointer font-bold"
+              title="دانلود مستقیم پوسته وردپرس (sedrazavi-theme.zip) - مخصوص نصب در پیشخوان > نمایش > پوسته‌ها"
             >
               <Download className="w-4 h-4" />
-              <span>
-                {isZipping ? 'در حال کامپایل و فشرده‌سازی زیپ...' : 'دانلود مستقیم پکیج وردپرس (sedrazavi-theme.zip)'}
-              </span>
+              <span>{isZipping ? 'در حال آماده‌سازی...' : 'دانلود پوسته وردپرس (sedrazavi-theme.zip)'}</span>
+            </button>
+
+            <button
+              onClick={handleDownloadPluginZip}
+              disabled={isZipping}
+              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-2 shadow-md cursor-pointer transition-all"
+              title="دانلود مستقیم افزونه مکمل (sedrazavi-addons.zip) - مخصوص نصب در پیشخوان > افزونه‌ها > افزودن"
+            >
+              <Shield className="w-4 h-4" />
+              <span>دانلود افزونه مکمل (sedrazavi-addons.zip)</span>
+            </button>
+
+            <button
+              onClick={handleDownloadCompleteBundle}
+              disabled={isZipping}
+              className="px-3.5 py-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:border-[#D4AF37] text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-1.5 transition-all cursor-pointer"
+              title="دانلود پکیج کامل شامل هر دو فایل زیپ مستقل و راهنمای نصب بدون ارور"
+            >
+              <Package className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>پکیج کامل ۲ در ۱ (Suite)</span>
             </button>
           </div>
         </div>
 
-        {downloadSuccess && (
+        {/* راهنمای رفع قطعی خطای سربرگ افزونه */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs leading-relaxed text-amber-900 dark:text-amber-200 space-y-2">
+          <div className="flex items-center gap-2 font-bold text-sm text-amber-600 dark:text-amber-400">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>راهنمای رفع خطای «افزونه فاقد یک سربرگ معتبر است» در وردپرس:</span>
+          </div>
+          <p className="text-gray-700 dark:text-gray-300">
+            سیستم بارگذاری وردپرس به پوشه‌بندی داخلی فایل‌های زیپ حساس است. اگر یک فایل زیپ حاوی پوشه‌های تودرتو باشد یا پوسته و افزونه با هم در بخش افزونه‌ها آپلود شوند، وردپرس نمی‌تواند فایل اصلی را پیدا کند و خطای «فاقد سربرگ معتبر» می‌دهد.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            <div className="p-3 rounded-xl bg-white dark:bg-[#0B132B]/80 border border-amber-500/20">
+              <span className="font-bold text-[#D4AF37] block mb-1">۱. گام اول - نصب قالب اصلی:</span>
+              فایل <code className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 font-mono text-xs text-[#D4AF37]">sedrazavi-theme.zip</code> را در مسیر <strong>پیشخوان وردپرس &gt; نمایش &gt; پوسته‌ها &gt; افزودن پوسته تازه &gt; بارگذاری پوسته</strong> آپلود و فعال فرمایید.
+            </div>
+            <div className="p-3 rounded-xl bg-white dark:bg-[#0B132B]/80 border border-emerald-500/20">
+              <span className="font-bold text-emerald-500 block mb-1">۲. گام دوم - نصب افزونه مکمل:</span>
+              فایل <code className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 font-mono text-xs text-emerald-400">sedrazavi-addons.zip</code> را در مسیر <strong>پیشخوان وردپرس &gt; افزونه‌ها &gt; افزودن افزونه تازه &gt; بارگذاری افزونه</strong> آپلود و فعال نمایید.
+            </div>
+          </div>
+        </div>
+
+        {downloadSuccessMessage && (
           <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm flex items-center gap-3 animate-fadeIn">
             <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">
               ✓
             </div>
-            <span>
-              فایل زیپ استاندارد قالب با نام <strong>sedrazavi-theme.zip</strong> دانلود شد! کاور رسمی <strong>screenshot.png</strong> و فایل‌های هسته بدون هیچ وابستگی خارجی درون بسته قرار دارند و مستقیماً از بخش «نمایش &gt; پوسته‌ها &gt; افزودن پوسته» قابل نصب است.
-            </span>
+            <span>{downloadSuccessMessage}</span>
           </div>
         )}
 
@@ -239,7 +412,7 @@ export const WordPressCodeViewer: React.FC = () => {
               }`}
             >
               <FileCode className="w-3.5 h-3.5" />
-              مرورگر فایل‌های قالب ({WORDPRESS_THEME_FILES.length} فایل)
+              مرورگر سورس‌کدها ({WORDPRESS_THEME_FILES.length + WORDPRESS_PLUGIN_FILES.length} فایل)
             </button>
 
             <button
@@ -251,7 +424,7 @@ export const WordPressCodeViewer: React.FC = () => {
               }`}
             >
               <Wrench className="w-3.5 h-3.5" />
-              راهنمای حل قطعی صفحه سفید (WSOD Fix & Debug)
+              راهنمای جامع حل قطعی صفحه سفید (WSOD & Debug Engine)
             </button>
 
             <button
@@ -263,28 +436,60 @@ export const WordPressCodeViewer: React.FC = () => {
               }`}
             >
               <Cpu className="w-3.5 h-3.5 text-[#D4AF37]" />
-              چرخه CI/CD، گیت‌هاب و ساخت زیپ
+              پایپ‌لاین CI/CD و تست GitHub Actions
             </button>
           </div>
         </div>
 
         {activeSubTab === 'files' ? (
           <>
-            {/* Categories Bar */}
-            <div className="flex flex-wrap items-center gap-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-                    activeCategory === cat
-                      ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] shadow-md'
-                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+            {/* Source Switcher: Theme vs Plugin */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#0B132B] p-4 rounded-2xl border border-gray-200 dark:border-gray-800">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-gray-500 dark:text-gray-400">بخش انتخابی:</span>
+                <div className="flex items-center bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
+                  <button
+                    onClick={() => handleSourceChange('theme')}
+                    className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      activeSource === 'theme'
+                        ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] shadow-sm'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
+                    }`}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>پوسته اصلی قالب ({WORDPRESS_THEME_FILES.length} فایل)</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleSourceChange('plugin')}
+                    className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      activeSource === 'plugin'
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900'
+                    }`}
+                  >
+                    <Shield className="w-3.5 h-3.5" />
+                    <span>افزونه مکمل هسته ({WORDPRESS_PLUGIN_FILES.length} فایل)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Categories Bar */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                {currentCategories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                      activeCategory === cat
+                        ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] shadow-xs'
+                        : 'bg-gray-50 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Code Explorer: Left Sidebar File Tree + Right Syntax Highlighted Code Viewer */}
@@ -294,7 +499,11 @@ export const WordPressCodeViewer: React.FC = () => {
               <div className="lg:col-span-4 bg-white dark:bg-[#0B132B] rounded-3xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm space-y-2 max-h-[720px] overflow-y-auto">
                 <div className="flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-gray-800 text-xs font-bold text-gray-500">
                   <FolderOpen className="w-4 h-4 text-[#D4AF37]" />
-                  <span>ساختار فایل‌های پوسته (/wp-content/themes/sedrazavi/)</span>
+                  <span>
+                    {activeSource === 'theme'
+                      ? 'پوشه پوسته: /wp-content/themes/sedrazavi/'
+                      : 'پوشه افزونه: /wp-content/plugins/sedrazavi-addons/'}
+                  </span>
                 </div>
 
                 {filteredFiles.map((file) => (
@@ -489,17 +698,49 @@ export const WordPressCodeViewer: React.FC = () => {
                 </div>
 
                 {/* Cause 5: Claude review fix for Elementor 10 widgets */}
-                <div className="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 space-y-3 md:col-span-2">
+                <div className="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 space-y-3">
                   <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-400 font-bold text-sm">
                     <span className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">۵</span>
-                    <h3>بارگذاری و ثبت ۱۰ ویجت اختصاصی حقوقی المنتور (مورد تذکر داده شده توسط کلاد)</h3>
+                    <h3>حذف دستور خطرناک eval و اصلاح سینتکس ویجت‌های المنتور</h3>
                   </div>
                   <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
-                    <strong>مورد گزارش‌شده در بررسی کلاد:</strong> در نسخه پیشین در فایل <code className="font-mono text-emerald-600">inc/elementor-widgets.php</code> تنها دسته‌بندی تعریف شده بود و کلاس‌های ۱۰ ویجت المان‌های حقوقی بارگذاری نمی‌شدند.
+                    <strong>علت قبلی:</strong> استفاده از تابع <code className="font-mono text-red-600">eval()</code> برای ساخت داینامیک کلاس‌ها در هاست‌های امنیتی (cPanel/Cloudways) به عنوان کد مخرب مسدود می‌شد و ارور سینتکس تولید می‌کرد.
                   </p>
                   <div className="p-3 rounded-xl bg-white dark:bg-black/40 border border-emerald-200 dark:border-emerald-900 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
-                    ✓ <strong>راه‌حل اعمال‌شده:</strong> کلیه ۱۰ ویجت اختصاصی المنتور (شامل هیرو، دپارتمان‌ها، پروفایل وکیل، رزرو نوبت، رهگیری پرونده، شمارنده‌ها، نظرات، سوالات متداول، نشان‌های اعتماد و تماس اضطراری) با هوک‌های رسمی المنتور و گارد <code className="font-mono">elementor/loaded</code> به صورت کامل ثبت و فعال‌سازی شدند.
+                    ✓ <strong>راه‌حل اعمال‌شده:</strong> دستور <code className="font-mono">eval</code> به طور کامل حذف و هر ۱۰ ویجت با کلاس‌های استاندارد شی‌گرا (OOP) بدون هیچ‌گونه خطا بازنویسی شدند.
                   </div>
+                </div>
+
+                {/* Cause 6: Resilient Loading Architecture */}
+                <div className="p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 space-y-3">
+                  <div className="flex items-center gap-2 text-amber-800 dark:text-amber-400 font-bold text-sm">
+                    <span className="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs">۶</span>
+                    <h3>بارگذاری مقاوم (Resilient Loader) در افزونه مکمل</h3>
+                  </div>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <strong>علت قبلی:</strong> اگر یکی از ماژول‌های نوبت‌دهی یا پیگیری پرونده با افزونه دیگری از وردپرس تداخل پیدا می‌کرد، کل پیشخوان مدیریت بالا نمی‌آمد.
+                  </p>
+                  <div className="p-3 rounded-xl bg-white dark:bg-black/40 border border-amber-200 dark:border-amber-900 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                    ✓ <strong>راه‌حل اعمال‌شده:</strong> ماژول‌های افزونه با <code className="font-mono">try-catch</code> و ایزولاسیون کامل بارگذاری می‌شوند؛ حتی در صورت بروز مشکل در یک ماژول، سایت و پنل مدیریت پایدار باقی می‌مانند.
+                  </div>
+                </div>
+
+                {/* Cause 7: Dedicated Logging System */}
+                <div className="p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/40 space-y-3 md:col-span-2">
+                  <div className="flex items-center gap-2 text-indigo-800 dark:text-indigo-400 font-bold text-sm">
+                    <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">۷</span>
+                    <h3>سیستم خودکار ثبت خطای داخلی و داشبورد لاگ در پیشخوان (sedrazavi-logs)</h3>
+                  </div>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <strong>ویژگی جدید:</strong> در هاست‌های اشتراکی اغلب دسترسی به فایل لاگ سرور وجود ندارد. افزونه دارای موتور اختصاصی ثبت خطا است که تمام خطاها، هشدارها و استثناها را در مسیر زیر به صورت زنده ثبت می‌کند:
+                  </p>
+                  <div className="p-3 rounded-xl bg-black/80 text-emerald-400 font-mono text-xs flex items-center justify-between" dir="ltr">
+                    <span>wp-content/uploads/sedrazavi-logs/debug.log</span>
+                    <span className="text-[10px] text-gray-400 bg-gray-800 px-2 py-0.5 rounded">محافظت‌شده با .htaccess</span>
+                  </div>
+                  <p className="text-[11px] text-gray-600 dark:text-gray-400">
+                    💡 همچنین در پیشخوان وردپرس می‌توانید به منوی <strong>«ابزارها &gt; لاگ خطای سید رضوی»</strong> رفته و به صورت زنده وضعیت لاگ‌ها را بدون نیاز به باز کردن هاست مشاهده و فیلتر نمایید.
+                  </p>
                 </div>
 
               </div>
