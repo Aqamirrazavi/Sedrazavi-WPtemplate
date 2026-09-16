@@ -154,3 +154,237 @@ export interface WordPressFile {
   description: string;
   code: string;
 }
+
+// ==========================================
+// Phase 5 Types: ODR, Virtual Court & Petitions
+// ==========================================
+
+export interface ArbitrationPleading {
+  id: string;
+  sender: 'claimant' | 'respondent' | 'arbitrator';
+  senderName: string;
+  title: string;
+  date: string;
+  content: string;
+  attachments?: string[];
+  trackingCode: string;
+}
+
+export interface ArbitrationCase {
+  id: string;
+  caseNumber: string;
+  arbitrationCode: string;
+  disputeTitle: string;
+  claimantName: string;
+  claimantNationalId: string;
+  claimantLawyer: string;
+  respondentName: string;
+  respondentNationalId: string;
+  respondentLawyer?: string;
+  arbitratorName: string;
+  arbitratorLicense: string;
+  claimAmountToman: number;
+  arbitrationClauseType: 'ماده داوری قرارداد' | 'موافقت‌نامه داوری مستقل' | 'ارجاع از دادگاه';
+  registrationDate: string;
+  hearingDate: string;
+  status: 'در حال تبادل لوایح' | 'جلسه استماع آنلاین' | 'در شرف صدور رأی' | 'رأی داوری صادر شد' | 'ابلاغ شده به اجرای احکام';
+  pleadings: ArbitrationPleading[];
+  awardSummary?: string;
+  awardFullText?: string;
+  awardDate?: string;
+  enforcementBranch?: string;
+}
+
+export interface PetitionFieldDefinition {
+  name: string;
+  label: string;
+  type: 'text' | 'number' | 'textarea' | 'date' | 'select';
+  placeholder?: string;
+  defaultValue?: string;
+  options?: string[];
+  required?: boolean;
+}
+
+export interface PetitionTemplate {
+  id: string;
+  title: string;
+  category: 'دعاوی ملکی' | 'اسناد تجاری و تعهدات' | 'حقوق خانواده' | 'دعاوی کیفری' | 'لوایح دادرسی';
+  subjectTitle: string;
+  targetCourt: 'دادگاه عمومی حقوقی' | 'شورای حل اختلاف' | 'دادگاه تجدیدنظر استان' | 'دادسرا و دادگاه کیفری دو';
+  legalArticles: string[];
+  requiredDocuments: string[];
+  defaultText: string;
+  customFields?: PetitionFieldDefinition[];
+}
+
+export interface VirtualHearingSession {
+  id: string;
+  sessionCode: string;
+  title: string;
+  caseNumber: string;
+  branchName: string;
+  scheduledDateTime: string;
+  durationMinutes: number;
+  judgeOrArbitrator: string;
+  claimantName: string;
+  claimantLawyer: string;
+  respondentName: string;
+  respondentLawyer: string;
+  status: 'در انتظار تشکیل' | 'در حال برگزاری' | 'خاتمه‌یافته' | 'تجدید وقت';
+  isEncrypted: boolean;
+  recordingAvailable: boolean;
+  agenda: string[];
+}
+
+// ==========================================
+// Phase 6 Types: AI Legal Intelligence, Contract Audit & Precedents
+// ==========================================
+
+export type ContractRiskLevel = 'critical' | 'high' | 'medium' | 'low';
+
+export interface ContractClauseAudit {
+  clauseId: string;
+  title: string;
+  originalText: string;
+  riskLevel: ContractRiskLevel;
+  issueDescription: string;
+  legalDanger: string;
+  recommendedRevision: string;
+  relevantLegalArticle: string;
+}
+
+export interface ContractAuditSample {
+  id: string;
+  title: string;
+  category: 'مشارکت در ساخت' | 'مبایعه‌نامه املاک' | 'قرارداد کار و محرمانگی NDA' | 'واگذاری سهام و استارتاپ' | 'تعهدات پیمانکاری';
+  description: string;
+  overallSafetyScore: number;
+  sampleRawText: string;
+  clauses: ContractClauseAudit[];
+}
+
+export interface SupremeCourtPrecedent {
+  id: string;
+  number: string;
+  date: string;
+  category: 'ملکی و ثبتی' | 'اسناد تجاری و تعهدات' | 'خانواده و ارث' | 'حقوق بانکی و خسارت تاخیر' | 'کیفری و جرایم رایانه‌ای';
+  title: string;
+  shortSummary: string;
+  fullRuling: string;
+  keyTakeaway: string;
+  legalCitations: string[];
+  citationTemplate: string;
+  isBinding: boolean;
+}
+
+export interface PropertyDueDiligenceCheck {
+  id: string;
+  title: string;
+  category: 'اسناد مالکیت' | 'محدودیت‌های ثبتی و بازداشت' | 'تعهدات شهرداری و اوقاف' | 'طرفین معامله و اهلیت';
+  description: string;
+  riskWeight: number;
+  howToCheck: string;
+  warningSigns: string[];
+  lawyerAdvice: string;
+}
+
+// ==========================================
+// Phase 7 Types: Legal Strategy, Statutory Deadlines & Encrypted Vault
+// ==========================================
+
+export type DisputeFieldCategory =
+  | 'ملکی و ثبتی'
+  | 'اسناد تجاری و چک'
+  | 'قراردادها و پیمانکاری'
+  | 'بانکی و تسهیلات'
+  | 'خانواده و ارث'
+  | 'کیفری و جرایم اقتصادی';
+
+export interface CaseFactor {
+  id: string;
+  label: string;
+  impactWeight: number; // positive or negative
+  category: 'evidence' | 'procedure' | 'precedent' | 'partyStatus';
+  description: string;
+}
+
+export interface JudicialDeadlineRule {
+  id: string;
+  title: string;
+  category: 'اعتراض به آراء' | 'دستورات و قرارهای دادرسی' | 'مواهد کارشناسی و ابلاغ' | 'دعاوی کیفری و دادسرا';
+  durationDays: number;
+  durationForeignDays: number;
+  statutoryArticle: string;
+  description: string;
+  ruleExplanation: string;
+  appliesTo: 'ابلاغ واقعی' | 'ابلاغ قانونی' | 'هر دو نوع ابلاغ';
+}
+
+export interface ClientVaultDocument {
+  id: string;
+  title: string;
+  category: 'اسناد مالکیت' | 'اسناد تجاری و چک' | 'قراردادها' | 'ادله صوتی و دیجیتال' | 'آراء و اوراق قضایی';
+  fileType: 'pdf' | 'image' | 'audio' | 'contract';
+  fileSize: string;
+  uploadDate: string;
+  sha256Hash: string;
+  confidentialityLevel: 'عادی' | 'محرمانه موکل' | 'فوق‌سری دادگاه' | 'امتیاز محرمانگی دفاع';
+  caseTrackingCode: string;
+  lawyerCertified: boolean;
+  notes: string;
+}
+
+// ==========================================
+// Phase 8 Types: Corporate Governance, Incoterms & International Arbitration
+// ==========================================
+
+export type CompanyType = 'سهامی خاص' | 'با مسئولیت محدود' | 'سهامی عام' | 'تضامنی' | 'دانش‌بنیان / استارتاپ';
+
+export interface CorporateDecisionQuorum {
+  id: string;
+  title: string;
+  assemblyType: 'مجمع عمومی عادی' | 'مجمع عمومی عادی به‌طور فوق‌العاده' | 'مجمع عمومی فوق‌العاده' | 'هیئت مدیره';
+  firstCallQuorum: string; // نصاب دعوت اول
+  secondCallQuorum: string; // نصاب دعوت دوم
+  decisionMajority: string; // اکثریت لازم برای تصویب
+  statutoryArticle: string;
+  requiredDocuments: string[];
+  registrationDeadlineDays: number;
+  lawyerTips: string;
+}
+
+export type IncotermsTransportType = 'any' | 'sea_only';
+
+export interface IncotermsRule {
+  code: string; // EXW, FCA, CPT, CIP, DAP, DPU, DDP, FAS, FOB, CFR, CIF
+  nameEn: string;
+  nameFa: string;
+  transportType: IncotermsTransportType;
+  category: 'E-Term' | 'F-Term' | 'C-Term' | 'D-Term';
+  sellerRiskUntil: string;
+  buyerRiskFrom: string;
+  freightPayer: 'فروشنده' | 'خریدار';
+  insuranceResponsible: 'فروشنده (پوشش حداکثری A)' | 'فروشنده (پوشش حداقلی C)' | 'خریدار' | 'اختیاری طرفین';
+  exportCustoms: 'فروشنده' | 'خریدار';
+  importCustoms: 'فروشنده' | 'خریدار';
+  riskScore: number; // 1 (کمترین ریسک خریدار) تا 10 (بیشترین ریسک خریدار)
+  practicalAdvice: string;
+  cisgCompatibilityNote: string;
+}
+
+export interface ArbitrationInstitution {
+  id: string;
+  nameFa: string;
+  nameEn: string;
+  headquarters: string;
+  governingRules: string;
+  applicableLawRecommendation: string;
+  languageRecommendation: string;
+  standardClauseEn: string;
+  standardClauseFa: string;
+  avgDurationMonths: number;
+  newYorkConventionEnforceable: boolean;
+  adminFeeFormulaDescription: string;
+  expertTips: string;
+}
+

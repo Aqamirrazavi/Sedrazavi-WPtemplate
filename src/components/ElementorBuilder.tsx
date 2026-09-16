@@ -1,7 +1,33 @@
 import React, { useState } from 'react';
 import { ELEMENTOR_BLOCKS_DATA } from '../data/mockData';
 import { ElementorBlockDef } from '../types/theme';
-import { Sparkles, Layers, Sliders, Check, Copy, Code, Eye, Monitor, Tablet, Smartphone } from 'lucide-react';
+import {
+  Sparkles,
+  Layers,
+  Sliders,
+  Check,
+  Copy,
+  Code,
+  Eye,
+  Monitor,
+  Tablet,
+  Smartphone,
+  Quote,
+  Compass,
+  Sun,
+  Moon,
+  Home,
+  Gavel,
+  PenTool,
+  Camera,
+  Scale,
+  Calendar,
+  ArrowUp,
+  Shield,
+  Award,
+  BookOpen,
+} from 'lucide-react';
+import { TextBannerSlider } from './TextBannerSlider';
 
 export const ElementorBuilder: React.FC = () => {
   const [selectedBlock, setSelectedBlock] = useState<ElementorBlockDef>(ELEMENTOR_BLOCKS_DATA[0]);
@@ -231,7 +257,7 @@ export const ElementorBuilder: React.FC = () => {
 
               {/* Render Preview Box based on selected block */}
               <div
-                className={`mx-auto transition-all duration-300 bg-[#F4F6F9] dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border border-dashed border-[#D4AF37]/50 ${
+                className={`mx-auto transition-all duration-300 bg-[#F4F6F9] dark:bg-gray-900 rounded-2xl p-4 sm:p-6 border border-dashed border-[#D4AF37]/50 overflow-hidden ${
                   previewDevice === 'desktop'
                     ? 'w-full'
                     : previewDevice === 'tablet'
@@ -239,28 +265,133 @@ export const ElementorBuilder: React.FC = () => {
                     : 'max-w-xs'
                 }`}
               >
-                <div className="space-y-4 text-center">
-                  <div className="inline-block p-3 rounded-2xl bg-[#D4AF37]/15 text-[#AA820A] dark:text-[#F3E5AB]">
-                    <Sparkles className="w-8 h-8" />
+                {/* 1. Specialized Preview: Text Banner Slider */}
+                {selectedBlock.code === 'sedrazavi_banner_slider' && (
+                  <div className="space-y-3">
+                    <span className="text-[11px] font-bold text-[#D4AF37] block text-center">
+                      پیش‌نمایش زنده بنر اسلایدر متنی احادیث و اشعار (فاز ۲)
+                    </span>
+                    <div className="rounded-xl overflow-hidden border border-[#D4AF37]/40 shadow-lg">
+                      <TextBannerSlider />
+                    </div>
                   </div>
+                )}
 
-                  <h3 className="text-xl sm:text-2xl font-bold font-serif text-[#0B132B] dark:text-white">
-                    {blockOptions['عنوان اصلی هیرو'] || blockOptions['عنوان فرم'] || selectedBlock.title}
-                  </h3>
+                {/* 2. Specialized Preview: Floating Scrollbar & 7-Icon Menu */}
+                {selectedBlock.code === 'sedrazavi_floating_scrollbar' && (
+                  <div className="space-y-4 text-center py-4">
+                    <span className="text-[11px] font-bold text-[#D4AF37] block">
+                      پیش‌نمایش زنده دکمه شناور ۵۰×۵۰ و منوی کشویی ۷ آیکون (فاز ۲)
+                    </span>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6 p-4 rounded-xl bg-[#060B18] border border-[#D4AF37]/40 text-white">
+                      {/* Floating button */}
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-[50px] h-[50px] rounded-full bg-gradient-to-tr from-[#D4AF37] via-[#FCE38A] to-[#AA820A] text-[#0B132B] font-bold shadow-[0_4px_20px_rgba(212,175,55,0.5)] flex items-center justify-center animate-pulse">
+                          <Compass className="w-6 h-6 stroke-[2.2]" />
+                        </div>
+                        <span className="text-[10px] text-gray-400">دکمه ۵۰×۵۰ شناور</span>
+                      </div>
 
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 max-w-md mx-auto leading-relaxed">
-                    {selectedBlock.description}
-                  </p>
-
-                  <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-                    <button className="btn-gold text-xs px-5 py-2.5 rounded-xl">
-                      دکمه اقدام نمونه بلاک
-                    </button>
-                    <button className="btn-outline-navy dark:border-gray-600 dark:text-gray-200 text-xs px-4 py-2 rounded-xl">
-                      مشاهده اطلاعات
-                    </button>
+                      {/* 7-Icon menu */}
+                      <div className="flex flex-wrap sm:flex-col gap-1.5 p-2 rounded-xl bg-white/5 border border-white/10 text-xs">
+                        <div className="flex items-center gap-2 px-2 py-1 text-[#D4AF37]">
+                          <Home className="w-3.5 h-3.5" /> <span>۱. صفحه اصلی</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-2 py-1 text-gray-300">
+                          <Gavel className="w-3.5 h-3.5 text-[#D4AF37]" /> <span>۲. خدمات حقوقی</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-2 py-1 text-gray-300">
+                          <PenTool className="w-3.5 h-3.5 text-[#D4AF37]" /> <span>۳. مقالات و وبلاگ</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-2 py-1 text-gray-300">
+                          <Camera className="w-3.5 h-3.5 text-[#D4AF37]" /> <span>۴. رسانه و ویدئو</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-2 py-1 text-gray-300">
+                          <Scale className="w-3.5 h-3.5 text-[#D4AF37]" /> <span>۵. درباره وکیل</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-2 py-1 text-gray-300">
+                          <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" /> <span>۶. رزرو نوبت</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-2 py-1 text-[#FCE38A] border-t border-gray-700">
+                          <ArrowUp className="w-3.5 h-3.5" /> <span>۷. بازگشت به بالا</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* 3. Specialized Preview: Theme Toggle Switch */}
+                {selectedBlock.code === 'sedrazavi_theme_toggle' && (
+                  <div className="space-y-4 text-center py-6">
+                    <span className="text-[11px] font-bold text-[#D4AF37] block">
+                      پیش‌نمایش سوییچ حالت شب و روز با آیکون خورشید و ماه (فاز ۲)
+                    </span>
+                    <div className="flex items-center justify-center gap-6 p-6 rounded-2xl bg-white dark:bg-[#060B18] border border-gray-200 dark:border-gray-800 shadow-md">
+                      <div className="flex items-center gap-3 p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700">
+                        <button className="p-2 rounded-full bg-amber-400 text-[#0B132B] shadow-sm">
+                          <Sun className="w-4 h-4" />
+                        </button>
+                        <button className="p-2 rounded-full text-gray-400 hover:text-white">
+                          <Moon className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 font-bold">
+                        پالت شب (لوکس سرمه‌ای و طلایی) / پالت روز (سفید مرمری)
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. Specialized Preview: Trust Counter */}
+                {selectedBlock.code === 'sedrazavi_trust_counter' && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-3">
+                    <div className="p-4 rounded-xl bg-white dark:bg-[#0B132B] border border-[#D4AF37]/30 text-center">
+                      <span className="text-2xl font-bold font-serif text-[#D4AF37]">۱۲۸۰+</span>
+                      <p className="text-xs text-gray-500 mt-1">پرونده موفق حقوقی</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white dark:bg-[#0B132B] border border-[#D4AF37]/30 text-center">
+                      <span className="text-2xl font-bold font-serif text-[#D4AF37]">۹۸٪</span>
+                      <p className="text-xs text-gray-500 mt-1">رضایت موکلین</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white dark:bg-[#0B132B] border border-[#D4AF37]/30 text-center">
+                      <span className="text-2xl font-bold font-serif text-[#D4AF37]">۲۰+</span>
+                      <p className="text-xs text-gray-500 mt-1">سال سابقه وکالت</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white dark:bg-[#0B132B] border border-[#D4AF37]/30 text-center">
+                      <span className="text-2xl font-bold font-serif text-[#D4AF37]">۱۵</span>
+                      <p className="text-xs text-gray-500 mt-1">کانون وکلای مرکز</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* 5. Default General Preview for other blocks */}
+                {selectedBlock.code !== 'sedrazavi_banner_slider' &&
+                  selectedBlock.code !== 'sedrazavi_floating_scrollbar' &&
+                  selectedBlock.code !== 'sedrazavi_theme_toggle' &&
+                  selectedBlock.code !== 'sedrazavi_trust_counter' && (
+                    <div className="space-y-4 text-center">
+                      <div className="inline-block p-3 rounded-2xl bg-[#D4AF37]/15 text-[#AA820A] dark:text-[#F3E5AB]">
+                        <Sparkles className="w-8 h-8" />
+                      </div>
+
+                      <h3 className="text-xl sm:text-2xl font-bold font-serif text-[#0B132B] dark:text-white">
+                        {blockOptions['عنوان اصلی هیرو'] || blockOptions['عنوان فرم'] || selectedBlock.title}
+                      </h3>
+
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 max-w-md mx-auto leading-relaxed">
+                        {selectedBlock.description}
+                      </p>
+
+                      <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                        <button className="btn-gold text-xs px-5 py-2.5 rounded-xl">
+                          دکمه اقدام نمونه بلاک
+                        </button>
+                        <button className="btn-outline-navy dark:border-gray-600 dark:text-gray-200 text-xs px-4 py-2 rounded-xl">
+                          مشاهده اطلاعات
+                        </button>
+                      </div>
+                    </div>
+                  )}
               </div>
             </div>
 

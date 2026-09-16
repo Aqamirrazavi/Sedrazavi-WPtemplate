@@ -15,6 +15,11 @@ import { ElementorBuilder } from './components/ElementorBuilder';
 import { ShortcodesHub } from './components/ShortcodesHub';
 import { SystemArchitectureHub } from './components/SystemArchitectureHub';
 import { WordPressCodeViewer } from './components/WordPressCodeViewer';
+import { LegalFinancialSuite } from './components/legal-finance/LegalFinancialSuite';
+import { LegalOdrSuite } from './components/legal-odr/LegalOdrSuite';
+import { LegalIntelligenceSuite } from './components/legal-ai/LegalIntelligenceSuite';
+import { LegalStrategySuite } from './components/legal-strategy/LegalStrategySuite';
+import { CorporateInternationalSuite } from './components/corporate-international/CorporateInternationalSuite';
 import { ArchiveView } from './components/ArchiveView';
 import { SingleContentView } from './components/SingleContentView';
 import { OnboardingTour } from './components/OnboardingTour';
@@ -29,6 +34,7 @@ import { CaseTrackingPageView } from './components/CaseTrackingPageView';
 import { OtpAuthModal } from './components/OtpAuthModal';
 import { QuickCallbackModal } from './components/QuickCallbackModal';
 import { LawyerHeroSlider } from './components/LawyerHeroSlider';
+import { TextBannerSlider } from './components/TextBannerSlider';
 import {
   LawyerSiteProfile,
   getStoredLawyerProfile,
@@ -169,6 +175,11 @@ export default function App() {
         isMainPage={activeView === 'preview'}
         onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
         onOpenCaseTracker={handleOpenCaseTracker}
+        onOpenFinance={() => setActiveView('finance')}
+        onOpenPhase5={() => setActiveView('odr-suite')}
+        onOpenPhase6={() => setActiveView('legal-ai')}
+        onOpenPhase7={() => setActiveView('strategy-suite')}
+        onOpenPhase8={() => setActiveView('corporate-suite')}
         onNavigateSection={(sectionId) => {
           if (activeView !== 'preview') {
             setActiveView('preview');
@@ -187,6 +198,11 @@ export default function App() {
       <main>
         {activeView === 'preview' && (
           <div>
+            {/* 0. Religious & Literary Text Banner Slider (SPEC Part 3 Section 4 & Part 4 Section 1) */}
+            {lawyerProfile.showBannerSlider !== false && (
+              <TextBannerSlider slides={lawyerProfile.bannerSlides} />
+            )}
+
             {/* 1. Legal Stories Bar (Editable in Admin Panel) */}
             <div id="stories">
               <StoryBar
@@ -263,7 +279,13 @@ export default function App() {
             </div>
 
             {/* 10. Footer */}
-            <Footer profile={lawyerProfile} />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+            />
           </div>
         )}
 
@@ -274,7 +296,13 @@ export default function App() {
               onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
               onBackToHome={() => setActiveView('preview')}
             />
-            <Footer profile={lawyerProfile} />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+            />
           </div>
         )}
 
@@ -284,14 +312,25 @@ export default function App() {
               onBookService={handleBookService}
               onBackToHome={() => setActiveView('preview')}
             />
-            <Footer profile={lawyerProfile} />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+            />
           </div>
         )}
 
         {activeView === 'contact-page' && (
           <div>
             <ContactPageView onBackToHome={() => setActiveView('preview')} />
-            <Footer profile={lawyerProfile} />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+            />
           </div>
         )}
 
@@ -301,7 +340,12 @@ export default function App() {
               onBackToHome={() => setActiveView('preview')}
               onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
             />
-            <Footer profile={lawyerProfile} />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+            />
           </div>
         )}
 
@@ -314,7 +358,12 @@ export default function App() {
               onSelectVideo={handleSelectVideo}
               onBackToHome={() => setActiveView('preview')}
             />
-            <Footer profile={lawyerProfile} />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+            />
           </div>
         )}
 
@@ -330,7 +379,12 @@ export default function App() {
               onSelectRelatedVideo={handleSelectVideo}
               onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
             />
-            <Footer profile={lawyerProfile} />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+            />
           </div>
         )}
 
@@ -349,7 +403,12 @@ export default function App() {
               }}
               onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
             />
-            <Footer profile={lawyerProfile} />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+            />
           </div>
         )}
 
@@ -358,6 +417,82 @@ export default function App() {
         {activeView === 'shortcodes' && <ShortcodesHub />}
 
         {activeView === 'architecture' && <SystemArchitectureHub />}
+
+        {activeView === 'finance' && (
+          <div>
+            <LegalFinancialSuite
+              onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+              onOpenCaseTracker={handleOpenCaseTracker}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+            />
+          </div>
+        )}
+
+        {activeView === 'odr-suite' && (
+          <div>
+            <LegalOdrSuite
+              onBackToHome={() => setActiveView('preview')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+            />
+          </div>
+        )}
+
+        {activeView === 'legal-ai' && (
+          <div>
+            <LegalIntelligenceSuite
+              onBackToHome={() => setActiveView('preview')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+            />
+          </div>
+        )}
+
+        {activeView === 'strategy-suite' && (
+          <div>
+            <LegalStrategySuite
+              onBackToHome={() => setActiveView('preview')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+            />
+          </div>
+        )}
+
+        {activeView === 'corporate-suite' && (
+          <div>
+            <CorporateInternationalSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenBooking={() => handleBookService('مشاوره حقوقی شرکت‌ها و تجارت بین‌الملل')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+            />
+          </div>
+        )}
 
         {activeView === 'code' && <WordPressCodeViewer />}
       </main>

@@ -6,9 +6,14 @@ import { AttorneySocialAccounts } from './AttorneySocialAccounts';
 
 interface FooterProps {
   profile?: LawyerSiteProfile;
+  onOpenFinance?: () => void;
+  onOpenPhase5?: () => void;
+  onOpenPhase6?: () => void;
+  onOpenPhase7?: () => void;
+  onOpenPhase8?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ profile }) => {
+export const Footer: React.FC<FooterProps> = ({ profile, onOpenFinance, onOpenPhase5, onOpenPhase6, onOpenPhase7, onOpenPhase8 }) => {
   const brandName = profile?.siteTitle || 'SedRazavi';
   const lawyerName = profile?.lawyerName || ATTORNEY_INFO.name;
   const address = profile?.officeAddress || ATTORNEY_INFO.officeAddress;
@@ -95,6 +100,56 @@ export const Footer: React.FC<FooterProps> = ({ profile }) => {
                   <span className="text-[#D4AF37]">‹</span> رزرو وقت مشاوره حضوری
                 </a>
               </li>
+              {onOpenFinance && (
+                <li>
+                  <button
+                    onClick={onOpenFinance}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right"
+                  >
+                    <span className="text-[#D4AF37]">‹</span> میز محاسبات قضایی، قرارداد و پرداخت (فاز ۴)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase5 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase5}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-indigo-300 font-semibold"
+                  >
+                    <span className="text-[#D4AF37]">⚖️</span> مرکز داوری آنلاین، دادگاه مجازی و لوایح (فاز ۵)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase6 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase6}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-amber-300 font-bold"
+                  >
+                    <span className="text-[#D4AF37]">⚡</span> هوش حقوقی، ممیزی قرارداد و تنقیح آراء (فاز ۶)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase7 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase7}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-[#D4AF37] font-bold"
+                  >
+                    <span className="text-[#D4AF37]">🛡️</span> استراتژی دادرسی، مواعد قانونی و گاوصندوق اسناد (فاز ۷)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase8 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase8}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-blue-400 font-bold"
+                  >
+                    <span className="text-[#D4AF37]">🌐</span> امور شرکت‌ها، اینکوترمز ۲۰۲۰ و داوری بازرگانی بین‌الملل (فاز ۸)
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -207,8 +262,37 @@ export const Footer: React.FC<FooterProps> = ({ profile }) => {
           />
         </div>
 
+        {/* Designer Credits - Mandated in SPEC Part 1 Section 7 & ROADMAP */}
+        <div className="pt-8 pb-4 border-t border-gray-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-3">
+          <div className="flex items-center gap-2">
+            <span>طراحی و توسعه توسط</span>
+            <span className="text-[#D4AF37] font-bold">سید امیر حسین رضوی فردویی</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs">
+            <a
+              href="https://t.me/sedrazavi"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-gray-300 hover:text-[#D4AF37] transition-colors"
+            >
+              <span className="w-2 h-2 rounded-full bg-sky-500 inline-block"></span>
+              <span>تلگرام: @sedrazavi</span>
+            </a>
+            <span className="text-gray-700">|</span>
+            <a
+              href="https://eitaa.com/sedrazavi"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-gray-300 hover:text-[#D4AF37] transition-colors"
+            >
+              <span className="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+              <span>ایتا: @sedrazavi</span>
+            </a>
+          </div>
+        </div>
+
         {/* Bottom Copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
+        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
           <p>
             &copy; {new Date().getFullYear()} دفتر وکالت و داوری بین‌المللی {brandName}. تمامی حقوق محفوظ است.
           </p>

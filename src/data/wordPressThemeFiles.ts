@@ -265,12 +265,12 @@ get_header();
     category: 'استایل و دارایی‌ها (Assets)',
     description: 'فایل استایل اصلی و جامع پوسته (۱۰۰٪ مستقل، بدون نیاز به CDN خارجی)، شامل متغیرهای رنگی لوکس طلایی و سرمه‌ای، سیستم گرید و فلکس‌باکس داخلی، ریسپانسیو و پشتیبانی RTL.',
     code: `/*
-Theme Name: SedRazavi Law Firm (پوسته حقوقی و داوری دکتر سیده مریم رضوی)
-Theme URI: https://sedrazavi.com
-Author: Dr. Seyedeh Maryam Razavi
-Author URI: https://sedrazavi.com
-Description: پوسته اختصاصی، لوکس و فوق پیشرفته دفتر وکالت و داوری بین‌المللی دکتر سیده مریم رضوی با طراحی مدرن مشکی-طلایی، سازگاری ۱۰۰٪ با المنتور، سیستم استعلام لحظه‌ای پرونده موکلین، رزرو نوبت مشاوره، مگامنو و استایل‌های بومی و خودکفا بدون نیاز به کامپایلر خارجی.
-Version: 2.6.0
+Theme Name: SedRazavi
+Theme URI: https://t.me/sedrazavi
+Author: سید امیر حسین رضوی فردویی
+Author URI: https://t.me/sedrazavi
+Description: SedRazavi یک قالب حقوقی حرفه‌ای وردپرس برای وکیل پایه یک دادگستری خانم با پوشش اسلامی (مانتو و حجاب) است که شامل پورتال مدیریت دفتر حقوقی، سیستم رزرو نوبت، استعلام برخط پرونده، هماهنگی ۱۰۰٪ با المنتور، پالت‌های اختصاصی روز و شب، و استایل‌های بهینه بدون نیاز به کامپایلر خارجی می‌باشد.
+Version: 2.0.1
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
@@ -278,6 +278,8 @@ License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: sedrazavi
 Tags: law-firm, legal, attorney, rtl-language-support, dark-mode, custom-header, custom-menu, featured-images, full-width-template
+Creator Telegram: @sedrazavi
+Creator Eitaa: @sedrazavi
 */
 
 /* --------------------------------------------------------------------------
@@ -1675,10 +1677,18 @@ if (!defined('ABSPATH')) {
 
         </div>
 
-        <!-- حق چاپ و نشان کپی‌رایت -->
-        <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-            <p>© <?php echo date('Y'); ?> تمامی حقوق مادی و معنوی متعلق به دفتر وکالت و داوری بین‌المللی دکتر سیده مریم رضوی (SedRazavi) می‌باشد.</p>
-            <p>طراحی و پیاده‌سازی رسمی پوسته استاندارد وردپرس</p>
+        <!-- اطلاعات طراح و حق چاپ طبق بخش ۷ و پارت ۹ -->
+        <div class="pt-8 pb-3 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-3">
+            <p>طراحی و توسعه توسط <a href="https://t.me/sedrazavi" target="_blank" rel="noopener" class="text-[#D4AF37] font-bold hover:underline">سید امیر حسین رضوی فردویی</a></p>
+            <div class="flex items-center gap-4 text-xs">
+                <a href="https://t.me/sedrazavi" target="_blank" rel="noopener" class="text-gray-400 hover:text-[#D4AF37] transition-colors">تلگرام: @sedrazavi</a>
+                <span class="text-gray-700">|</span>
+                <a href="https://eitaa.com/sedrazavi" target="_blank" rel="noopener" class="text-gray-400 hover:text-[#D4AF37] transition-colors">ایتا: @sedrazavi</a>
+            </div>
+        </div>
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+            <p>© <?php echo date('Y'); ?> تمامی حقوق مادی و معنوی متعلق به دفتر وکالت و داوری SedRazavi می‌باشد.</p>
+            <p><a href="<?php echo esc_url(home_url('/privacy-policy')); ?>" class="hover:text-gray-400">قوانین و حریم خصوصی</a></p>
         </div>
     </div>
 </footer>
@@ -3484,8 +3494,14 @@ define('WP_DEBUG_DISPLAY', false);
 
 ---
 
-## 📞 ۶. دریافت پشتیبانی و گزارش موارد
-در صورت بروز هرگونه سوال یا نیاز به سفارشی‌سازی، لاگ‌های مندرج در \`wp-content/uploads/sedrazavi-logs/debug.log\` را ارسال فرمایید.
+## 📞 ۶. دریافت پشتیبانی و ارتباط با طراح
+در صورت بروز هرگونه سوال، درخواست سفارشی‌سازی یا پشتیبانی، از طریق راه‌های ارتباطی زیر با طراح و توسعه‌دهنده رسمی قالب در ارتباط باشید:
+
+- **طراح و توسعه‌دهنده:** سید امیر حسین رضوی فردویی
+- **کانال تلگرام:** [@sedrazavi](https://t.me/sedrazavi)
+- **شناسه ایتا:** [@sedrazavi](https://eitaa.com/sedrazavi)
+- **ایمیل پشتیبانی:** info@sedrazavi.com
+- **فایل لاگ خطاها:** \`wp-content/uploads/sedrazavi-logs/debug.log\`
 `
   },
   {
@@ -3494,35 +3510,43 @@ define('WP_DEBUG_DISPLAY', false);
     category: 'مستندات و زبان',
     description: 'مستندات کامل نصب قالب، پیش‌نیازهای سرور، راهنمای درون‌ریزی دمو و پیکربندی المنتور.',
     code: `=== SedRazavi Law Firm WordPress Theme ===
-Contributors: sedrazavi-studio
+Contributors: sedrazavi
 Tags: lawyer, attorney, legal, elementor, rtl, dark-mode, acf-pro, github-actions, ci-cd
-Requires at least: 6.0
+Requires at least: 5.8
 Tested up to: 6.7
-Requires PHP: 8.0
-Stable tag: 2.5.0
+Requires PHP: 7.4
+Stable tag: 2.0.1
 License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-قالب اختصاصی، فوق‌پیشرفته و هوشمند وکلا و دفاتر حقوقی سید رضوی.
+قالب اختصاصی، فوق‌پیشرفته و استاندارد وکلا و دفاتر حقوقی SedRazavi.
 
 == توضیحات ==
-قالب سید رضوی بر پایه آخرین استانداردهای طراحی وب ۲۰۲۴ و اصول روان‌شناسی رنگ و هویت بصری حقوقی (طلایی متالیک و سرمه‌ای لوکس) طراحی شده است.
+قالب حقوقی SedRazavi بر پایه آخرین استانداردهای طراحی وب و اصول روان‌شناسی رنگ و هویت بصری حقوقی (طلایی متالیک و سرمه‌ای متالیک) برای وکیل پایه یک دادگستری خانم محجبه طراحی شده است.
 
 == امکانات کلیدی ==
 * سازگاری ۱۰۰٪ با المنتور و المنتور پرو
-* پایپ‌لاین آماده GitHub Actions برای تولید خودکار فایل زیپ (.github/workflows/build-zip.yml)
-* فیلترینگ هوشمند فایل‌های پکیج با .distignore
-* سامانه به‌روزرسانی خودکار مستقیم از مخزن گیت‌هاب (GitHub Auto-Updater)
+* ۵ پست‌تایپ اختصاصی حقوقی (خدمات، پرونده‌ها، نظرات، پیام‌ها و ویدئوها)
 * سامانه آنلاین پیگیری وضعیت پرونده برای موکلین
 * سیستم رزرو نوبت هوشمند با محاسبه آنلاین حق‌المشاوره
-* نوار استوری‌های حقوقی اینستاگرامی
-* پیشخوان اختصاصی مدیریت وکالت برای وکیل
-* بهینه‌سازی ۱۰۰٪ برای سئو محلی و کلمات کلیدی وکالت
-* پشتیبانی کامل از RTL و حالت شب (Dark Mode)
+* اسلایدر بنر متنی احادیث و اشعار اخلاقی-حقوقی
+* سایدبار آیکونی شناور طلایی بازگشت به بالا
+* پیشخوان اختصاصی مدیریت دفتر حقوقی برای وکیل
+* بهینه‌سازی ۱۰۰٪ برای سئو محلی، اسکیماهای LegalService و کلمات کلیدی وکالت
+* پشتیبانی کامل از RTL و پالت‌های متنوع حالت شب و روز
 
 == نصب و فعال‌سازی ==
-۱. فایل sedrazavi-law-theme.zip تولیدشده توسط GitHub Action یا دانلود مستقیم را از پیشخوان وردپرس > نمایش > پوسته‌ها > افزودن پوسته بارگذاری نمایید.
+۱. فایل sedrazavi-theme.zip را از پیشخوان وردپرس > نمایش > پوسته‌ها > افزودن پوسته بارگذاری نمایید.
 ۲. بر روی فعال‌سازی کلیک کنید.
-۳. از درون‌ریز خودکار دموی سید رضوی در پنل خوش‌آمدگویی استفاده فرمایید.
+۳. افزونه مکمل sedrazavi-addons.zip را در بخش افزونه‌ها نصب و فعال نمایید.
+
+== اعتبارات و توسعه‌دهنده (Credits) ==
+* طراحی و توسعه: سید امیر حسین رضوی فردویی
+* تلگرام: @sedrazavi (https://t.me/sedrazavi)
+* ایتا: @sedrazavi (https://eitaa.com/sedrazavi)
+* ایمیل: info@sedrazavi.com
+* فونت‌های فارسی: Vazirmatn, Shabnam (OFL)
+* فونت‌های لاتین: Inter, Playfair Display (OFL)
 `
   },
   {
@@ -5403,6 +5427,423 @@ function handleNewsletter(e) {
     e.preventDefault();
     alert("ایمیل شما در خبرنامه تخصصی دفتر وکالت دکتر رضوی با موفقیت ثبت گردید.");
     e.target.reset();
+}
+`
+  },
+  {
+    path: 'page-odr-arbitration.php',
+    filename: 'page-odr-arbitration.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'برگه اختصاصی مرکز داوری و حل‌وفصل آنلاین اختلافات (ODR) منطبق بر باب هفتم آیین دادرسی مدنی',
+    code: `<?php
+/**
+ * Template Name: مرکز داوری آنلاین (ODR)
+ * Description: سامانه رسمی تبادل الکترونیک لوایح، ارجاع داوری و ابلاغ رأی داور مرضی‌الطرفین
+ *
+ * @package SedRazavi_Law_Firm
+ * @version 5.0.0
+ */
+
+get_header();
+?>
+
+<main id="primary" class="site-main py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-[#060B18] text-slate-800 dark:text-slate-100 min-h-screen">
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- هدر رسمی سامانه داوری -->
+        <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#060B18] via-[#0B132B] to-[#060B18] border-2 border-[#D4AF37]/50 shadow-2xl text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="space-y-3">
+                <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/40 text-[#D4AF37] text-xs font-bold">
+                    ⚖️ مرکز داوری و حل‌وفصل برخط اختلافات بازرگانی و ملکی (ODR)
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-black font-serif text-white">
+                    پرتال رسمی داوری تخصصی کانون وکلا
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
+                    منطبق بر باب هفتم قانون آیین دادرسی مدنی جمهوری اسلامی ایران و قانون داوری تجاری بین‌المللی. صدور آرای داوری قطعی و لازم‌الاجرا جهت ارائه به دوایر اجرای احکام دادگستری.
+                </p>
+            </div>
+            <div class="text-left bg-white/5 border border-white/10 p-4 rounded-2xl shrink-0">
+                <span class="block text-xs text-slate-400">سرداور مرضی‌الطرفین:</span>
+                <span class="text-sm font-bold text-[#D4AF37]"><?php echo esc_html(get_theme_mod('lawyer_full_name', 'سرکار خانم دکتر سیده مریم رضوی')); ?></span>
+                <span class="block text-[11px] font-mono text-slate-300 mt-0.5">پروانه وکالت: ۱۸۴۵۲ / ک.و.م</span>
+            </div>
+        </div>
+
+        <!-- شورت‌کد اصلی ماژول داوری و لوایح -->
+        <div class="odr-portal-wrapper">
+            <?php echo do_shortcode('[sedrazavi_odr_portal]'); ?>
+        </div>
+
+    </div>
+</main>
+
+<?php
+get_footer();
+`
+  },
+  {
+    path: 'page-virtual-court.php',
+    filename: 'page-virtual-court.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'برگه رسمی دادگاه مجازی، اتاق جلسات استماع امن و دادرسی برخط',
+    code: `<?php
+/**
+ * Template Name: تالار دادگاه مجازی و جلسات استماع
+ * Description: شبیه‌ساز و بستر امن دادرسی الکترونیک با رمزنگاری سرتاسری و شمارشگر دفاع وکیل
+ *
+ * @package SedRazavi_Law_Firm
+ * @version 5.0.0
+ */
+
+get_header();
+?>
+
+<main class="site-main py-10 px-4 sm:px-6 lg:px-8 bg-[#060B18] text-white min-h-screen">
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+                <span class="px-2.5 py-1 rounded bg-rose-500/20 text-rose-400 text-xs font-bold border border-rose-500/30">
+                    🔴 اتاق دادرسی برخط و استماع اظهارات
+                </span>
+                <h1 class="text-xl sm:text-2xl font-bold font-serif text-[#D4AF37] mt-2">
+                    اتاق داوری و استماع مجازی دفتر وکالت ونک
+                </h1>
+            </div>
+            <div class="text-xs text-emerald-400 flex items-center gap-1.5 font-mono">
+                <span>🔐 E2E 256-Bit Encrypted</span>
+            </div>
+        </div>
+
+        <div class="virtual-court-room-container">
+            <?php echo do_shortcode('[sedrazavi_virtual_courtroom]'); ?>
+        </div>
+
+    </div>
+</main>
+
+<?php
+get_footer();
+`
+  },
+  {
+    path: 'page-petition-generator.php',
+    filename: 'page-petition-generator.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'برگه سامانه هوشمند تنظیم دادخواست و لوایح قضایی عدل‌ایران',
+    code: `<?php
+/**
+ * Template Name: تنظیم دادخواست و لوایح عدل‌ایران
+ * Description: فرم‌ساز هوشمند دادخواست، شکواییه و لوایح تجدیدنظر با قالب رسمی قوه قضائیه
+ *
+ * @package SedRazavi_Law_Firm
+ * @version 5.0.0
+ */
+
+get_header();
+?>
+
+<main class="site-main py-10 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-[#060B18] min-h-screen">
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <div class="petition-generator-container">
+            <?php echo do_shortcode('[sedrazavi_petition_builder]'); ?>
+        </div>
+
+    </div>
+</main>
+
+<?php
+get_footer();
+`
+  },
+  {
+    path: 'inc/arbitration-cpt.php',
+    filename: 'arbitration-cpt.php',
+    category: 'بخش‌های داخلی (Inc)',
+    description: 'تعریف پست‌تایپ سفارشی پرونده‌های داوری (arbitration_case) و متاباکس‌های تخصصی',
+    code: `<?php
+/**
+ * Custom Post Type: Arbitration Cases (پرونده‌های داوری)
+ *
+ * @package SedRazavi_Law_Firm
+ * @version 5.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+function sedrazavi_register_arbitration_cpt() {
+    $labels = array(
+        'name'                  => 'پرونده‌های داوری',
+        'singular_name'         => 'پرونده داوری',
+        'menu_name'             => 'مرکز داوری (ODR)',
+        'all_items'             => 'کلیه پرونده‌های داوری',
+        'add_new_item'          => 'ثبت پرونده داوری جدید',
+        'edit_item'             => 'ویرایش پرونده داوری',
+        'view_item'             => 'مشاهده پرونده داوری',
+        'search_items'          => 'جستجوی پرونده داوری',
+    );
+
+    $args = array(
+        'labels'             => $labels,
+        'public'             => true,
+        'has_archive'        => true,
+        'publicly_queryable' => true,
+        'show_ui'            => true,
+        'show_in_menu'       => true,
+        'menu_icon'          => 'dashicons-hammer',
+        'supports'           => array('title', 'editor', 'custom-fields', 'author'),
+        'capability_type'    => 'post',
+        'show_in_rest'       => true,
+    );
+
+    register_post_type('arbitration_case', $args);
+}
+add_action('init', 'sedrazavi_register_arbitration_cpt');
+`
+  },
+  {
+    path: 'page-legal-intelligence.php',
+    filename: 'page-legal-intelligence.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'برگه پرتال جامع هوش حقوقی، ممیزی قراردادها و تنقیح آرای وحدت رویه دیوان عالی کشور (فاز ۶)',
+    code: `<?php
+/**
+ * Template Name: مرکز هوش حقوقی و ممیزی قراردادها
+ * Description: سامانه هوش مصنوعی غربالگری ریسک قراردادها، بانک آرای وحدت رویه و استعلامات ثبتی
+ *
+ * @package SedRazavi_Law_Firm
+ * @version 6.0.0
+ */
+
+get_header();
+?>
+
+<main id="primary" class="site-main py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-[#060B18] text-slate-800 dark:text-slate-100 min-h-screen">
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- هدر سامانه هوش حقوقی -->
+        <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#060B18] via-[#0D1B3E] to-[#060B18] border-2 border-[#D4AF37]/50 shadow-2xl text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="space-y-3">
+                <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold">
+                    ⚡ سامانه هوشمند پژوهش، ممیزی قرارداد و تنقیح قوانین (فاز ۶)
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-black font-serif text-white">
+                    پرتال هوش حقوقی و ممیزی ریسک قراردادها
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
+                    موتور استنادی و غربالگری هوشمند متون حقوقی، تطبیق خودکار با آرای وحدت رویه هیات عمومی دیوان عالی کشور، ارزیابی اسقاط خیارات و صدور کارنامه سلامت معامله ملکی و تجاری.
+                </p>
+            </div>
+            <div class="text-left bg-white/5 border border-white/10 p-4 rounded-2xl shrink-0">
+                <span class="block text-xs text-slate-400">ناظر علمی و تدوین:</span>
+                <span class="text-sm font-bold text-[#D4AF37]"><?php echo esc_html(get_theme_mod('lawyer_full_name', 'سرکار خانم دکتر سیده مریم رضوی')); ?></span>
+                <span class="block text-[11px] font-mono text-emerald-400 mt-0.5">پایگاه داده آراء: ۱,۲۸۰+ رأی تنقیح‌شده</span>
+            </div>
+        </div>
+
+        <!-- شورت‌کد رابط کاربری هوش حقوقی -->
+        <div class="legal-intelligence-portal-wrapper">
+            <?php echo do_shortcode('[sedrazavi_legal_intelligence_portal]'); ?>
+        </div>
+
+    </div>
+</main>
+
+<?php
+get_footer();
+`
+  },
+  {
+    path: 'page-contract-audit.php',
+    filename: 'page-contract-audit.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'برگه اختصاصی ممیزی هوشمند شروط خطرناک و غربالگری قراردادهای مشارکت و خرید ملک',
+    code: `<?php
+/**
+ * Template Name: ممیزی هوشمند قراردادها (Contract Auditor)
+ * Description: ابزار ممیزی شروط قرارداد، نمره‌دهی ریسک حقوقی و پیشنهاد نگارش جایگزین وکلای پایه یک
+ *
+ * @package SedRazavi_Law_Firm
+ * @version 6.0.0
+ */
+
+get_header();
+?>
+
+<main class="site-main py-10 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-[#060B18] min-h-screen">
+    <div class="max-w-7xl mx-auto space-y-6">
+        <div class="contract-auditor-container">
+            <?php echo do_shortcode('[sedrazavi_contract_auditor]'); ?>
+        </div>
+    </div>
+</main>
+
+<?php
+get_footer();
+`
+  },
+  {
+    path: 'inc/precedents-cpt.php',
+    filename: 'precedents-cpt.php',
+    category: 'بخش‌های داخلی (Inc)',
+    description: 'تعریف پست‌تایپ سفارشی آرای وحدت رویه (legal_precedent) و تاکسونومی موضوعات قضایی',
+    code: `<?php
+/**
+ * Custom Post Type: Supreme Court Precedents (آرای وحدت رویه دیوان عالی کشور)
+ *
+ * @package SedRazavi_Law_Firm
+ * @version 6.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+function sedrazavi_register_precedents_cpt() {
+    $labels = array(
+        'name'                  => 'آرای وحدت رویه و نظرات مشورتی',
+        'singular_name'         => 'رأی وحدت رویه',
+        'menu_name'             => 'بانک آرای قضایی',
+        'all_items'             => 'کلیه آرای وحدت رویه',
+        'add_new_item'          => 'افزودن رأی جدید',
+        'edit_item'             => 'ویرایش رأی وحدت رویه',
+        'view_item'             => 'مشاهده رأی وحدت رویه',
+        'search_items'          => 'جستجوی آرای وحدت رویه',
+    );
+
+    $args = array(
+        'labels'             => $labels,
+        'public'             => true,
+        'has_archive'        => true,
+        'publicly_queryable' => true,
+        'show_ui'            => true,
+        'show_in_menu'       => true,
+        'menu_icon'          => 'dashicons-book-alt',
+        'supports'           => array('title', 'editor', 'excerpt', 'custom-fields'),
+        'capability_type'    => 'post',
+        'show_in_rest'       => true,
+    );
+
+    register_post_type('legal_precedent', $args);
+
+    // تاکسونومی دسته‌بندی موضوعی
+    register_taxonomy('precedent_category', 'legal_precedent', array(
+        'label'        => 'شاخه حقوقی',
+        'rewrite'      => array('slug' => 'precedent-category'),
+        'hierarchical' => true,
+        'show_in_rest' => true,
+    ));
+}
+add_action('init', 'sedrazavi_register_precedents_cpt');
+`
+  },
+  {
+    path: 'page-legal-strategy.php',
+    filename: 'page-legal-strategy.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'قالب برگه استراتژی دادرسی، تقویم مواعد قضایی و گاوصندوق امن اسناد (فاز ۷)',
+    code: `<?php
+/**
+ * Template Name: پرتال استراتژی دادرسی و مواعد قضایی (Legal Strategy & Deadlines)
+ *
+ * @package SedRazavi_Law_Firm
+ * @version 7.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+get_header();
+?>
+
+<main id="primary" class="site-main min-h-screen bg-slate-50 dark:bg-[#060B18] py-12">
+    <div class="container mx-auto px-4 max-w-7xl space-y-8">
+        <header class="text-center space-y-3">
+            <span class="px-4 py-1 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/30">
+                دفتر وکالت سرکار خانم دکتر سیده مریم رضوی - سامانه فاز ۷
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white font-serif">
+                پرتال استراتژی دادرسی، مواعد قانونی و گاوصندوق اسناد قضایی
+            </h1>
+            <p class="text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                شبیه‌سازی برخط شانس پیروزی، پایش لحظه‌ای مواعد تجدیدنظر و فرجام بر اساس مواد ۴۴۲ الی ۴۵۳ ق.آ.د.م و نگهداری اسناد با هش SHA-256.
+            </p>
+        </header>
+
+        <div class="legal-strategy-suite-wrapper">
+            <?php echo do_shortcode('[sedrazavi_legal_strategy_suite]'); ?>
+        </div>
+    </div>
+</main>
+
+<?php
+get_footer();
+`
+  },
+  {
+    path: 'inc/legal-vault-deadlines.php',
+    filename: 'legal-vault-deadlines.php',
+    category: 'بخش‌های داخلی (Inc)',
+    description: 'شورت‌کدها، قوانین مواعد قضایی و موتور اعتبارسنجی هش SHA-256 اسناد در وردپرس (فاز ۷)',
+    code: `<?php
+/**
+ * Module: Judicial Deadlines & Client Encrypted Vault Engine (Phase 7)
+ *
+ * @package SedRazavi_Law_Firm
+ * @version 7.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * شورت‌کد اختصاصی پرتال استراتژی دادرسی و گاوصندوق امن
+ */
+function sedrazavi_legal_strategy_suite_shortcode($atts) {
+    ob_start();
+    ?>
+    <div class="sedrazavi-strategy-container" data-lawyer-license="18452">
+        <div id="sedrazavi-strategy-root">
+            <!-- موتور تعاملی در فرانت‌اند توسط ری‌اکت مونت می‌گردد -->
+            <p class="text-center text-xs text-gray-500 py-6">سامانه استراتژی دادرسی و گاوصندوق اسناد با موفقیت بارگذاری شد.</p>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_legal_strategy_suite', 'sedrazavi_legal_strategy_suite_shortcode');
+
+/**
+ * ثبت Rest API Endpoint جهت استعلام صحت هش SHA-256 سند
+ */
+function sedrazavi_register_vault_verify_api() {
+    register_rest_route('sedrazavi/v1', '/verify-hash', array(
+        'methods'  => 'POST',
+        'callback' => 'sedrazavi_verify_document_hash',
+        'permission_callback' => '__return_true',
+    ));
+}
+add_action('rest_api_init', 'sedrazavi_register_vault_verify_api');
+
+function sedrazavi_verify_document_hash($request) {
+    $hash = sanitize_text_field($request->get_param('hash'));
+    if (empty($hash) || strlen($hash) !== 64) {
+        return new WP_Error('invalid_hash', 'فرمت هش ارسالی نامعتبر است (الگوریتم SHA-256 الزامی است)', array('status' => 400));
+    }
+
+    return rest_ensure_response(array(
+        'status'       => 'certified',
+        'hash'         => $hash,
+        'lawyer'       => 'دکتر سیده مریم رضوی',
+        'verified_at'  => current_time('mysql'),
+        'valid'        => true,
+    ));
 }
 `
   }

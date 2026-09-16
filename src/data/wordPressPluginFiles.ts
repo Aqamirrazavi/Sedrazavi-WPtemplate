@@ -8,17 +8,19 @@ export const WORDPRESS_PLUGIN_FILES: WordPressFile[] = [
     description: 'فایل اصلی افزونه مکمل حقوقی سید رضوی با ساختار مقاوم در برابر کرش (Resilient Loading)، ثبت قلاب‌های فعال‌سازی امن و تعریف ثابت‌های بنیادین.',
     code: `<?php
 /**
- * Plugin Name: SedRazavi Legal Addons
- * Plugin URI: https://sedrazavi.com
- * Description: افزونه مکمل و پیشرفته هسته حقوقی دفتر وکالت دکتر سیده مریم رضوی شامل سیستم مدیریت پرونده‌ها، سامانه استعلام برخط موکلین، سیستم رزرواسیون وقت مشاوره، لاگر مقاوم خودکار و ویجت‌های اختصاصی المنتور.
- * Version: 2.5.0
- * Author: Dr. Seyedeh Maryam Razavi
- * Author URI: https://sedrazavi.com
+ * Plugin Name: SedRazavi Addons
+ * Plugin URI: https://t.me/sedrazavi
+ * Description: افزونه مکمل و اختصاصی SedRazavi Addons برای پورتال حقوقی با ۵ پست‌تایپ اختصاصی (خدمات، پرونده‌ها، نظرات، پیام‌ها و ویدئوها)، سیستم مدیریت پرونده‌ها، سامانه استعلام برخط موکلین، سیستم رزرواسیون وقت مشاوره، لاگر مقاوم خودکار و ویجت‌های اختصاصی المنتور.
+ * Version: 2.0.1
+ * Author: سید امیر حسین رضوی فردویی
+ * Author URI: https://t.me/sedrazavi
  * Text Domain: sedrazavi-addons
  * Domain Path: /languages
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * License: GPL v2 or later
+ * Creator Telegram: @sedrazavi
+ * Creator Eitaa: @sedrazavi
  */
 
 if (!defined('ABSPATH')) {
@@ -27,7 +29,7 @@ if (!defined('ABSPATH')) {
 
 // ۱. تعریف ثابت‌های یکتای افزونه با کنترل امنیتی if (!defined)
 if (!defined('SEDRAZAVI_ADDONS_VERSION')) {
-    define('SEDRAZAVI_ADDONS_VERSION', '2.5.0');
+    define('SEDRAZAVI_ADDONS_VERSION', '2.0.1');
 }
 if (!defined('SEDRAZAVI_ADDONS_DIR')) {
     define('SEDRAZAVI_ADDONS_DIR', plugin_dir_path(__FILE__));
@@ -303,7 +305,45 @@ if (!defined('ABSPATH')) {
 if (!function_exists('sedrazavi_addons_register_post_types')) {
     function sedrazavi_addons_register_post_types() {
         
-        // ۱. پست تایپ دعاوی و پرونده‌های حقوقی (Legal Cases)
+        // ۱. پست‌تایپ خدمات حقوقی تخصصی (Legal Services)
+        $service_labels = array(
+            'name'                  => esc_html__('خدمات حقوقی', 'sedrazavi-addons'),
+            'singular_name'         => esc_html__('خدمت حقوقی', 'sedrazavi-addons'),
+            'menu_name'             => esc_html__('خدمات حقوقی', 'sedrazavi-addons'),
+            'add_new'               => esc_html__('افزودن خدمت جدید', 'sedrazavi-addons'),
+            'add_new_item'          => esc_html__('افزودن خدمت حقوقی جدید', 'sedrazavi-addons'),
+            'edit_item'             => esc_html__('ویرایش خدمت', 'sedrazavi-addons'),
+            'all_items'             => esc_html__('همه خدمات حقوقی', 'sedrazavi-addons'),
+            'search_items'          => esc_html__('جستجوی خدمات', 'sedrazavi-addons'),
+            'not_found'             => esc_html__('خدمتی یافت نشد', 'sedrazavi-addons'),
+        );
+        register_post_type('service', array(
+            'labels'             => $service_labels,
+            'public'             => true,
+            'publicly_queryable' => true,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'menu_icon'          => 'dashicons-hammer',
+            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
+            'has_archive'        => true,
+            'rewrite'            => array('slug' => 'services'),
+            'show_in_rest'       => true,
+        ));
+
+        // تاکسونومی دسته‌بندی خدمات حقوقی
+        register_taxonomy('service_category', 'service', array(
+            'labels'            => array(
+                'name'          => esc_html__('دسته‌بندی خدمات', 'sedrazavi-addons'),
+                'singular_name' => esc_html__('دسته خدمت', 'sedrazavi-addons'),
+            ),
+            'hierarchical'      => true,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'rewrite'           => array('slug' => 'service-category'),
+            'show_in_rest'      => true,
+        ));
+
+        // ۲. پست‌تایپ دعاوی و پرونده‌های حقوقی موکلین (Legal Cases)
         $case_labels = array(
             'name'                  => esc_html__('دعاوی و پرونده‌ها', 'sedrazavi-addons'),
             'singular_name'         => esc_html__('پرونده حقوقی', 'sedrazavi-addons'),
@@ -328,7 +368,6 @@ if (!function_exists('sedrazavi_addons_register_post_types')) {
             'show_in_rest'       => true,
         ));
 
-        // ۲. تاکسونومی دسته‌بندی موضوعی پرونده‌ها (کیفری، ملکی، تجاری، بین‌المللی)
         register_taxonomy('case_category', 'sedrazavi_case', array(
             'labels'            => array(
                 'name'          => esc_html__('حوزه دعاوی', 'sedrazavi-addons'),
@@ -341,14 +380,89 @@ if (!function_exists('sedrazavi_addons_register_post_types')) {
             'show_in_rest'      => true,
         ));
 
-        // ۳. پست تایپ تیم وکلای پایه یک و کارشناسان حقوقی (Lawyers Team)
+        // ۳. پست‌تایپ نظرات و رضایت موکلان (Testimonials)
+        $testimonial_labels = array(
+            'name'                  => esc_html__('نظرات موکلان', 'sedrazavi-addons'),
+            'singular_name'         => esc_html__('نظر موکل', 'sedrazavi-addons'),
+            'menu_name'             => esc_html__('نظرات موکلان', 'sedrazavi-addons'),
+            'add_new'               => esc_html__('ثبت نظر جدید', 'sedrazavi-addons'),
+            'add_new_item'          => esc_html__('افزودن نظر جدید', 'sedrazavi-addons'),
+            'edit_item'             => esc_html__('ویرایش نظر', 'sedrazavi-addons'),
+            'all_items'             => esc_html__('همه نظرات موکلان', 'sedrazavi-addons'),
+        );
+        register_post_type('testimonial', array(
+            'labels'             => $testimonial_labels,
+            'public'             => true,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'menu_icon'          => 'dashicons-format-quote',
+            'supports'           => array('title', 'editor', 'thumbnail', 'custom-fields'),
+            'has_archive'        => true,
+            'rewrite'            => array('slug' => 'testimonials'),
+            'show_in_rest'       => true,
+        ));
+
+        // ۴. پست‌تایپ ایمیل‌ها و پیام‌های استعلام و رزرو مشاوره (Emails & Consultations)
+        $email_labels = array(
+            'name'                  => esc_html__('پیام‌ها و استعلام‌ها', 'sedrazavi-addons'),
+            'singular_name'         => esc_html__('پیام / استعلام', 'sedrazavi-addons'),
+            'menu_name'             => esc_html__('پیام‌های دریافتی', 'sedrazavi-addons'),
+            'all_items'             => esc_html__('همه پیام‌ها و ایمیل‌ها', 'sedrazavi-addons'),
+            'edit_item'             => esc_html__('مشاهده پیام', 'sedrazavi-addons'),
+        );
+        register_post_type('email', array(
+            'labels'             => $email_labels,
+            'public'             => false,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'menu_icon'          => 'dashicons-email-alt',
+            'supports'           => array('title', 'editor', 'custom-fields'),
+            'show_in_rest'       => false,
+        ));
+
+        // ۵. پست‌تایپ ویدئوهای حقوقی و آموزشی (Legal Educational Videos)
+        $video_labels = array(
+            'name'                  => esc_html__('ویدئوهای حقوقی', 'sedrazavi-addons'),
+            'singular_name'         => esc_html__('ویدئوی حقوقی', 'sedrazavi-addons'),
+            'menu_name'             => esc_html__('ویدئوها و آموزش‌ها', 'sedrazavi-addons'),
+            'add_new'               => esc_html__('افزودن ویدئو', 'sedrazavi-addons'),
+            'add_new_item'          => esc_html__('افزودن ویدئوی حقوقی جدید', 'sedrazavi-addons'),
+            'edit_item'             => esc_html__('ویرایش ویدئو', 'sedrazavi-addons'),
+            'all_items'             => esc_html__('همه ویدئوها', 'sedrazavi-addons'),
+        );
+        register_post_type('video', array(
+            'labels'             => $video_labels,
+            'public'             => true,
+            'publicly_queryable' => true,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'menu_icon'          => 'dashicons-video-alt3',
+            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
+            'has_archive'        => true,
+            'rewrite'            => array('slug' => 'videos'),
+            'show_in_rest'       => true,
+        ));
+
+        register_taxonomy('video_category', 'video', array(
+            'labels'            => array(
+                'name'          => esc_html__('دسته‌بندی ویدئوها', 'sedrazavi-addons'),
+                'singular_name' => esc_html__('دسته ویدئو', 'sedrazavi-addons'),
+            ),
+            'hierarchical'      => true,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'rewrite'           => array('slug' => 'video-category'),
+            'show_in_rest'      => true,
+        ));
+
+        // ۶. پست‌تایپ تیم وکلای همکار و مشاوران (Lawyers Team)
         $lawyer_labels = array(
-            'name'                  => esc_html__('تیم وکلا و مشاوران', 'sedrazavi-addons'),
-            'singular_name'         => esc_html__('وکیل / مشاور', 'sedrazavi-addons'),
+            'name'                  => esc_html__('تیم وکلا و همکاران', 'sedrazavi-addons'),
+            'singular_name'         => esc_html__('وکیل / همکار', 'sedrazavi-addons'),
             'menu_name'             => esc_html__('تیم وکلا', 'sedrazavi-addons'),
-            'add_new'               => esc_html__('افزودن وکیل جدید', 'sedrazavi-addons'),
-            'edit_item'             => esc_html__('ویرایش اطلاعات وکیل', 'sedrazavi-addons'),
-            'all_items'             => esc_html__('تمام اعضای هیئت علمی و وکلا', 'sedrazavi-addons'),
+            'add_new'               => esc_html__('افزودن همکار جدید', 'sedrazavi-addons'),
+            'edit_item'             => esc_html__('ویرایش اطلاعات همکار', 'sedrazavi-addons'),
+            'all_items'             => esc_html__('همه اعضای تیم و همکاران', 'sedrazavi-addons'),
         );
         register_post_type('sedrazavi_lawyer', array(
             'labels'             => $lawyer_labels,
@@ -356,7 +470,7 @@ if (!function_exists('sedrazavi_addons_register_post_types')) {
             'show_ui'            => true,
             'show_in_menu'       => true,
             'menu_icon'          => 'dashicons-businessman',
-            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt'),
+            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
             'has_archive'        => true,
             'rewrite'            => array('slug' => 'lawyers'),
             'show_in_rest'       => true,
@@ -554,13 +668,14 @@ add_action('wp_ajax_nopriv_sedrazavi_track_case', 'sedrazavi_ajax_track_case');
     path: 'includes/elementor-widgets.php',
     filename: 'elementor-widgets.php',
     category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'ثبت و اتصال پایدار ۱۰ ویجت اختصاصی حقوقی در المنتور با گارد محافظتی کلاس‌های Widget_Base.',
+    description: 'ثبت و اتصال پایدار ۱۳ ویجت اختصاصی حقوقی در المنتور با گارد محافظتی کلاس‌های Widget_Base طبق پارت ۲ و پارت ۹ مستندات.',
     code: `<?php
 /**
- * Elementor Widgets Integrator (Safe & Resilient)
+ * Elementor 13 Custom Legal Widgets Integrator (Safe & Resilient)
  *
  * @package SedRazavi_Addons
- * @version 2.5.0
+ * @version 2.0.1
+ * @author Seyed Amir Hossein Razavi Fardoei (@sedrazavi)
  */
 
 if (!defined('ABSPATH')) {
@@ -569,13 +684,13 @@ if (!defined('ABSPATH')) {
 
 if (!function_exists('sedrazavi_addons_register_elementor_category')) {
     function sedrazavi_addons_register_elementor_category($elements_manager) {
-        if (!class_exists('\Elementor\\Plugin')) {
+        if (!class_exists('\\Elementor\\Plugin')) {
             return;
         }
         $elements_manager->add_category(
             'sedrazavi-law-elements',
             array(
-                'title' => esc_html__('المان‌های تخصصی حقوقی سید رضوی', 'sedrazavi-addons'),
+                'title' => esc_html__('المان‌های تخصصی حقوقی SedRazavi', 'sedrazavi-addons'),
                 'icon'  => 'fa fa-gavel',
             )
         );
@@ -586,35 +701,190 @@ add_action('elementor/elements/categories_registered', 'sedrazavi_addons_registe
 if (!function_exists('sedrazavi_addons_load_elementor_widgets')) {
     function sedrazavi_addons_load_elementor_widgets($widgets_manager) {
         // گارد حیاتی: اگر کلاس ویجت المنتور وجود نداشت، بدون هیچ خطایی خارج شو
-        if (!class_exists('\Elementor\\Widget_Base')) {
+        if (!class_exists('\\Elementor\\Widget_Base')) {
             return;
         }
 
-        // بررسی اینکه آیا پوسته قبلاً ویجت‌ها را ثبت کرده تا از خطای Redeclare جلوگیری شود
+        // ۱. ویجت هیرو و سربرگ لوکس (Hero Widget)
         if (!class_exists('SedRazavi_Elementor_Hero_Widget')) {
-            class SedRazavi_Elementor_Hero_Widget extends \Elementor\\Widget_Base {
+            class SedRazavi_Elementor_Hero_Widget extends \\Elementor\\Widget_Base {
                 public function get_name() { return 'sedrazavi_hero'; }
                 public function get_title() { return esc_html__('۱. سربرگ لوکس و هویت حقوقی (هیرو)', 'sedrazavi-addons'); }
                 public function get_icon() { return 'eicon-banner'; }
                 public function get_categories() { return array('sedrazavi-law-elements'); }
                 protected function render() {
-                    echo '<div class="sedrazavi-hero-preview p-6 bg-[#0B132B] text-white rounded-2xl border border-[#D4AF37]/30 text-center font-serif"><h2 class="text-2xl text-[#D4AF37]">دفتر تخصصی وکالت و داوری بین‌المللی سید رضوی</h2><p class="text-sm text-gray-300 mt-2">دفاع قاطع و تخصص محور در پرونده‌های کلان</p></div>';
+                    echo '<div class="sedrazavi-hero-preview p-8 bg-[#0B132B] text-white rounded-2xl border-2 border-[#D4AF37]/40 text-center font-serif shadow-xl"><h2 class="text-3xl text-[#D4AF37] font-bold">دفتر تخصصی وکالت و داوری بین‌المللی SedRazavi</h2><p class="text-base text-gray-300 mt-2">دفاع قاطع و تخصص‌محور در دعاوی کلان حقوقی و کیفری</p><div class="mt-4"><a href="#booking" class="inline-block px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#060B18] font-bold">رزرو نوبت مشاوره حضوری</a></div></div>';
                 }
             }
             $widgets_manager->register(new SedRazavi_Elementor_Hero_Widget());
         }
 
-        if (!class_exists('SedRazavi_Elementor_Booking_Widget')) {
-            class SedRazavi_Elementor_Booking_Widget extends \Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_booking_form'; }
-                public function get_title() { return esc_html__('۲. فرم رزرو نوبت مشاوره حقوقی', 'sedrazavi-addons'); }
+        // ۲. ویجت خدمات حقوقی تخصصی (Services Widget)
+        if (!class_exists('SedRazavi_Elementor_Services_Widget')) {
+            class SedRazavi_Elementor_Services_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_services'; }
+                public function get_title() { return esc_html__('۲. شبکه خدمات و حوزه‌های دعاوی', 'sedrazavi-addons'); }
+                public function get_icon() { return 'eicon-gallery-grid'; }
+                public function get_categories() { return array('sedrazavi-law-elements'); }
+                protected function render() {
+                    echo '<div class="sedrazavi-services-preview p-6 bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 text-center"><h3 class="text-xl font-bold text-[#D4AF37]">خدمات حقوقی تخصصی (ملکی، تجاری، بین‌المللی، کیفری)</h3><p class="text-sm text-gray-500 mt-1">نمایش گرید خودکار پست‌تایپ service با قابلیت فیلتر دسته‌بندی</p></div>';
+                }
+            }
+            $widgets_manager->register(new SedRazavi_Elementor_Services_Widget());
+        }
+
+        // ۳. ویجت نظرات و رضایت موکلان (Testimonials Widget)
+        if (!class_exists('SedRazavi_Elementor_Testimonials_Widget')) {
+            class SedRazavi_Elementor_Testimonials_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_testimonials'; }
+                public function get_title() { return esc_html__('۳. اسلایدر نظرات و رضایت موکلان', 'sedrazavi-addons'); }
+                public function get_icon() { return 'eicon-testimonial-carousel'; }
+                public function get_categories() { return array('sedrazavi-law-elements'); }
+                protected function render() {
+                    echo '<div class="sedrazavi-testimonials-preview p-6 bg-gray-50 dark:bg-[#070D1E] rounded-2xl border border-[#D4AF37]/30 text-center"><p class="text-[#D4AF37] font-bold">اسلایدر متحرک نظرات و اسناد آرای موفق قضایی موکلین</p></div>';
+                }
+            }
+            $widgets_manager->register(new SedRazavi_Elementor_Testimonials_Widget());
+        }
+
+        // ۴. ویجت مقالات و تحلیل‌های حقوقی (Posts Widget)
+        if (!class_exists('SedRazavi_Elementor_Posts_Widget')) {
+            class SedRazavi_Elementor_Posts_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_posts'; }
+                public function get_title() { return esc_html__('۴. مقالات و یادداشت‌های حقوقی', 'sedrazavi-addons'); }
+                public function get_icon() { return 'eicon-post-list'; }
+                public function get_categories() { return array('sedrazavi-law-elements'); }
+                protected function render() {
+                    echo '<div class="sedrazavi-posts-preview p-6 bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">آخرین مقالات، قوانین و تحلیل‌های پرونده‌ها با اسکیما Article</p></div>';
+                }
+            }
+            $widgets_manager->register(new SedRazavi_Elementor_Posts_Widget());
+        }
+
+        // ۵. ویجت ویدئوها و آموزش‌های حقوقی (Videos Widget)
+        if (!class_exists('SedRazavi_Elementor_Videos_Widget')) {
+            class SedRazavi_Elementor_Videos_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_videos'; }
+                public function get_title() { return esc_html__('۵. گالری ویدئوها و مشاوره‌های صوتی/تصویری', 'sedrazavi-addons'); }
+                public function get_icon() { return 'eicon-video-playlist'; }
+                public function get_categories() { return array('sedrazavi-law-elements'); }
+                protected function render() {
+                    echo '<div class="sedrazavi-videos-preview p-6 bg-[#070D1E] text-white rounded-2xl border border-[#D4AF37]/30 text-center"><p class="text-[#D4AF37] font-bold">پخش ویدئوهای آموزشی آپارات / یوتیوب با پوستر اختصاصی و فریم طلایی</p></div>';
+                }
+            }
+            $widgets_manager->register(new SedRazavi_Elementor_Videos_Widget());
+        }
+
+        // ۶. ویجت نوار استوری‌های اینستاگرام حقوقی (Instagram Stories Widget)
+        if (!class_exists('SedRazavi_Elementor_Instagram_Widget')) {
+            class SedRazavi_Elementor_Instagram_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_instagram'; }
+                public function get_title() { return esc_html__('۶. نوار استوری‌های حقوقی (اینستاگرامی)', 'sedrazavi-addons'); }
+                public function get_icon() { return 'eicon-instagram-gallery'; }
+                public function get_categories() { return array('sedrazavi-law-elements'); }
+                protected function render() {
+                    echo '<div class="sedrazavi-stories-preview p-4 bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">حلقه‌های استوری متحرک طلایی با قابلیت باز شدن مودال تمام‌صفحه</p></div>';
+                }
+            }
+            $widgets_manager->register(new SedRazavi_Elementor_Instagram_Widget());
+        }
+
+        // ۷. ویجت تیم وکلا و کارشناسان (Team Widget)
+        if (!class_exists('SedRazavi_Elementor_Team_Widget')) {
+            class SedRazavi_Elementor_Team_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_team'; }
+                public function get_title() { return esc_html__('۷. تیم وکلای پایه یک و کارشناسان همکار', 'sedrazavi-addons'); }
+                public function get_icon() { return 'eicon-person'; }
+                public function get_categories() { return array('sedrazavi-law-elements'); }
+                protected function render() {
+                    echo '<div class="sedrazavi-team-preview p-6 bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">کارت‌های معرفی وکلا با تصویر رسمی و مشخصات پروانه وکالت</p></div>';
+                }
+            }
+            $widgets_manager->register(new SedRazavi_Elementor_Team_Widget());
+        }
+
+        // ۸. ویجت پرسش‌های متداول آکاردئونی (FAQ Widget)
+        if (!class_exists('SedRazavi_Elementor_Faq_Widget')) {
+            class SedRazavi_Elementor_Faq_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_faq'; }
+                public function get_title() { return esc_html__('۸. پرسش‌های متداول با اسکیما FAQPage', 'sedrazavi-addons'); }
+                public function get_icon() { return 'eicon-help-o'; }
+                public function get_categories() { return array('sedrazavi-law-elements'); }
+                protected function render() {
+                    echo '<div class="sedrazavi-faq-preview p-6 bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">آکاردئون هوشمند پرسش و پاسخ‌های حقوقی با میکروفرمت سئو</p></div>';
+                }
+            }
+            $widgets_manager->register(new SedRazavi_Elementor_Faq_Widget());
+        }
+
+        // ۹. ویجت فرم تماس و رزرو وقت مشاوره (Contact & Booking Widget)
+        if (!class_exists('SedRazavi_Elementor_Contact_Widget')) {
+            class SedRazavi_Elementor_Contact_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_contact_booking'; }
+                public function get_title() { return esc_html__('۹. فرم رزرو نوبت و درخواست تماس', 'sedrazavi-addons'); }
                 public function get_icon() { return 'eicon-form-horizontal'; }
                 public function get_categories() { return array('sedrazavi-law-elements'); }
                 protected function render() {
-                    echo '<div class="sedrazavi-booking-preview p-6 bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">فرم درخواست نوبت و مشاوره حضوری / تلفنی</p></div>';
+                    echo '<div class="sedrazavi-contact-preview p-6 bg-white dark:bg-[#0B132B] rounded-2xl border-2 border-[#D4AF37]/30 text-center"><p class="text-[#D4AF37] font-bold">فرم هوشمند رزرو نوبت حضوری/تلفنی با محاسبه تعرفه و تایید پیامکی</p></div>';
                 }
             }
-            $widgets_manager->register(new SedRazavi_Elementor_Booking_Widget());
+            $widgets_manager->register(new SedRazavi_Elementor_Contact_Widget());
+        }
+
+        // ۱۰. ویجت بنر فراخوان اقدام (CTA Widget)
+        if (!class_exists('SedRazavi_Elementor_CTA_Widget')) {
+            class SedRazavi_Elementor_CTA_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_cta'; }
+                public function get_title() { return esc_html__('۱۰. بنر فراخوان اقدام و مشاوره فوری (CTA)', 'sedrazavi-addons'); }
+                public function get_icon() { return 'eicon-call-to-action'; }
+                public function get_categories() { return array('sedrazavi-law-elements'); }
+                protected function render() {
+                    echo '<div class="sedrazavi-cta-preview p-8 bg-gradient-to-r from-[#0B132B] via-[#070D1E] to-[#0B132B] text-white rounded-2xl border border-[#D4AF37]/40 text-center"><h3 class="text-2xl text-[#D4AF37] font-bold">نیاز به مشاوره حقوقی فوری با وکیل پایه یک دادگستری دارید؟</h3><p class="text-sm text-gray-300 mt-2">کارشناسان ما در سریع‌ترین زمان پرونده شما را ارزیابی می‌کنند</p><a href="tel:02188888888" class="inline-block mt-4 px-6 py-2.5 rounded-xl bg-[#D4AF37] text-[#060B18] font-bold">تماس مستقیم با دفتر ونک</a></div>';
+                }
+            }
+            $widgets_manager->register(new SedRazavi_Elementor_CTA_Widget());
+        }
+
+        // ۱۱. ویجت بنر اسلایدر متنی احادیث و اشعار (Banner Text Slider Widget)
+        if (!class_exists('SedRazavi_Elementor_Banner_Widget')) {
+            class SedRazavi_Elementor_Banner_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_banner_slider'; }
+                public function get_title() { return esc_html__('۱۱. بنر اسلایدر متنی احادیث و اشعار', 'sedrazavi-addons'); }
+                public function get_icon() { return 'eicon-text-area'; }
+                public function get_categories() { return array('sedrazavi-law-elements'); }
+                protected function render() {
+                    echo '<div class="sedrazavi-banner-preview p-4 bg-[#0B132B] text-white rounded-xl border border-[#D4AF37]/40 text-center font-serif"><p class="text-[#D4AF37] font-bold">«العدل اساس الملک» - امام علی (ع)</p><span class="text-xs text-gray-400">بنر اسلایدر احادیث، آیات، اشعار و حکمت‌های حقوقی با چرخش خودکار ۵ ثانیه</span></div>';
+                }
+            }
+            $widgets_manager->register(new SedRazavi_Elementor_Banner_Widget());
+        }
+
+        // ۱۲. ویجت اسکرول‌بار شناور آیکونی (Floating Icon Scrollbar Widget)
+        if (!class_exists('SedRazavi_Elementor_Scrollbar_Widget')) {
+            class SedRazavi_Elementor_Scrollbar_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_floating_scrollbar'; }
+                public function get_title() { return esc_html__('۱۲. اسکرول‌بار شناور و منوی آیکونی بازگشت به بالا', 'sedrazavi-addons'); }
+                public function get_icon() { return 'eicon-navigation-vertical'; }
+                public function get_categories() { return array('sedrazavi-law-elements'); }
+                protected function render() {
+                    echo '<div class="sedrazavi-scrollbar-preview p-4 bg-white dark:bg-[#0B132B] rounded-xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">دکمه ۵۰×۵۰ طلایی شناور با منوی ۷ آیکون و بازگشت نرم به بالای صفحه</p></div>';
+                }
+            }
+            $widgets_manager->register(new SedRazavi_Elementor_Scrollbar_Widget());
+        }
+
+        // ۱۳. ویجت سوییچ تغییر حالت شب و روز (Theme Toggle Switch Widget)
+        if (!class_exists('SedRazavi_Elementor_Theme_Toggle_Widget')) {
+            class SedRazavi_Elementor_Theme_Toggle_Widget extends \\Elementor\\Widget_Base {
+                public function get_name() { return 'sedrazavi_theme_toggle'; }
+                public function get_title() { return esc_html__('۱۳. سوییچ تغییر حالت شب و روز (Dark/Light)', 'sedrazavi-addons'); }
+                public function get_icon() { return 'eicon-adjust'; }
+                public function get_categories() { return array('sedrazavi-law-elements'); }
+                protected function render() {
+                    echo '<div class="sedrazavi-toggle-preview p-4 bg-white dark:bg-[#0B132B] rounded-xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">دکمه سوییچ لوکس پالت شب و روز با ذخیره‌سازی LocalStorage و ترنزیشن نرم</p></div>';
+                }
+            }
+            $widgets_manager->register(new SedRazavi_Elementor_Theme_Toggle_Widget());
         }
     }
 }
@@ -1269,4 +1539,241 @@ function sedrazavi_shortcode_quick_callback() {
 add_shortcode('sedrazavi_quick_callback', 'sedrazavi_shortcode_quick_callback');
 `,
   },
+  {
+    path: 'includes/class-sedrazavi-odr-arbitration.php',
+    filename: 'class-sedrazavi-odr-arbitration.php',
+    category: 'ماژول‌های افزونه (Plugin Includes)',
+    description: 'کلاس هسته مدیریت داوری آنلاین، گردش کار تبادل لوایح و امضای الکترونیک رأی داور',
+    code: `<?php
+/**
+ * Class SedRazavi_ODR_Arbitration
+ *
+ * @package SedRazavi_Core_Plugin
+ * @version 5.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class SedRazavi_ODR_Arbitration {
+
+    public function __construct() {
+        add_action('wp_ajax_sedrazavi_submit_pleading', array($this, 'ajax_submit_pleading'));
+        add_action('wp_ajax_nopriv_sedrazavi_submit_pleading', array($this, 'ajax_submit_pleading'));
+        add_action('wp_ajax_sedrazavi_issue_award', array($this, 'ajax_issue_award'));
+        add_shortcode('sedrazavi_odr_portal', array($this, 'render_odr_portal'));
+        add_shortcode('sedrazavi_virtual_courtroom', array($this, 'render_virtual_courtroom'));
+        add_shortcode('sedrazavi_petition_builder', array($this, 'render_petition_builder'));
+    }
+
+    /**
+     * ثبت لایحه جدید در پرونده داوری با پیامک خودکار
+     */
+    public function ajax_submit_pleading() {
+        check_ajax_referer('sedrazavi_odr_nonce', 'security');
+
+        $case_id = intval($_POST['case_id']);
+        $title   = sanitize_text_field($_POST['title']);
+        $content = wp_kses_post($_POST['content']);
+        $sender  = sanitize_text_field($_POST['sender']);
+
+        if (!$case_id || empty($title) || empty($content)) {
+            wp_send_json_error(array('message' => 'اطلاعات لایحه ناقص است.'));
+        }
+
+        $tracking_code = 'PLD-SR-' . rand(10000, 99999);
+
+        // ذخیره به عنوان کامنت متصل به پست داوری یا جدول اختصاصی
+        $pleading_data = array(
+            'comment_post_ID'      => $case_id,
+            'comment_content'      => $content,
+            'comment_author'       => $sender,
+            'comment_type'         => 'odr_pleading',
+            'comment_approved'     => 1,
+        );
+
+        $comment_id = wp_insert_comment($pleading_data);
+        add_comment_meta($comment_id, 'tracking_code', $tracking_code);
+        add_comment_meta($comment_id, 'pleading_title', $title);
+
+        // ارسال پیامک خودکار ابلاغ لایحه به طرف مقابل
+        do_action('sedrazavi_odr_pleading_submitted', $case_id, $tracking_code);
+
+        wp_send_json_success(array(
+            'message'       => 'لایحه با موفقیت در پرونده داوری ثبت گردید.',
+            'tracking_code' => $tracking_code
+        ));
+    }
+
+    public function render_odr_portal() {
+        ob_start();
+        ?>
+        <div id="sedrazavi-odr-root" class="odr-interactive-app">
+            <p class="text-xs text-slate-500 text-center font-mono">بارگذاری پورتال تعاملی داوری آنلاین و ثبت پرونده...</p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    public function render_virtual_courtroom() {
+        ob_start();
+        ?>
+        <div id="sedrazavi-virtual-court-root" class="virtual-court-app">
+            <p class="text-xs text-slate-500 text-center font-mono">اتصال به تالار دادرسی مجازی و استماع زنده...</p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    public function render_petition_builder() {
+        ob_start();
+        ?>
+        <div id="sedrazavi-petition-builder-root" class="petition-builder-app">
+            <p class="text-xs text-slate-500 text-center font-mono">بارگذاری فرم‌ساز هوشمند دادخواست و لوایح عدل‌ایران...</p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+}
+
+new SedRazavi_ODR_Arbitration();
+`
+  },
+  {
+    path: 'includes/class-sedrazavi-legal-intelligence.php',
+    filename: 'class-sedrazavi-legal-intelligence.php',
+    category: 'ماژول‌های افزونه (Plugin Includes)',
+    description: 'کلاس هوش مصنوعی حقوقی، ممیزی هوشمند قراردادها، و موتور استخراج و تطبیق آرای دیوان عالی کشور',
+    code: `<?php
+/**
+ * Class SedRazavi_Legal_Intelligence
+ *
+ * @package SedRazavi_Core_Plugin
+ * @version 6.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class SedRazavi_Legal_Intelligence {
+
+    public function __construct() {
+        add_action('wp_ajax_sedrazavi_audit_clause', array($this, 'ajax_audit_clause'));
+        add_action('wp_ajax_nopriv_sedrazavi_audit_clause', array($this, 'ajax_audit_clause'));
+        add_action('wp_ajax_sedrazavi_search_precedents', array($this, 'ajax_search_precedents'));
+        add_action('wp_ajax_nopriv_sedrazavi_search_precedents', array($this, 'ajax_search_precedents'));
+
+        add_shortcode('sedrazavi_legal_intelligence_portal', array($this, 'render_portal'));
+        add_shortcode('sedrazavi_contract_auditor', array($this, 'render_contract_auditor'));
+    }
+
+    /**
+     * آنالیز هوشمند بند قرارداد و تعیین ریسک حقوقی
+     */
+    public function ajax_audit_clause() {
+        check_ajax_referer('sedrazavi_intel_nonce', 'security');
+
+        $raw_text = sanitize_textarea_field($_POST['clause_text'] ?? '');
+        if (empty($raw_text)) {
+            wp_send_json_error(array('message' => 'متن شرط قراردادی ارسال نشده است.'));
+        }
+
+        // الگوریتم غربالگری کلمات پرخطر حقوقی ایران
+        $risk_level = 'low';
+        $detected_risks = array();
+        $recommendations = array();
+
+        if (mb_stripos($raw_text, 'غبن افحش') !== false || mb_stripos($raw_text, 'کافه خیارات') !== false) {
+            $risk_level = 'high';
+            $detected_risks[] = 'اسقاط خیار غبن فاحش یا افحش به ضرر طرفین.';
+            $recommendations[] = 'خیار تدلیس و خیار تخلف از شرط صفت را مستثنی کنید (ماده ۴۴۸ ق.م).';
+        }
+
+        if (mb_stripos($raw_text, 'فورس‌ماژور') !== false && (mb_stripos($raw_text, 'تورم') !== false || mb_stripos($raw_text, 'افزایش قیمت') !== false)) {
+            $risk_level = 'critical';
+            $detected_risks[] = 'تفسیر غیرقانونی تورم تجاری به عنوان فورس‌ماژور قهری.';
+            $recommendations[] = 'تورم را صراحتاً از شمول قوه قاهره خارج کنید (مواد ۲۲۷ و ۲۲۹ ق.م).';
+        }
+
+        if (mb_stripos($raw_text, 'وجه التزام') !== false) {
+            $detected_risks[] = 'نیاز به تطبیق با رأی وحدت رویه ۸۰۵ دیوان عالی کشور.';
+        }
+
+        wp_send_json_success(array(
+            'risk_level'      => $risk_level,
+            'detected_risks'  => $detected_risks,
+            'recommendations' => $recommendations,
+            'safety_score'    => $risk_level === 'critical' ? 35 : ($risk_level === 'high' ? 60 : 92),
+        ));
+    }
+
+    /**
+     * جستجوی سریع در بانک آرای وحدت رویه
+     */
+    public function ajax_search_precedents() {
+        $keyword = sanitize_text_field($_GET['keyword'] ?? '');
+        $category = sanitize_text_field($_GET['category'] ?? '');
+
+        $args = array(
+            'post_type'      => 'legal_precedent',
+            'posts_per_page' => 15,
+            's'              => $keyword,
+        );
+
+        if (!empty($category)) {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'precedent_category',
+                    'field'    => 'slug',
+                    'terms'    => $category,
+                ),
+            );
+        }
+
+        $query = new WP_Query($args);
+        $results = array();
+
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $results[] = array(
+                    'id'      => get_the_ID(),
+                    'title'   => get_the_title(),
+                    'excerpt' => get_the_excerpt(),
+                    'number'  => get_post_meta(get_the_ID(), '_precedent_number', true),
+                    'date'    => get_post_meta(get_the_ID(), '_precedent_date', true),
+                );
+            }
+            wp_reset_postdata();
+        }
+
+        wp_send_json_success(array('precedents' => $results));
+    }
+
+    public function render_portal() {
+        ob_start();
+        ?>
+        <div id="sedrazavi-legal-ai-root" class="legal-intelligence-app">
+            <p class="text-xs text-slate-500 text-center font-mono">در حال آماده‌سازی دستیار هوش مصنوعی و ممیزی قراردادها...</p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    public function render_contract_auditor() {
+        ob_start();
+        ?>
+        <div id="sedrazavi-contract-audit-root" class="contract-auditor-app">
+            <p class="text-xs text-slate-500 text-center font-mono">بارگذاری ماژول غربالگری ریسک قرارداد...</p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+}
+
+new SedRazavi_Legal_Intelligence();
+`
+  }
 ];

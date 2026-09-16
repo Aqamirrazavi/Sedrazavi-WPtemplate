@@ -29,6 +29,11 @@ import {
   FileText,
   KeyRound,
   UserCheck,
+  Calculator,
+  DollarSign,
+  FileSearch,
+  Compass,
+  FolderLock,
 } from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
 import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
@@ -44,6 +49,11 @@ export type ThemeViewMode =
   | 'elementor'
   | 'shortcodes'
   | 'architecture'
+  | 'finance'
+  | 'odr-suite'
+  | 'legal-ai'
+  | 'strategy-suite'
+  | 'corporate-suite'
   | 'code'
   | 'archive'
   | 'single';
@@ -353,6 +363,56 @@ export const Header: React.FC<HeaderProps> = ({
                       <span className="font-bold">برگه تکی مطلب (single.php)</span>
                       <FileText className="w-3.5 h-3.5 text-indigo-500" />
                     </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('finance');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">میز مالی، قرارداد و تعرفه (فاز ۴)</span>
+                      <Calculator className="w-3.5 h-3.5 text-emerald-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('odr-suite');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">داوری آنلاین و دادگاه مجازی (فاز ۵)</span>
+                      <Gavel className="w-3.5 h-3.5 text-indigo-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('legal-ai');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">هوش حقوقی و ممیزی قراردادها (فاز ۶)</span>
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('strategy-suite');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">استراتژی دادرسی و گاوصندوق امن (فاز ۷)</span>
+                      <Compass className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('corporate-suite');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">امور شرکت‌ها و داوری بین‌المللی (فاز ۸)</span>
+                      <Briefcase className="w-3.5 h-3.5 text-blue-500" />
+                    </button>
                   </div>
                 )}
               </div>
@@ -493,6 +553,75 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <Shield className="w-3.5 h-3.5 text-blue-500" />
                 معماری
+              </button>
+
+              <button
+                onClick={() => setActiveView('finance')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  activeView === 'finance'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#0B132B] dark:text-white shadow-sm border border-[#D4AF37]/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
+                }`}
+                title="سامانه امور مالی، قرارداد الکترونیک و تمبر (فاز ۴)"
+              >
+                <Calculator className="w-3.5 h-3.5 text-emerald-500" />
+                مالی و قراردادها
+              </button>
+
+              <button
+                onClick={() => setActiveView('odr-suite')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  activeView === 'odr-suite'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#0B132B] dark:text-white shadow-sm border border-[#D4AF37]/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
+                }`}
+                title="سامانه داوری آنلاین، دادگاه مجازی و لوایح قضایی (فاز ۵)"
+              >
+                <Gavel className="w-3.5 h-3.5 text-indigo-400" />
+                <span>داوری و لوایح</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+              </button>
+
+              <button
+                onClick={() => setActiveView('legal-ai')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  activeView === 'legal-ai'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#0B132B] dark:text-white shadow-sm border border-[#D4AF37]/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
+                }`}
+                title="سامانه هوش حقوقی، ممیزی قراردادها و تنقیح آراء (فاز ۶)"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <span>هوش حقوقی و ممیزی</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+              </button>
+
+              <button
+                onClick={() => setActiveView('strategy-suite')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  activeView === 'strategy-suite'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#0B132B] dark:text-white shadow-sm border border-[#D4AF37]/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
+                }`}
+                title="سامانه هوشمند استراتژی دادرسی، تقویم مواعد و گاوصندوق اسناد (فاز ۷)"
+              >
+                <Compass className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <span>استراتژی و مواعد</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              </button>
+
+              <button
+                onClick={() => setActiveView('corporate-suite')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  activeView === 'corporate-suite'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#0B132B] dark:text-white shadow-sm border border-[#D4AF37]/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
+                }`}
+                title="سامانه امور شرکت‌ها، اینکوترمز ۲۰۲۰ و داوری بازرگانی بین‌الملل (فاز ۸)"
+              >
+                <Briefcase className="w-3.5 h-3.5 text-blue-500" />
+                <span>شرکت‌ها و تجارت بین‌الملل</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping" />
               </button>
 
               <button
@@ -681,6 +810,32 @@ export const Header: React.FC<HeaderProps> = ({
 
               <button
                 onClick={() => {
+                  setActiveView('finance');
+                  setMobileMenuOpen(false);
+                }}
+                className={`p-2 rounded-lg text-[11px] font-bold flex flex-col items-center gap-1 ${
+                  activeView === 'finance' ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
+                }`}
+              >
+                <Calculator className="w-3.5 h-3.5" />
+                مالی و قراردادها
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveView('odr-suite');
+                  setMobileMenuOpen(false);
+                }}
+                className={`p-2 rounded-lg text-[11px] font-bold flex flex-col items-center gap-1 ${
+                  activeView === 'odr-suite' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
+                }`}
+              >
+                <Gavel className="w-3.5 h-3.5" />
+                داوری و لوایح
+              </button>
+
+              <button
+                onClick={() => {
                   setActiveView('code');
                   setMobileMenuOpen(false);
                 }}
@@ -807,6 +962,61 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 📚 مقالات و دانستنی‌های قانونی
               </a>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('finance');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-emerald-600 dark:text-emerald-400 font-semibold"
+              >
+                💰 میز مالی، قرارداد و محاسبات قضایی (فاز ۴)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('odr-suite');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-indigo-600 dark:text-indigo-400 font-semibold"
+              >
+                ⚖️ سامانه داوری آنلاین و دادگاه مجازی (فاز ۵)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('legal-ai');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-amber-600 dark:text-[#D4AF37] font-bold"
+              >
+                ⚡ هوش حقوقی، ممیزی قرارداد و تنقیح آراء (فاز ۶)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('strategy-suite');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+              >
+                🛡️ استراتژی دادرسی، مواعد قضایی و گاوصندوق اسناد (فاز ۷)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('corporate-suite');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-blue-600 dark:text-blue-400 font-bold"
+              >
+                🌐 امور شرکت‌ها، بازرگانی بین‌الملل و داوری ICC (فاز ۸)
+              </button>
 
               <a
                 href="#booking"

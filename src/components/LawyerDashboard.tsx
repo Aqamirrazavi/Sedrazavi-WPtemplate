@@ -5,6 +5,14 @@ import { FrontendCommentsModeration } from './FrontendCommentsModeration';
 import { ClientPortalView } from './ClientPortalView';
 import { LawyerCustomizerTab } from './LawyerCustomizerTab';
 import { ManualAccountCreatorModal } from './ManualAccountCreatorModal';
+import { AdminAppearanceTab } from './admin/AdminAppearanceTab';
+import { AdminBannerTab } from './admin/AdminBannerTab';
+import { AdminContactCardsTab } from './admin/AdminContactCardsTab';
+import { AdminInstagramTab } from './admin/AdminInstagramTab';
+import { AdminSystemStatusTab } from './admin/AdminSystemStatusTab';
+import { AdminBackupTab } from './admin/AdminBackupTab';
+import { AdminLogsTab } from './admin/AdminLogsTab';
+import { AttorneyExecutiveDashboard } from './admin/AttorneyExecutiveDashboard';
 import {
   LawyerSiteProfile,
   getStoredLawyerProfile,
@@ -32,7 +40,27 @@ import {
   Sparkles,
   UserPlus,
   KeyRound,
+  Palette,
+  Layers,
+  MapPin,
+  Instagram,
+  Server,
+  HardDrive,
+  Activity,
+  ChevronDown,
 } from 'lucide-react';
+
+export type AdminSubTabKey =
+  | 'dashboard'
+  | 'appearance'
+  | 'banner'
+  | 'contact-cards'
+  | 'instagram'
+  | 'system-status'
+  | 'backup'
+  | 'logs'
+  | 'comments'
+  | 'customizer';
 
 interface LawyerDashboardProps {
   initialPortalMode?: 'attorney' | 'client';
@@ -54,7 +82,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
   onUpdateLawyerProfile,
 }) => {
   const [portalMode, setPortalMode] = useState<'attorney' | 'client'>(initialPortalMode);
-  const [activeSubTab, setActiveSubTab] = useState<'cases' | 'comments' | 'customizer'>('cases');
+  const [activeSubTab, setActiveSubTab] = useState<AdminSubTabKey>('dashboard');
   const [lawyerProfile, setLawyerProfile] = useState<LawyerSiteProfile>(
     externalProfile || getStoredLawyerProfile()
   );
@@ -85,20 +113,6 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
   const [newCaseType, setNewCaseType] = useState<CaseItem['caseType']>('تجاری');
   const [newNextSession, setNewNextSession] = useState('');
   const [newNotes, setNewNotes] = useState('');
-
-  // Reminders checklist
-  const [reminders, setReminders] = useState([
-    { id: 1, text: 'ارائه لایحه دفاعیه پرونده ملکی شماره ۱۴۰۳-۰۰۲ تا ساعت ۱۳:۰۰', done: false, time: 'تا ۱ ساعت دیگر' },
-    { id: 2, text: 'جلسه داوری اتاق بازرگانی پیرامون قرارداد پارس فن‌آور', done: true, time: 'انجام شد' },
-    { id: 3, text: 'تماس تلفنی با موکل خانم کاظمیان جهت پیگیری توقیف اموال', done: false, time: 'ساعت ۱۶:۳۰' },
-    { id: 4, text: 'امضای الکترونیک وکالت‌نامه در سامانه ثنا برای موکل جدید', done: false, time: 'ساعت ۱۸:۰۰' },
-  ]);
-
-  const toggleReminder = (id: number) => {
-    setReminders(
-      reminders.map((r) => (r.id === id ? { ...r, done: !r.done } : r))
-    );
-  };
 
   const handleAddCase = (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,263 +232,197 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Sub-tab Switchers */}
-            <div className="flex items-center p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700">
-              <button
-                onClick={() => setActiveSubTab('cases')}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
-                  activeSubTab === 'cases'
-                    ? 'bg-white dark:bg-[#0B132B] text-[#0B132B] dark:text-white shadow-sm border border-[#D4AF37]/40'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
-                }`}
-              >
-                <Briefcase className="w-3.5 h-3.5 text-[#2A9D8F]" />
-                <span>پرونده‌ها و تقویم دادگاه</span>
-              </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setShowManualAccountModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
+              title="ساخت اکانت برای موکل بدون نیاز به پیامک (با تولید پسورد تصادفی و تحویل در پیام‌رسان)"
+            >
+              <UserPlus className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>ساخت اکانت بدون SMS</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-600 text-white font-mono">پیام‌رسان</span>
+            </button>
 
+            {activeSubTab === 'dashboard' && (
               <button
-                onClick={() => setActiveSubTab('comments')}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
-                  activeSubTab === 'comments'
-                    ? 'bg-white dark:bg-[#0B132B] text-[#0B132B] dark:text-white shadow-sm border border-[#D4AF37]/40'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
-                }`}
+                onClick={() => setShowAddModal(true)}
+                className="btn-gold text-xs sm:text-sm px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm"
               >
-                <MessageSquare className="w-3.5 h-3.5 text-[#D4AF37]" />
-                <span>مدیریت دیدگاه‌ها</span>
+                <Plus className="w-4 h-4" />
+                <span>ثبت پرونده جدید</span>
               </button>
-
-              <button
-                onClick={() => setActiveSubTab('customizer')}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
-                  activeSubTab === 'customizer'
-                    ? 'bg-[#D4AF37] text-[#0B132B] shadow-sm font-black'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
-                }`}
-              >
-                <Sliders className="w-3.5 h-3.5 text-[#AA820A] dark:text-[#0B132B]" />
-                <span>شخصی‌سازی هویت سایت و وکیل</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-red-500 text-white font-mono">جدید</span>
-              </button>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowManualAccountModal(true)}
-                className="px-3.5 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
-                title="ساخت اکانت برای موکل بدون نیاز به پیامک (با تولید پسورد تصادفی و تحویل در پیام‌رسان)"
-              >
-                <UserPlus className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span>ساخت اکانت بدون SMS</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-600 text-white font-mono">پیام‌رسان</span>
-              </button>
-
-              {activeSubTab === 'cases' && (
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="btn-gold text-xs sm:text-sm px-4 py-2 rounded-xl flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>ثبت پرونده جدید</span>
-                </button>
-              )}
-            </div>
+            )}
           </div>
         </div>
 
-        {activeSubTab === 'customizer' ? (
+        {/* Phase 3 Admin Subtabs Navigation Bar */}
+        <div className="p-1.5 rounded-2xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <button
+            onClick={() => setActiveSubTab('dashboard')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'dashboard'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Briefcase className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>۱. داشبورد و پرونده‌ها (۷ بخش)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('appearance')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'appearance'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Palette className="w-3.5 h-3.5 text-pink-500" />
+            <span>۲. تنظیمات ظاهری (۶ تب)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('banner')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'banner'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5 text-amber-500" />
+            <span>۳. بنر اسلایدر متنی (۴ تب)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('contact-cards')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'contact-cards'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <MapPin className="w-3.5 h-3.5 text-emerald-500" />
+            <span>۴. تماس، تیم و نقشه (۵ تب)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('instagram')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'instagram'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Instagram className="w-3.5 h-3.5 text-pink-600" />
+            <span>۵. اینستاگرام (۳ تب)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('system-status')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'system-status'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Server className="w-3.5 h-3.5 text-sky-500" />
+            <span>۶. وضعیت سیستم (۶ بخش)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('backup')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'backup'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <HardDrive className="w-3.5 h-3.5 text-indigo-500" />
+            <span>۷. پشتیبان‌گیری (۳ تب)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('logs')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'logs'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5 text-red-500" />
+            <span>۸. لاگ‌ها و دیباگ (۳ تب)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('comments')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'comments'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-teal-500" />
+            <span>۹. نظارت بر دیدگاه‌ها</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('customizer')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'customizer'
+                ? 'bg-[#D4AF37] text-[#0B132B] font-black shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5 text-[#AA820A] dark:text-[#0B132B]" />
+            <span>۱۰. هویت کامل وکیل</span>
+          </button>
+        </div>
+
+        {/* Content Views */}
+        {activeSubTab === 'appearance' ? (
+          <AdminAppearanceTab
+            profile={lawyerProfile}
+            onUpdateProfile={handleProfileUpdated}
+          />
+        ) : activeSubTab === 'banner' ? (
+          <AdminBannerTab
+            profile={lawyerProfile}
+            onUpdateProfile={handleProfileUpdated}
+          />
+        ) : activeSubTab === 'contact-cards' ? (
+          <AdminContactCardsTab
+            profile={lawyerProfile}
+            onUpdateProfile={handleProfileUpdated}
+          />
+        ) : activeSubTab === 'instagram' ? (
+          <AdminInstagramTab
+            profile={lawyerProfile}
+            onUpdateProfile={handleProfileUpdated}
+          />
+        ) : activeSubTab === 'system-status' ? (
+          <AdminSystemStatusTab />
+        ) : activeSubTab === 'backup' ? (
+          <AdminBackupTab
+            profile={lawyerProfile}
+            onUpdateProfile={handleProfileUpdated}
+          />
+        ) : activeSubTab === 'logs' ? (
+          <AdminLogsTab />
+        ) : activeSubTab === 'comments' ? (
+          <FrontendCommentsModeration />
+        ) : activeSubTab === 'customizer' ? (
           <LawyerCustomizerTab
             profile={lawyerProfile}
             onUpdateProfile={handleProfileUpdated}
           />
-        ) : activeSubTab === 'comments' ? (
-          <FrontendCommentsModeration />
         ) : (
-          <>
-            {/* 4 Stat Cards with Golden/Emerald/Crimson Right Borders */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          
-          <div className="bg-white dark:bg-[#0B132B] p-5 rounded-2xl border-r-4 border-r-[#D4AF37] border-y border-l border-gray-200 dark:border-gray-800 shadow-sm flex items-center justify-between">
-            <div>
-              <span className="text-xs font-bold text-gray-400">کل پرونده‌های ثبت‌شده</span>
-              <p className="text-2xl sm:text-3xl font-bold font-serif text-[#0B132B] dark:text-white mt-1">
-                {totalCases} پرونده
-              </p>
-              <span className="text-[11px] text-emerald-600 flex items-center gap-1 mt-1 font-semibold">
-                <TrendingUp className="w-3 h-3" />
-                +۱۲٪ افزایش موکلین این فصل
-              </span>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-[#D4AF37]/15 text-[#D4AF37] flex items-center justify-center">
-              <Scale className="w-6 h-6" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-[#0B132B] p-5 rounded-2xl border-r-4 border-r-[#2A9D8F] border-y border-l border-gray-200 dark:border-gray-800 shadow-sm flex items-center justify-between">
-            <div>
-              <span className="text-xs font-bold text-gray-400">پرونده‌های در جریان دادگاه</span>
-              <p className="text-2xl sm:text-3xl font-bold font-serif text-[#2A9D8F] mt-1">
-                {statusCounts.inProgress} پرونده
-              </p>
-              <span className="text-[11px] text-gray-500 mt-1 block">
-                ۳ جلسه دادگاه در این هفته
-              </span>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-[#2A9D8F]/15 text-[#2A9D8F] flex items-center justify-center">
-              <Clock className="w-6 h-6" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-[#0B132B] p-5 rounded-2xl border-r-4 border-r-[#8B0000] border-y border-l border-gray-200 dark:border-gray-800 shadow-sm flex items-center justify-between">
-            <div>
-              <span className="text-xs font-bold text-gray-400">مهلت‌های اضطراری دادرسی</span>
-              <p className="text-2xl sm:text-3xl font-bold font-serif text-[#8B0000] mt-1">
-                ۲ مهلت
-              </p>
-              <span className="text-[11px] text-red-500 font-semibold mt-1 block">
-                تجدیدنظرخواهی تا ۴۸ ساعت آینده
-              </span>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-red-500/15 text-red-600 flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-[#0B132B] p-5 rounded-2xl border-r-4 border-r-[#1C2541] border-y border-l border-gray-200 dark:border-gray-800 shadow-sm flex items-center justify-between">
-            <div>
-              <span className="text-xs font-bold text-gray-400">نوبت‌های مشاوره امروز</span>
-              <p className="text-2xl sm:text-3xl font-bold font-serif text-[#0B132B] dark:text-white mt-1">
-                ۴ نوبت
-              </p>
-              <span className="text-[11px] text-emerald-600 font-semibold mt-1 block">
-                ۲ مشاوره حضوری + ۲ تلفنی
-              </span>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-blue-500/15 text-blue-600 flex items-center justify-center">
-              <Calendar className="w-6 h-6" />
-            </div>
-          </div>
-
-        </div>
-
-        {/* Middle Section: Case Status Visualizer & Reminders Checklist */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* Status Breakdown & Chart (5 Cols) */}
-          <div className="lg:col-span-5 bg-white dark:bg-[#0B132B] rounded-3xl p-6 sm:p-7 border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold font-serif text-[#0B132B] dark:text-white">
-                وضعیت آماری پرونده‌های موکلین
-              </h3>
-              <span className="text-xs text-gray-400">بروزرسانی لحظه‌ای</span>
-            </div>
-
-            {/* Visual Progress Bar representation */}
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-[#2A9D8F]"></span>
-                    پرونده‌های در جریان دادرسی
-                  </span>
-                  <span>{statusCounts.inProgress} پرونده ({Math.round((statusCounts.inProgress / totalCases) * 100)}%)</span>
-                </div>
-                <div className="w-full h-3 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                  <div
-                    className="h-full bg-[#2A9D8F] rounded-full transition-all duration-500"
-                    style={{ width: `${(statusCounts.inProgress / totalCases) * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-[#D4AF37]"></span>
-                    در حال بررسی و تنظیم دادخواست
-                  </span>
-                  <span>{statusCounts.underReview} پرونده ({Math.round((statusCounts.underReview / totalCases) * 100)}%)</span>
-                </div>
-                <div className="w-full h-3 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                  <div
-                    className="h-full bg-[#D4AF37] rounded-full transition-all duration-500"
-                    style={{ width: `${(statusCounts.underReview / totalCases) * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-[#1C2541] dark:bg-gray-400"></span>
-                    مختومه و به نتیجه رسیده
-                  </span>
-                  <span>{statusCounts.closed} پرونده ({Math.round((statusCounts.closed / totalCases) * 100)}%)</span>
-                </div>
-                <div className="w-full h-3 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                  <div
-                    className="h-full bg-[#1C2541] dark:bg-gray-400 rounded-full transition-all duration-500"
-                    style={{ width: `${(statusCounts.closed / totalCases) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
-              <span className="text-gray-500">مجموع اسناد بارگذاری شده در پرونده‌ها:</span>
-              <span className="font-bold text-[#0B132B] dark:text-white">۴۴ سند و لایحه</span>
-            </div>
-          </div>
-
-          {/* Today's Reminders & Urgent Tasks (7 Cols) */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#0B132B] rounded-3xl p-6 sm:p-7 border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
-              <h3 className="text-base font-bold font-serif text-[#0B132B] dark:text-white flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#D4AF37]" />
-                یادآورها و اقدامات فوری امروز وکیل
-              </h3>
-              <span className="text-xs px-2.5 py-1 rounded-full bg-[#D4AF37]/15 text-[#AA820A] dark:text-[#F3E5AB] font-bold">
-                {reminders.filter((r) => !r.done).length} اقدام باقی‌مانده
-              </span>
-            </div>
-
-            <div className="space-y-2.5">
-              {reminders.map((reminder) => (
-                <div
-                  key={reminder.id}
-                  onClick={() => toggleReminder(reminder.id)}
-                  className={`p-3.5 rounded-xl border cursor-pointer flex items-center justify-between gap-3 transition-all ${
-                    reminder.done
-                      ? 'bg-gray-50 dark:bg-gray-800/30 border-gray-200 dark:border-gray-800 opacity-60'
-                      : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-[#D4AF37]'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={reminder.done}
-                      onChange={() => {}}
-                      className="w-4 h-4 rounded text-[#D4AF37] focus:ring-[#D4AF37]"
-                    />
-                    <span
-                      className={`text-xs sm:text-sm font-medium ${
-                        reminder.done ? 'line-through text-gray-400' : 'text-gray-800 dark:text-gray-200'
-                      }`}
-                    >
-                      {reminder.text}
-                    </span>
-                  </div>
-
-                  <span className="text-[11px] px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-500 font-mono whitespace-nowrap">
-                    {reminder.time}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
+          <div className="space-y-8">
+            {/* 7 Sections of the Attorney Executive Dashboard */}
+            <AttorneyExecutiveDashboard
+              cases={cases}
+              onOpenAddCaseModal={() => setShowAddModal(true)}
+              onOpenManualAccountModal={() => setShowManualAccountModal(true)}
+            />
 
         {/* Case Management Table */}
         <div className="bg-white dark:bg-[#0B132B] rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
@@ -594,7 +542,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
 
         </div>
 
-          </>
+          </div>
         )}
           </div>
         )}
