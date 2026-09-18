@@ -5846,5 +5846,227 @@ function sedrazavi_verify_document_hash($request) {
     ));
 }
 `
+  },
+  {
+    path: 'template-corporate-international.php',
+    filename: 'template-corporate-international.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'قالب اختصاصی برگه امور شرکت‌ها، بازرگانی بین‌المللی و داوری تجاری (فاز ۸)',
+    code: `<?php
+/**
+ * Template Name: پرتال امور شرکت‌ها و داوری بین‌المللی
+ * Description: Corporate Governance, Incoterms 2020 & International Arbitration Portal (Phase 8)
+ *
+ * @package SedRazavi
+ * @version 8.0.0
+ */
+
+if (!defined('ABSPATH')) exit;
+get_header();
+?>
+
+<div class="py-12 bg-slate-50 dark:bg-[#060B18] min-h-screen text-slate-800 dark:text-slate-100" dir="rtl">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-8">
+        <!-- سربرگ اختصاصی دکتری حقوق بین‌الملل دکتر سیده مریم رضوی -->
+        <div class="rounded-3xl bg-gradient-to-r from-[#0B132B] via-[#1C2541] to-[#0B132B] border border-[#D4AF37]/30 p-8 sm:p-12 text-white shadow-2xl">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div class="space-y-3 max-w-3xl">
+                    <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/30 text-[#F3E5AB] text-xs font-bold">
+                        پرتال فاز ۸ - مرکز تخصصی حقوق شرکت‌ها و داوری اتاق بازرگانی بین‌المللی (ICC)
+                    </span>
+                    <h1 class="text-3xl sm:text-4xl font-black font-serif text-white leading-tight">
+                        امور شرکت‌ها، بازرگانی بین‌الملل و داوری فرامرزی
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                        سامانه مکانیزه محاسبه حد نصاب تشکیل و تصمیم‌گیری مجامع شرکتی طبق لایحه اصلاحی قانون تجارت، شبیه‌ساز حرفه‌ای ۱۱ قاعده اینکوترمز ۲۰۲۰ و کلینیک داوری بین‌المللی تحت کنوانسیون ۱۹۵۸ نیویورک.
+                    </p>
+                </div>
+                <div class="p-5 rounded-2xl bg-white/5 border border-[#D4AF37]/40 backdrop-blur-md space-y-2 min-w-[260px] text-right">
+                    <div class="text-xs font-bold text-[#F3E5AB]">سرپرست علمی و راهبردی:</div>
+                    <div class="text-base font-black text-white">دکتر سیده مریم رضوی</div>
+                    <div class="text-xs text-[#D4AF37]">دکتری حقوق بین‌الملل عمومی و خصوصی</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- فراخوانی شورت‌کد اختصاصی فاز ۸ -->
+        <?php echo do_shortcode('[sedrazavi_corporate_suite]'); ?>
+    </div>
+</div>
+
+<?php get_footer(); ?>`
+  },
+  {
+    path: 'inc/corporate-international.php',
+    filename: 'corporate-international.php',
+    category: 'بخش‌های داخلی (Inc)',
+    description: 'موتور محاسبات حد نصاب مجامع شرکتی، شبیه‌ساز اینکوترمز ۲۰۲۰ و اندپوینت‌های شروط داوری ICC',
+    code: `<?php
+/**
+ * موتور پردازش امور شرکت‌ها، بازرگانی بین‌الملل و داوری (فاز ۸)
+ *
+ * @package SedRazavi
+ * @version 8.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * ثبت شورت‌کد اصلی پرتال فاز ۸
+ */
+function sedrazavi_corporate_suite_shortcode($atts) {
+    ob_start();
+    ?>
+    <div id="sedrazavi-corporate-suite-root" class="w-full">
+        <!-- کامپوننت ری‌اکت در فرانت‌اند به این المان متصل می‌شود -->
+        <div class="p-8 rounded-3xl bg-white dark:bg-[#0B132B] border border-slate-200 dark:border-slate-800 text-center space-y-4">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white font-serif">سامانه امور شرکت‌ها و داوری بازرگانی بین‌المللی فعال شد</h3>
+            <p class="text-xs text-slate-500">تمامی ماژول‌های محاسباتی حد نصاب مجامع و اینکوترمز ۲۰۲۰ بارگذاری شدند.</p>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_corporate_suite', 'sedrazavi_corporate_suite_shortcode');
+
+/**
+ * ثبت REST API جهت محاسبه آنلاین حد نصاب مجامع شرکتی
+ */
+function sedrazavi_register_corporate_api() {
+    register_rest_route('sedrazavi/v1', '/corporate-quorum', array(
+        'methods'  => 'POST',
+        'callback' => 'sedrazavi_calculate_quorum_api',
+        'permission_callback' => '__return_true',
+    ));
+}
+add_action('rest_api_init', 'sedrazavi_register_corporate_api');
+
+function sedrazavi_calculate_quorum_api($request) {
+    $company_type = sanitize_text_field($request->get_param('company_type')); // public_joint_stock, private_joint_stock, llc
+    $meeting_type = sanitize_text_field($request->get_param('meeting_type')); // general_ordinary, extraordinary
+    $turn = intval($request->get_param('turn')) ?: 1; // 1 or 2
+    $attended_shares_pct = floatval($request->get_param('attended_shares_pct')); // e.g. 55.5
+
+    $is_quorum_met = false;
+    $required_quorum_desc = '';
+
+    if ($company_type === 'private_joint_stock' || $company_type === 'public_joint_stock') {
+        if ($meeting_type === 'general_ordinary') {
+            if ($turn === 1) {
+                $is_quorum_met = $attended_shares_pct > 50.0;
+                $required_quorum_desc = 'بیش از ۵۰ درصد سهام دارای حق رأی (ماده ۸۴ لایحه اصلاحی قانون تجارت)';
+            } else {
+                $is_quorum_met = $attended_shares_pct > 0;
+                $required_quorum_desc = 'با حضور هر عده از صاحبان سهام رسمیت می‌یابد (ماده ۸۴)';
+            }
+        } elseif ($meeting_type === 'extraordinary') {
+            if ($turn === 1) {
+                $is_quorum_met = $attended_shares_pct > 50.0;
+                $required_quorum_desc = 'بیش از نصف سهام دارای حق رأی (ماده ۸۴)';
+            } else {
+                $is_quorum_met = $attended_shares_pct > 33.33;
+                $required_quorum_desc = 'بیش از یک سوم سهام دارای حق رأی (ماده ۸۴)';
+            }
+        }
+    }
+
+    return rest_ensure_response(array(
+        'company_type'         => $company_type,
+        'meeting_type'         => $meeting_type,
+        'turn'                 => $turn,
+        'attended_shares_pct'  => $attended_shares_pct,
+        'is_quorum_met'        => $is_quorum_met,
+        'required_quorum_desc' => $required_quorum_desc,
+        'supervised_by'        => 'دکتر سیده مریم رضوی - دکتری حقوق بین‌الملل'
+    ));
+}
+`
+  },
+
+  {
+    path: 'page-compliance-aml.php',
+    filename: 'page-compliance-aml.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'قالب برگه اختصاصی سامانه مبارزه با پولشویی (AML)، غربالگری تحریم‌های بین‌المللی و انطباق بانکی (فاز ۱۱).',
+    code: `<?php
+/**
+ * Template Name: سامانه انطباق بانکی، AML و تحریم‌ها (Phase 11)
+ * Description: Anti-Money Laundering (AML), KYC/KYT Compliance & Sanctions Screening Portal
+ *
+ * @package SedRazavi
+ * @version 2.7.0
+ */
+
+if (!defined('ABSPATH')) exit;
+get_header();
+?>
+
+<div class="py-16 bg-[#0B132B] text-white min-h-screen">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-12">
+        <div class="text-center max-w-3xl mx-auto space-y-4">
+            <span class="px-4 py-1.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/40 inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                میز تخصصی حقوق مالی، انطباق و مبارزه با پولشویی (فاز ۱۱)
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-black font-serif text-white">
+                غربالگری تحریم‌ها، تطبیق بانکی FATF و دفاع در جرایم اقتصادی
+            </h1>
+            <p class="text-gray-300 text-sm leading-relaxed">
+                استعلام اسامی در فهرست‌های SDN و تحریم‌های سازمان ملل، تحلیل معاملات مشکوک (STR)، ارزیابی اشخاص سیاسی (PEP) و ممیزی تراکنش‌های رمزارزی (KYT)
+            </p>
+        </div>
+
+        <!-- Shortcode Embed -->
+        <div class="rounded-3xl p-6 bg-gray-900/80 border border-gray-800 shadow-2xl backdrop-blur-md">
+            <?php echo do_shortcode('[sedrazavi_aml_compliance_suite]'); ?>
+        </div>
+    </div>
+</div>
+
+<?php get_footer(); ?>`
+  },
+  {
+    path: 'page-real-estate-construction.php',
+    filename: 'page-real-estate-construction.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'قالب برگه اختصاصی سامانه حقوق اراضی، مشارکت در ساخت، سرقفلی و کمیسیون‌های شهرداری (فاز ۱۲).',
+    code: `<?php
+/**
+ * Template Name: سامانه دعاوی ملکی، سرقفلی و ساخت‌وساز (Phase 12)
+ * Description: Real Estate, Construction Partnerships, Goodwill (Key-money) & Municipal Commissions Portal
+ *
+ * @package SedRazavi
+ * @version 2.8.0
+ */
+
+if (!defined('ABSPATH')) exit;
+get_header();
+?>
+
+<div class="py-16 bg-[#0B132B] text-white min-h-screen">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-12">
+        <div class="text-center max-w-3xl mx-auto space-y-4">
+            <span class="px-4 py-1.5 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/40 inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse"></span>
+                میز تخصصی دعاوی ملکی، سرقفلی و ساخت‌وساز (فاز ۱۲)
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-black font-serif text-white">
+                دعاوی اراضی، مشارکت در ساخت، سرقفلی و کمیسیون ماده ۱۰۰ شهرداری
+            </h1>
+            <p class="text-gray-300 text-sm leading-relaxed">
+                محاسبه‌گر ترازنامه قدرالسهم مشارکت در ساخت، تحلیل احکام سرقفلی و حق کسب و پیشه (قوانین ۵۶ و ۷۶) و مخزن دادخواست‌های الزام به تنظیم سند رسمی.
+            </p>
+        </div>
+
+        <!-- Shortcode Embed -->
+        <div class="rounded-3xl p-6 bg-gray-900/80 border border-gray-800 shadow-2xl backdrop-blur-md">
+            <?php echo do_shortcode('[sedrazavi_real_estate_suite]'); ?>
+        </div>
+    </div>
+</div>
+
+<?php get_footer(); ?>`
   }
 ];

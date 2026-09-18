@@ -11,9 +11,13 @@ interface FooterProps {
   onOpenPhase6?: () => void;
   onOpenPhase7?: () => void;
   onOpenPhase8?: () => void;
+  onOpenPhase9?: () => void;
+  onOpenPhase10?: () => void;
+  onOpenPhase11?: () => void;
+  onOpenPhase12?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ profile, onOpenFinance, onOpenPhase5, onOpenPhase6, onOpenPhase7, onOpenPhase8 }) => {
+export const Footer: React.FC<FooterProps> = ({ profile, onOpenFinance, onOpenPhase5, onOpenPhase6, onOpenPhase7, onOpenPhase8, onOpenPhase9, onOpenPhase10, onOpenPhase11, onOpenPhase12 }) => {
   const brandName = profile?.siteTitle || 'SedRazavi';
   const lawyerName = profile?.lawyerName || ATTORNEY_INFO.name;
   const address = profile?.officeAddress || ATTORNEY_INFO.officeAddress;
@@ -147,6 +151,46 @@ export const Footer: React.FC<FooterProps> = ({ profile, onOpenFinance, onOpenPh
                     className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-blue-400 font-bold"
                   >
                     <span className="text-[#D4AF37]">🌐</span> امور شرکت‌ها، اینکوترمز ۲۰۲۰ و داوری بازرگانی بین‌الملل (فاز ۸)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase9 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase9}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-[#D4AF37] font-bold"
+                  >
+                    <span className="text-[#D4AF37]">💡</span> مالکیت فکری، استارتاپ‌ها، طبقات نیس و لایسنس نرم‌افزار (فاز ۹)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase10 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase10}
+                    className="hover:text-rose-400 transition-colors flex items-center gap-2 text-right text-rose-400 font-bold"
+                  >
+                    <span className="text-rose-400">🔒</span> جرایم سایبری، ادله دیجیتال و امنیت قراردادهای هوشمند (فاز ۱۰)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase11 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase11}
+                    className="hover:text-amber-400 transition-colors flex items-center gap-2 text-right text-amber-400 font-bold"
+                  >
+                    <span className="text-amber-400">🛡️</span> سامانه مبارزه با پولشویی (AML)، انطباق بانکی و تحریم‌ها (فاز ۱۱)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase12 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase12}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-[#D4AF37] font-bold"
+                  >
+                    <span className="text-[#D4AF37]">🏢</span> دعاوی ملکی، سرقفلی و مشارکت در ساخت (فاز ۱۲)
                   </button>
                 </li>
               )}

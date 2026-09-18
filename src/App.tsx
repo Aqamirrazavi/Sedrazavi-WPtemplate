@@ -20,6 +20,10 @@ import { LegalOdrSuite } from './components/legal-odr/LegalOdrSuite';
 import { LegalIntelligenceSuite } from './components/legal-ai/LegalIntelligenceSuite';
 import { LegalStrategySuite } from './components/legal-strategy/LegalStrategySuite';
 import { CorporateInternationalSuite } from './components/corporate-international/CorporateInternationalSuite';
+import { IntellectualPropertySuite } from './components/intellectual-property/IntellectualPropertySuite';
+import { CyberForensicsSuite } from './components/cyber-forensics/CyberForensicsSuite';
+import { FinancialComplianceSuite } from './components/compliance-financial/FinancialComplianceSuite';
+import { RealEstateConstructionSuite } from './components/real-estate-construction/RealEstateConstructionSuite';
 import { ArchiveView } from './components/ArchiveView';
 import { SingleContentView } from './components/SingleContentView';
 import { OnboardingTour } from './components/OnboardingTour';
@@ -180,6 +184,8 @@ export default function App() {
         onOpenPhase6={() => setActiveView('legal-ai')}
         onOpenPhase7={() => setActiveView('strategy-suite')}
         onOpenPhase8={() => setActiveView('corporate-suite')}
+        onOpenPhase9={() => setActiveView('ip-suite')}
+        onOpenPhase10={() => setActiveView('cyber-suite')}
         onNavigateSection={(sectionId) => {
           if (activeView !== 'preview') {
             setActiveView('preview');
@@ -285,6 +291,11 @@ export default function App() {
               onOpenPhase5={() => setActiveView('odr-suite')}
               onOpenPhase6={() => setActiveView('legal-ai')}
               onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+              onOpenPhase9={() => setActiveView('ip-suite')}
+              onOpenPhase10={() => setActiveView('cyber-suite')}
+              onOpenPhase11={() => setActiveView('compliance-suite')}
+              onOpenPhase12={() => setActiveView('real-estate-suite')}
             />
           </div>
         )}
@@ -302,6 +313,7 @@ export default function App() {
               onOpenPhase5={() => setActiveView('odr-suite')}
               onOpenPhase6={() => setActiveView('legal-ai')}
               onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
             />
           </div>
         )}
@@ -318,6 +330,7 @@ export default function App() {
               onOpenPhase5={() => setActiveView('odr-suite')}
               onOpenPhase6={() => setActiveView('legal-ai')}
               onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
             />
           </div>
         )}
@@ -330,6 +343,8 @@ export default function App() {
               onOpenFinance={() => setActiveView('finance')}
               onOpenPhase5={() => setActiveView('odr-suite')}
               onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
             />
           </div>
         )}
@@ -345,6 +360,8 @@ export default function App() {
               onOpenFinance={() => setActiveView('finance')}
               onOpenPhase5={() => setActiveView('odr-suite')}
               onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
             />
           </div>
         )}
@@ -356,13 +373,24 @@ export default function App() {
               initialType={archiveInitialType}
               onSelectArticle={handleSelectArticle}
               onSelectVideo={handleSelectVideo}
+              onSelectService={(serviceSlug) => {
+                setActiveView('preview');
+                setTimeout(() => {
+                  const el = document.getElementById('services');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }}
               onBackToHome={() => setActiveView('preview')}
+              onOpenBooking={() => handleBookService('مشاوره حقوقی تخصصی')}
+              onOpenProfile={() => setActiveView('about-page')}
             />
             <Footer
               profile={lawyerProfile}
               onOpenFinance={() => setActiveView('finance')}
               onOpenPhase5={() => setActiveView('odr-suite')}
               onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
             />
           </div>
         )}
@@ -384,6 +412,8 @@ export default function App() {
               onOpenFinance={() => setActiveView('finance')}
               onOpenPhase5={() => setActiveView('odr-suite')}
               onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
             />
           </div>
         )}
@@ -408,6 +438,8 @@ export default function App() {
               onOpenFinance={() => setActiveView('finance')}
               onOpenPhase5={() => setActiveView('odr-suite')}
               onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
             />
           </div>
         )}
@@ -429,6 +461,8 @@ export default function App() {
               onOpenFinance={() => setActiveView('finance')}
               onOpenPhase5={() => setActiveView('odr-suite')}
               onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
             />
           </div>
         )}
@@ -443,6 +477,8 @@ export default function App() {
               onOpenFinance={() => setActiveView('finance')}
               onOpenPhase5={() => setActiveView('odr-suite')}
               onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
             />
           </div>
         )}
@@ -457,6 +493,8 @@ export default function App() {
               onOpenFinance={() => setActiveView('finance')}
               onOpenPhase5={() => setActiveView('odr-suite')}
               onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
             />
           </div>
         )}
@@ -490,6 +528,88 @@ export default function App() {
               onOpenPhase6={() => setActiveView('legal-ai')}
               onOpenPhase7={() => setActiveView('strategy-suite')}
               onOpenPhase8={() => setActiveView('corporate-suite')}
+              onOpenPhase9={() => setActiveView('ip-suite')}
+            />
+          </div>
+        )}
+
+        {activeView === 'ip-suite' && (
+          <div>
+            <IntellectualPropertySuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenBooking={() => handleBookService('مشاوره تخصصی مالکیت فکری، استارتاپ‌ها و لایسنس نرم‌افزار')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+              onOpenPhase9={() => setActiveView('ip-suite')}
+              onOpenPhase10={() => setActiveView('cyber-suite')}
+            />
+          </div>
+        )}
+
+        {activeView === 'cyber-suite' && (
+          <div>
+            <CyberForensicsSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenBooking={() => handleBookService('مشاوره تخصصی جرایم سایبری، دادسرای فتا و امنیت قراردادهای هوشمند')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+              onOpenPhase9={() => setActiveView('ip-suite')}
+              onOpenPhase10={() => setActiveView('cyber-suite')}
+              onOpenPhase11={() => setActiveView('compliance-suite')}
+            />
+          </div>
+        )}
+
+        {activeView === 'compliance-suite' && (
+          <div>
+            <FinancialComplianceSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenConsultationModal={() => handleBookService('مشاوره تخصصی مبارزه با پولشویی (AML)، جرایم اقتصادی و تطبیق بانکی')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+              onOpenPhase9={() => setActiveView('ip-suite')}
+              onOpenPhase10={() => setActiveView('cyber-suite')}
+              onOpenPhase11={() => setActiveView('compliance-suite')}
+              onOpenPhase12={() => setActiveView('real-estate-suite')}
+            />
+          </div>
+        )}
+
+        {activeView === 'real-estate-suite' && (
+          <div>
+            <RealEstateConstructionSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenBooking={() => handleBookService('مشاوره تخصصی دعاوی ملکی، مشارکت در ساخت، سرقفلی و کمیسیون ماده ۱۰۰')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+              onOpenPhase9={() => setActiveView('ip-suite')}
+              onOpenPhase10={() => setActiveView('cyber-suite')}
+              onOpenPhase11={() => setActiveView('compliance-suite')}
+              onOpenPhase12={() => setActiveView('real-estate-suite')}
             />
           </div>
         )}

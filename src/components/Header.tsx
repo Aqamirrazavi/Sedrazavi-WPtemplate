@@ -34,6 +34,10 @@ import {
   FileSearch,
   Compass,
   FolderLock,
+  ShieldCheck,
+  Binary,
+  AlertOctagon,
+  ShieldAlert,
 } from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
 import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
@@ -54,6 +58,10 @@ export type ThemeViewMode =
   | 'legal-ai'
   | 'strategy-suite'
   | 'corporate-suite'
+  | 'ip-suite'
+  | 'cyber-suite'
+  | 'compliance-suite'
+  | 'real-estate-suite'
   | 'code'
   | 'archive'
   | 'single';
@@ -413,6 +421,46 @@ export const Header: React.FC<HeaderProps> = ({
                       <span className="font-bold">امور شرکت‌ها و داوری بین‌المللی (فاز ۸)</span>
                       <Briefcase className="w-3.5 h-3.5 text-blue-500" />
                     </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('ip-suite');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold text-[#D4AF37]">مالکیت فکری، استارتاپ‌ها و نرم‌افزار (فاز ۹)</span>
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('cyber-suite');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-rose-500/10 hover:text-rose-500 transition-colors"
+                    >
+                      <span className="font-bold text-rose-500">جرایم سایبری، ادله دیجیتال و بلاک‌چین (فاز ۱۰)</span>
+                      <Binary className="w-3.5 h-3.5 text-rose-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('compliance-suite');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-amber-500/10 hover:text-amber-400 transition-colors"
+                    >
+                      <span className="font-bold text-amber-400">مبارزه با پولشویی (AML)، انطباق بانکی و تحریم‌ها (فاز ۱۱)</span>
+                      <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('real-estate-suite');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold text-[#D4AF37]">دعاوی ملکی، سرقفلی و ساخت‌وساز (فاز ۱۲)</span>
+                      <Building2 className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
                   </div>
                 )}
               </div>
@@ -437,6 +485,17 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 خدمات حقوقی
+              </button>
+
+              <button
+                onClick={() => setActiveView('archive')}
+                className={`px-3 py-2 rounded-lg transition-colors ${
+                  activeView === 'archive'
+                    ? 'text-[#D4AF37] font-bold bg-[#D4AF37]/10'
+                    : 'hover:text-[#D4AF37] hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                }`}
+              >
+                وبلاگ و مقالات
               </button>
 
               <button
@@ -622,6 +681,62 @@ export const Header: React.FC<HeaderProps> = ({
                 <Briefcase className="w-3.5 h-3.5 text-blue-500" />
                 <span>شرکت‌ها و تجارت بین‌الملل</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping" />
+              </button>
+
+              <button
+                onClick={() => setActiveView('ip-suite')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  activeView === 'ip-suite'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#0B132B] dark:text-white shadow-sm border border-[#D4AF37]/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
+                }`}
+                title="سامانه مالکیت فکری، استارتاپ‌ها، طبقات نیس و لایسنس نرم‌افزار (فاز ۹)"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <span className="text-[#D4AF37] font-bold">مالکیت فکری و استارتاپ‌ها</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
+              </button>
+
+              <button
+                onClick={() => setActiveView('cyber-suite')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  activeView === 'cyber-suite'
+                    ? 'bg-white dark:bg-[#0B132B] text-rose-500 shadow-sm border border-rose-500/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-rose-500'
+                }`}
+                title="سامانه جرایم سایبری، ادله دیجیتال و ممیزی قراردادهای هوشمند (فاز ۱۰)"
+              >
+                <Binary className="w-3.5 h-3.5 text-rose-500" />
+                <span className="text-rose-500 font-bold">سایبری و بلاک‌چین</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+              </button>
+
+              <button
+                onClick={() => setActiveView('compliance-suite')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  activeView === 'compliance-suite'
+                    ? 'bg-white dark:bg-[#0B132B] text-amber-400 shadow-sm border border-amber-500/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-amber-400'
+                }`}
+                title="سامانه مبارزه با پولشویی (AML)، انطباق بانکی و پایش تحریم‌ها (فاز ۱۱)"
+              >
+                <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-amber-400 font-bold">پولشویی و انطباق (AML)</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              </button>
+
+              <button
+                onClick={() => setActiveView('real-estate-suite')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  activeView === 'real-estate-suite'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#D4AF37] shadow-sm border border-[#D4AF37]/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
+                }`}
+                title="سامانه دعاوی ملکی، سرقفلی و مشارکت در ساخت (فاز ۱۲)"
+              >
+                <Building2 className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <span className="text-[#D4AF37] font-bold">دعاوی ملکی و سرقفلی (فاز ۱۲)</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
               </button>
 
               <button
@@ -1016,6 +1131,50 @@ export const Header: React.FC<HeaderProps> = ({
                 className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-blue-600 dark:text-blue-400 font-bold"
               >
                 🌐 امور شرکت‌ها، بازرگانی بین‌الملل و داوری ICC (فاز ۸)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('ip-suite');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+              >
+                💡 مالکیت فکری، استارتاپ‌ها و لایسنس نرم‌افزار (فاز ۹)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('cyber-suite');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-rose-500 font-bold"
+              >
+                🔒 جرایم سایبری، ادله دیجیتال و بلاک‌چین (فاز ۱۰)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('compliance-suite');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-amber-400 font-bold"
+              >
+                🛡️ مبارزه با پولشویی (AML)، انطباق بانکی و تحریم‌ها (فاز ۱۱)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('real-estate-suite');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+              >
+                🏢 دعاوی ملکی، سرقفلی و مشارکت در ساخت (فاز ۱۲)
               </button>
 
               <a

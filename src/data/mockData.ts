@@ -12,6 +12,16 @@ import {
   ArbitrationCase,
   PetitionTemplate,
   VirtualHearingSession,
+  NiceClassificationClass,
+  IPAssetEvaluation,
+  StartupVestingSchedule,
+  SoftwareLicenseModel,
+  DigitalEvidenceItem,
+  CybercrimePenaltyRule,
+  SmartContractAuditRule,
+  AMLSanctionListEntity,
+  SuspiciousActivityRule,
+  PEPDueDiligenceCheck,
 } from '../types/theme';
 
 export const ATTORNEY_INFO = {
@@ -1895,7 +1905,7 @@ export const INCOTERMS_RULES_DATA: import('../types/theme').IncotermsRule[] = [
     sellerRiskUntil: 'تحویل کالا به نخستین متصدی حمل در کشور مبدأ (انتقال ریسک زودتر از انتقال هزینه)',
     buyerRiskFrom: 'از زمان تحویل کالا به اولین شرکت حمل‌ونقل',
     freightPayer: 'فروشنده',
-    insuranceResponsible: 'اختیاری طرفین (خریدار پوشش دهد)',
+    insuranceResponsible: 'اختیاری طرفین',
     exportCustoms: 'فروشنده',
     importCustoms: 'خریدار',
     riskScore: 6,
@@ -1927,7 +1937,7 @@ export const INCOTERMS_RULES_DATA: import('../types/theme').IncotermsRule[] = [
     sellerRiskUntil: 'رسیدن کالا در محل مقصد روی وسیله نقلیه ورودی و آماده برای تخلیه بدون ترخیص وارداتی',
     buyerRiskFrom: 'هنگام آمادگی کالا برای تخلیه در مقصد مشخص‌شده',
     freightPayer: 'فروشنده',
-    insuranceResponsible: 'اختیاری طرفین (بر عهده فروشنده)',
+    insuranceResponsible: 'اختیاری طرفین',
     exportCustoms: 'فروشنده',
     importCustoms: 'خریدار',
     riskScore: 2,
@@ -1943,7 +1953,7 @@ export const INCOTERMS_RULES_DATA: import('../types/theme').IncotermsRule[] = [
     sellerRiskUntil: 'تخلیه کامل فیزیکی کالا از وسیله حمل در پایانه یا انبار مقصد',
     buyerRiskFrom: 'پس از اتمام تخلیه کامل کالا در مقصد',
     freightPayer: 'فروشنده',
-    insuranceResponsible: 'اختیاری طرفین (توصیه: فروشنده)',
+    insuranceResponsible: 'اختیاری طرفین',
     exportCustoms: 'فروشنده',
     importCustoms: 'خریدار',
     riskScore: 2,
@@ -2063,5 +2073,425 @@ export const ARBITRATION_INSTITUTIONS_DATA: import('../types/theme').Arbitration
     expertTips: 'تعیین صریح «مقام ناصب» (Appointing Authority) نظیر دبیرکل دیوان دائمی داوری لاهه (PCA) برای جلوگیری از بن‌بست در انتخاب سرداور حیاتی است.'
   }
 ];
+
+// ==========================================
+// Phase 9 Mock Data: IP Registry, Startups & Software Licensing
+// ==========================================
+
+export const NICE_CLASSIFICATION_DATA: NiceClassificationClass[] = [
+  {
+    classNumber: 9,
+    titleFa: 'طبقه ۹: نرم‌افزارها، اپلیکیشن‌ها و تجهیزات هوش مصنوعی',
+    titleEn: 'Class 9: Software, Mobile Apps & AI Systems',
+    category: 'goods',
+    description: 'نرم‌افزارهای رایانه‌ای ضبط‌شده یا قابل دانلود، پلتفرم‌های ابری، تجهیزات پردازش داده و توکن‌های دیجیتال.',
+    popularKeywords: ['نرم‌افزار موبایل', 'هوش مصنوعی', 'بلاکچین', 'الگوریتم', 'پایگاه داده'],
+    riskFactor: 'پرتقاضا و پرتعارض'
+  },
+  {
+    classNumber: 35,
+    titleFa: 'طبقه ۳۵: تبلیغات، مدیریت کسب‌وکار و مارکتینگ دیجیتال',
+    titleEn: 'Class 35: Advertising, Business Management & E-Commerce',
+    category: 'services',
+    description: 'خدمات بازاریابی آنلاین، مدیریت استارتاپ‌ها، صادرات و واردات و سامانه‌های خرده‌فروشی آنلاین.',
+    popularKeywords: ['فروشگاه اینترنتی', 'دیجیتال مارکتینگ', 'مشاوره تجاری', 'مدیریت زنجیره تامین'],
+    riskFactor: 'پرتقاضا و پرتعارض'
+  },
+  {
+    classNumber: 42,
+    titleFa: 'طبقه ۴۲: خدمات علمی، فناوری، طراحی نرم‌افزار و رایانش ابری (SaaS)',
+    titleEn: 'Class 42: Scientific & Tech Services, Software Dev & SaaS',
+    category: 'services',
+    description: 'طراحی، توسعه و پشتیبانی نرم‌افزار، میزبانی ابری وب، مشاوره امنیت سایبری و هوش مصنوعی.',
+    popularKeywords: ['توسعه SaaS', 'امنیت داده', 'معماری کلود', 'تست نفوذ', 'طراحی UI/UX'],
+    riskFactor: 'پرتقاضا و پرتعارض'
+  },
+  {
+    classNumber: 36,
+    titleFa: 'طبقه ۳۶: خدمات مالی، فین‌تک، رمزارزها و امور بیمه',
+    titleEn: 'Class 36: Financial Services, FinTech & Insurance',
+    category: 'services',
+    description: 'خدمات پرداخت آنلاین، صرافی‌های دیجیتال، سبدگردانی، شتاب‌دهنده‌های سرمایه‌گذاری و رمزارزها.',
+    popularKeywords: ['درگاه پرداخت', 'کیف پول دیجیتال', 'صرافی کریپتو', 'تامین مالی جمعی'],
+    riskFactor: 'نیازمند مجوز خاص'
+  },
+  {
+    classNumber: 38,
+    titleFa: 'طبقه ۳۸: مخابرات، پیام‌رسان‌ها و ارتباطات شبکه',
+    titleEn: 'Class 38: Telecommunications & Streaming Platforms',
+    category: 'services',
+    description: 'ارائه دسترسی به شبکه‌های مخابراتی، پیام‌رسان‌های متنی و صوتی، پلتفرم‌های استریم و انتقال صوت و تصویر.',
+    popularKeywords: ['پیام‌رسان', 'ویدیو کنفرانس', 'پخش زنده', 'ارتباط ماهواره‌ای'],
+    riskFactor: 'نیازمند مجوز خاص'
+  },
+  {
+    classNumber: 5,
+    titleFa: 'طبقه ۵: فرآورده‌های دارویی، پزشکی و مکمل‌های زیستی',
+    titleEn: 'Class 5: Pharmaceuticals & Medical Preparations',
+    category: 'goods',
+    description: 'داروها، فرآورده‌های بیوتکنولوژی، واکسن‌ها و مکمل‌های غذایی دارویی تحت نظارت سازمان غذا و دارو.',
+    popularKeywords: ['دارو', 'نانودارو', 'مکمل دارویی', 'کیت تشخیص'],
+    riskFactor: 'نیازمند مجوز خاص'
+  }
+];
+
+export const MOCK_IP_ASSETS_DATA: IPAssetEvaluation[] = [
+  {
+    id: 'ip-1',
+    title: 'برند و لوگوی تجاری سامانه هوشمند دادمان',
+    assetType: 'علامت تجاری (برند)',
+    registrationTerritory: 'ایران (اداره مالکیت صنعتی)',
+    niceClasses: [9, 35, 42],
+    status: 'ثبت قطعی و صدور تصدیق ۱۰ ساله',
+    expirationDate: '۱۴۱۱/۰۴/۱۵',
+    infringementRiskScore: 18,
+    defenseStrategy: 'پایش دوره‌ای روزنامه‌های رسمی جهت ثبت اعتراض ۳۰ روزه به علائم مشابه و اخطار عدم نقض (Cease & Desist).'
+  },
+  {
+    id: 'ip-2',
+    title: 'موتور استنتاج هوش مصنوعی تطبیق دادخواست‌ها با آرای وحدت رویه',
+    assetType: 'حق مؤلف و نرم‌افزار (Copyright)',
+    registrationTerritory: 'ایران (اداره مالکیت صنعتی)',
+    niceClasses: [9, 42],
+    status: 'ثبت قطعی و صدور تصدیق ۱۰ ساله',
+    expirationDate: '۱۴۳۲/۰۸/۲۰',
+    infringementRiskScore: 32,
+    defenseStrategy: 'ثبت گواهی تاییدیه فنی در سازمان نظام صنفی رایانه‌ای و تودیع سورس‌کد در بنیاد ملی بازی‌ها و رسانه‌های دیجیتال.'
+  },
+  {
+    id: 'ip-3',
+    title: 'علامت تجاری بین‌المللی SedRazavi Legal Hub',
+    assetType: 'علامت تجاری (برند)',
+    registrationTerritory: 'بین‌المللی (سیستم مادرید WIPO)',
+    niceClasses: [35, 42],
+    status: 'دوران اعتراض ۳۰ روزه',
+    expirationDate: '۲۰۳۴/۱۲/۱۰',
+    infringementRiskScore: 24,
+    defenseStrategy: 'پیگیری از طریق دفتر بین‌المللی ژنو (WIPO) و ثبت همزمان در حوزه کشورهای شورای همکاری خلیج فارس (GCC).'
+  }
+];
+
+export const MOCK_STARTUP_VESTING_DATA: StartupVestingSchedule = {
+  founderName: 'دکتر محمدرضا کیانی / مهندس علیرضا راد',
+  role: 'هم‌بنیان‌گذار ارشد و مدیر ارشد فناوری (CTO)',
+  equityPercentage: 35.0,
+  totalShares: 350000,
+  vestingPeriodYears: 4,
+  cliffPeriodMonths: 12,
+  accelerationClause: 'دو‌مرحله‌ای (Double Trigger)',
+  ipAssignmentSigned: true,
+  nonCompetePeriodMonths: 24
+};
+
+export const SOFTWARE_LICENSING_MODELS: SoftwareLicenseModel[] = [
+  {
+    id: 'saas-cloud',
+    nameFa: 'قرارداد خدمات ابری و نرم‌افزار به‌مثابه خدمت (SaaS Agreement)',
+    nameEn: 'Software-as-a-Service (SaaS) Subscription Agreement',
+    category: 'SaaS Cloud',
+    slaUptimeGuarantee: 'تضمین پایداری ۹۹.۹٪ (Tier-3 Datacenter) به همراه جریمه Service Credits در صورت قطعی',
+    dataSovereignty: 'مالکیت ۱۰۰٪ انحصاری داده‌های مشتری به همراه رمزنگاری کلید خصوصی AES-256 و ذخیره‌سازی ابری محلی',
+    ipWarrantyAndIndemnification: 'تضمین مصونیت قضایی مشتری در برابر هرگونه ادعای نقض پتنت یا کپی‌رایت طرف ثالث توسط توسعه‌دهنده',
+    auditRights: 'ارائه گزارش‌های دوره‌ای سالانه انطباق ISO/IEC 27001 و SOC-2 بدون دسترسی مستقیم به سورس‌کد',
+    terminationExitStrategy: 'مهلت ۳۰ روزه انتقال بک‌آپ کامل پایگاه‌داده با فرمت استاندارد JSON/SQL و امحای امن نسخه‌ها'
+  },
+  {
+    id: 'enterprise-onprem',
+    nameFa: 'لایسنس نرم‌افزار درون‌سازمانی با امانت‌گذاری سورس‌کد (Software Escrow)',
+    nameEn: 'Enterprise On-Premise License with Source Code Escrow',
+    category: 'On-Premise Enterprise',
+    slaUptimeGuarantee: 'پشتیبانی فنی سطح ۲ و ۳ با زمان پاسخگویی حداکثر ۴ ساعته برای خطاهای بحرانی (Sev-1)',
+    dataSovereignty: 'میزبانی کامل روی سرورهای فیزیکی کارفرما بدون هیچ‌گونه خروج ترافیک یا تلمتری به خارج سازمان',
+    ipWarrantyAndIndemnification: 'جبران کامل خسارات دادرسی و وکلای مدافع در صورت اثبات نقض حقوق معنوی',
+    auditRights: 'امکان بازرسی فیزیکی سالانه نرم‌افزار جهت راستی‌آزمایی تعداد مجاز صندلی‌های فعال (User Seats)',
+    terminationExitStrategy: 'آزادسازی سورس‌کد تودیع‌شده در امانت‌داری (Escrow Agent) صرفاً در صورت ورشکستگی یا انحلال تامین‌کننده'
+  },
+  {
+    id: 'white-label-oem',
+    nameFa: 'قرارداد بازتوزیع نشان سفید و ادغام در محصول (White-Label OEM)',
+    nameEn: 'White-Label OEM Reseller & Custom Integration Agreement',
+    category: 'White-Label OEM',
+    slaUptimeGuarantee: 'تضمین عملکرد API با حداکثر تأخیر ۱۰۰ میلی‌ثانیه و محدودیت متوازن Rate Limiting',
+    dataSovereignty: 'تفکیک منطقی چندمستأجره (Multi-Tenant Isolation) و محافظت از اطلاعات محرمانه کاربران نهایی',
+    ipWarrantyAndIndemnification: 'حفظ برند و هویت بصری توزیع‌کننده با حفظ حقوق معنوی ساختار زیرین برای پدیدآورنده اصلی',
+    auditRights: 'گزارش‌گیری ماهانه شمارش لایسنس‌های صادره جهت محاسبه خودکار حق‌الامتیاز (Royalty)',
+    terminationExitStrategy: 'دوره گذار ۶ ماهه برای حفظ تداوم خدمت‌رسانی به مشترکین فعال جذب‌شده قبل از فسخ'
+  }
+];
+
+export const DIGITAL_EVIDENCE_MOCK_DATA: DigitalEvidenceItem[] = [
+  {
+    id: 'ev-01',
+    title: 'اسکرین‌شات و استخراج گفتگوهای تلگرام و واتس‌اپ فیشینگ',
+    evidenceType: 'چت و اسکرین‌شات پیام‌رسان‌ها',
+    custodyStatus: 'گواهی تأمین دلیل کارشناس رسمی',
+    sha256Checksum: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+    extractionTimestamp: '۱۴۰۳/۰۹/۱۴ - ۱۰:۴۵',
+    collectorName: 'مهندس حسینی - کارشناس رسمی دادگستری در امور جرایم رایانه‌ای',
+    cyberPoliceFataRegistered: true,
+    legalAdmissibilityScore: 95,
+    statutoryBasis: 'مواد ۵۰ و ۵۴ قانون جرایم رایانه‌ای و ماده ۶۵۵ قانون آیین دادرسی کیفری (اعتبار داده‌پیام)',
+    chainOfCustodyNotes: 'استخراج فیزیکی با دستگاه Cellebrite UFED، تصویربرداری بیت‌به‌بیت و تطبیق هش SHA-256 قبل و بعد از استخراج بدون امکان دستکاری.'
+  },
+  {
+    id: 'ev-02',
+    title: 'لاگ‌های نفوذ غیرمجاز به سرور و آدرس IP متهاجم (Access Logs)',
+    evidenceType: 'لاگ سرور و آدرس IP',
+    custodyStatus: 'پلمب دیجیتال و هش‌گذاری',
+    sha256Checksum: '8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4',
+    extractionTimestamp: '۱۴۰۳/۰۹/۲۰ - ۲۳:۱۵',
+    collectorName: 'تیم واکنش سریع امنیت اطلاعات (CSIRT) و وکیل سایبری',
+    cyberPoliceFataRegistered: true,
+    legalAdmissibilityScore: 90,
+    statutoryBasis: 'ماده ۳۲ قانون جرایم رایانه‌ای (تکلیف ارائه‌دهندگان خدمات دسترسی به نگهداری داده‌های ترافیکی)',
+    chainOfCustodyNotes: 'حفظ فایل Syslog با امضای زمانی معتبر Timestamping و گواهی SSL مرجع معتبر، ارسال رسمی به پلیس فتا برای اخذ ردیابی از مخابرات.'
+  },
+  {
+    id: 'ev-03',
+    title: 'ردیابی تراکنش‌های مشکوک تتر (USDT) روی شبکه ترون و اتریوم',
+    evidenceType: 'تراکنش بلاک‌چین (TXID)',
+    custodyStatus: 'مورد استناد در دادسرا و فتا',
+    sha256Checksum: '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b',
+    extractionTimestamp: '۱۴۰۳/۱۰/۰۲ - ۱۴:۱۰',
+    collectorName: 'دکتر سیده مریم رضوی و تحلیل‌گر ارشد بلاک‌چین Chainalysis',
+    cyberPoliceFataRegistered: true,
+    legalAdmissibilityScore: 98,
+    statutoryBasis: 'ماده ۹ قانون مبارزه با پولشویی و مواد ۱ و ۱۳ قانون جرایم رایانه‌ای',
+    chainOfCustodyNotes: 'ثبت هش غیرقابل تغییر روی کاوشگر بلاک‌چین، ترسیم نمودار جریان وجوه به آدرس کیف‌پول‌های صرافی‌های متمرکز داخلی جهت توقیف و انسداد حساب.'
+  },
+  {
+    id: 'ev-04',
+    title: 'هدر کامل ایمیل‌های فیشینگ و تغییر شماره شبای بانکی (BEC Fraud)',
+    evidenceType: 'ایمیل و هدر پروتکل SMTP',
+    custodyStatus: 'تأیید اصالت اولیه',
+    sha256Checksum: 'b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9',
+    extractionTimestamp: '۱۴۰۳/۱۰/۱۰ - ۰۹:۳۰',
+    collectorName: 'مدیر فناوری شرکت شاکی با نظارت مشاور حقوقی',
+    cyberPoliceFataRegistered: false,
+    legalAdmissibilityScore: 78,
+    statutoryBasis: 'ماده ۱۲ تا ۱۵ قانون تجارت الکترونیک (دلایل الکترونیکی مطمئن)',
+    chainOfCustodyNotes: 'بررسی رکوردهای SPF, DKIM, DMARC جهت اثبات جعل هویت دامنه تجاری شرکت صادرکننده پیش‌فاکتور ارزی.'
+  }
+];
+
+export const CYBERCRIME_PENALTY_RULES: CybercrimePenaltyRule[] = [
+  {
+    id: 'pen-01',
+    crimeTitle: 'کلاهبرداری مرتبط با رایانه و درگاه‌های پرداخت جعلی (فیشینگ)',
+    articleReference: 'ماده ۱۳ قانون جرایم رایانه‌ای (ماده ۷۴۱ قانون مجازات اسلامی - تعزیرات)',
+    prisonSentence: '۱ تا ۵ سال حبس تعزیری',
+    monetaryFine: 'جزای نقدی معادل مال برده‌شده یا ۲۰ تا ۱۰۰ میلیون ریال تعدیل‌شده',
+    civilCompensation: 'رد فوری عین مال یا مثل و قیمت آن به شاکی خصوصی به انضمام خسارت تأخیر تأدیه',
+    investigativeSteps: [
+      'ارسال فوری درخواست مسدودی حساب‌های مقصد به دادسرای ناحیه ۳۱ (جرایم رایانه‌ای)',
+      'استعلام هویت صاحب حساب از شاپرک و شرکت‌های پرداخت‌یار (PSP)',
+      'بررسی آدرس‌های IP ورود به درگاه با همکاری پلیس فتا',
+      'توقیف حساب‌های متصل در تمامی بانک‌های عامل کشور'
+    ],
+    lawyerDefenseAdvice: 'در صورت فیشینگ سریعاً دستور مسدودی شبا اخذ شود، چراکه تأخیر بیش از ۲ ساعت منجر به تبدیل وجوه ریالی به تتر و انتقال به خارج از کشور می‌گردد.'
+  },
+  {
+    id: 'pen-02',
+    crimeTitle: 'دسترسی غیرمجاز به سامانه‌های رایانه‌ای و داده‌های محرمانه (هک)',
+    articleReference: 'ماده ۱ قانون جرایم رایانه‌ای (ماده ۷۲۹ قانون مجازات اسلامی)',
+    prisonSentence: '۹۱ روز تا ۱ سال حبس تعزیری',
+    monetaryFine: '۵ تا ۲۰ میلیون ریال (قابل تبدیل و تشدید تا ۵۰ میلیون تومان)',
+    civilCompensation: 'جبران کلیه هزینه‌های رفع آلودگی، بازیابی داده و خسارات ناشی از توقف کسب‌وکار',
+    investigativeSteps: [
+      'تأمین دلیل لاگ‌های فایروال و سیستم تشخیص نفوذ (IDS/IPS)',
+      'استعلام مشخصات صاحب خط اینترنت یا سرور میانی (VPN/Proxy)',
+      'تحلیل متادیتاهای دسترسی با ابزارهای جرم‌یابی دیجیتال',
+      'ارجاع پرونده به کارشناس رسمی فناوری اطلاعات دادگستری'
+    ],
+    lawyerDefenseAdvice: 'دسترسی حتی بدون تغییر یا سرقت داده، صرفاً با نقض تدابیر امنیتی جرم مستقل و غیرقابل گذشت تلقی می‌شود.'
+  },
+  {
+    id: 'pen-03',
+    crimeTitle: 'سرقت داده‌ها و افشای اسرار تجاری و کدهای منبع نرم‌افزار',
+    articleReference: 'ماده ۴ قانون جرایم رایانه‌ای و ماده ۶۴ قانون تجارت الکترونیک',
+    prisonSentence: '۹۱ روز تا ۱ سال حبس تعزیری یا ۶ ماه تا ۲.۵ سال در صورت افشای اسرار دولتی',
+    monetaryFine: 'جزای نقدی روزآمد متناسب با حجم داده یا ارزش اقتصادی اسرار تجاری',
+    civilCompensation: 'محکومیت قطعی به پرداخت خسارت عدم‌النفع و ضرر و زیان مادی معنوی',
+    investigativeSteps: [
+      'بررسی تاریخچه رپوزیتوری‌های گیت (Git Commit History) و دسترسی‌های کلید SSH',
+      'استعلام لاگ‌های خروج اطلاعات روی حافظه‌های فلش یا درایوهای ابری کارمندان',
+      'تطبیق امضای هش سورس‌کد با نسخه منتشرشده توسط رقیب تجاری',
+      'ثبت شکایت در دادسرای فرهنگ و رسانه یا دادسرای جرایم رایانه‌ای'
+    ],
+    lawyerDefenseAdvice: 'وجود قرارداد عدم افشای اطلاعات (NDA) محکم با ضمانت اجرای وجه‌التزام مالی، مسیر اثبات سوءنیت و مطالبه غرامت سنگین را در دادگاه هموار می‌سازد.'
+  },
+  {
+    id: 'pen-04',
+    crimeTitle: 'هتک حیثیت رایانه‌ای، دیپ‌فیک و انتشار صوت و تصاویر خصوصی',
+    articleReference: 'ماده ۱۶ و ۱۷ قانون جرایم رایانه‌ای (ماده ۷۴۴ و ۷۴۵ قانون مجازات اسلامی)',
+    prisonSentence: '۹۱ روز تا ۲ سال حبس تعزیری',
+    monetaryFine: '۵ تا ۴۰ میلیون ریال یا هر دو مجازات به تشخیص قاضی',
+    civilCompensation: 'اعاده حیثیت و حذف فوری محتوای مجرمانه از فضای مجازی به دستور دادستان',
+    investigativeSteps: [
+      'ضبط ادله با حضور کارشناس رسمی و گواهی محضری محتوا قبل از امحای پیام',
+      'استعلام اکانت‌های ادمین کانال‌ها از پلتفرم‌های داخلی یا پلیس بین‌الملل اینترپل',
+      'آزمایش اصالت فایل و رد جعل هوش مصنوعی (Deepfake Detection Analysis)',
+      'صدور دستور فیلترینگ و مسدودی فوری درگاه انتشار توسط کارگروه تعیین مصادیق'
+    ],
+    lawyerDefenseAdvice: 'تغییر یا تحریف عکس و صوت دیگران و انتشار آن مشمول مجازات حبس درجه ۶ است و در صورت وجود جنبه اشاعه فحشا، تشدید مجازات اعمال خواهد شد.'
+  }
+];
+
+export const SMART_CONTRACT_AUDIT_RULES: SmartContractAuditRule[] = [
+  {
+    id: 'audit-01',
+    protocolName: 'پروتکل استخر نقدینگی و صرافی غیرمتمرکز (DEX Liquidity Pool)',
+    network: 'Ethereum',
+    vulnerabilityType: 'Reentrancy',
+    financialRiskLevel: 'بحرانی (Critical)',
+    legalLiabilityHolder: 'توسعه‌دهنده قرارداد هوشمند',
+    mitigationAction: 'اجرای الگوی Checks-Effects-Interactions و استفاده الزامی از گارد OpenZeppelin ReentrancyGuard.'
+  },
+  {
+    id: 'audit-02',
+    protocolName: 'قرارداد توزیع پاداش استیکینگ و فارمینگ (Staking Rewards Vault)',
+    network: 'BNB Chain',
+    vulnerabilityType: 'Integer Overflow / Oracle Manipulation',
+    financialRiskLevel: 'بالا (High)',
+    legalLiabilityHolder: 'پلتفرم صرافی / بریج',
+    mitigationAction: 'یکپارچه‌سازی با اوراکل‌های غیرمتمرکز غیرقابل دستکاری نظیر Chainlink و اعمال تایم‌لاک ۲۴ ساعته بر تراکنش‌های برداشت سنگین.'
+  },
+  {
+    id: 'audit-03',
+    protocolName: 'قرارداد خزانه‌داری چندامضایی حاکمیتی (DAO Multi-Sig Treasury)',
+    network: 'Polygon',
+    vulnerabilityType: 'Access Control Bypass',
+    financialRiskLevel: 'بحرانی (Critical)',
+    legalLiabilityHolder: 'صاحبان کلید خصوصی چندامضایی',
+    mitigationAction: 'تفکیک نقش‌های دسترسی (Role-Based Access Control) و اعمال حدنصاب حداقل ۳ از ۵ امضا برای انتقال دارایی‌های امانی کاربران.'
+  }
+];
+
+// ==========================================
+// Phase 11 Mock Data: AML, Sanctions Screening, KYC & Suspicious Activity Indicators
+// ==========================================
+
+export const AML_SANCTIONS_DATA: AMLSanctionListEntity[] = [
+  {
+    id: 'aml-01',
+    nameFa: 'پلتفرم میکس توکن‌های تورنادو کش و آدرس‌های هم‌پوشان',
+    nameEn: 'Tornado Cash Smart Contracts & Relayer Nodes',
+    entityType: 'آدرس‌های والت رمزارزی',
+    sanctionSource: 'OFAC SDN',
+    riskLevel: 'غیرمجاز / لیست سیاه (Blacklisted)',
+    statutoryBasis: 'ماده ۲ و ۹ قانون مبارزه با پولشویی ایران و کنوانسیون پالرمو',
+    complianceDirective: 'انسداد بلادرنگ حساب‌های متصل، گزارش‌دهی فوری STR به مرکز اطلاعات مالی (FIU) و عدم ارائه هرگونه خدمات مشاوره پرداخت.'
+  },
+  {
+    id: 'aml-02',
+    nameFa: 'شرکت خدمات ارزی و بازرگانی صوری اطلس خاورمیانه',
+    nameEn: 'Atlas Middle East Shell Trading FZE',
+    entityType: 'نهادها و شرکت‌ها (Corporate)',
+    sanctionSource: 'شورای امنیت سازمان ملل (UNSC)',
+    riskLevel: 'غیرمجاز / لیست سیاه (Blacklisted)',
+    statutoryBasis: 'قطعنامه‌های تحریمی شورای امنیت و فهرست اشخاص مظنون قوه قضائیه',
+    complianceDirective: 'توقیف کلیه مراودات تجاری، رد تراکنش‌های حوالجات سوئیفت/ارزی و ثبت اخطار در سامانه جامع تجارت.'
+  },
+  {
+    id: 'aml-03',
+    nameFa: 'صرافی رمزارزی متمرکز فاقد مجوز ثبت با ریسک بالای کاستودی',
+    nameEn: 'Bitzlato Shadow Exchange Network',
+    entityType: 'موسسات مالی / صرافی',
+    sanctionSource: 'مرکز اطلاعات مالی ایران (FIU)',
+    riskLevel: 'پرخطر (High Risk)',
+    statutoryBasis: 'دستورالعمل‌های الزامی بانک مرکزی در خصوص فعالیت درگاه‌های پرداخت ارز دیجیتال',
+    complianceDirective: 'الزام به اجرای پروتکل غربالگری مضاعف (Enhanced Due Diligence) و اعتبارسنجی منبع دارایی و اثبات درآمد.'
+  },
+  {
+    id: 'aml-04',
+    nameFa: 'هلدینگ تجاری سرمایه‌گذاری بین‌المللی چندملیتی با شعب آفشور',
+    nameEn: 'Nexus Global Maritime & Energy Holding',
+    entityType: 'نهادها و شرکت‌ها (Corporate)',
+    sanctionSource: 'FATF High-Risk Jurisdictions',
+    riskLevel: 'ریسک متوسط (Medium Risk)',
+    statutoryBasis: 'توصیه‌های ۴۰ گانه گروه ویژه اقدام مالی (FATF Recommendations 10 & 24)',
+    complianceDirective: 'شناسایی ذینفع نهایی واقعی (Ultimate Beneficial Owner - UBO) با سهم مالکیت بیش از ۲۵ درصد.'
+  }
+];
+
+export const SUSPICIOUS_ACTIVITY_RULES: SuspiciousActivityRule[] = [
+  {
+    id: 'str-01',
+    indicatorTitleFa: 'خرد کردن مبالغ تراکنش‌ها جهت دور زدن سقف گزارش‌دهی (Smurfing / Structuring)',
+    category: 'تراکنش‌های بانکی شتابی / پایا',
+    thresholdCriteria: 'واریز مبالغ پی‌درپی زیر ۲۰۰ میلیون تومان ظرف ۴۸ ساعت توسط اشخاص متعدد به حساب فردی فاقد پرونده مالیاتی',
+    legalArticle: 'ماده ۴ آیین‌نامه اجرایی قانون مبارزه با پولشویی',
+    reportingRequirement: 'ثبت خودکار گزارش معاملات مشکوک (STR) ظرف کمتر از ۲ ساعت به واحد مبارزه با پولشویی بانک مرکزی',
+    lawyerAdvisory: 'در دادگاه اثبات حسن‌نیت منوط به ارائه فاکتور رسمی معتبر سامانه مودیان و احراز ماهیت بدهی یا بیع واقعی است.'
+  },
+  {
+    id: 'str-02',
+    indicatorTitleFa: 'ورود رمزارز از والت‌های پرخطر یا میکسرها و تبدیل فوری به ریال در صرافی',
+    category: 'تراکنش‌های کریپتو و میکسرها',
+    thresholdCriteria: 'انتقال رمزارز به ارزش بیش از ۱۰,۰۰۰ تتر که در ۲ هاپ گذشته از سرویس‌های ناشناس‌ساز عبور کرده است',
+    legalArticle: 'ماده ۹ قانون مبارزه با پولشویی مصوب ۱۳۸۶ با اصلاحات ۱۳۹۷',
+    reportingRequirement: 'استعلام فوری هش تراکنش (TXID) از ابزارهای KYT بین‌المللی و مسدودی موقت تا اثبات منشأ پاک توکن‌ها',
+    lawyerAdvisory: 'مصادره اصل مال به همراه عواید ناشی از جرم طبق ماده ۹ قانون مبارزه با پولشویی الزامی است.'
+  },
+  {
+    id: 'str-03',
+    indicatorTitleFa: 'خرید و فروش مکرر املاک با قیمت‌های فاحش غیرمتعارف و پرداخت نقدی مبهم',
+    category: 'معاملات املاک و مستغلات',
+    thresholdCriteria: 'معامله ملک به ارزش بیش از ۲۰ میلیارد تومان با ثمن معامله به صورت چک تضمینی اشخاص ثالث ناشناس',
+    legalArticle: 'ماده ۷ قانون مبارزه با پولشویی و ضوابط مشاغل غیرمالی تعریف‌شده (DNFBPs)',
+    reportingRequirement: 'تکلیف دفاتر اسناد رسمی و بنگاه‌ها به استعلام کد یکتای رهگیری و تطبیق حساب واریزکننده با خریدار',
+    lawyerAdvisory: 'مسئولیت تضامنی واسطه‌های ملکی در صورت اثبات علم و اطلاع از عواید مجرمانه کلاهبرداری یا ارتشاء.'
+  },
+  {
+    id: 'str-04',
+    indicatorTitleFa: 'صادرات کالا با ارزش‌گذاری بیش از واقع و عدم بازگشت ارز حاصل از صادرات',
+    category: 'صادرات، واردات و صرافی‌ها',
+    thresholdCriteria: 'ثبت کوتاژ صادراتی با پیش‌فاکتور ۳ برابر مظنه بازار جهانی بدون تسویه تعهد ارزی در سامانه نیما',
+    legalArticle: 'قانون مبارزه با قاچاق کالا و ارز و مصوبات کارگروه بازگشت ارز بانک مرکزی',
+    reportingRequirement: 'گزارش گمرک به دادسرای جرایم اقتصادی و مسدودی کارت بازرگانی متخلف',
+    lawyerAdvisory: 'دفاع حقوقی مستلزم ارائه اسناد حمل معتبر، بارنامه کشتیرانی رسمی و آنالیز بهای تمام‌شده آزمایشگاهی است.'
+  }
+];
+
+export const PEP_DILIGENCE_DATA: PEPDueDiligenceCheck[] = [
+  {
+    id: 'pep-01',
+    roleCategory: 'مقامات ارشد دولتی',
+    dueDiligenceLevel: 'شناسایی مضاعف تشدیدیافته (EDD)',
+    sourceOfFundsVerification: 'الزام به دریافت اظهارنامه رسمی دارایی و ثبت در سامانه ثبت اموال مسئولان قوه قضائیه',
+    monitoringFrequency: 'پایش مستمر ماهانه و بازبینی حساب‌های تراکنشی اعضای خانواده درجه یک',
+    complianceChecklist: [
+      'تطبیق کامل شناسنامه و کد ملی با پایگاه داده ثبت احوال',
+      'بررسی ارتباط سهامداری در شرکت‌های پیمانکار دولتی (قانون منع مداخله کارکنان دولت)',
+      'استعلام گردش حساب‌های بیش از ۱ میلیارد تومان از دبیرخانه مبارزه با مفاسد اقتصادی',
+      'اخذ تأییدیه رسمی کتبی از مقام ارشد انطباق (Compliance Officer) پیش از آغاز همکاری'
+    ]
+  },
+  {
+    id: 'pep-02',
+    roleCategory: 'مدیران شرکت‌های دولتی و خصولتی',
+    dueDiligenceLevel: 'شناسایی مضاعف تشدیدیافته (EDD)',
+    sourceOfFundsVerification: 'بررسی مصوبات هیأت مدیره در خصوص حق امضا و تفویض اختیارات مالی پروژه‌ها',
+    monitoringFrequency: 'پایش فصلی کلیه قراردادها و مناقصات منعقدشده',
+    complianceChecklist: [
+      'بررسی تضارب منافع (Conflict of Interest) با اعضای خانواده',
+      'ردیابی تسهیلات کلان بانکی بدون وثیقه کافی',
+      'تطبیق فاکتورهای خریدهای ارزی با پروفرمای گمرکی'
+    ]
+  },
+  {
+    id: 'pep-03',
+    roleCategory: 'بستگان درجه یک و وابستگان نزدیک (RCA)',
+    dueDiligenceLevel: 'شناسایی مضاعف تشدیدیافته (EDD)',
+    sourceOfFundsVerification: 'احراز منشأ ثروت موروثی یا درآمدهای شخصی مستقل از نفوذ شخص سیاسی',
+    monitoringFrequency: 'پایش ۶ ماهه گردش حساب‌ها و مسافرت‌های خارجی با خروج ارز بالا',
+    complianceChecklist: [
+      'بررسی افتتاح حساب‌های وکالتی یا تجاری به نام اشخاص وابسته',
+      'سنجش تناسب گردش مالی با شغل و سن دارنده حساب',
+      'غربالگری لیست سیاه مفسدان اقتصادی اعلامی دادستانی کل کشور'
+    ]
+  }
+];
+
 
 

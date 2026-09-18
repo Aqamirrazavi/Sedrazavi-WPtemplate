@@ -364,7 +364,7 @@ export interface IncotermsRule {
   sellerRiskUntil: string;
   buyerRiskFrom: string;
   freightPayer: 'فروشنده' | 'خریدار';
-  insuranceResponsible: 'فروشنده (پوشش حداکثری A)' | 'فروشنده (پوشش حداقلی C)' | 'خریدار' | 'اختیاری طرفین';
+  insuranceResponsible: 'فروشنده (پوشش حداکثری A)' | 'فروشنده (پوشش حداقلی C)' | 'فروشنده' | 'خریدار' | 'اختیاری طرفین';
   exportCustoms: 'فروشنده' | 'خریدار';
   importCustoms: 'فروشنده' | 'خریدار';
   riskScore: number; // 1 (کمترین ریسک خریدار) تا 10 (بیشترین ریسک خریدار)
@@ -387,4 +387,141 @@ export interface ArbitrationInstitution {
   adminFeeFormulaDescription: string;
   expertTips: string;
 }
+
+// ==========================================
+// Phase 9 Types: Intellectual Property (IP), Trademark Registry, Tech Licensing & Startup Vesting
+// ==========================================
+
+export type IPAssetType = 'علامت تجاری (برند)' | 'اختراع و پتنت (Patent)' | 'طرح صنعتی (Industrial Design)' | 'حق مؤلف و نرم‌افزار (Copyright)';
+
+export interface NiceClassificationClass {
+  classNumber: number;
+  titleFa: string;
+  titleEn: string;
+  category: 'goods' | 'services'; // کالاها (طبقات ۱ تا ۳۴) یا خدمات (طبقات ۳۵ تا ۴۵)
+  description: string;
+  popularKeywords: string[];
+  riskFactor: 'عادی' | 'پرتقاضا و پرتعارض' | 'نیازمند مجوز خاص';
+}
+
+export interface IPAssetEvaluation {
+  id: string;
+  title: string;
+  assetType: IPAssetType;
+  registrationTerritory: 'ایران (اداره مالکیت صنعتی)' | 'بین‌المللی (سیستم مادرید WIPO)' | 'منطقه‌ای (EUIPO / GCC)';
+  niceClasses: number[];
+  status: 'در حال استعلام' | 'آگهی نوبت اول' | 'دوران اعتراض ۳۰ روزه' | 'ثبت قطعی و صدور تصدیق ۱۰ ساله';
+  expirationDate: string;
+  infringementRiskScore: number; // 0-100
+  defenseStrategy: string;
+}
+
+export interface StartupVestingSchedule {
+  founderName: string;
+  role: string;
+  equityPercentage: number;
+  totalShares: number;
+  vestingPeriodYears: number; // e.g. 4 years
+  cliffPeriodMonths: number; // e.g. 12 months cliff
+  accelerationClause: 'تک‌مرحله‌ای (Single Trigger)' | 'دو‌مرحله‌ای (Double Trigger)' | 'بدون تسریع';
+  ipAssignmentSigned: boolean;
+  nonCompetePeriodMonths: number;
+}
+
+export interface SoftwareLicenseModel {
+  id: string;
+  nameFa: string;
+  nameEn: string;
+  category: 'SaaS Cloud' | 'On-Premise Enterprise' | 'White-Label OEM' | 'Open Source Hybrid';
+  slaUptimeGuarantee: string;
+  dataSovereignty: string;
+  ipWarrantyAndIndemnification: string;
+  auditRights: string;
+  terminationExitStrategy: string;
+}
+
+// ==========================================
+// Phase 10 Types: Cybercrime, Digital Forensics & Electronic Evidence (E-Evidence)
+// ==========================================
+
+export type CybercrimeCategory =
+  | 'کلاهبرداری و فیشینگ رایانه‌ای (ماده ۱۳ قانون جرایم رایانه‌ای)'
+  | 'دسترسی غیرمجاز و هک سامانه‌ها (ماده ۱ قانون جرایم رایانه‌ای)'
+  | 'سرقت داده‌ها و افشای اسرار تجاری (ماده ۱۷ قانون تجارت الکترونیک)'
+  | 'هتک حیثیت، افترا و جعل اسناد دیجیتال (ماده ۱۶ قانون جرایم رایانه‌ای)'
+  | 'تخریب، اخلال در داده‌ها و حملات DDoS (ماده ۸ تا ۱۰)'
+  | 'تراکنش‌های رمزارزی مشکوک و پولشویی دیجیتال';
+
+export interface DigitalEvidenceItem {
+  id: string;
+  title: string;
+  evidenceType: 'چت و اسکرین‌شات پیام‌رسان‌ها' | 'لاگ سرور و آدرس IP' | 'تراکنش بلاک‌چین (TXID)' | 'ایمیل و هدر پروتکل SMTP' | 'صوت ضبط‌شده و فراداده EXIF';
+  custodyStatus: 'تأیید اصالت اولیه' | 'پلمب دیجیتال و هش‌گذاری' | 'گواهی تأمین دلیل کارشناس رسمی' | 'مورد استناد در دادسرا و فتا';
+  sha256Checksum: string;
+  extractionTimestamp: string;
+  collectorName: string;
+  cyberPoliceFataRegistered: boolean;
+  legalAdmissibilityScore: number; // 0-100 درصد اعتبار در دادگاه
+  statutoryBasis: string;
+  chainOfCustodyNotes: string;
+}
+
+export interface CybercrimePenaltyRule {
+  id: string;
+  crimeTitle: string;
+  articleReference: string; // ماده قانونی
+  prisonSentence: string; // حبس قانونی
+  monetaryFine: string; // جزای نقدی تعدیل‌شده
+  civilCompensation: string; // رد مال و جبران خسارت
+  investigativeSteps: string[];
+  lawyerDefenseAdvice: string;
+}
+
+export interface SmartContractAuditRule {
+  id: string;
+  protocolName: string;
+  network: 'Ethereum' | 'Tron' | 'BNB Chain' | 'Polygon';
+  vulnerabilityType: 'Reentrancy' | 'Front-running / MEV' | 'Access Control Bypass' | 'Integer Overflow / Oracle Manipulation';
+  financialRiskLevel: 'بحرانی (Critical)' | 'بالا (High)' | 'متوسط (Medium)';
+  legalLiabilityHolder: 'توسعه‌دهنده قرارداد هوشمند' | 'صاحبان کلید خصوصی چندامضایی' | 'پلتفرم صرافی / بریج';
+  mitigationAction: string;
+}
+
+// ==========================================
+// Phase 11 Types: Anti-Money Laundering (AML), KYC/KYT Compliance,
+// Sanctions Due Diligence & Financial Crime Defense
+// ==========================================
+
+export type AMLRiskScoreLevel = 'کم‌ریسک (Low Risk)' | 'ریسک متوسط (Medium Risk)' | 'پرخطر (High Risk)' | 'غیرمجاز / لیست سیاه (Blacklisted)';
+
+export interface AMLSanctionListEntity {
+  id: string;
+  nameFa: string;
+  nameEn: string;
+  entityType: 'اشخاص حقیقی (Individual)' | 'نهادها و شرکت‌ها (Corporate)' | 'موسسات مالی / صرافی' | 'آدرس‌های والت رمزارزی';
+  sanctionSource: 'FATF High-Risk Jurisdictions' | 'شورای امنیت سازمان ملل (UNSC)' | 'OFAC SDN' | 'مرکز اطلاعات مالی ایران (FIU)';
+  riskLevel: AMLRiskScoreLevel;
+  statutoryBasis: string;
+  complianceDirective: string;
+}
+
+export interface SuspiciousActivityRule {
+  id: string;
+  indicatorTitleFa: string;
+  category: 'تراکنش‌های بانکی شتابی / پایا' | 'تراکنش‌های کریپتو و میکسرها' | 'معاملات املاک و مستغلات' | 'صادرات، واردات و صرافی‌ها';
+  thresholdCriteria: string;
+  legalArticle: string;
+  reportingRequirement: string;
+  lawyerAdvisory: string;
+}
+
+export interface PEPDueDiligenceCheck {
+  id: string;
+  roleCategory: 'مقامات ارشد دولتی' | 'مدیران شرکت‌های دولتی و خصولتی' | 'اعضای هیأت‌مدیره بانک‌ها' | 'بستگان درجه یک و وابستگان نزدیک (RCA)';
+  dueDiligenceLevel: 'شناسایی معمول (CDD)' | 'شناسایی مضاعف تشدیدیافته (EDD)' | 'ممنوعیت کامل معامله';
+  sourceOfFundsVerification: string;
+  monitoringFrequency: string;
+  complianceChecklist: string[];
+}
+
 

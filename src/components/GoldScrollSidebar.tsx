@@ -21,6 +21,7 @@ import {
   X,
   Calculator,
   Briefcase,
+  Binary,
 } from 'lucide-react';
 
 interface SectionItem {
@@ -51,6 +52,8 @@ interface GoldScrollSidebarProps {
   onOpenPhase6?: () => void;
   onOpenPhase7?: () => void;
   onOpenPhase8?: () => void;
+  onOpenPhase9?: () => void;
+  onOpenPhase10?: () => void;
   isMainPage?: boolean;
 }
 
@@ -63,6 +66,8 @@ export const GoldScrollSidebar: React.FC<GoldScrollSidebarProps> = ({
   onOpenPhase6,
   onOpenPhase7,
   onOpenPhase8,
+  onOpenPhase9,
+  onOpenPhase10,
   isMainPage = true,
 }) => {
   const [scrollPercent, setScrollPercent] = useState<number>(0);
@@ -301,6 +306,28 @@ export const GoldScrollSidebar: React.FC<GoldScrollSidebarProps> = ({
                   title="امور شرکت‌ها، اینکوترمز ۲۰۲۰ و داوری بین‌المللی (فاز ۸)"
                 >
                   <Briefcase className="w-3.5 h-3.5" />
+                </button>
+              )}
+
+              {/* Quick Intellectual Property, Startups & Software Licensing (Phase 9) */}
+              {onOpenPhase9 && (
+                <button
+                  onClick={onOpenPhase9}
+                  className="p-1.5 rounded-lg bg-[#D4AF37]/25 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#060B18] transition-all cursor-pointer ring-1 ring-[#D4AF37]/50"
+                  title="مالکیت فکری، استارتاپ‌ها، طبقات نیس و لایسنس نرم‌افزار (فاز ۹)"
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                </button>
+              )}
+
+              {/* Quick Cybercrime, Digital Evidence & Blockchain Security (Phase 10) */}
+              {onOpenPhase10 && (
+                <button
+                  onClick={onOpenPhase10}
+                  className="p-1.5 rounded-lg bg-rose-500/25 hover:bg-rose-500 text-rose-400 hover:text-white transition-all cursor-pointer ring-1 ring-rose-500/50"
+                  title="جرایم سایبری، ادله الکترونیکی و امنیت قراردادهای هوشمند (فاز ۱۰)"
+                >
+                  <Binary className="w-3.5 h-3.5" />
                 </button>
               )}
 

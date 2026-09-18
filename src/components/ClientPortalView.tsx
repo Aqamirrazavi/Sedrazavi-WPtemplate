@@ -359,7 +359,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           }`}
         >
           <FileText className="w-4 h-4" />
-          <span>گاوصندوق اسناد و آپلود مدارک ({activeCase.documents.length + uploadedFiles.length})</span>
+          <span>گاوصندوق اسناد و آپلود مدارک ({(activeCase.documents?.length || 0) + (uploadedFiles?.length || 0)})</span>
         </button>
 
         <button

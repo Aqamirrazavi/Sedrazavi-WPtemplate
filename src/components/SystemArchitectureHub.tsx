@@ -24,12 +24,14 @@ import {
   Sliders,
   Maximize2,
   Trash2,
+  ShieldAlert,
+  Building2,
 } from 'lucide-react';
 import { ATTORNEY_INFO, SERVICES_DATA, ARTICLES_DATA, CASES_INITIAL_DATA } from '../data/mockData';
 
 export const SystemArchitectureHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
-    'security' | 'export_import' | 'images' | 'multisite' | 'datagraph' | 'diagnostics' | 'testing'
+    'security' | 'export_import' | 'images' | 'multisite' | 'datagraph' | 'diagnostics' | 'testing' | 'phase9_ip' | 'phase11_aml' | 'phase12_realestate'
   >('security');
 
   // Security Simulator States
@@ -198,6 +200,9 @@ export const SystemArchitectureHub: React.FC = () => {
             { id: 'datagraph', label: 'روابط داده‌ها (ACF)', icon: Share2 },
             { id: 'diagnostics', label: 'عیب‌یابی و لاگ‌ها', icon: AlertTriangle },
             { id: 'testing', label: 'تست‌های نهایی و WCAG', icon: CheckCircle2 },
+            { id: 'phase9_ip', label: 'مالکیت فکری و لایسنس (فاز ۹)', icon: Sparkles },
+            { id: 'phase11_aml', label: 'پولشویی و انطباق AML (فاز ۱۱)', icon: ShieldAlert },
+            { id: 'phase12_realestate', label: 'دعاوی ملکی و ساخت (فاز ۱۲)', icon: Building2 },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -826,6 +831,159 @@ export const SystemArchitectureHub: React.FC = () => {
             </div>
           </div>
 
+        </div>
+      )}
+
+      {/* Tab 8: Phase 9 Intellectual Property, Startups & Software Licensing Architecture */}
+      {activeTab === 'phase9_ip' && (
+        <div className="bg-white dark:bg-[#0B132B] rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm space-y-6 animate-in fade-in" dir="rtl">
+          <div className="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-800">
+            <Sparkles className="w-5 h-5 text-[#D4AF37]" />
+            <div>
+              <h3 className="text-base font-bold text-[#0B132B] dark:text-white font-serif">
+                معماری سامانه مالکیت فکری، شبیه‌ساز وستینگ استارتاپ‌ها و لایسنس نرم‌افزار (فاز ۹)
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                یکپارچه‌سازی فراداده‌های CPT (ثبت علائم نیس، اختراعات، توکن‌های هوش مصنوعی) با هوک‌های وردپرس و اسکریپت‌های محاسباتی کلیف و وستینگ
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 space-y-2">
+              <span className="text-xs font-bold text-[#0B132B] dark:text-white flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                پایگاه داده طبقات نیس (Nice Classes 1-45):
+              </span>
+              <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                ذخیره‌سازی بهینه‌شده طبقه‌بندی بین‌المللی همراه با برچسب‌های ریسک تعارض برند و قابلیت استعلام بلادرنگ در اداره مالکیت صنعتی و سیستم مادرید WIPO.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 space-y-2">
+              <span className="text-xs font-bold text-[#0B132B] dark:text-white flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-indigo-500" />
+                موتور محاسباتی Vesting & Cliff:
+              </span>
+              <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                شبیه‌سازی دقیق دوره‌های ۱۲ تا ۴۸ ماهه تملک سهام، پشتیبانی از شروط تسریع تک و دومرحله‌ای (Double Trigger) و الزام قانونی انتقال قطعی مالکیت فکری (IP Assignment).
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 space-y-2">
+              <span className="text-xs font-bold text-[#0B132B] dark:text-white flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-[#D4AF37]" />
+                مکانیسم قراردادهای ابری و Software Escrow:
+              </span>
+              <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                الگوی جامع تدوین موافقت‌نامه‌های SLA، حاکمیت داده، سلب حق آموزش هوش مصنوعی روی دیتای محرمانه و تودیع قانونی سورس‌کد نزد متولی امین.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab: Phase 11 AML & Financial Compliance Architecture */}
+      {activeTab === 'phase11_aml' && (
+        <div className="space-y-6 animate-in fade-in">
+          <div className="bg-white dark:bg-[#0B132B] rounded-2xl p-6 border border-amber-500/30 shadow-sm space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-gray-800">
+              <ShieldAlert className="w-5 h-5 text-amber-500" />
+              <div>
+                <h3 className="text-sm font-bold text-[#0B132B] dark:text-white font-serif">
+                  معماری فنی سامانه مبارزه با پولشویی (AML)، غربالگری تحریم‌ها و انطباق بانکی (فاز ۱۱)
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  تطبیق بلادرنگ لیست‌های SDN اوفک، قطعنامه‌های شورای امنیت، احراز هویت مضاعف (EDD) و سامانه گزارش‌دهی معاملات مشکوک (STR)
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 space-y-2">
+                <span className="text-xs font-bold text-[#0B132B] dark:text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  موتور غربالگری تحریم‌ها (Sanctions Screening):
+                </span>
+                <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                  جستجوی فازی (Fuzzy String Matching) اسامی اشخاص حقیقی و حقوقی در فهرست‌های تحریمی شورای امنیت سازمان ملل، اتحادیه اروپا و خزانه‌داری آمریکا (OFAC) به همراه قواعد قانونی حاکم.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 space-y-2">
+                <span className="text-xs font-bold text-[#0B132B] dark:text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-amber-500" />
+                  آشکارساز تراکنش‌های مشکوک (STR Detector):
+                </span>
+                <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                  قواعد تحلیلی استخراج الگوهای پولشویی (Structring / Smurfing)، حساب‌های اجاره‌ای و گردش وجوه فاقد توجیه اقتصادی همراه با تولید لایحه دفاعیه کیفری مستند به قانون مبارزه با پولشویی.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 space-y-2">
+                <span className="text-xs font-bold text-[#0B132B] dark:text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-indigo-500" />
+                  ممیزی تراکنش‌های رمزارزی (KYT Engine):
+                </span>
+                <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                  ارزیابی ریسک آدرس‌های والت، سنجش ارتباط با میکسرها و صرافی‌های با ریسک بالا (High-Risk VASP) و تعیین راهکارهای دفاعی در مراجع قضایی و پلیس فتا.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 10. Phase 12 Architecture Tab: Real Estate, Goodwill & Municipal Commissions */}
+      {activeTab === 'phase12_realestate' && (
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-[#0B132B] rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm space-y-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-[#D4AF37] flex items-center justify-center">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-[#0B132B] dark:text-white font-serif">
+                  معماری فنی سامانه دعاوی ملکی، قراردادهای ساخت، سرقفلی و کمیسیون‌های شهرداری (فاز ۱۲)
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  فرمول‌های محاسباتی قدرالسهم مشارکت در ساخت، غربالگری تخلیه و ارزیابی سرقفلی (قوانین ۵۶ و ۷۶) و متدهای ابطال آرای ماده ۱۰۰ در دیوان عدالت اداری
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 space-y-2">
+                <span className="text-xs font-bold text-[#0B132B] dark:text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  موتور ممیزی قرارداد مشارکت در ساخت:
+                </span>
+                <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                  توازن ریاضی ارزش زمین و هزینه‌های ساخت هر متر مربع بنای مفید، محاسبه بلاعوض متوازن، تفکیک شروط فاسخ و داوری مهندسی مرضی‌الطرفین.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 space-y-2">
+                <span className="text-xs font-bold text-[#0B132B] dark:text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-amber-500" />
+                  تحلیل‌گر تخصصی سرقفلی و حق کسب و پیشه:
+                </span>
+                <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                  تمایز بین قوانین روابط موجر و مستأجر سال‌های ۱۳۵۶ و ۱۳۷۶، احصاء جهات تخلیه با نصف حق کسب و پیشه (ماده ۱۹) یا تخلیه بلاعوض (تغییر شغل و تعدی/تفریط).
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 space-y-2">
+                <span className="text-xs font-bold text-[#0B132B] dark:text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-indigo-500" />
+                  مقررات ثبتی و کمیسیون ماده ۱۰۰:
+                </span>
+                <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                  رویه عملی اعتراض به آرای قلع بنای تراکم مازاد در دیوان عدالت اداری بر اساس رأی وحدت رویه ۲۱۵، اخذ دستور موقت توقف تخریب و افراز پلاک‌های مشاع.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
