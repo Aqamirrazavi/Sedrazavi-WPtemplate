@@ -22,6 +22,7 @@ import {
   Calculator,
   Briefcase,
   Binary,
+  MessageSquare,
 } from 'lucide-react';
 
 interface SectionItem {
@@ -47,6 +48,7 @@ interface GoldScrollSidebarProps {
   onNavigateSection?: (sectionId: string) => void;
   onOpenBooking?: () => void;
   onOpenCaseTracker?: () => void;
+  onOpenLiveConsultation?: () => void;
   onOpenFinance?: () => void;
   onOpenPhase5?: () => void;
   onOpenPhase6?: () => void;
@@ -61,6 +63,7 @@ export const GoldScrollSidebar: React.FC<GoldScrollSidebarProps> = ({
   onNavigateSection,
   onOpenBooking,
   onOpenCaseTracker,
+  onOpenLiveConsultation,
   onOpenFinance,
   onOpenPhase5,
   onOpenPhase6,
@@ -265,6 +268,17 @@ export const GoldScrollSidebar: React.FC<GoldScrollSidebarProps> = ({
                 <FileSearch className="w-3.5 h-3.5" />
               </button>
 
+              {/* Quick Live Consultation & Triage Gateway */}
+              {onOpenLiveConsultation && (
+                <button
+                  onClick={onOpenLiveConsultation}
+                  className="p-1.5 rounded-lg bg-[#D4AF37]/30 hover:bg-[#D4AF37] text-[#F3E5AB] hover:text-[#060B18] transition-all cursor-pointer ring-1 ring-[#D4AF37]"
+                  title="دالان مشاوره مستقیم و تریاژ پرونده (ایتا، تلگرام و تلفن)"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                </button>
+              )}
+
               {/* Quick Legal Finance & Contracts (Phase 4) */}
               {onOpenFinance && (
                 <button
@@ -467,6 +481,21 @@ export const GoldScrollSidebar: React.FC<GoldScrollSidebarProps> = ({
               <Calendar className="w-4 h-4 text-[#D4AF37] shrink-0" />
               <span>رزرو نوبت مشاوره</span>
             </button>
+
+            {/* 6.2. دالان مشاوره مستقیم و تریاژ پرونده */}
+            {onOpenLiveConsultation && (
+              <button
+                onClick={() => {
+                  onOpenLiveConsultation();
+                  setIsFloatingMenuOpen(false);
+                }}
+                className="p-2 rounded-xl text-[#F3E5AB] hover:text-[#060B18] hover:bg-[#D4AF37] transition-all flex items-center gap-2.5 w-full text-xs font-bold text-right bg-[#D4AF37]/15 border border-[#D4AF37]/30"
+                title="دالان ارتباط مستقیم، تریاژ و پیام‌رسان‌ها"
+              >
+                <MessageSquare className="w-4 h-4 text-[#D4AF37] shrink-0" />
+                <span>دالان تریاژ و پیام‌رسان‌ها</span>
+              </button>
+            )}
 
             {/* 6.5. میز مالی و قراردادها (فاز ۴) */}
             {onOpenFinance && (

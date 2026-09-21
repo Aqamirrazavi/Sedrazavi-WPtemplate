@@ -13,6 +13,12 @@ import { AdminSystemStatusTab } from './admin/AdminSystemStatusTab';
 import { AdminBackupTab } from './admin/AdminBackupTab';
 import { AdminLogsTab } from './admin/AdminLogsTab';
 import { AttorneyExecutiveDashboard } from './admin/AttorneyExecutiveDashboard';
+import { AdminContentTab } from './admin/AdminContentTab';
+import { AdminBookingsTab } from './admin/AdminBookingsTab';
+import { AdminInvoicesTab } from './admin/AdminInvoicesTab';
+import { AdminEmailsTab } from './admin/AdminEmailsTab';
+import { ClientAccountManager } from './ClientAccountManager';
+import { CourtFeeCalculator } from './legal-finance/CourtFeeCalculator';
 import {
   LawyerSiteProfile,
   getStoredLawyerProfile,
@@ -48,10 +54,18 @@ import {
   HardDrive,
   Activity,
   ChevronDown,
+  Calculator,
+  UserCheck,
 } from 'lucide-react';
 
 export type AdminSubTabKey =
   | 'dashboard'
+  | 'content'
+  | 'bookings'
+  | 'invoices'
+  | 'emails'
+  | 'clients'
+  | 'calculators'
   | 'appearance'
   | 'banner'
   | 'contact-cards'
@@ -266,7 +280,79 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             }`}
           >
             <Briefcase className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>۱. داشبورد و پرونده‌ها (۷ بخش)</span>
+            <span>۱. داشبورد و پرونده‌ها</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('content')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'content'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 text-blue-500" />
+            <span>۲. محتوا (مقالات، خدمات، ویدئو)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('bookings')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'bookings'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5 text-emerald-500" />
+            <span>۳. رزروها و تقویم نوبت‌ها</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('invoices')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'invoices'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Scale className="w-3.5 h-3.5 text-amber-500" />
+            <span>۴. صورتحساب‌ها و درگاه‌های پرداخت</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('emails')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'emails'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-indigo-500" />
+            <span>۵. صندوق پیام‌ها و فرم تماس</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('clients')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'clients'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>۶. مدیریت موکلین و سامانه ثنا / OTP</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('calculators')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'calculators'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Calculator className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>۷. میز محاسبات قضایی، دیه و مهریه</span>
           </button>
 
           <button
@@ -278,7 +364,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             }`}
           >
             <Palette className="w-3.5 h-3.5 text-pink-500" />
-            <span>۲. تنظیمات ظاهری (۶ تب)</span>
+            <span>۸. تنظیمات ظاهری (پالت روز و شب)</span>
           </button>
 
           <button
@@ -290,7 +376,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             }`}
           >
             <Layers className="w-3.5 h-3.5 text-amber-500" />
-            <span>۳. بنر اسلایدر متنی (۴ تب)</span>
+            <span>۹. بنر اسلایدر متنی</span>
           </button>
 
           <button
@@ -302,7 +388,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             }`}
           >
             <MapPin className="w-3.5 h-3.5 text-emerald-500" />
-            <span>۴. تماس، تیم و نقشه (۵ تب)</span>
+            <span>۱۰. تماس، تیم و نقشه</span>
           </button>
 
           <button
@@ -314,7 +400,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             }`}
           >
             <Instagram className="w-3.5 h-3.5 text-pink-600" />
-            <span>۵. اینستاگرام (۳ تب)</span>
+            <span>۱۱. اینستاگرام</span>
           </button>
 
           <button
@@ -326,7 +412,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             }`}
           >
             <Server className="w-3.5 h-3.5 text-sky-500" />
-            <span>۶. وضعیت سیستم (۶ بخش)</span>
+            <span>۱۲. وضعیت سیستم</span>
           </button>
 
           <button
@@ -338,7 +424,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             }`}
           >
             <HardDrive className="w-3.5 h-3.5 text-indigo-500" />
-            <span>۷. پشتیبان‌گیری (۳ تب)</span>
+            <span>۱۳. پشتیبان‌گیری</span>
           </button>
 
           <button
@@ -350,7 +436,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             }`}
           >
             <Activity className="w-3.5 h-3.5 text-red-500" />
-            <span>۸. لاگ‌ها و دیباگ (۳ تب)</span>
+            <span>۱۴. لاگ‌ها و دیباگ</span>
           </button>
 
           <button
@@ -362,7 +448,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5 text-teal-500" />
-            <span>۹. نظارت بر دیدگاه‌ها</span>
+            <span>۱۵. نظارت بر دیدگاه‌ها</span>
           </button>
 
           <button
@@ -374,12 +460,24 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             }`}
           >
             <Sliders className="w-3.5 h-3.5 text-[#AA820A] dark:text-[#0B132B]" />
-            <span>۱۰. هویت کامل وکیل</span>
+            <span>۱۶. هویت کامل وکیل</span>
           </button>
         </div>
 
         {/* Content Views */}
-        {activeSubTab === 'appearance' ? (
+        {activeSubTab === 'content' ? (
+          <AdminContentTab />
+        ) : activeSubTab === 'bookings' ? (
+          <AdminBookingsTab />
+        ) : activeSubTab === 'invoices' ? (
+          <AdminInvoicesTab />
+        ) : activeSubTab === 'emails' ? (
+          <AdminEmailsTab />
+        ) : activeSubTab === 'clients' ? (
+          <ClientAccountManager />
+        ) : activeSubTab === 'calculators' ? (
+          <CourtFeeCalculator />
+        ) : activeSubTab === 'appearance' ? (
           <AdminAppearanceTab
             profile={lawyerProfile}
             onUpdateProfile={handleProfileUpdated}

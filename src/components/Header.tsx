@@ -38,6 +38,8 @@ import {
   Binary,
   AlertOctagon,
   ShieldAlert,
+  Ship,
+  Receipt,
 } from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
 import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
@@ -62,6 +64,24 @@ export type ThemeViewMode =
   | 'cyber-suite'
   | 'compliance-suite'
   | 'real-estate-suite'
+  | 'family-inheritance'
+  | 'automation'
+  | 'admin-justice'
+  | 'auth-dual-mode'
+  | 'dual-panel-unified'
+  | 'admin-protection'
+  | 'design-tokens'
+  | 'ajax-search'
+  | 'case-prediction'
+  | 'epc-procurement'
+  | 'intl-arbitration'
+  | 'legal-codex'
+  | 'drafting-vault'
+  | 'tax-moadian'
+  | 'labor-social'
+  | 'economic-crimes'
+  | 'customs-transit'
+  | 'legal-crm'
   | 'code'
   | 'archive'
   | 'single';
@@ -460,6 +480,186 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       <span className="font-bold text-[#D4AF37]">دعاوی ملکی، سرقفلی و ساخت‌وساز (فاز ۱۲)</span>
                       <Building2 className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('family-inheritance');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
+                    >
+                      <span className="font-bold text-rose-400">ارث، مهریه و حقوق خانواده (فاز ۱۳)</span>
+                      <Scale className="w-3.5 h-3.5 text-rose-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('automation');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold text-[#D4AF37]">اتوماسیون، کانبان و کتابخانه لوایح (فاز ۱۴)</span>
+                      <FolderKanban className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('admin-justice');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
+                    >
+                      <span className="font-bold text-emerald-400">دیوان عدالت اداری و شهرداری (فاز ۱۵)</span>
+                      <Gavel className="w-3.5 h-3.5 text-emerald-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('auth-dual-mode');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-blue-500/10 hover:text-blue-400 transition-colors"
+                    >
+                      <span className="font-bold text-blue-400">احراز هویت دوحالته و 2FA (فاز ۱۶)</span>
+                      <KeyRound className="w-3.5 h-3.5 text-blue-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('dual-panel-unified');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold text-[#D4AF37]">اتصال یکپارچه دو پنل و SSO (فاز ۱۷)</span>
+                      <Shield className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('admin-protection');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
+                    >
+                      <span className="font-bold text-rose-400">مخفی‌سازی ۱۲ برگه ادمین و سئو (فاز ۱۸)</span>
+                      <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('design-tokens');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold text-[#D4AF37]">مخزن ۲۴ متغیر Design Tokens (فاز ۱۹)</span>
+                      <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('ajax-search');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-amber-500/10 hover:text-amber-400 transition-colors"
+                    >
+                      <span className="font-bold text-amber-400">جستجو و فیلتر پیشرفته آژاکس (فاز ۲۰)</span>
+                      <Search className="w-3.5 h-3.5 text-amber-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('case-prediction');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
+                    >
+                      <span className="font-bold text-emerald-400">پیش‌بینی برد و ریسک دادرسی (فاز ۲۱)</span>
+                      <Scale className="w-3.5 h-3.5 text-emerald-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('epc-procurement');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-blue-500/10 hover:text-blue-400 transition-colors"
+                    >
+                      <span className="font-bold text-blue-400">دعاوی پیمانکاری و فیدیک FIDIC (فاز ۲۲)</span>
+                      <Building2 className="w-3.5 h-3.5 text-blue-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('intl-arbitration');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold text-[#D4AF37]">داوری بین‌المللی و نیویورک ۱۹۵۸ (فاز ۲۳)</span>
+                      <Globe2 className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('legal-codex');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-purple-500/10 hover:text-purple-400 transition-colors"
+                    >
+                      <span className="font-bold text-purple-400">تنقیح قوانین و آرای وحدت رویه (فاز ۲۴)</span>
+                      <BookOpen className="w-3.5 h-3.5 text-purple-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('drafting-vault');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold text-[#D4AF37]">گاوصندوق قراردادهای دوزبانه (فاز ۲۵)</span>
+                      <FileText className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('tax-moadian');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-amber-500/10 hover:text-amber-400 transition-colors"
+                    >
+                      <span className="font-bold text-amber-400">دعاوی مالیاتی و سامانه مودیان (فاز ۲۶)</span>
+                      <Calculator className="w-3.5 h-3.5 text-amber-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('labor-social');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-cyan-500/10 hover:text-cyan-400 transition-colors"
+                    >
+                      <span className="font-bold text-cyan-400">حقوق کار و تامین اجتماعی (فاز ۲۷)</span>
+                      <Briefcase className="w-3.5 h-3.5 text-cyan-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('economic-crimes');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
+                    >
+                      <span className="font-bold text-rose-400">دفاع در جرایم اقتصادی و بورس (فاز ۲۸)</span>
+                      <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('customs-transit');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-sky-500/10 hover:text-sky-400 transition-colors"
+                    >
+                      <span className="font-bold text-sky-400">دعاوی گمرکی و قاچاق کالا (فاز ۲۹)</span>
+                      <Ship className="w-3.5 h-3.5 text-sky-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('legal-crm');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-purple-500/10 hover:text-purple-400 transition-colors"
+                    >
+                      <span className="font-bold text-purple-400">مرکز هوشمند CRM و آلارم دادگاه (فاز ۳۰)</span>
+                      <Receipt className="w-3.5 h-3.5 text-purple-400" />
                     </button>
                   </div>
                 )}
@@ -951,6 +1151,19 @@ export const Header: React.FC<HeaderProps> = ({
 
               <button
                 onClick={() => {
+                  setActiveView('automation');
+                  setMobileMenuOpen(false);
+                }}
+                className={`p-2 rounded-lg text-[11px] font-bold flex flex-col items-center gap-1 ${
+                  activeView === 'automation' ? 'bg-[#D4AF37] text-[#0B132B]' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
+                }`}
+              >
+                <FolderKanban className="w-3.5 h-3.5" />
+                اتوماسیون (۱۴)
+              </button>
+
+              <button
+                onClick={() => {
                   setActiveView('code');
                   setMobileMenuOpen(false);
                 }}
@@ -1175,6 +1388,204 @@ export const Header: React.FC<HeaderProps> = ({
                 className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
               >
                 🏢 دعاوی ملکی، سرقفلی و مشارکت در ساخت (فاز ۱۲)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('family-inheritance');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-rose-400 font-bold"
+              >
+                👨‍👩‍👧‍👦 ارث، مهریه و حقوق خانواده (فاز ۱۳)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('automation');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+              >
+                📂 اتوماسیون، کانبان و کتابخانه لوایح (فاز ۱۴)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('admin-justice');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-emerald-400 font-bold"
+              >
+                🏛️ دیوان عدالت اداری و شهرداری (فاز ۱۵)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('auth-dual-mode');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-blue-400 font-bold"
+              >
+                🔑 احراز هویت دوحالته وکلای دفتر (فاز ۱۶)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('dual-panel-unified');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+              >
+                🔄 اتصال یکپارچه دو پنل و SSO (فاز ۱۷)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('admin-protection');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-rose-400 font-bold"
+              >
+                🛡️ مخفی‌سازی صفحات ادمین و سئو (فاز ۱۸)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('design-tokens');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+              >
+                🎨 مخزن Design Tokens پوسته (فاز ۱۹)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('ajax-search');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-amber-400 font-bold"
+              >
+                🔍 جستجو و فیلتر آژاکس (فاز ۲۰)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('case-prediction');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-emerald-400 font-bold"
+              >
+                ⚖️ ارزیابی شانس برد و تحلیل ریسک (فاز ۲۱)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('epc-procurement');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-blue-400 font-bold"
+              >
+                🏗️ دعاوی پیمانکاری، EPC و فیدیک (فاز ۲۲)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('intl-arbitration');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+              >
+                🌐 داوری بین‌المللی و نیویورک ۱۹۵۸ (فاز ۲۳)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('legal-codex');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-purple-400 font-bold"
+              >
+                📖 تنقیح قوانین و آرای وحدت رویه (فاز ۲۴)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('drafting-vault');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+              >
+                📑 گاوصندوق قراردادهای دوزبانه (فاز ۲۵)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('tax-moadian');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-amber-400 font-bold"
+              >
+                📊 دعاوی مالیاتی و مودیان (فاز ۲۶)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('labor-social');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-cyan-400 font-bold"
+              >
+                👷 حقوق کار و تامین اجتماعی (فاز ۲۷)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('economic-crimes');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-rose-400 font-bold"
+              >
+                ⚖️ جرایم اقتصادی، بورس و پولشویی (فاز ۲۸)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('customs-transit');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sky-400 font-bold"
+              >
+                🚢 دعاوی گمرکی و قاچاق کالا (فاز ۲۹)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('legal-crm');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-purple-400 font-bold"
+              >
+                👥 مرکز CRM و آلارم دادگاه (فاز ۳۰)
               </button>
 
               <a

@@ -15,10 +15,11 @@ import {
   Calendar,
   Layers,
   ChevronLeft,
+  Coins,
 } from 'lucide-react';
 
 export const CourtFeeCalculator: React.FC = () => {
-  const [calcType, setCalcType] = useState<'court_fee' | 'attorney_tariff' | 'delay_damages' | 'diyeh'>('court_fee');
+  const [calcType, setCalcType] = useState<'court_fee' | 'attorney_tariff' | 'delay_damages' | 'diyeh' | 'mehrieh'>('court_fee');
 
   // Court fee state
   const [claimAmount, setClaimAmount] = useState<number>(500000000); // 500 million Rials
@@ -38,6 +39,45 @@ export const CourtFeeCalculator: React.FC = () => {
   const [diyehPercentage, setDiyehPercentage] = useState<number>(100);
   const [isSacredMonth, setIsSacredMonth] = useState<boolean>(false);
   const BASE_DIYEH_1403 = 12000000000; // 1.2 billion Tomans = 12 billion Rials in normal months
+
+  // Mehrieh state (Central Bank of Iran index)
+  const [marriageYear, setMarriageYear] = useState<number>(1385);
+  const [demandYear, setDemandYear] = useState<number>(1403);
+  const [originalMehriehTomans, setOriginalMehriehTomans] = useState<number>(10000000); // 10 million Tomans
+  const [isHusbandDeceased, setIsHusbandDeceased] = useState<boolean>(false);
+  const [husbandDeathYear, setHusbandDeathYear] = useState<number>(1401);
+
+  // Central Bank of Iran Annual Inflation Indices
+  const CBI_ANNUAL_INDICES: Record<number, number> = {
+    1360: 0.05,
+    1365: 0.10,
+    1370: 0.25,
+    1375: 0.98,
+    1380: 2.14,
+    1381: 2.48,
+    1382: 2.86,
+    1383: 3.30,
+    1384: 3.64,
+    1385: 4.07,
+    1386: 4.82,
+    1387: 6.04,
+    1388: 6.70,
+    1389: 7.53,
+    1390: 9.15,
+    1391: 11.94,
+    1392: 16.08,
+    1393: 18.59,
+    1394: 20.81,
+    1395: 22.88,
+    1396: 25.07,
+    1397: 32.65,
+    1398: 46.12,
+    1399: 62.90,
+    1400: 88.06,
+    1401: 129.00,
+    1402: 196.72,
+    1403: 285.25,
+  };
 
   // Calculation results
   const calculateCourtFee = () => {
@@ -125,6 +165,22 @@ export const CourtFeeCalculator: React.FC = () => {
     };
   };
 
+  const calculateMehrieh = () => {
+    const indexMarriage = CBI_ANNUAL_INDICES[marriageYear] || 4.07;
+    const targetYear = isHusbandDeceased ? husbandDeathYear : demandYear - 1;
+    const indexTarget = CBI_ANNUAL_INDICES[targetYear] || CBI_ANNUAL_INDICES[1402] || 196.72;
+    const multiplier = Number((indexTarget / indexMarriage).toFixed(2));
+    const currentMehriehTomans = Math.round(originalMehriehTomans * multiplier);
+    return {
+      indexMarriage,
+      indexTarget,
+      targetYear,
+      multiplier,
+      currentMehriehTomans,
+      currentMehriehRials: currentMehriehTomans * 10,
+    };
+  };
+
   const formatRials = (amount: number) => {
     return new Intl.NumberFormat('fa-IR').format(amount) + ' ریال';
   };
@@ -143,6 +199,15 @@ export const CourtFeeCalculator: React.FC = () => {
     } else if (calcType === 'attorney_tariff') {
       const t = calculateAttorneyTariff();
       summary = `گزارش محاسبه تعرفه قانونی حق‌الوکاله و تمبر مالیاتی:\nبهای خواسته: ${formatTomans(claimAmount)}\nحق‌الوکاله قانونی: ${formatTomans(t.tariff)}\nتمبر مالیاتی (۵٪): ${formatTomans(t.taxStamp)}\nسهم کانون و صندوق حمایت: ${formatTomans(t.supportFund)}`;
+    } else if (calcType === 'delay_damages') {
+      const d = calculateDelayDamages();
+      summary = `گزارش محاسبه خسارت تاخیر تادیه (ماده ۵۲۲ ق.آ.د.م):\nاصل بدهی: ${formatTomans(debtAmount)}\nسال سررسید: ${dueYear}\nمبلغ روز با محاسبه تورم: ${formatTomans(d.adjustedDebt)}\nخسارت تاخیر تادیه: ${formatTomans(d.damageAmount)}`;
+    } else if (calcType === 'diyeh') {
+      const d = calculateDiyeh();
+      summary = `گزارش محاسبه دیه و ارش دادگستری (سال ۱۴۰۳):\nدرصد دیه: ${diyehPercentage}٪\nماه حرام (تغلیظ): ${isSacredMonth ? 'بله' : 'خیر'}\nمبلغ کل دیه قابل پرداخت: ${formatTomans(d.totalAmount)}`;
+    } else if (calcType === 'mehrieh') {
+      const m = calculateMehrieh();
+      summary = `گزارش محاسبه مهریه وجه نقد به نرخ روز (شاخص بانک مرکزی):\nمهریه مندرج در عقدنامه: ${new Intl.NumberFormat('fa-IR').format(originalMehriehTomans)} تومان\nسال وقوع عقد: ${marriageYear} (شاخص: ${m.indexMarriage})\nسال محاسبه: ${demandYear} (شاخص سال قبل: ${m.indexTarget})\nضریب افزایش تورم: ${m.multiplier} برابر\nمهریه روز قابل تادیه: ${new Intl.NumberFormat('fa-IR').format(m.currentMehriehTomans)} تومان`;
     }
     navigator.clipboard.writeText(summary);
     setCopiedSuccess(true);
@@ -185,8 +250,8 @@ export const CourtFeeCalculator: React.FC = () => {
         </div>
       </div>
 
-      {/* Calculator Type Switcher */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 rounded-2xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700">
+      {/* Calculator Type Switcher - 5 Tabs */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-1.5 rounded-2xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700">
         <button
           onClick={() => setCalcType('court_fee')}
           className={`py-3 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
@@ -208,7 +273,7 @@ export const CourtFeeCalculator: React.FC = () => {
           }`}
         >
           <DollarSign className="w-4 h-4" />
-          <span>۲. تعرفه و تمبر وکیل</span>
+          <span>۲. تعرفه وکیل</span>
         </button>
 
         <button
@@ -220,7 +285,7 @@ export const CourtFeeCalculator: React.FC = () => {
           }`}
         >
           <TrendingUp className="w-4 h-4" />
-          <span>۳. تاخیر تادیه (تورم)</span>
+          <span>۳. تاخیر تادیه</span>
         </button>
 
         <button
@@ -232,7 +297,19 @@ export const CourtFeeCalculator: React.FC = () => {
           }`}
         >
           <Percent className="w-4 h-4" />
-          <span>۴. دیه و ارش ۱۴۰۳</span>
+          <span>۴. دیه و ارش</span>
+        </button>
+
+        <button
+          onClick={() => setCalcType('mehrieh')}
+          className={`py-3 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+            calcType === 'mehrieh'
+              ? 'bg-[#0B132B] text-[#D4AF37] dark:bg-white dark:text-[#0B132B] shadow-md'
+              : 'text-gray-600 dark:text-gray-300 hover:text-[#D4AF37]'
+          }`}
+        >
+          <Coins className="w-4 h-4" />
+          <span>۵. مهریه روز (بانک مرکزی)</span>
         </button>
       </div>
 
@@ -452,6 +529,99 @@ export const CourtFeeCalculator: React.FC = () => {
               </div>
             </div>
           )}
+
+          {calcType === 'mehrieh' && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+                  مبلغ مهریه وجه نقد مندرج در سند رسمی ازدواج (تومان)
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={originalMehriehTomans}
+                    onChange={(e) => setOriginalMehriehTomans(Number(e.target.value) || 0)}
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm font-mono text-left focus:outline-none focus:border-[#D4AF37]"
+                    dir="ltr"
+                    step="1000000"
+                  />
+                  <span className="absolute left-3 top-3.5 text-xs text-gray-400">تومان</span>
+                </div>
+                <div className="mt-1 flex items-center justify-between text-xs text-[#AA820A] dark:text-[#D4AF37] font-semibold">
+                  <span>معادل ریالی در سند:</span>
+                  <span>{new Intl.NumberFormat('fa-IR').format(originalMehriehTomans * 10)} ریال</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+                    سال وقوع عقد ازدواج (شمسی)
+                  </label>
+                  <select
+                    value={marriageYear}
+                    onChange={(e) => setMarriageYear(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-xs font-bold focus:outline-none focus:border-[#D4AF37]"
+                  >
+                    {[1360, 1365, 1370, 1375, 1380, 1381, 1382, 1383, 1384, 1385, 1386, 1387, 1388, 1389, 1390, 1391, 1392, 1393, 1394, 1395, 1396, 1397, 1398, 1399, 1400, 1401, 1402].map((yr) => (
+                      <option key={yr} value={yr}>سال {yr} (شاخص: {CBI_ANNUAL_INDICES[yr]})</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+                    سال مطالبه یا صدور اجراییه ثبت / دادگاه
+                  </label>
+                  <select
+                    value={demandYear}
+                    onChange={(e) => setDemandYear(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-xs font-bold focus:outline-none focus:border-[#D4AF37]"
+                  >
+                    <option value={1403}>سال جاری (۱۴۰۳) - مبنا: شاخص سال قبل ۱۴۰۲</option>
+                    <option value={1402}>سال ۱۴۰۲ - مبنا: شاخص سال قبل ۱۴۰۱</option>
+                    <option value={1401}>سال ۱۴۰۱ - مبنا: شاخص سال قبل ۱۴۰۰</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                      فوت زوج (محاسبه مهریه پس از فوت شوهر)
+                    </span>
+                    <span className="text-[11px] text-gray-500">
+                      طبق ماده ۳ آیین‌نامه اجرایی، تاریخ فوت مبنای محاسبه قرار می‌گیرد نه تاریخ مطالبه.
+                    </span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={isHusbandDeceased}
+                    onChange={(e) => setIsHusbandDeceased(e.target.checked)}
+                    className="w-5 h-5 rounded text-[#D4AF37] focus:ring-[#D4AF37]"
+                  />
+                </div>
+
+                {isHusbandDeceased && (
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                      سال فوت زوج:
+                    </label>
+                    <select
+                      value={husbandDeathYear}
+                      onChange={(e) => setHusbandDeathYear(Number(e.target.value))}
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-xs font-bold"
+                    >
+                      {[1395, 1396, 1397, 1398, 1399, 1400, 1401, 1402, 1403].map((yr) => (
+                        <option key={yr} value={yr}>سال {yr} (شاخص: {CBI_ANNUAL_INDICES[yr]})</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Output Box (5 cols) */}
@@ -584,6 +754,42 @@ export const CourtFeeCalculator: React.FC = () => {
                   <div className="flex justify-between text-gray-400 text-[11px] pt-1">
                     <span>مبنای دیه کامل سال ۱۴۰۳:</span>
                     <span>۱ میلیارد و ۲۰۰ میلیون تومان</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {calcType === 'mehrieh' && (() => {
+            const m = calculateMehrieh();
+            return (
+              <div className="space-y-4">
+                <div>
+                  <span className="text-xs text-gray-400 block mb-1">ارزش روز مهریه (شاخص بانک مرکزی):</span>
+                  <p className="text-2xl sm:text-3xl font-bold font-serif text-[#D4AF37]">
+                    {new Intl.NumberFormat('fa-IR').format(m.currentMehriehTomans)} تومان
+                  </p>
+                  <p className="text-xs font-mono text-gray-400 mt-0.5">
+                    {new Intl.NumberFormat('fa-IR').format(m.currentMehriehRials)} ریال
+                  </p>
+                </div>
+
+                <div className="space-y-2 pt-3 border-t border-white/10 text-xs">
+                  <div className="flex justify-between text-gray-300">
+                    <span>مهریه اولیه در عقدنامه:</span>
+                    <span>{new Intl.NumberFormat('fa-IR').format(originalMehriehTomans)} تومان</span>
+                  </div>
+                  <div className="flex justify-between text-gray-300">
+                    <span>شاخص سال عقد ({marriageYear}):</span>
+                    <span className="font-mono font-bold">{m.indexMarriage}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-300">
+                    <span>شاخص سال مبنا ({m.targetYear}):</span>
+                    <span className="font-mono font-bold">{m.indexTarget}</span>
+                  </div>
+                  <div className="flex justify-between text-amber-300 pt-2 border-t border-white/10">
+                    <span>ضریب تعدیل تورمی:</span>
+                    <span className="font-mono font-bold">{m.multiplier} برابر</span>
                   </div>
                 </div>
               </div>

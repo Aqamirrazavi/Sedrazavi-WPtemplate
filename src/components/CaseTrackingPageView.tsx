@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileSearch,
   Shield,
@@ -12,11 +12,40 @@ import {
   Search,
   Download,
   Phone,
+  Scale,
+  QrCode,
+  Bell,
+  Eye,
+  Check,
+  Building,
+  UserCheck,
+  ExternalLink,
+  MessageSquare,
+  Lock
 } from 'lucide-react';
+import { getStoredClientAccounts } from '../utils/clientAccountsStorage';
 
 interface CaseTrackingPageViewProps {
   onBackToHome: () => void;
   onBookConsultation: () => void;
+}
+
+interface CaseStep {
+  title: string;
+  stageName: string;
+  date: string;
+  description: string;
+  completed: boolean;
+  current?: boolean;
+  courtActionCode?: string;
+}
+
+interface CaseDocument {
+  title: string;
+  date: string;
+  fileSize: string;
+  securityHash: string;
+  type: 'PDF' | 'DOCX';
 }
 
 interface CaseRecord {
@@ -25,16 +54,16 @@ interface CaseRecord {
   clientName: string;
   caseTitle: string;
   courtBranch: string;
+  judgeName: string;
   status: string;
+  statusCode: 'ACTIVE' | 'HEARING_PENDING' | 'DECIDED' | 'ENFORCEMENT';
   lastUpdate: string;
-  nextHearing: string;
-  steps: {
-    title: string;
-    date: string;
-    description: string;
-    completed: boolean;
-    current?: boolean;
-  }[];
+  nextHearingDate: string;
+  nextHearingTime: string;
+  hearingDaysRemaining: number;
+  steps: CaseStep[];
+  documents: CaseDocument[];
+  attorneySummary: string;
 }
 
 const DEMO_CASES: CaseRecord[] = [
@@ -42,41 +71,92 @@ const DEMO_CASES: CaseRecord[] = [
     caseNumber: 'SR-1402-8821',
     nationalCode: '0012345678',
     clientName: 'محمدرضا سلطانی',
-    caseTitle: 'دعوای الزام به تنظیم سند رسمی ملک تجاری و خسارت تاخیر تادیه',
+    caseTitle: 'دعوای الزام به تنظیم سند رسمی انتقال ملک تجاری و مطالبه خسارت وجه التزام تاخیر تادیه',
     courtBranch: 'شعبه ۴۲ دادگاه عمومی حقوقی مجتمع قضایی شهید بهشتی تهران',
-    status: 'در حال تبادل لوایح دفاعیه و تعیین وقت رسیدگی',
-    lastUpdate: '۱۴۰۲/۱۰/۱۸',
-    nextHearing: '۱۴۰۲/۱۱/۲۵ - ساعت ۱۰:۳۰',
+    judgeName: 'جناب آقای دکتر موحدی (رئیس شعبه)',
+    status: 'در حال تبادل لوایح و تعیین وقت رسیدگی ماهوی',
+    statusCode: 'HEARING_PENDING',
+    lastUpdate: '۱۴۰۲/۱۰/۱۸ ساعت ۱۰:۱۵',
+    nextHearingDate: '۱۴۰۳/۰۸/۲۵',
+    nextHearingTime: '۱۰:۳۰ صبح',
+    hearingDaysRemaining: 18,
+    attorneySummary: 'با استناد به گواهی عدم حضور دفترخانه ۱۸ و استعلام واصله از اداره ثبت املاک ونک، مالکیت رسمی فروشنده محرز بوده و دفاعیات بر اساس آرای وحدت رویه دیوان عالی کشور تنظیم و تقدیم شعبه گردید.',
+    documents: [
+      {
+        title: 'دادخواست بدوی ثبت‌شده در سامانه عدل‌ایران',
+        date: '۱۴۰۲/۰۸/۱۲',
+        fileSize: '۱.۸ MB',
+        securityHash: 'SHA256: 4a8b9f...21c',
+        type: 'PDF',
+      },
+      {
+        title: 'لایحه تکمیلی مستند به وحدت رویه شماره ۸۱۱',
+        date: '۱۴۰۲/۱۰/۱۵',
+        fileSize: '۹۴۰ KB',
+        securityHash: 'SHA256: 9e3a1b...88f',
+        type: 'PDF',
+      },
+      {
+        title: 'نظریه کارشناس رسمی امور ثبتی دادگستری',
+        date: '۱۴۰۲/۱۱/۰۴',
+        fileSize: '۳.۱ MB',
+        securityHash: 'SHA256: d71b4c...09a',
+        type: 'PDF',
+      },
+    ],
     steps: [
       {
-        title: 'ثبت الکترونیک دادخواست اولیه',
+        title: '۱. ثبت دادخواست الکترونیک در عدل‌ایران',
+        stageName: 'ثبت بدوی',
         date: '۱۴۰۲/۰۸/۱۲',
-        description: 'دادخواست از طریق دفتر خدمات الکترونیک قضایی شماره ۲۱۲ ثبت و ارجاع شد.',
+        description: 'دادخواست از طریق دفتر خدمات الکترونیک قضایی شماره ۲۱۲ ثبت و با کلاسه ۱۴۰۲۹۸۲۷۳ به مجتمع قضایی بهشتی ارجاع شد.',
         completed: true,
+        courtActionCode: 'ADL-1402-0982',
       },
       {
-        title: 'ارجاع به شعبه و صدور دستور تعیین وقت',
+        title: '۲. ارجاع به شعبه و صدور دستور پرداخت هزینه کارشناسی',
+        stageName: 'تعیین شعبه',
         date: '۱۴۰۲/۰۹/۰۴',
-        description: 'پرونده به شعبه ۴۲ ارجاع و دستور استعلام ثبتی ملک از اداره ثبت صادر گردید.',
+        description: 'پرونده در شعبه ۴۲ حقوقی مستقر شد و دستور استعلام ثبتی پلاک ۶۴/۱۱۲ صادر گردید.',
         completed: true,
+        courtActionCode: 'CRT-BR42-991',
       },
       {
-        title: 'تنظیم لایحه دفاعیه تخصصی و تقدیم اسناد تکمیلی',
+        title: '۳. تنظیم لایحه دفاعیه تخصصی و ضم اسناد تکمیلی',
+        stageName: 'تبادل لوایح',
         date: '۱۴۰۲/۱۰/۱۵',
-        description: 'لایحه ۵ صفحه‌ای مستند به آرای هیأت عمومی دیوان تقدیم قاضی پرونده شد.',
+        description: 'لایحه ۶ صفحه‌ای با تحلیل شروط ضمن عقد مبایعه‌نامه توسط دکتر رضوی تقدیم شعبه گردید.',
         completed: true,
         current: true,
+        courtActionCode: 'LYH-1402-4412',
       },
       {
-        title: 'جلسه رسیدگی ماهوی با حضور وکیل',
-        date: '۱۴۰۲/۱۱/۲۵',
-        description: 'حضور وکیل در جلسه رسیدگی جهت دفاع شفاهی و ثبت صورت‌جلسه.',
+        title: '۴. جلسه رسیدگی ماهوی و استماع مدافعات وکیل',
+        stageName: 'دادرسی ماهوی',
+        date: '۱۴۰۳/۰۸/۲۵',
+        description: 'حضور وکیل پایه یک و موکل در شعبه دادگاه جهت دفاع شفاهی و تنظیم صورتجلسه.',
+        completed: false,
+        courtActionCode: 'HRG-PENDING',
+      },
+      {
+        title: '۵. صدور دادنامه بدوی و ابلاغ در سامانه ثنا',
+        stageName: 'انشای رای',
+        date: 'موعد آتی',
+        description: 'صدور حکم به محکومیت خوانده به انتقال سند رسمی و پرداخت خسارات.',
         completed: false,
       },
       {
-        title: 'صدور دادنامه بدوی و ابلاغ در سامانه ثنا',
-        date: 'نامشخص',
-        description: 'صدور دادنامه و بررسی امکان قطعیت یا تجدیدنظرخواهی.',
+        title: '۶. قطعیت رای یا رسیدگی در دادگاه تجدیدنظر',
+        stageName: 'تجدیدنظرخواهی',
+        date: 'موعد آتی',
+        description: 'بررسی در دادگاه تجدیدنظر استان تهران و صدور رای قطعی.',
+        completed: false,
+      },
+      {
+        title: '۷. صدور اجرائیه و هدایت به اجرای احکام مدنی',
+        stageName: 'اجرای احکام',
+        date: 'مرحله نهایی',
+        description: 'اخذ دستور امضای سند رسمی از سوی نماینده دادگاه در صورت استنکاف خوانده.',
         completed: false,
       },
     ],
@@ -84,30 +164,102 @@ const DEMO_CASES: CaseRecord[] = [
   {
     caseNumber: 'SR-1402-9904',
     nationalCode: '0098765432',
-    clientName: 'مهدی کشاورز',
-    caseTitle: 'ابطال رای داوری اتاق بازرگانی بین‌المللی در قرارداد پیمانکاری',
+    clientName: 'مهندس مهدی کشاورز',
+    caseTitle: 'ابطال رای داوری تجاری در قرارداد احداث نیروگاه خورشیدی و ضمانت‌نامه بانکی',
     courtBranch: 'شعبه ۳ دادگاه تجدیدنظر استان تهران',
-    status: 'صدور دادنامه قطعی به نفع موکل',
-    lastUpdate: '۱۴۰۲/۱۰/۱۰',
-    nextHearing: 'پرونده مختومه شده است',
+    judgeName: 'مستشاران ارشد دادگاه تجدیدنظر',
+    status: 'صدور دادنامه قطعی ابطال رای داور به نفع موکل',
+    statusCode: 'DECIDED',
+    lastUpdate: '۱۴۰۲/۱۰/۱۰ ساعت ۱۴:۰۰',
+    nextHearingDate: 'پرونده مختومه است',
+    nextHearingTime: 'مختومه',
+    hearingDaysRemaining: 0,
+    attorneySummary: 'دادگاه تجدیدنظر با پذیرش دفاعیات اینجانب مبنی بر نقض قواعد آمره دادرسی و عدم رعایت مهلت داوری، رای داور مرضی‌الطرفین را به طور کامل ابطال و ملغی‌الاثر اعلام نمود.',
+    documents: [
+      {
+        title: 'دادنامه قطعی ابطال رای داوری شعبه ۳ تجدیدنظر',
+        date: '۱۴۰۲/۱۰/۱۰',
+        fileSize: '۲.۴ MB',
+        securityHash: 'SHA256: 7f12e4...310',
+        type: 'PDF',
+      },
+      {
+        title: 'گواهی قطعیت دادنامه صادره و رفع اثر از حساب‌ها',
+        date: '۱۴۰۲/۱۰/۱۸',
+        fileSize: '۶۵۰ KB',
+        securityHash: 'SHA256: 3c99a0...12b',
+        type: 'PDF',
+      },
+    ],
     steps: [
       {
-        title: 'ثبت دادخواست ابطال رای داور',
+        title: '۱. ثبت دادخواست ابطال رای داور',
+        stageName: 'دادخواست',
         date: '۱۴۰۲/۰۶/۱۵',
-        description: 'ثبت ایرادات شکلی و ماهوی داور مرضی‌الطرفین.',
+        description: 'ثبت ایرادات بنیادین به رای داور منطبق بر ماده ۴۸۹ قانون آیین دادرسی مدنی.',
         completed: true,
       },
       {
-        title: 'جلسه دفاع تخصصی وکیل',
+        title: '۲. جلسه دفاعیه تخصصی و تبیین نقض موازین قانونی',
+        stageName: 'دفاع وکیل',
         date: '۱۴۰۲/۰۸/۲۰',
-        description: 'اثبات نقض قواعد آمره در صدور رای داوری توسط وکیل.',
+        description: 'ارائه مستندات خروج داور از حدود اختیارات قراردادی و اثبات انقضای مدت.',
         completed: true,
       },
       {
-        title: 'صدور دادنامه قطعی ابطال رای داور',
+        title: '۳. صدور دادنامه قطعی ابطال و قطعیت رای',
+        stageName: 'حکم قطعی پیروزی',
         date: '۱۴۰۲/۱۰/۱۰',
-        description: 'دادگاه تجدیدنظر رای داوری را کلاً باطل و ملغی‌الاثر اعلام نمود.',
+        description: 'پیروزی کامل موکل و آزادی ضمانت‌نامه‌های بانکی به ارزش ۱۲۰ میلیارد ریال.',
         completed: true,
+      },
+    ],
+  },
+  {
+    caseNumber: 'SR-1403-1102',
+    nationalCode: '1010345678',
+    clientName: 'شرکت پترو تجارت فرادید',
+    caseTitle: 'دعاوی بین‌المللی ارزی، اعتبارات اسنادی (LC) و رفع تعهدات بازرگانی',
+    courtBranch: 'شعبه ۵۵ دادگاه عمومی حقوقی تخصصی امور بین‌الملل تهران',
+    judgeName: 'قاضی دادگاه ویژه تجارت بین‌الملل',
+    status: 'رسیدگی به اسناد تعهدات ارزی و استعلام از بانک مرکزی',
+    statusCode: 'ACTIVE',
+    lastUpdate: 'امروز ساعت ۰۹:۰۰',
+    nextHearingDate: '۱۴۰۳/۰۹/۱۰',
+    nextHearingTime: '۱۱:۰۰ صبح',
+    hearingDaysRemaining: 32,
+    attorneySummary: 'اسناد مربوط به فورس‌ماژور تحریمی مطابق استانداردهای ICC تنظیم و جهت ابطال جرایم رفع تعهدات ارزی تحویل کارشناسان دادگاه گردید.',
+    documents: [
+      {
+        title: 'لایحه استنادی فورس‌ماژور و تحریم‌های بانکی',
+        date: '۱۴۰۳/۰۴/۰۲',
+        fileSize: '۲.۱ MB',
+        securityHash: 'SHA256: fa8821...66c',
+        type: 'PDF',
+      },
+    ],
+    steps: [
+      {
+        title: '۱. ثبت پرونده در شعبه بین‌الملل',
+        stageName: 'ثبت پرونده',
+        date: '۱۴۰۳/۰۲/۱۵',
+        description: 'ارجاع به شعبه ۵۵ امور بین‌الملل و اخذ دستور توقف موقت اقدامات اجرایی بانک.',
+        completed: true,
+      },
+      {
+        title: '۲. کارشناسی تخصصی حسابرسی ارزی',
+        stageName: 'کارشناسی',
+        date: '۱۴۰۳/۰۳/۲۰',
+        description: 'بررسی مدارک سوئیفت و اسناد اعتبارات اسنادی توسط هیئت ۳ نفره کارشناسان رسمی.',
+        completed: true,
+        current: true,
+      },
+      {
+        title: '۳. جلسه استماع نظرات طرفین و نماینده بانک',
+        stageName: 'جلسه رسیدگی',
+        date: '۱۴۰۳/۰۹/۱۰',
+        description: 'برگزاری جلسه ماهوی دادگاه در شعبه ۵۵ امور بین‌الملل.',
+        completed: false,
       },
     ],
   },
@@ -122,9 +274,11 @@ export const CaseTrackingPageView: React.FC<CaseTrackingPageViewProps> = ({
   const [searchedCase, setSearchedCase] = useState<CaseRecord | null>(DEMO_CASES[0]);
   const [hasSearched, setHasSearched] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [simulatedSmsSent, setSimulatedSmsSent] = useState(false);
+  const [activeDocPreview, setActiveDocPreview] = useState<CaseDocument | null>(null);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setHasSearched(true);
     const cleanCase = caseNumberInput.trim().toUpperCase();
     const found = DEMO_CASES.find(
@@ -142,10 +296,23 @@ export const CaseTrackingPageView: React.FC<CaseTrackingPageViewProps> = ({
     }
   };
 
+  const selectPresetCase = (c: CaseRecord) => {
+    setCaseNumberInput(c.caseNumber);
+    setNationalCodeInput(c.nationalCode);
+    setSearchedCase(c);
+    setNotFound(false);
+    setHasSearched(true);
+  };
+
+  const handleSendSmsAlert = () => {
+    setSimulatedSmsSent(true);
+    setTimeout(() => setSimulatedSmsSent(false), 4000);
+  };
+
   return (
     <div className="py-12 sm:py-16 bg-[#F4F6F9] dark:bg-[#070D1E] min-h-screen text-[#0B132B] dark:text-gray-100 font-persian">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl space-y-12">
-        {/* Breadcrumb */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl space-y-10">
+        {/* Breadcrumb & Navigation */}
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
             <button
@@ -156,32 +323,57 @@ export const CaseTrackingPageView: React.FC<CaseTrackingPageViewProps> = ({
             </button>
             <ChevronLeft className="w-4 h-4" />
             <span className="text-[#0B132B] dark:text-[#F3E5AB] font-bold">
-              سامانه آنلاین و محرمانه پیگیری پرونده قضایی
+              سامانه جامع پیگیری پرونده‌های قضایی و دادرسی موکلین
             </span>
           </div>
 
           <button
             onClick={onBackToHome}
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-[#D4AF37] hover:text-[#0B132B] transition-all"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-[#D4AF37] hover:text-[#0B132B] transition-all cursor-pointer"
           >
-            بازگشت به صفحه اصلی &rarr;
+            بازگشت به پرتال اصلی &rarr;
           </button>
         </div>
 
-        {/* Page Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-4">
+        {/* Page Hero Header */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 text-[#D4AF37] dark:text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/30">
-            <Shield className="w-3.5 h-3.5" />
-            <span>سامانه هوشمند موکلین</span>
+            <Scale className="w-4 h-4 text-[#D4AF37]" />
+            <span>اتصال برخط به دفتر وکالت دکتر سیده مریم رضوی</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-serif font-black text-[#0B132B] dark:text-white">
-            پیگیری برخط وضعیت دادرسی و لوایح پرونده
+            پیگیری پرونده دادگستری و گردش دادرسی
           </h1>
 
-          <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-            جهت حفظ کرامت و وقت گرانبهای موکلین گرامی، روند رسیدگی، اوقات دادگاه و نسخه‌های دفاعیه به صورت ۲۴ ساعته در این بخش در دسترس می‌باشد.
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+            جهت شفافیت حداکثری و تسهیل امور موکلین، آخرین اوقات دادگاه، لوایح تقدیمی، ابلاغیه‌های ثنا و قرارهای صادره در این درگاه ایمن و رمزنگاری‌شده قابل مشاهده و استعلام است.
           </p>
+        </div>
+
+        {/* Quick Demo Chips */}
+        <div className="bg-white dark:bg-[#0B132B] rounded-2xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-[#D4AF37]" />
+              انتخاب سریع نمونه پرونده‌های دفتر وکالت (تست زنده):
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              {DEMO_CASES.map((demo) => (
+                <button
+                  key={demo.caseNumber}
+                  onClick={() => selectPresetCase(demo)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                    searchedCase?.caseNumber === demo.caseNumber
+                      ? 'bg-[#D4AF37] text-[#060B18] border-[#D4AF37] shadow-sm'
+                      : 'bg-gray-50 dark:bg-[#070D1E] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-[#D4AF37]/50'
+                  }`}
+                >
+                  {demo.clientName} ({demo.caseNumber})
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Search Query Card */}
@@ -190,35 +382,42 @@ export const CaseTrackingPageView: React.FC<CaseTrackingPageViewProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                  شماره پرونده وکالت (در قرارداد وکالتنامه):
+                  شماره کلاسه پرونده در دفتر وکالت:
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={caseNumberInput}
-                  onChange={(e) => setCaseNumberInput(e.target.value)}
-                  placeholder="مثال: SR-1402-8821"
-                  className="w-full px-4 py-2.5 rounded-xl text-xs bg-gray-50 dark:bg-[#070D1E] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white font-mono focus:outline-none focus:border-[#D4AF37]"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    value={caseNumberInput}
+                    onChange={(e) => setCaseNumberInput(e.target.value)}
+                    placeholder="مثال: SR-1402-8821"
+                    className="w-full pr-10 pl-4 py-2.5 rounded-xl text-xs bg-gray-50 dark:bg-[#070D1E] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white font-mono focus:outline-none focus:border-[#D4AF37]"
+                  />
+                  <FileSearch className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                  کد ملی موکل (اختیاری جهت تطبیق امنیتی):
+                  کد ملی / شناسه ملی موکل (احراز ثنا):
                 </label>
-                <input
-                  type="text"
-                  value={nationalCodeInput}
-                  onChange={(e) => setNationalCodeInput(e.target.value)}
-                  placeholder="کد ملی ۱۰ رقمی"
-                  className="w-full px-4 py-2.5 rounded-xl text-xs bg-gray-50 dark:bg-[#070D1E] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white font-mono focus:outline-none focus:border-[#D4AF37]"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={nationalCodeInput}
+                    onChange={(e) => setNationalCodeInput(e.target.value)}
+                    placeholder="کد ۱۰ رقمی ملی یا شناسه ۱۱ رقمی شرکت"
+                    className="w-full pr-10 pl-4 py-2.5 rounded-xl text-xs bg-gray-50 dark:bg-[#070D1E] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white font-mono focus:outline-none focus:border-[#D4AF37]"
+                  />
+                  <Lock className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+                </div>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-              <span className="text-[11px] text-gray-500 dark:text-gray-400">
-                کدهای آزمایشی آماده تست: <code className="text-[#D4AF37] font-mono">SR-1402-8821</code> یا <code className="text-[#D4AF37] font-mono">SR-1402-9904</code>
+              <span className="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                اطلاعات با پروتکل رمزنگاری قضایی عدل‌ایران محافظت می‌شود.
               </span>
 
               <button
@@ -226,111 +425,269 @@ export const CaseTrackingPageView: React.FC<CaseTrackingPageViewProps> = ({
                 className="btn-gold px-6 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-md hover:scale-105 transition-all cursor-pointer"
               >
                 <Search className="w-4 h-4" />
-                <span>استعلام آنلاین پرونده</span>
+                <span>استعلام لحظه‌ای پرونده</span>
               </button>
             </div>
           </form>
         </div>
 
-        {/* Results Display */}
+        {/* Not Found Banner */}
         {notFound && (
-          <div className="rounded-2xl p-6 bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-center space-y-2">
+          <div className="rounded-2xl p-6 bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-center space-y-2 animate-fadeIn">
             <AlertCircle className="w-8 h-8 mx-auto" />
-            <h3 className="font-bold text-sm">پرونده‌ای با این مشخصات یافت نشد</h3>
+            <h3 className="font-bold text-sm">پرونده‌ای با این مشخصات در سامانه یافت نشد</h3>
             <p className="text-xs">
-              لطفاً صحت شماره پرونده یا کد ملی را بررسی فرمایید یا با منشی دفتر تماس حاصل فرمایید.
+              لطفاً شماره پرونده درج‌شده روی قرارداد وکالت یا کد ملی را بررسی فرمایید، یا جهت بررسی دستی با شماره ۰۲۱-۸۸۹۹۰۰۱۱ تماس بگیرید.
             </p>
           </div>
         )}
 
+        {/* Searched Case Detailed View */}
         {searchedCase && (
-          <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-[#0B132B] border border-[#D4AF37]/50 shadow-2xl space-y-8 text-right">
-            {/* Header info */}
-            <div className="border-b border-gray-200 dark:border-gray-800 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold">
+          <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-[#0B132B] border border-[#D4AF37]/50 shadow-2xl space-y-8 text-right animate-fadeIn">
+            
+            {/* Header info bar */}
+            <div className="border-b border-gray-200 dark:border-gray-800 pb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div className="space-y-2 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                    searchedCase.statusCode === 'DECIDED'
+                      ? 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30'
+                      : searchedCase.statusCode === 'HEARING_PENDING'
+                      ? 'bg-amber-500/15 text-amber-500 border-amber-500/30'
+                      : 'bg-blue-500/15 text-blue-500 border-blue-500/30'
+                  }`}>
                     {searchedCase.status}
                   </span>
-                  <span className="text-xs font-mono font-bold text-gray-500">
-                    کد: {searchedCase.caseNumber}
+                  <span className="text-xs font-mono font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-lg">
+                    کلاسه: {searchedCase.caseNumber}
+                  </span>
+                  <span className="text-[11px] text-gray-400">
+                    آخرین به‌روزرسانی: {searchedCase.lastUpdate}
                   </span>
                 </div>
-                <h2 className="text-lg sm:text-xl font-bold text-[#0B132B] dark:text-white pt-1">
+
+                <h2 className="text-lg sm:text-xl font-bold font-serif text-[#0B132B] dark:text-white pt-1">
                   {searchedCase.caseTitle}
                 </h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  موکل: {searchedCase.clientName} | مرجع رسیدگی: {searchedCase.courtBranch}
-                </p>
+
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400 pt-1">
+                  <span>موکل: <strong className="text-gray-800 dark:text-gray-200">{searchedCase.clientName}</strong></span>
+                  <span>|</span>
+                  <span>مرجع: <strong className="text-gray-800 dark:text-gray-200">{searchedCase.courtBranch}</strong></span>
+                  <span>|</span>
+                  <span>قاضی رسیدگی‌کننده: {searchedCase.judgeName}</span>
+                </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#070D1E] border border-gray-200 dark:border-gray-800 space-y-1 text-center md:text-right shrink-0">
-                <span className="text-[11px] text-gray-400 block">
-                  موعد جلسه بعدی دادگاه:
-                </span>
-                <span className="text-xs font-bold text-[#D4AF37] block">
-                  {searchedCase.nextHearing}
-                </span>
+              {/* Hearing Countdown Box */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#0B132B] to-[#1C2541] border border-[#D4AF37]/40 text-white space-y-2 text-center shrink-0 min-w-[240px] shadow-lg">
+                <div className="flex items-center justify-center gap-1.5 text-xs text-[#D4AF37] font-bold">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>موعد جلسه بعدی دادگاه:</span>
+                </div>
+                <div className="text-sm font-bold font-mono">
+                  {searchedCase.nextHearingDate}
+                </div>
+                <div className="text-[11px] text-gray-300">
+                  ساعت: {searchedCase.nextHearingTime}
+                </div>
+                {searchedCase.hearingDaysRemaining > 0 ? (
+                  <div className="inline-block px-3 py-1 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/30">
+                    {searchedCase.hearingDaysRemaining} روز مانده تا وقت دادگاه
+                  </div>
+                ) : (
+                  <div className="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30">
+                    پرونده مختومه یا اجرای احکام
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Timeline Steps */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-[#0B132B] dark:text-white flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#D4AF37]" />
-                <span>تایم‌لاین گام‌های اجرایی و دادرسی پرونده:</span>
-              </h3>
+            {/* Attorney Summary Box */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#AA820A] dark:text-[#F3E5AB]">
+                <UserCheck className="w-4 h-4" />
+                <span>گزارش تحلیلی وکیل سرپرست (دکتر سیده مریم رضوی):</span>
+              </div>
+              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-200 leading-relaxed">
+                {searchedCase.attorneySummary}
+              </p>
+            </div>
 
-              <div className="space-y-6 relative before:absolute before:right-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-gray-200 dark:before:bg-gray-800 pr-2">
+            {/* Visual Judicial Timeline */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-[#0B132B] dark:text-white flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-[#D4AF37]" />
+                  <span>مراحل طی‌شده دادرسی در شعب دادگستری:</span>
+                </h3>
+                <span className="text-xs text-gray-400">
+                  مرحله {searchedCase.steps.filter((s) => s.completed).length} از {searchedCase.steps.length}
+                </span>
+              </div>
+
+              <div className="space-y-4 relative before:absolute before:right-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-gray-200 dark:before:bg-gray-800 pr-2">
                 {searchedCase.steps.map((step, idx) => (
                   <div key={idx} className="relative flex items-start gap-4">
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 font-bold text-xs ${
                         step.completed
-                          ? 'bg-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.5)]'
+                          ? 'bg-emerald-500 text-white shadow-[0_0_12px_rgba(16,185,129,0.5)]'
                           : step.current
                           ? 'bg-[#D4AF37] text-[#0B132B] ring-4 ring-[#D4AF37]/30'
                           : 'bg-gray-300 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                       }`}
                     >
-                      {step.completed ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
+                      {step.completed ? <Check className="w-4 h-4 stroke-[3]" /> : idx + 1}
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#070D1E] border border-gray-200 dark:border-gray-800 flex-1 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-bold text-xs text-[#0B132B] dark:text-white">
-                          {step.title}
-                        </h4>
+                    <div className={`p-4 rounded-2xl border flex-1 space-y-1.5 transition-all ${
+                      step.current
+                        ? 'bg-[#D4AF37]/5 border-[#D4AF37]/40 ring-1 ring-[#D4AF37]/30'
+                        : 'bg-gray-50 dark:bg-[#070D1E] border-gray-200 dark:border-gray-800'
+                    }`}>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-xs text-[#0B132B] dark:text-white">
+                            {step.title}
+                          </h4>
+                          {step.stageName && (
+                            <span className="px-2 py-0.5 rounded-md bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-[10px] font-bold">
+                              {step.stageName}
+                            </span>
+                          )}
+                        </div>
                         <span className="text-[10px] text-gray-400 font-mono">
                           {step.date}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+
+                      <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                         {step.description}
                       </p>
+
+                      {step.courtActionCode && (
+                        <div className="text-[10px] font-mono text-gray-400 pt-1">
+                          شناسه ثنایی اقدام: {step.courtActionCode}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Actions for this case */}
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-4">
-              <button
-                onClick={() => alert('نسخه الکترونیک آخرین لایحه با موفقیت دریافت شد.')}
-                className="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-[#D4AF37] text-xs font-bold flex items-center gap-2 border border-gray-200 dark:border-gray-700 transition-colors"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>دانلود پی‌دی‌اف آخرین لایحه تنظیمی</span>
-              </button>
+            {/* Official Judicial Documents Vault */}
+            {searchedCase.documents && searchedCase.documents.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <h3 className="text-sm font-bold text-[#0B132B] dark:text-white flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-blue-500" />
+                  <span>اسناد و لوایح ابلاغ‌شده این پرونده (امضای دیجیتال وکیل):</span>
+                </h3>
 
-              <button
-                onClick={onBookConsultation}
-                className="btn-gold px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md hover:scale-105 transition-all"
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                <span>درخواست وقت ملاقات حضوری برای این پرونده</span>
-              </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {searchedCase.documents.map((doc, dIdx) => (
+                    <div
+                      key={dIdx}
+                      className="p-3.5 rounded-2xl bg-gray-50 dark:bg-[#070D1E] border border-gray-200 dark:border-gray-800 flex items-center justify-between gap-3 hover:border-[#D4AF37]/50 transition-all"
+                    >
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[10px] font-mono font-bold">
+                            {doc.type}
+                          </span>
+                          <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate block">
+                            {doc.title}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-gray-400 font-mono">
+                          {doc.date} • {doc.fileSize}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setActiveDocPreview(doc)}
+                        className="p-2 rounded-xl bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#060B18] transition-colors cursor-pointer shrink-0"
+                        title="مشاهده سند"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Bottom Actions */}
+            <div className="pt-6 border-t border-gray-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleSendSmsAlert}
+                  className="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-[#D4AF37] text-xs font-bold flex items-center gap-2 border border-gray-200 dark:border-gray-700 transition-colors cursor-pointer"
+                >
+                  <Bell className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{simulatedSmsSent ? 'پیامک وضعیت ارسال شد' : 'فعال‌سازی اطلاع‌رسانی پیامکی ثنا'}</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={onBookConsultation}
+                  className="btn-gold px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md hover:scale-105 transition-all cursor-pointer"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>درخواست جلسه فوری با وکیل پیرامون این پرونده</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Document Preview Modal */}
+        {activeDocPreview && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-white dark:bg-[#0B132B] rounded-3xl p-6 max-w-lg w-full border-2 border-[#D4AF37]/40 shadow-2xl space-y-4 text-right">
+              <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-[#D4AF37]" />
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                    {activeDocPreview.title}
+                  </h4>
+                </div>
+                <button
+                  onClick={() => setActiveDocPreview(null)}
+                  className="p-1 rounded-lg text-gray-400 hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="p-4 rounded-xl bg-gray-50 dark:bg-[#070D1E] border border-gray-200 dark:border-gray-800 space-y-2 text-xs text-gray-600 dark:text-gray-300">
+                <p><strong>تاریخ ثبت در سیستم:</strong> {activeDocPreview.date}</p>
+                <p><strong>حجم فایل:</strong> {activeDocPreview.fileSize}</p>
+                <p className="font-mono text-[11px]"><strong>شناسه امضای امن:</strong> {activeDocPreview.securityHash}</p>
+                <p className="text-emerald-500 font-bold">✓ دارای امضای الکترونیک معتبر کانون وکلای دادگستری مرکز</p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  onClick={() => setActiveDocPreview(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  بستن پنجره
+                </button>
+                <button
+                  onClick={() => {
+                    alert(`فایل ${activeDocPreview.title} با موفقیت دانلود شد.`);
+                    setActiveDocPreview(null);
+                  }}
+                  className="btn-gold px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  دانلود نسخه رسمی PDF
+                </button>
+              </div>
             </div>
           </div>
         )}

@@ -15,9 +15,27 @@ interface FooterProps {
   onOpenPhase10?: () => void;
   onOpenPhase11?: () => void;
   onOpenPhase12?: () => void;
+  onOpenPhase13?: () => void;
+  onOpenPhase14?: () => void;
+  onOpenPhase15?: () => void;
+  onOpenPhase16?: () => void;
+  onOpenPhase17?: () => void;
+  onOpenPhase18?: () => void;
+  onOpenPhase19?: () => void;
+  onOpenPhase20?: () => void;
+  onOpenPhase21?: () => void;
+  onOpenPhase22?: () => void;
+  onOpenPhase23?: () => void;
+  onOpenPhase24?: () => void;
+  onOpenPhase25?: () => void;
+  onOpenPhase26?: () => void;
+  onOpenPhase27?: () => void;
+  onOpenPhase28?: () => void;
+  onOpenPhase29?: () => void;
+  onOpenPhase30?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ profile, onOpenFinance, onOpenPhase5, onOpenPhase6, onOpenPhase7, onOpenPhase8, onOpenPhase9, onOpenPhase10, onOpenPhase11, onOpenPhase12 }) => {
+export const Footer: React.FC<FooterProps> = ({ profile, onOpenFinance, onOpenPhase5, onOpenPhase6, onOpenPhase7, onOpenPhase8, onOpenPhase9, onOpenPhase10, onOpenPhase11, onOpenPhase12, onOpenPhase13, onOpenPhase14, onOpenPhase15, onOpenPhase16, onOpenPhase17, onOpenPhase18, onOpenPhase19, onOpenPhase20, onOpenPhase21, onOpenPhase22, onOpenPhase23, onOpenPhase24, onOpenPhase25, onOpenPhase26, onOpenPhase27, onOpenPhase28, onOpenPhase29, onOpenPhase30 }) => {
   const brandName = profile?.siteTitle || 'SedRazavi';
   const lawyerName = profile?.lawyerName || ATTORNEY_INFO.name;
   const address = profile?.officeAddress || ATTORNEY_INFO.officeAddress;
@@ -191,6 +209,186 @@ export const Footer: React.FC<FooterProps> = ({ profile, onOpenFinance, onOpenPh
                     className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-[#D4AF37] font-bold"
                   >
                     <span className="text-[#D4AF37]">🏢</span> دعاوی ملکی، سرقفلی و مشارکت در ساخت (فاز ۱۲)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase13 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase13}
+                    className="hover:text-rose-400 transition-colors flex items-center gap-2 text-right text-rose-400 font-bold"
+                  >
+                    <span className="text-rose-400">👨‍👩‍👧‍👦</span> ارث، مهریه و حقوق خانواده (فاز ۱۳)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase14 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase14}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-[#D4AF37] font-bold"
+                  >
+                    <span className="text-[#D4AF37]">📊</span> اتوماسیون اداری، کانبان و کتابخانه لوایح (فاز ۱۴)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase15 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase15}
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2 text-right text-emerald-400 font-bold"
+                  >
+                    <span className="text-emerald-400">🏛️</span> دیوان عدالت اداری، شهرداری و امور استخدامی (فاز ۱۵)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase16 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase16}
+                    className="hover:text-blue-400 transition-colors flex items-center gap-2 text-right text-blue-400 font-bold"
+                  >
+                    <span className="text-blue-400">🔑</span> احراز هویت دوحالته وکلای دفتر و 2FA (فاز ۱۶)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase17 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase17}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-[#D4AF37] font-bold"
+                  >
+                    <span className="text-[#D4AF37]">🔄</span> اتصال یکپارچه دو پنل، SSO و همگام‌سازی داده (فاز ۱۷)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase18 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase18}
+                    className="hover:text-rose-400 transition-colors flex items-center gap-2 text-right text-rose-400 font-bold"
+                  >
+                    <span className="text-rose-400">🛡️</span> مخفی‌سازی صفحات فنی ادمین و سئو (فاز ۱۸)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase19 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase19}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-[#D4AF37] font-bold"
+                  >
+                    <span className="text-[#D4AF37]">🎨</span> مخزن ۲۴ متغیر سراسری پوسته و Design Tokens (فاز ۱۹)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase20 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase20}
+                    className="hover:text-amber-400 transition-colors flex items-center gap-2 text-right text-amber-400 font-bold"
+                  >
+                    <span className="text-amber-400">🔍</span> سامانه پیشرفته جستجو و فیلتر آژاکس (فاز ۲۰)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase21 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase21}
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2 text-right text-emerald-400 font-bold"
+                  >
+                    <span className="text-emerald-400">⚖️</span> پیش‌بینی هوشمند برد و تحلیل ریسک دادرسی (فاز ۲۱)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase22 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase22}
+                    className="hover:text-blue-400 transition-colors flex items-center gap-2 text-right text-blue-400 font-bold"
+                  >
+                    <span className="text-blue-400">🏗️</span> دعاوی پیمانکاری، EPC و فیدیک (فاز ۲۲)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase23 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase23}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-[#D4AF37] font-bold"
+                  >
+                    <span className="text-[#D4AF37]">🌐</span> داوری بین‌المللی و کنوانسیون نیویورک (فاز ۲۳)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase24 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase24}
+                    className="hover:text-purple-400 transition-colors flex items-center gap-2 text-right text-purple-400 font-bold"
+                  >
+                    <span className="text-purple-400">📖</span> تنقیح قوانین و آرای وحدت رویه (فاز ۲۴)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase25 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase25}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-[#D4AF37] font-bold"
+                  >
+                    <span className="text-[#D4AF37]">📑</span> گاوصندوق پیش‌نویس قراردادهای دوزبانه (فاز ۲۵)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase26 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase26}
+                    className="hover:text-amber-400 transition-colors flex items-center gap-2 text-right text-amber-400 font-bold"
+                  >
+                    <span className="text-amber-400">📊</span> دعاوی مالیاتی، مودیان و پایانه‌های فروشگاهی (فاز ۲۶)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase27 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase27}
+                    className="hover:text-cyan-400 transition-colors flex items-center gap-2 text-right text-cyan-400 font-bold"
+                  >
+                    <span className="text-cyan-400">👷</span> حقوق کار، بیمه و هیئت‌های تشخیص (فاز ۲۷)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase28 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase28}
+                    className="hover:text-rose-400 transition-colors flex items-center gap-2 text-right text-rose-400 font-bold"
+                  >
+                    <span className="text-rose-400">⚖️</span> دفاع در جرایم اقتصادی، بورس و پولشویی (فاز ۲۸)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase29 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase29}
+                    className="hover:text-sky-400 transition-colors flex items-center gap-2 text-right text-sky-400 font-bold"
+                  >
+                    <span className="text-sky-400">🚢</span> دعاوی گمرکی، قاچاق کالا و ارز و ترانزیت (فاز ۲۹)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase30 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase30}
+                    className="hover:text-purple-400 transition-colors flex items-center gap-2 text-right text-purple-400 font-bold"
+                  >
+                    <span className="text-purple-400">👥</span> مرکز CRM موکلین و آلارم جلسات دادگاه (فاز ۳۰)
                   </button>
                 </li>
               )}

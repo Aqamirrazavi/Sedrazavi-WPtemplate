@@ -228,7 +228,74 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
       {activeSubTab === 'light' && (
         <div className="space-y-6">
           <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200">
-            <strong>راهنما:</strong> این تنظیمات برای تم روشن (پالت روز) اعمال می‌شود و حالتی رسمی، باوقار و مانند سنگ‌های مرمری دادگستری ایجاد می‌کند.
+            <strong>راهنما:</strong> این تنظیمات برای تم روشن (پالت روز) اعمال می‌شود. می‌توانید یکی از ۵ پالت رسمی آماده SedRazavi را با یک کلیک انتخاب نموده یا مقادیر را اختصاصی ویرایش کنید.
+          </div>
+
+          {/* 5 Ready Day Palettes (Part 2.1) */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+              انتخاب سریع از میان ۵ پالت آماده روز (SPEC Part 2.1):
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+              {[
+                {
+                  id: 'classic-day',
+                  title: '۱. کلاسیک SedRazavi (پیش‌فرض)',
+                  desc: 'سرمه‌ای + طلایی',
+                  colors: { bg: '#F4F6F9', text: '#1C2541', goldPrimary: '#D4AF37', goldSecondary: '#B8960F', border: '#E0E4EC' },
+                },
+                {
+                  id: 'modern-day',
+                  title: '۲. مدرن',
+                  desc: 'آبی نفتی + سفید',
+                  colors: { bg: '#FFFFFF', text: '#2C3E50', goldPrimary: '#3498DB', goldSecondary: '#2980B9', border: '#DEE2E6' },
+                },
+                {
+                  id: 'warm-day',
+                  title: '۳. گرم',
+                  desc: 'قهوه‌ای + کرم + طلایی',
+                  colors: { bg: '#FDF6E3', text: '#5D4037', goldPrimary: '#D4AF37', goldSecondary: '#B8960F', border: '#E8DCC8' },
+                },
+                {
+                  id: 'minimal-day',
+                  title: '۴. مینیمال',
+                  desc: 'مشکی + سفید',
+                  colors: { bg: '#FAFAFA', text: '#212121', goldPrimary: '#000000', goldSecondary: '#424242', border: '#E0E0E0' },
+                },
+                {
+                  id: 'luxury-day',
+                  title: '۵. لوکس',
+                  desc: 'بنفش سلطنتی + زرین',
+                  colors: { bg: '#F3E5F5', text: '#4A148C', goldPrimary: '#FFD700', goldSecondary: '#FFA000', border: '#E1BEE7' },
+                },
+              ].map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() =>
+                    setAppearance({
+                      ...appearance,
+                      lightPalette: preset.colors,
+                    })
+                  }
+                  className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-[#D4AF37] bg-white dark:bg-gray-800 text-right transition-all group flex flex-col justify-between"
+                >
+                  <div>
+                    <span className="block text-[11px] font-bold text-gray-800 dark:text-white group-hover:text-[#D4AF37]">
+                      {preset.title}
+                    </span>
+                    <span className="block text-[10px] text-gray-400 mt-0.5">
+                      {preset.desc}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 mt-2.5 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <span className="w-4 h-4 rounded-full border border-gray-300" style={{ backgroundColor: preset.colors.bg }} title="پس‌زمینه" />
+                    <span className="w-4 h-4 rounded-full border border-gray-300" style={{ backgroundColor: preset.colors.text }} title="متن" />
+                    <span className="w-4 h-4 rounded-full border border-gray-300" style={{ backgroundColor: preset.colors.goldPrimary }} title="تأکیدی" />
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -389,7 +456,74 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
       {activeSubTab === 'dark' && (
         <div className="space-y-6">
           <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-900 dark:text-indigo-200">
-            <strong>راهنما:</strong> پالت شب سلطنتی با ترکیب سرمه‌ای تیره عمیق (#070D1E) و کارت‌های لاکچری (#0B132B) همراه با درخشش طلایی.
+            <strong>راهنما:</strong> پالت‌های حالت شب (Dark Mode). می‌توانید از میان ۵ پالت آماده منطبق با استانداردهای SedRazavi انتخاب نموده یا مقادیر را تنظیم فرمایید.
+          </div>
+
+          {/* 5 Ready Dark Palettes (Part 2.1) */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+              انتخاب سریع از میان ۵ پالت آماده شب (SPEC Part 2.1):
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+              {[
+                {
+                  id: 'classic-night',
+                  title: '۱. کلاسیک شب (پیش‌فرض)',
+                  desc: 'سرمه‌ای تیره + طلایی',
+                  colors: { bg: '#0B132B', cardBg: '#1A2A4A', text: '#E8ECF1', goldPrimary: '#D4AF37', goldGlow: 'rgba(212, 175, 55, 0.4)' },
+                },
+                {
+                  id: 'modern-night',
+                  title: '۲. مدرن شب',
+                  desc: 'آبی تیره + نفتی روشن',
+                  colors: { bg: '#1A1A2E', cardBg: '#252540', text: '#EAEAEA', goldPrimary: '#3498DB', goldGlow: 'rgba(52, 152, 219, 0.4)' },
+                },
+                {
+                  id: 'warm-night',
+                  title: '۳. گرم شب',
+                  desc: 'قهوه‌ای تیره + طلایی گرم',
+                  colors: { bg: '#2D1B0E', cardBg: '#3D2817', text: '#F5E6D3', goldPrimary: '#D4A574', goldGlow: 'rgba(212, 165, 116, 0.4)' },
+                },
+                {
+                  id: 'minimal-night',
+                  title: '۴. مینیمال شب',
+                  desc: 'مشکی + خاکستری روشن',
+                  colors: { bg: '#121212', cardBg: '#1E1E1E', text: '#E0E0E0', goldPrimary: '#FFFFFF', goldGlow: 'rgba(255, 255, 255, 0.3)' },
+                },
+                {
+                  id: 'luxury-night',
+                  title: '۵. لوکس شب',
+                  desc: 'بنفش عمیق + طلایی درخشان',
+                  colors: { bg: '#1A0B2E', cardBg: '#2A1545', text: '#E8D5F0', goldPrimary: '#FFD700', goldGlow: 'rgba(255, 215, 0, 0.45)' },
+                },
+              ].map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() =>
+                    setAppearance({
+                      ...appearance,
+                      darkPalette: preset.colors,
+                    })
+                  }
+                  className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-[#D4AF37] bg-white dark:bg-gray-800 text-right transition-all group flex flex-col justify-between"
+                >
+                  <div>
+                    <span className="block text-[11px] font-bold text-gray-800 dark:text-white group-hover:text-[#D4AF37]">
+                      {preset.title}
+                    </span>
+                    <span className="block text-[10px] text-gray-400 mt-0.5">
+                      {preset.desc}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 mt-2.5 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.colors.bg }} title="پس‌زمینه" />
+                    <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.colors.cardBg }} title="کارت‌ها" />
+                    <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.colors.goldPrimary }} title="تأکیدی" />
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

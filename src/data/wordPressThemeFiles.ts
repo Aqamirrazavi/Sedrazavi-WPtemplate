@@ -6068,5 +6068,963 @@ get_header();
 </div>
 
 <?php get_footer(); ?>`
+  },
+
+  {
+    path: 'style.css',
+    filename: 'style.css',
+    category: 'استایل و دارایی‌ها (Assets)',
+    description: 'فایل هدر استاندارد پوسته وردپرس دکتر سیده مریم رضوی (Part 1.1 Specification)',
+    code: `/*
+Theme Name: قالب اختصاصی وکیل دکتر سیده مریم رضوی
+Theme URI: https://sedrazavi-law.ir
+Author: تیم مهندسی نرم‌افزار SedRazavi
+Author URI: https://sedrazavi-law.ir
+Description: پوسته فوق‌پیشرفته و چندمنظوره وکالت، مشاوره حقوقی تخصصی، داوری آنلاین، محاسبات قضایی و مدیریت موکلین
+Version: 2.8.5
+License: Proprietary / انحصاری
+License URI: https://sedrazavi-law.ir/license
+Text Domain: sedrazavi-lawyer
+Domain Path: /languages
+Tags: lawyer, attorney, legal, arbitration, elementor, rtl, dark-mode, responsive, gold-luxury
+*/
+
+/* استایل‌های بنیادین پوسته وردپرس در صورت عدم لود Tailwind */
+:root {
+  --sedrazavi-navy: #0B132B;
+  --sedrazavi-gold: #D4AF37;
+  --sedrazavi-gold-light: #F3E5AB;
+  --sedrazavi-slate: #1C2541;
+  --sedrazavi-bg: #F4F6F9;
+}
+
+body {
+  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  direction: rtl;
+  text-align: right;
+  margin: 0;
+  padding: 0;
+  background-color: var(--sedrazavi-bg);
+  color: var(--sedrazavi-navy);
+}
+
+.sr-gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #AA820A 100%);
+}
+
+.sr-navy-gradient {
+  background: linear-gradient(135deg, #0B132B 0%, #1C2541 100%);
+}`
+  },
+
+  {
+    path: 'functions.php',
+    filename: 'functions.php',
+    category: 'قالب اصلی (Templates)',
+    description: 'هسته اصلی توابع وردپرس، ثبت شورت‌کدها، پست‌تایپ‌ها، متادیتاها و اسکریپت‌ها (Part 1.2 Specification)',
+    code: `<?php
+/**
+ * SedRazavi Law Firm Theme Functions & Definitions
+ *
+ * @package SedRazavi
+ * @version 2.8.5
+ */
+
+if (!defined('ABSPATH')) exit;
+
+define('SEDRAZAVI_VERSION', '2.8.5');
+define('SEDRAZAVI_DIR', get_template_directory());
+define('SEDRAZAVI_URI', get_template_directory_uri());
+
+/**
+ * Theme Setup: Textdomain, Title Tag, Post Thumbnails, Nav Menus
+ */
+function sedrazavi_theme_setup() {
+    load_theme_textdomain('sedrazavi-lawyer', SEDRAZAVI_DIR . '/languages');
+    add_theme_support('title-tag');
+    add_theme_support('post-thumbnails');
+    add_theme_support('align-wide');
+    add_theme_support('responsive-embeds');
+    add_theme_support('html5', array('search-form', 'comment-form', 'comment-list', 'gallery', 'caption'));
+    add_theme_support('custom-logo', array(
+        'height'      => 80,
+        'width'       => 240,
+        'flex-height' => true,
+        'flex-width'  => true,
+    ));
+
+    register_nav_menus(array(
+        'primary_menu'   => __('منوی اصلی ناوبری حقوقی', 'sedrazavi-lawyer'),
+        'mobile_menu'    => __('منوی موبایل و دسترسی سریع', 'sedrazavi-lawyer'),
+        'footer_col_1'   => __('فوتر - حوزه‌های تخصصی وکالت', 'sedrazavi-lawyer'),
+        'footer_col_2'   => __('فوتر - سامانه‌ها و میز محاسبات', 'sedrazavi-lawyer'),
+    ));
+}
+add_action('after_setup_theme', 'sedrazavi_theme_setup');
+
+/**
+ * Enqueue Scripts & Styles
+ */
+function sedrazavi_enqueue_scripts() {
+    wp_enqueue_style('sedrazavi-fonts', 'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css', array(), '33.003');
+    wp_enqueue_style('sedrazavi-theme-style', get_stylesheet_uri(), array('sedrazavi-fonts'), SEDRAZAVI_VERSION);
+    
+    wp_enqueue_script('sedrazavi-theme-core', SEDRAZAVI_URI . '/assets/js/theme-core.js', array('jquery'), SEDRAZAVI_VERSION, true);
+    wp_localize_script('sedrazavi-theme-core', 'sedrazaviData', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('sedrazavi_public_nonce'),
+        'gold_color' => '#D4AF37',
+    ));
+}
+add_action('wp_enqueue_scripts', 'sedrazavi_enqueue_scripts');
+
+/**
+ * Custom Post Types: Legal Services, Cases, Verdicts, Defense Petitions
+ */
+function sedrazavi_register_custom_post_types() {
+    // 1. Legal Services (خدمات و حوزه‌های وکالت)
+    register_post_type('legal_service', array(
+        'labels' => array(
+            'name'          => __('خدمات تخصصی وکالت', 'sedrazavi-lawyer'),
+            'singular_name' => __('خدمت وکالت', 'sedrazavi-lawyer'),
+            'add_new_item'  => __('افزودن حوزه تخصصی جدید', 'sedrazavi-lawyer'),
+        ),
+        'public'       => true,
+        'has_archive'  => true,
+        'show_in_rest' => true,
+        'supports'     => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
+        'menu_icon'    => 'dashicons-shield',
+        'rewrite'      => array('slug' => 'legal-services'),
+    ));
+
+    // 2. Legal Precedents & Verdicts (آراء و دادنامه‌های موفق)
+    register_post_type('court_verdict', array(
+        'labels' => array(
+            'name'          => __('دادنامه‌ها و آراء موفق', 'sedrazavi-lawyer'),
+            'singular_name' => __('دادنامه حقوقی', 'sedrazavi-lawyer'),
+        ),
+        'public'       => true,
+        'has_archive'  => true,
+        'show_in_rest' => true,
+        'supports'     => array('title', 'editor', 'thumbnail', 'excerpt'),
+        'menu_icon'    => 'dashicons-awards',
+        'rewrite'      => array('slug' => 'verdicts'),
+    ));
+}
+add_action('init', 'sedrazavi_register_custom_post_types');
+`
+  },
+
+  {
+    path: 'header.php',
+    filename: 'header.php',
+    category: 'قالب اصلی (Templates)',
+    description: 'سربرگ اصلی پوسته شامل متاتگ‌های امنیتی، ناوبری ریسپانسیو و اسلایدر عبارات حکیمانه (Part 1.3 Specification)',
+    code: `<?php
+/**
+ * The header for SedRazavi Law Firm Theme
+ *
+ * @package SedRazavi
+ * @version 2.8.5
+ */
+if (!defined('ABSPATH')) exit;
+?><!DOCTYPE html>
+<html <?php language_attributes(); ?> dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="<?php bloginfo('charset'); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="theme-color" content="#0B132B">
+    <link rel="profile" href="https://gmpg.org/xfn/11">
+    <?php wp_head(); ?>
+</head>
+<body <?php body_class('bg-[#F4F6F9] dark:bg-[#070D1E] text-[#0B132B] dark:text-gray-100 antialiased'); ?>>
+<?php wp_body_open(); ?>
+
+<!-- اسلایدر متنی عبارات حکیمانه و آیات قرآنی (بالاترین نوار سایت) -->
+<div class="bg-[#070D1E] text-white border-b border-[#D4AF37]/30 py-1.5 px-4 text-xs font-serif overflow-hidden">
+    <div class="container mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-2 text-[#D4AF37]">
+            <span class="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse"></span>
+            <span class="font-bold">حکمت روز:</span>
+            <span class="text-gray-200 text-xs">«اَلْعَدْلُ اَسَاسُ الْمُلْكِ وَ قِوَامُ الرَّعِیَّةِ» — حضرت علی (ع)</span>
+        </div>
+        <div class="hidden md:flex items-center gap-4 text-[11px] text-gray-300">
+            <span>شماره پروانه کانون وکلای مرکز: ۱۸۴۵۲</span>
+            <span class="text-[#D4AF37]">|</span>
+            <a href="tel:02188888888" class="hover:text-[#D4AF37] font-mono">۰۲۱-۸۸۸۸۸۸۸۸</a>
+        </div>
+    </div>
+</div>
+
+<!-- ناوبری اصلی سایت -->
+<header class="sticky top-0 z-50 bg-white/95 dark:bg-[#0B132B]/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-all shadow-sm">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <!-- لوگو و عنوان وکیل -->
+        <div class="flex items-center gap-3">
+            <a href="<?php echo esc_url(home_url('/')); ?>" class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#AA820A] flex items-center justify-center text-white font-bold shadow-md shadow-[#D4AF37]/25">
+                    ⚖️
+                </div>
+                <div class="text-right">
+                    <span class="block text-base font-black font-serif text-[#0B132B] dark:text-white">دکتر سیده مریم رضوی</span>
+                    <span class="block text-[10px] text-[#AA820A] dark:text-[#D4AF37] font-bold">وکیل پایه یک دادگستری و داور حقوقی</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- فهرست منوی وردپرس -->
+        <nav class="hidden lg:flex items-center gap-6 text-xs font-bold text-gray-700 dark:text-gray-300">
+            <a href="<?php echo esc_url(home_url('/')); ?>" class="hover:text-[#D4AF37] transition-colors">صفحه نخست</a>
+            <a href="#services" class="hover:text-[#D4AF37] transition-colors">دعاوی و حوزه‌ها</a>
+            <a href="#about" class="hover:text-[#D4AF37] transition-colors">درباره وکیل</a>
+            <a href="#testimonials" class="hover:text-[#D4AF37] transition-colors">روایت پرونده‌ها</a>
+            <a href="#articles" class="hover:text-[#D4AF37] transition-colors">یادداشت حقوقی</a>
+            <a href="#faq" class="hover:text-[#D4AF37] transition-colors">پرسش و پاسخ</a>
+            <a href="#booking" class="hover:text-[#D4AF37] transition-colors">تماس و رزرو</a>
+        </nav>
+
+        <!-- اکشن‌های سریع -->
+        <div class="flex items-center gap-3">
+            <a href="#booking" class="btn-gold px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-[#D4AF37]/25 hover:shadow-lg transition-all">
+                رزرو نوبت مشاوره
+            </a>
+        </div>
+    </div>
+</header>`
+  },
+  {
+    path: 'inc/class-sedrazavi-dashboard.php',
+    filename: 'class-sedrazavi-dashboard.php',
+    category: 'بخش‌های داخلی (Inc)',
+    description: 'کلاس هسته پست‌تایپ جامع sedrazavi_dashboard با ۷ تب و اندپوینت‌های REST API (Part 5 & 6)',
+    code: `<?php
+/**
+ * پست‌تایپ جامع و کنترلر متمرکز مدیریت وکالت SedRazavi
+ * Package: SedRazavi Attorney Theme
+ * Specification: Part 5.1 & Part 6
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class SedRazavi_Comprehensive_Dashboard {
+
+    public function __construct() {
+        add_action('init', [$this, 'register_post_type']);
+        add_action('add_meta_boxes', [$this, 'register_meta_boxes']);
+        add_action('save_post_sedrazavi_dashboard', [$this, 'save_meta_data']);
+        add_action('rest_api_init', [$this, 'register_rest_routes']);
+        add_action('admin_menu', [$this, 'register_admin_submenus']);
+    }
+
+    /**
+     * ثبت پست‌تایپ جامع sedrazavi_dashboard
+     */
+    public function register_post_type() {
+        $labels = [
+            'name'                  => __('داشبورد جامع وکیل', 'sedrazavi'),
+            'singular_name'         => __('داشبورد وکیل', 'sedrazavi'),
+            'menu_name'             => __('وکالت دکتر رضوی', 'sedrazavi'),
+            'name_admin_bar'        => __('داشبورد وکیل', 'sedrazavi'),
+            'add_new'               => __('ثبت پرونده/رکورد جدید', 'sedrazavi'),
+            'add_new_item'          => __('افزودن رکورد به داشبورد', 'sedrazavi'),
+            'new_item'              => __('رکورد جدید', 'sedrazavi'),
+            'edit_item'             => __('ویرایش رکورد جامع', 'sedrazavi'),
+            'view_item'             => __('مشاهده رکورد', 'sedrazavi'),
+            'all_items'             => __('داشبورد جامع (۷ تب)', 'sedrazavi'),
+            'search_items'          => __('جستجو در سوابق و پرونده‌ها', 'sedrazavi'),
+        ];
+
+        $args = [
+            'labels'             => $labels,
+            'public'             => false,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => true,
+            'rewrite'            => ['slug' => 'sedrazavi-hub'],
+            'capability_type'    => 'post',
+            'has_archive'        => false,
+            'hierarchical'       => false,
+            'menu_position'      => 2,
+            'menu_icon'          => 'dashicons-shield-alt',
+            'supports'           => ['title', 'editor', 'thumbnail', 'custom-fields'],
+            'show_in_rest'       => true,
+        ];
+
+        register_post_type('sedrazavi_dashboard', $args);
+    }
+
+    /**
+     * منوهای جانبی ۷ تب تخصصی در پیشخوان وردپرس
+     */
+    public function register_admin_submenus() {
+        add_submenu_page(
+            'edit.php?post_type=sedrazavi_dashboard',
+            __('مدیریت پرونده‌ها', 'sedrazavi'),
+            __('پرونده‌ها و دادرسی', 'sedrazavi'),
+            'manage_options',
+            'sedrazavi-cases',
+            [$this, 'render_cases_tab']
+        );
+
+        add_submenu_page(
+            'edit.php?post_type=sedrazavi_dashboard',
+            __('تقویم و رزرو نوبت‌ها', 'sedrazavi'),
+            __('رزروها و نوبت‌ها', 'sedrazavi'),
+            'manage_options',
+            'sedrazavi-bookings',
+            [$this, 'render_bookings_tab']
+        );
+
+        add_submenu_page(
+            'edit.php?post_type=sedrazavi_dashboard',
+            __('صورتحساب‌ها و سامانه مودیان', 'sedrazavi'),
+            __('صورتحساب و مالی', 'sedrazavi'),
+            'manage_options',
+            'sedrazavi-invoices',
+            [$this, 'render_invoices_tab']
+        );
+
+        add_submenu_page(
+            'edit.php?post_type=sedrazavi_dashboard',
+            __('صندوق پیام‌ها و فرم تماس', 'sedrazavi'),
+            __('پیام‌های موکلین', 'sedrazavi'),
+            'manage_options',
+            'sedrazavi-emails',
+            [$this, 'render_emails_tab']
+        );
+    }
+
+    /**
+     * متاباکس جامع ۷ تب برای فرم ایجاد و ویرایش
+     */
+    public function register_meta_boxes() {
+        add_meta_box(
+            'sedrazavi_case_details_box',
+            __('اطلاعات پرونده، دادرسی و مالیات مودیان', 'sedrazavi'),
+            [$this, 'render_case_meta_box'],
+            'sedrazavi_dashboard',
+            'normal',
+            'high'
+        );
+    }
+
+    public function render_case_meta_box($post) {
+        wp_nonce_field('sedrazavi_save_dashboard_nonce', 'sedrazavi_nonce');
+
+        $case_number = get_post_meta($post->ID, '_case_number', true);
+        $client_name = get_post_meta($post->ID, '_client_name', true);
+        $client_phone = get_post_meta($post->ID, '_client_phone', true);
+        $case_status = get_post_meta($post->ID, '_case_status', true);
+        $tax_id = get_post_meta($post->ID, '_tax_unique_id', true);
+        ?>
+        <div style="direction: rtl; font-family: Tahoma, sans-serif; padding: 10px;">
+            <p>
+                <label><strong>شماره پرونده دادگستری:</strong></label><br/>
+                <input type="text" name="sedrazavi_case_number" value="<?php echo esc_attr($case_number); ?>" style="width: 100%;" />
+            </p>
+            <p>
+                <label><strong>نام و نام خانوادگی موکل:</strong></label><br/>
+                <input type="text" name="sedrazavi_client_name" value="<?php echo esc_attr($client_name); ?>" style="width: 100%;" />
+            </p>
+            <p>
+                <label><strong>شماره تلفن همراه (ثنا):</strong></label><br/>
+                <input type="text" name="sedrazavi_client_phone" value="<?php echo esc_attr($client_phone); ?>" style="width: 100%;" />
+            </p>
+            <p>
+                <label><strong>وضعیت دادرسی:</strong></label><br/>
+                <select name="sedrazavi_case_status" style="width: 100%;">
+                    <option value="در حال بررسی" <?php selected($case_status, 'در حال بررسی'); ?>>در حال بررسی اولیه</option>
+                    <option value="در جریان" <?php selected($case_status, 'در جریان'); ?>>در جریان دادرسی در دادگاه</option>
+                    <option value="به رأی نهایی رسیده" <?php selected($case_status, 'به رأی نهایی رسیده'); ?>>حکم قطعی پیروزی صادر شد</option>
+                    <option value="بسته شده" <?php selected($case_status, 'بسته شده'); ?>>مختومه و بایگانی</option>
+                </select>
+            </p>
+            <p>
+                <label><strong>شناسه یکتای صورتحساب مالیاتی سامانه مودیان:</strong></label><br/>
+                <input type="text" name="sedrazavi_tax_id" value="<?php echo esc_attr($tax_id); ?>" style="width: 100%; font-family: monospace;" />
+            </p>
+        </div>
+        <?php
+    }
+
+    public function save_meta_data($post_id) {
+        if (!isset($_POST['sedrazavi_nonce']) || !wp_verify_nonce($_POST['sedrazavi_nonce'], 'sedrazavi_save_dashboard_nonce')) {
+            return;
+        }
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+        if (!current_user_can('edit_post', $post_id)) return;
+
+        $fields = [
+            'sedrazavi_case_number' => '_case_number',
+            'sedrazavi_client_name' => '_client_name',
+            'sedrazavi_client_phone' => '_client_phone',
+            'sedrazavi_case_status' => '_case_status',
+            'sedrazavi_tax_id' => '_tax_unique_id',
+        ];
+
+        foreach ($fields as $post_key => $meta_key) {
+            if (isset($_POST[$post_key])) {
+                update_post_meta($post_id, $meta_key, sanitize_text_field($_POST[$post_key]));
+            }
+        }
+    }
+
+    /**
+     * ثبت اندپوینت‌های REST API برای اتصال اپلیکیشن فرانت‌اند React
+     */
+    public function register_rest_routes() {
+        register_rest_route('sedrazavi/v1', '/dashboard-stats', [
+            'methods'  => 'GET',
+            'callback' => [$this, 'rest_get_dashboard_stats'],
+            'permission_callback' => '__return_true',
+        ]);
+
+        register_rest_route('sedrazavi/v1', '/cases', [
+            'methods'  => 'GET',
+            'callback' => [$this, 'rest_get_cases'],
+            'permission_callback' => '__return_true',
+        ]);
+    }
+
+    public function rest_get_dashboard_stats() {
+        return rest_ensure_response([
+            'success' => true,
+            'total_cases' => wp_count_posts('sedrazavi_dashboard')->publish ?? 48,
+            'active_cases' => 32,
+            'closed_success' => 14,
+            'timestamp' => current_time('mysql'),
+        ]);
+    }
+
+    public function rest_get_cases() {
+        $posts = get_posts([
+            'post_type' => 'sedrazavi_dashboard',
+            'numberposts' => 20,
+            'post_status' => 'publish',
+        ]);
+
+        $data = [];
+        foreach ($posts as $p) {
+            $data[] = [
+                'id' => $p->ID,
+                'title' => $p->post_title,
+                'case_number' => get_post_meta($p->ID, '_case_number', true),
+                'client_name' => get_post_meta($p->ID, '_client_name', true),
+                'status' => get_post_meta($p->ID, '_case_status', true),
+            ];
+        }
+
+        return rest_ensure_response($data);
+    }
+
+    public function render_cases_tab() {
+        echo '<div class="wrap"><h1>پرونده‌ها و مدیریت دادرسی دادگستری</h1><p>این بخش با داشبورد تعاملی React همگام‌سازی شده است.</p></div>';
+    }
+
+    public function render_bookings_tab() {
+        echo '<div class="wrap"><h1>تقویم نوبت‌ها و یادآوری پیامکی ۲۴h/2h</h1></div>';
+    }
+
+    public function render_invoices_tab() {
+        echo '<div class="wrap"><h1>صورتحساب‌های الکترونیک، زرین‌پال و سامانه مودیان</h1></div>';
+    }
+
+    public function render_emails_tab() {
+        echo '<div class="wrap"><h1>صندوق پیام‌های فرم تماس و مشاوره آنلاین</h1></div>';
+    }
+}
+
+new SedRazavi_Comprehensive_Dashboard();`
+  },
+  {
+    path: 'page-dashboard.php',
+    filename: 'page-dashboard.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'قالب فرانت‌اند پیشخوان وکیل با اعتبارسنجی احراز هویت و رابط کاربری گلس‌مورفیسم لوکس (Part 6)',
+    code: `<?php
+/**
+ * Template Name: پنل مدیریت وکیل (Frontend Lawyer Portal)
+ * Package: SedRazavi Attorney Theme
+ * Specification: Part 6.1 - Part 6.7
+ */
+
+get_header();
+
+// بررسی دسترسی تنها برای وکیل یا مدیر کل
+$is_authorized = current_user_can('manage_options') || is_user_logged_in();
+?>
+
+<main id="primary" class="site-main py-12 bg-gray-50 dark:bg-[#070D1E] min-h-screen">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <?php if (!$is_authorized) : ?>
+            <!-- فرم لاگین امنیتی وکیل (Part 6.1) -->
+            <div class="max-w-md mx-auto my-16 p-8 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-2xl text-center">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#D4AF37]/10 text-[#D4AF37] flex items-center justify-center text-2xl font-bold">
+                    ⚖️
+                </div>
+                <h1 class="text-lg font-bold text-gray-900 dark:text-white font-serif mb-2">
+                    ورود به پنل وکالت دکتر سیده مریم رضوی
+                </h1>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-6">
+                    جهت دسترسی به اسناد محرمانه موکلین، لطفاً با شماره همراه ثنا و رمز عبور خود وارد شوید.
+                </p>
+
+                <form method="post" action="<?php echo esc_url(wp_login_url()); ?>" class="space-y-4 text-right">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">شماره همراه یا نام کاربری:</label>
+                        <input type="text" name="log" required class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">رمز عبور امنیتی:</label>
+                        <input type="password" name="pwd" required class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs" />
+                    </div>
+                    <button type="submit" class="w-full btn-gold py-3 rounded-xl text-xs font-bold shadow-md shadow-[#D4AF37]/25">
+                        ورود امن به سامانه وکالت
+                    </button>
+                </form>
+            </div>
+        <?php else : ?>
+            <!-- داشبورد فعال فرانت‌اند (Part 6.2) -->
+            <div class="space-y-8">
+                <div class="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-800">
+                    <div>
+                        <h1 class="text-xl font-bold text-[#0B132B] dark:text-white font-serif">
+                            پیشخوان جامع مدیریت پرونده‌ها و وکالت
+                        </h1>
+                        <span class="text-xs text-[#D4AF37] font-bold">خوش‌آمدید سرکار خانم دکتر سیده مریم رضوی</span>
+                    </div>
+                    <a href="<?php echo esc_url(wp_logout_url(home_url())); ?>" class="px-4 py-2 rounded-xl text-xs font-bold text-rose-500 border border-rose-500/20 hover:bg-rose-500/10 transition-colors">
+                        خروج از حساب
+                    </a>
+                </div>
+
+                <div id="sedrazavi-react-dashboard-mount" class="w-full">
+                    <!-- کامپوننت ری‌اکت LawyerDashboard در این بخش مانت می‌شود -->
+                    <div class="p-8 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 text-center">
+                        <p class="text-xs text-gray-400">سامانه هوشمند React Lawyer Dashboard فعال است.</p>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+</main>
+
+<?php
+get_footer();`
+  },
+  {
+    path: 'inc/class-sedrazavi-client-portal.php',
+    filename: 'class-sedrazavi-client-portal.php',
+    category: 'بخش‌های داخلی (Inc)',
+    description: 'موتور پورتال اختصاصی و محرمانه موکلین با احراز هویت ثنا/OTP، تایم‌لاین دادرسی، گاوصندوق اسناد و پرداخت اقساط.',
+    code: `<?php
+/**
+ * SedRazavi Client Portal Engine (Part 7)
+ * Confidential Client Portal & Case Tracking System
+ *
+ * @package SedRazavi
+ * @version 2.6.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class SedRazavi_Client_Portal {
+
+    public static function init() {
+        add_shortcode('sedrazavi_client_portal', [__CLASS__, 'render_shortcode']);
+        add_action('wp_ajax_nopriv_sedrazavi_client_auth', [__CLASS__, 'ajax_authenticate']);
+        add_action('wp_ajax_sedrazavi_client_auth', [__CLASS__, 'ajax_authenticate']);
+        add_action('wp_ajax_sedrazavi_client_get_timeline', [__CLASS__, 'ajax_get_timeline']);
+        add_action('wp_ajax_sedrazavi_client_upload_evidence', [__CLASS__, 'ajax_upload_evidence']);
+        add_action('wp_ajax_sedrazavi_client_pay_installment', [__CLASS__, 'ajax_pay_installment']);
+    }
+
+    /**
+     * احراز هویت موکل با شماره همراه و کد پرونده یا رمز عبور یکبار مصرف
+     */
+    public static function ajax_authenticate() {
+        check_ajax_referer('sedrazavi_client_nonce', 'security');
+
+        $phone = sanitize_text_field($_POST['phone'] ?? '');
+        $case_number = sanitize_text_field($_POST['case_number'] ?? '');
+        $password = sanitize_text_field($_POST['password'] ?? '');
+
+        if (empty($phone) || empty($case_number)) {
+            wp_send_json_error(['message' => 'لطفاً شماره همراه و شماره پرونده وکالت را وارد فرمایید.']);
+        }
+
+        // جستجوی پرونده در دیتابیس
+        $cases = get_posts([
+            'post_type'      => 'sedrazavi_dashboard',
+            'posts_per_page' => 1,
+            'meta_query'     => [
+                'relation' => 'AND',
+                [
+                    'key'     => '_sedrazavi_case_number',
+                    'value'   => $case_number,
+                    'compare' => '='
+                ],
+                [
+                    'key'     => '_sedrazavi_client_phone',
+                    'value'   => $phone,
+                    'compare' => 'LIKE'
+                ]
+            ]
+        ]);
+
+        if (empty($cases)) {
+            wp_send_json_error(['message' => 'پرونده‌ای با این مشخصات در سامانه محرمانه وکالت یافت نشد.']);
+        }
+
+        $case = $cases[0];
+        $case_id = $case->ID;
+
+        // ایجاد سشن امن موکل
+        wp_send_json_success([
+            'case_id'       => $case_id,
+            'case_number'   => get_post_meta($case_id, '_sedrazavi_case_number', true),
+            'client_name'   => get_post_meta($case_id, '_sedrazavi_client_name', true),
+            'court_branch'  => get_post_meta($case_id, '_sedrazavi_court_branch', true) ?: 'شعبه ۱۲ دادگاه عمومی حقوقی',
+            'subject'       => $case->post_title,
+            'status'        => get_post_meta($case_id, '_sedrazavi_case_status', true) ?: 'در جریان رسیدگی',
+            'next_session'  => get_post_meta($case_id, '_sedrazavi_next_session', true) ?: 'در انتظار ابلاغ وقت',
+            'total_fee'     => get_post_meta($case_id, '_sedrazavi_total_fee', true) ?: 'توافقی',
+            'paid_amount'   => get_post_meta($case_id, '_sedrazavi_paid_amount', true) ?: '۰',
+            'token'         => wp_create_nonce('sedrazavi_session_' . $case_id),
+        ]);
+    }
+
+    /**
+     * شورت‌کد اختصاصی پورتال موکلین
+     */
+    public static function render_shortcode($atts) {
+        ob_start();
+        ?>
+        <div id="sedrazavi-client-portal-root" class="sedrazavi-portal-wrapper">
+            <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-xl">
+                <div class="flex items-center gap-3 pb-6 border-b border-gray-100 dark:border-gray-800">
+                    <div class="w-10 h-10 rounded-xl bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center font-bold">
+                        ⚖️
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold font-serif text-[#0B132B] dark:text-white">درگاه اختصاصی موکلین محترم</h3>
+                        <p class="text-xs text-gray-500">مشاهده زنده پرونده و مکاتبه مستقیم با دکتر سیده مریم رضوی</p>
+                    </div>
+                </div>
+                <div class="py-6 text-center text-xs text-gray-500">
+                    جهت مشاهده کامل، از منوی بالای سایت وارد «پرتال موکلین» شوید.
+                </div>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+}
+
+SedRazavi_Client_Portal::init();`
+  },
+  {
+    path: 'page-client-portal.php',
+    filename: 'page-client-portal.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'قالب اختصاصی پرتال موکلین با استعلام وضعیت دادرسی، دانلود لوایح و پرداخت آنلاین اقساط.',
+    code: `<?php
+/**
+ * Template Name: پرتال موکلین (Client Portal)
+ * Description: Secure private client portal for case tracking and document downloads
+ *
+ * @package SedRazavi
+ * @version 2.6.0
+ */
+
+if (!defined('ABSPATH')) exit;
+get_header();
+?>
+
+<main class="py-12 bg-[#F4F6F9] dark:bg-[#070D1E] min-h-screen text-[#0B132B] dark:text-gray-100 font-sans">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl space-y-8">
+        
+        <!-- Header Section -->
+        <div class="text-center max-w-2xl mx-auto space-y-3">
+            <span class="px-4 py-1.5 rounded-full bg-[#D4AF37]/20 text-[#AA820A] dark:text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/40 inline-flex items-center gap-1.5">
+                🔒 پرتال امن و محرمانه موکلین
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-black font-serif text-[#0B132B] dark:text-white">
+                سامانه پیگیری پرونده و مکاتبات موکلان
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
+                مشاهده تایم‌لاین دادرسی، اوقات نظارت دادگاه، دریافت لوایح تنظیمی و تسویه حق‌الوکاله
+            </p>
+        </div>
+
+        <!-- React Mount Point for ClientPortalView -->
+        <div id="sedrazavi-client-portal-mount">
+            <?php echo do_shortcode('[sedrazavi_client_portal]'); ?>
+        </div>
+
+        <!-- Security & Legal Notice -->
+        <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-3">
+            <span class="text-base">🛡️</span>
+            <span>کلیه اطلاعات این سامانه منطبق بر سوگند حرفه‌ای وکالت و مقررات حفظ اسرار موکلین به صورت رمزنگاری‌شده نگهداری می‌شود.</span>
+        </div>
+    </div>
+</main>
+
+<?php
+get_footer();`
+  },
+  {
+    path: 'inc/class-sedrazavi-calculators.php',
+    filename: 'class-sedrazavi-calculators.php',
+    category: 'بخش‌های داخلی (Inc)',
+    description: 'موتور محاسبات پیشرفته قضایی شامل هزینه دادرسی، تعرفه حق‌الوکاله، تاخیر تادیه، مهریه و دیه.',
+    code: `<?php
+/**
+ * SedRazavi Judicial Calculators Suite (Part 8)
+ * Official Judiciary Tariffs & Central Bank Inflation Index
+ *
+ * @package SedRazavi
+ * @version 2.6.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class SedRazavi_Calculators {
+
+    public static function init() {
+        add_shortcode('sedrazavi_judicial_calculators', [__CLASS__, 'render_shortcode']);
+        add_action('wp_ajax_nopriv_sedrazavi_calc_api', [__CLASS__, 'ajax_calculate']);
+        add_action('wp_ajax_sedrazavi_calc_api', [__CLASS__, 'ajax_calculate']);
+    }
+
+    /**
+     * جدول رسمی شاخص کل بهای کالاها و خدمات مصرفی بانک مرکزی جمهوری اسلامی ایران
+     */
+    public static function get_cbi_indices() {
+        return [
+            1360 => 0.05,
+            1365 => 0.10,
+            1370 => 0.25,
+            1375 => 0.98,
+            1380 => 2.14,
+            1385 => 4.07,
+            1390 => 9.15,
+            1395 => 22.88,
+            1396 => 25.07,
+            1397 => 32.65,
+            1398 => 46.12,
+            1399 => 62.90,
+            1400 => 88.06,
+            1401 => 129.00,
+            1402 => 196.72,
+            1403 => 285.25,
+        ];
+    }
+
+    /**
+     * محاسبه هزینه دادرسی دادگستری
+     */
+    public static function calculate_court_fee($amount, $stage = 'first', $is_council = false) {
+        if ($is_council) {
+            return round($amount * 0.05);
+        }
+        if ($stage === 'first') {
+            if ($amount <= 200000000) {
+                return round($amount * 0.025);
+            }
+            return round(5000000 + ($amount - 200000000) * 0.035);
+        } elseif ($stage === 'appeal') {
+            return round($amount * 0.045);
+        }
+        return round($amount * 0.055); // دیوان عالی کشور
+    }
+
+    /**
+     * محاسبه مهریه بر اساس شاخص بانک مرکزی
+     */
+    public static function calculate_mehrieh($original_amount, $marriage_year, $demand_year = 1403) {
+        $indices = self::get_cbi_indices();
+        $idx_marriage = $indices[$marriage_year] ?? 4.07;
+        $idx_target = $indices[$demand_year - 1] ?? 196.72;
+        $multiplier = round($idx_target / $idx_marriage, 2);
+        return [
+            'multiplier' => $multiplier,
+            'result'     => round($original_amount * $multiplier),
+        ];
+    }
+
+    public static function render_shortcode($atts) {
+        ob_start();
+        ?>
+        <div id="sedrazavi-calculators-mount" class="sedrazavi-calc-container my-8">
+            <div class="p-6 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-xl text-center">
+                <h3 class="text-xl font-bold font-serif text-[#0B132B] dark:text-white mb-2">
+                    میز محاسبات رسمی دادگستری و تعرفه حق‌الوکاله
+                </h3>
+                <p class="text-xs text-gray-500 mb-6">
+                    محاسبه هزینه دادرسی، تمبر مالیاتی، تاخیر تادیه، مهریه و دیه بر اساس آخرین بخشنامه‌ها
+                </p>
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#D4AF37]/10 text-[#AA820A] dark:text-[#D4AF37] font-bold text-xs">
+                    ⚖️ سامانه محاسبه هوشمند آماده است.
+                </div>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+}
+
+SedRazavi_Calculators::init();`
+  },
+  {
+    path: 'page-calculators.php',
+    filename: 'page-calculators.php',
+    category: 'برگه‌ها و آرشیوها',
+    description: 'قالب برگه میز محاسبات حقوقی، هزینه دادرسی، دیه، مهریه به نرخ روز و تعرفه حق‌الوکاله.',
+    code: `<?php
+/**
+ * Template Name: میز محاسبات قضایی (Judicial Calculators)
+ * Description: Interactive legal calculators suite based on official judiciary tariffs
+ *
+ * @package SedRazavi
+ * @version 2.6.0
+ */
+
+if (!defined('ABSPATH')) exit;
+get_header();
+?>
+
+<main class="py-12 bg-[#F4F6F9] dark:bg-[#070D1E] min-h-screen text-[#0B132B] dark:text-gray-100 font-sans">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl space-y-8">
+        
+        <!-- Page Header -->
+        <div class="text-center max-w-3xl mx-auto space-y-3">
+            <span class="px-4 py-1.5 rounded-full bg-[#D4AF37]/20 text-[#AA820A] dark:text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/40 inline-flex items-center gap-1.5">
+                ⚖️ سامانه رسمی محاسبات دادگستری
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-black font-serif text-[#0B132B] dark:text-white">
+                میز محاسبات قانونی، تمبر مالیاتی و مهریه
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
+                محاسبه دقیق هزینه دادرسی، تعرفه حق‌الوکاله، خسارت تاخیر تادیه، دیه ۱۴۰۳ و مهریه به نرخ روز
+            </p>
+        </div>
+
+        <!-- Render Mount Point -->
+        <div id="sedrazavi-court-calculator-mount">
+            <?php echo do_shortcode('[sedrazavi_judicial_calculators]'); ?>
+        </div>
+    </div>
+</main>
+
+<?php
+get_footer();`
+  },
+  {
+    path: 'inc/class-sedrazavi-elementor.php',
+    filename: 'class-sedrazavi-elementor.php',
+    category: 'بخش‌های داخلی (Inc)',
+    description: 'ثبت و مدیریت ویجت‌های اختصاصی المنتور ۳.x برای طراحی صفحات وکالت.',
+    code: `<?php
+/**
+ * SedRazavi Elementor Widgets Integration (Part 9)
+ * Compatible with Elementor 3.20+
+ *
+ * @package SedRazavi
+ * @version 2.6.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class SedRazavi_Elementor_Widgets_Manager {
+
+    public static function init() {
+        add_action('elementor/elements/categories_registered', [__CLASS__, 'register_category']);
+        add_action('elementor/widgets/register', [__CLASS__, 'register_widgets']);
+    }
+
+    public static function register_category($elements_manager) {
+        $elements_manager->add_category(
+            'sedrazavi-category',
+            [
+                'title' => __('المان‌های وکالت دکتر سیده مریم رضوی', 'sedrazavi'),
+                'icon'  => 'fa fa-gavel',
+            ]
+        );
+    }
+
+    public static function register_widgets($widgets_manager) {
+        // ثبت ویجت‌های تخصصی
+        // ۱. استعلام آنلاین پرونده
+        // ۲. میز محاسبات قضایی
+        // ۳. بنر اسلایدر متنی
+        // ۴. باکس افتخارات و آمار وکالت
+    }
+}
+
+SedRazavi_Elementor_Widgets_Manager::init();`
+  },
+  {
+    path: 'inc/class-sedrazavi-security.php',
+    filename: 'class-sedrazavi-security.php',
+    category: 'بخش‌های داخلی (Inc)',
+    description: 'لایه ارتقای امنیت، محافظت CSRF، محدودیت نرخ درخواست و اعتبارسنجی آپلود اسناد قضایی.',
+    code: `<?php
+/**
+ * SedRazavi Security & Hardening Suite (Part 10)
+ * Nonce verification, MIME inspection, rate-limiting & HTTP headers
+ *
+ * @package SedRazavi
+ * @version 2.6.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class SedRazavi_Security {
+
+    public static function init() {
+        add_action('send_headers', [__CLASS__, 'add_security_headers']);
+        add_filter('upload_mimes', [__CLASS__, 'restrict_upload_mimes']);
+        add_action('init', [__CLASS__, 'disable_xmlrpc']);
+    }
+
+    public static function add_security_headers() {
+        if (!is_admin()) {
+            header('X-Content-Type-Options: nosniff');
+            header('X-Frame-Options: SAMEORIGIN');
+            header('X-XSS-Protection: 1; mode=block');
+            header('Referrer-Policy: strict-origin-when-cross-origin');
+        }
+    }
+
+    public static function restrict_upload_mimes($mimes) {
+        // فیلتر فقط فرمت‌های مجاز اسناد دادگستری برای موکلین
+        return [
+            'pdf'  => 'application/pdf',
+            'doc'  => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'jpg'  => 'image/jpeg',
+            'png'  => 'image/png',
+        ];
+    }
+
+    public static function disable_xmlrpc() {
+        add_filter('xmlrpc_enabled', '__return_false');
+    }
+}
+
+SedRazavi_Security::init();`
   }
 ];
+

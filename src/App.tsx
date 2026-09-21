@@ -24,6 +24,24 @@ import { IntellectualPropertySuite } from './components/intellectual-property/In
 import { CyberForensicsSuite } from './components/cyber-forensics/CyberForensicsSuite';
 import { FinancialComplianceSuite } from './components/compliance-financial/FinancialComplianceSuite';
 import { RealEstateConstructionSuite } from './components/real-estate-construction/RealEstateConstructionSuite';
+import { FamilyInheritanceSuite } from './components/family-inheritance/FamilyInheritanceSuite';
+import { LegalAutomationLibrary } from './components/automation/LegalAutomationLibrary';
+import { AdministrativeJusticeSuite } from './components/administrative-justice/AdministrativeJusticeSuite';
+import { DualModeLawyerAuth } from './components/auth-dual-mode/DualModeLawyerAuth';
+import { UnifiedDualPanelSuite } from './components/dual-panel-unified/UnifiedDualPanelSuite';
+import { AdminPagesProtectionSuite } from './components/admin-protection/AdminPagesProtectionSuite';
+import { DesignTokensManagerSuite } from './components/design-tokens/DesignTokensManagerSuite';
+import { AdvancedAjaxSearchSuite } from './components/search-filter/AdvancedAjaxSearchSuite';
+import { CasePredictionRiskSuite } from './components/case-prediction/CasePredictionRiskSuite';
+import { EngineeringProcurementSuite } from './components/epc-procurement/EngineeringProcurementSuite';
+import { InternationalArbitrationSuite } from './components/international-arbitration/InternationalArbitrationSuite';
+import { ComprehensiveCodexSuite } from './components/legal-codex/ComprehensiveCodexSuite';
+import { MasterDraftingVaultSuite } from './components/drafting-vault/MasterDraftingVaultSuite';
+import { TaxDisputesMoadianSuite } from './components/tax-moadian/TaxDisputesMoadianSuite';
+import { LaborSocialSecuritySuite } from './components/labor-social-security/LaborSocialSecuritySuite';
+import { EconomicCrimesDefenseSuite } from './components/economic-crimes/EconomicCrimesDefenseSuite';
+import { CustomsTransitDisputesSuite } from './components/customs-transit/CustomsTransitDisputesSuite';
+import { LegalCrmSmartNotifierSuite } from './components/legal-crm-notifier/LegalCrmSmartNotifierSuite';
 import { ArchiveView } from './components/ArchiveView';
 import { SingleContentView } from './components/SingleContentView';
 import { OnboardingTour } from './components/OnboardingTour';
@@ -35,6 +53,7 @@ import { AboutPageView } from './components/AboutPageView';
 import { ServicesPageView } from './components/ServicesPageView';
 import { ContactPageView } from './components/ContactPageView';
 import { CaseTrackingPageView } from './components/CaseTrackingPageView';
+import { LiveConsultationDrawer } from './components/LiveConsultationDrawer';
 import { OtpAuthModal } from './components/OtpAuthModal';
 import { QuickCallbackModal } from './components/QuickCallbackModal';
 import { LawyerHeroSlider } from './components/LawyerHeroSlider';
@@ -60,6 +79,7 @@ export default function App() {
   const [isSurveyOpen, setIsSurveyOpen] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [isQuickCallbackOpen, setIsQuickCallbackOpen] = useState(false);
+  const [isLiveConsultationOpen, setIsLiveConsultationOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userPhone, setUserPhone] = useState('');
   const [userName, setUserName] = useState('');
@@ -179,6 +199,7 @@ export default function App() {
         isMainPage={activeView === 'preview'}
         onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
         onOpenCaseTracker={handleOpenCaseTracker}
+        onOpenLiveConsultation={() => setIsLiveConsultationOpen(true)}
         onOpenFinance={() => setActiveView('finance')}
         onOpenPhase5={() => setActiveView('odr-suite')}
         onOpenPhase6={() => setActiveView('legal-ai')}
@@ -296,6 +317,9 @@ export default function App() {
               onOpenPhase10={() => setActiveView('cyber-suite')}
               onOpenPhase11={() => setActiveView('compliance-suite')}
               onOpenPhase12={() => setActiveView('real-estate-suite')}
+              onOpenPhase13={() => setActiveView('family-inheritance')}
+              onOpenPhase14={() => setActiveView('automation')}
+              onOpenPhase15={() => setActiveView('admin-justice')}
             />
           </div>
         )}
@@ -440,6 +464,23 @@ export default function App() {
               onOpenPhase6={() => setActiveView('legal-ai')}
               onOpenPhase7={() => setActiveView('strategy-suite')}
               onOpenPhase8={() => setActiveView('corporate-suite')}
+              onOpenPhase9={() => setActiveView('ip-suite')}
+              onOpenPhase10={() => setActiveView('cyber-suite')}
+              onOpenPhase11={() => setActiveView('compliance-suite')}
+              onOpenPhase12={() => setActiveView('real-estate-suite')}
+              onOpenPhase13={() => setActiveView('family-inheritance')}
+              onOpenPhase14={() => setActiveView('automation')}
+              onOpenPhase15={() => setActiveView('admin-justice')}
+              onOpenPhase16={() => setActiveView('auth-dual-mode')}
+              onOpenPhase17={() => setActiveView('dual-panel-unified')}
+              onOpenPhase18={() => setActiveView('admin-protection')}
+              onOpenPhase19={() => setActiveView('design-tokens')}
+              onOpenPhase20={() => setActiveView('ajax-search')}
+              onOpenPhase21={() => setActiveView('case-prediction')}
+              onOpenPhase22={() => setActiveView('epc-procurement')}
+              onOpenPhase23={() => setActiveView('intl-arbitration')}
+              onOpenPhase24={() => setActiveView('legal-codex')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
             />
           </div>
         )}
@@ -614,6 +655,360 @@ export default function App() {
           </div>
         )}
 
+        {activeView === 'family-inheritance' && (
+          <div>
+            <FamilyInheritanceSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenBooking={() => handleBookService('مشاوره تخصصی انحصار وراثت، تقسیم ترکه، مهریه و حقوق خانواده')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+              onOpenPhase9={() => setActiveView('ip-suite')}
+              onOpenPhase10={() => setActiveView('cyber-suite')}
+              onOpenPhase11={() => setActiveView('compliance-suite')}
+              onOpenPhase12={() => setActiveView('real-estate-suite')}
+            />
+          </div>
+        )}
+
+        {activeView === 'automation' && (
+          <div>
+            <LegalAutomationLibrary
+              onBackToHome={() => setActiveView('preview')}
+              onOpenBooking={() => handleBookService('مشاوره تخصصی اتوماسیون، تنظیم قرارداد و بررسی پرونده')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+              onOpenPhase9={() => setActiveView('ip-suite')}
+              onOpenPhase10={() => setActiveView('cyber-suite')}
+              onOpenPhase11={() => setActiveView('compliance-suite')}
+              onOpenPhase12={() => setActiveView('real-estate-suite')}
+            />
+          </div>
+        )}
+
+        {activeView === 'admin-justice' && (
+          <div>
+            <AdministrativeJusticeSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenBooking={() => handleBookService('مشاوره تخصصی دیوان عدالت اداری، کمیسیون ماده ۱۰۰ و دعاوی استخدامی')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+              onOpenPhase9={() => setActiveView('ip-suite')}
+              onOpenPhase10={() => setActiveView('cyber-suite')}
+              onOpenPhase11={() => setActiveView('compliance-suite')}
+              onOpenPhase12={() => setActiveView('real-estate-suite')}
+              onOpenPhase16={() => setActiveView('auth-dual-mode')}
+              onOpenPhase17={() => setActiveView('dual-panel-unified')}
+              onOpenPhase18={() => setActiveView('admin-protection')}
+              onOpenPhase19={() => setActiveView('design-tokens')}
+              onOpenPhase20={() => setActiveView('ajax-search')}
+            />
+          </div>
+        )}
+
+        {activeView === 'auth-dual-mode' && (
+          <div>
+            <DualModeLawyerAuth
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase16={() => setActiveView('auth-dual-mode')}
+              onOpenPhase17={() => setActiveView('dual-panel-unified')}
+              onOpenPhase18={() => setActiveView('admin-protection')}
+              onOpenPhase19={() => setActiveView('design-tokens')}
+              onOpenPhase20={() => setActiveView('ajax-search')}
+            />
+          </div>
+        )}
+
+        {activeView === 'dual-panel-unified' && (
+          <div>
+            <UnifiedDualPanelSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase16={() => setActiveView('auth-dual-mode')}
+              onOpenPhase17={() => setActiveView('dual-panel-unified')}
+              onOpenPhase18={() => setActiveView('admin-protection')}
+              onOpenPhase19={() => setActiveView('design-tokens')}
+              onOpenPhase20={() => setActiveView('ajax-search')}
+            />
+          </div>
+        )}
+
+        {activeView === 'admin-protection' && (
+          <div>
+            <AdminPagesProtectionSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase16={() => setActiveView('auth-dual-mode')}
+              onOpenPhase17={() => setActiveView('dual-panel-unified')}
+              onOpenPhase18={() => setActiveView('admin-protection')}
+              onOpenPhase19={() => setActiveView('design-tokens')}
+              onOpenPhase20={() => setActiveView('ajax-search')}
+            />
+          </div>
+        )}
+
+        {activeView === 'design-tokens' && (
+          <div>
+            <DesignTokensManagerSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase16={() => setActiveView('auth-dual-mode')}
+              onOpenPhase17={() => setActiveView('dual-panel-unified')}
+              onOpenPhase18={() => setActiveView('admin-protection')}
+              onOpenPhase19={() => setActiveView('design-tokens')}
+              onOpenPhase20={() => setActiveView('ajax-search')}
+            />
+          </div>
+        )}
+
+        {activeView === 'ajax-search' && (
+          <div>
+            <AdvancedAjaxSearchSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase16={() => setActiveView('auth-dual-mode')}
+              onOpenPhase17={() => setActiveView('dual-panel-unified')}
+              onOpenPhase18={() => setActiveView('admin-protection')}
+              onOpenPhase19={() => setActiveView('design-tokens')}
+              onOpenPhase20={() => setActiveView('ajax-search')}
+              onOpenPhase21={() => setActiveView('case-prediction')}
+              onOpenPhase22={() => setActiveView('epc-procurement')}
+              onOpenPhase23={() => setActiveView('intl-arbitration')}
+              onOpenPhase24={() => setActiveView('legal-codex')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+            />
+          </div>
+        )}
+
+        {activeView === 'case-prediction' && (
+          <div>
+            <CasePredictionRiskSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase20={() => setActiveView('ajax-search')}
+              onOpenPhase21={() => setActiveView('case-prediction')}
+              onOpenPhase22={() => setActiveView('epc-procurement')}
+              onOpenPhase23={() => setActiveView('intl-arbitration')}
+              onOpenPhase24={() => setActiveView('legal-codex')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+            />
+          </div>
+        )}
+
+        {activeView === 'epc-procurement' && (
+          <div>
+            <EngineeringProcurementSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase21={() => setActiveView('case-prediction')}
+              onOpenPhase22={() => setActiveView('epc-procurement')}
+              onOpenPhase23={() => setActiveView('intl-arbitration')}
+              onOpenPhase24={() => setActiveView('legal-codex')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+            />
+          </div>
+        )}
+
+        {activeView === 'intl-arbitration' && (
+          <div>
+            <InternationalArbitrationSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase21={() => setActiveView('case-prediction')}
+              onOpenPhase22={() => setActiveView('epc-procurement')}
+              onOpenPhase23={() => setActiveView('intl-arbitration')}
+              onOpenPhase24={() => setActiveView('legal-codex')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+            />
+          </div>
+        )}
+
+        {activeView === 'legal-codex' && (
+          <div>
+            <ComprehensiveCodexSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase21={() => setActiveView('case-prediction')}
+              onOpenPhase22={() => setActiveView('epc-procurement')}
+              onOpenPhase23={() => setActiveView('intl-arbitration')}
+              onOpenPhase24={() => setActiveView('legal-codex')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+            />
+          </div>
+        )}
+
+        {activeView === 'drafting-vault' && (
+          <div>
+            <MasterDraftingVaultSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase21={() => setActiveView('case-prediction')}
+              onOpenPhase22={() => setActiveView('epc-procurement')}
+              onOpenPhase23={() => setActiveView('intl-arbitration')}
+              onOpenPhase24={() => setActiveView('legal-codex')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+            />
+          </div>
+        )}
+
+        {activeView === 'tax-moadian' && (
+          <div>
+            <TaxDisputesMoadianSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+            />
+          </div>
+        )}
+
+        {activeView === 'labor-social' && (
+          <div>
+            <LaborSocialSecuritySuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+            />
+          </div>
+        )}
+
+        {activeView === 'economic-crimes' && (
+          <div>
+            <EconomicCrimesDefenseSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+            />
+          </div>
+        )}
+
+        {activeView === 'customs-transit' && (
+          <div>
+            <CustomsTransitDisputesSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+            />
+          </div>
+        )}
+
+        {activeView === 'legal-crm' && (
+          <div>
+            <LegalCrmSmartNotifierSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+            />
+          </div>
+        )}
+
         {activeView === 'code' && <WordPressCodeViewer />}
       </main>
 
@@ -635,6 +1030,20 @@ export default function App() {
         isOpen={isQuickCallbackOpen}
         onClose={() => setIsQuickCallbackOpen(false)}
         onOpenOtpLogin={() => setIsOtpModalOpen(true)}
+      />
+
+      {/* Multi-Channel Live Legal Consultation & Triage Drawer */}
+      <LiveConsultationDrawer
+        isOpen={isLiveConsultationOpen}
+        onClose={() => setIsLiveConsultationOpen(false)}
+        onBookConsultation={() => {
+          setIsLiveConsultationOpen(false);
+          handleBookService(SERVICES_DATA[0].title);
+        }}
+        onOpenCaseTracker={() => {
+          setIsLiveConsultationOpen(false);
+          setActiveView('case-tracking');
+        }}
       />
 
       {/* Interactive Onboarding Tour Modal */}
