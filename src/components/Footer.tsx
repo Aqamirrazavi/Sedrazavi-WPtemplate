@@ -33,9 +33,15 @@ interface FooterProps {
   onOpenPhase28?: () => void;
   onOpenPhase29?: () => void;
   onOpenPhase30?: () => void;
+  onOpenPhase31?: () => void;
+  onOpenPhase32?: () => void;
+  onOpenPhase33?: () => void;
+  onOpenPhase34?: () => void;
+  onOpenPhase35?: () => void;
+  onOpenPhase36?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ profile, onOpenFinance, onOpenPhase5, onOpenPhase6, onOpenPhase7, onOpenPhase8, onOpenPhase9, onOpenPhase10, onOpenPhase11, onOpenPhase12, onOpenPhase13, onOpenPhase14, onOpenPhase15, onOpenPhase16, onOpenPhase17, onOpenPhase18, onOpenPhase19, onOpenPhase20, onOpenPhase21, onOpenPhase22, onOpenPhase23, onOpenPhase24, onOpenPhase25, onOpenPhase26, onOpenPhase27, onOpenPhase28, onOpenPhase29, onOpenPhase30 }) => {
+export const Footer: React.FC<FooterProps> = ({ profile, onOpenFinance, onOpenPhase5, onOpenPhase6, onOpenPhase7, onOpenPhase8, onOpenPhase9, onOpenPhase10, onOpenPhase11, onOpenPhase12, onOpenPhase13, onOpenPhase14, onOpenPhase15, onOpenPhase16, onOpenPhase17, onOpenPhase18, onOpenPhase19, onOpenPhase20, onOpenPhase21, onOpenPhase22, onOpenPhase23, onOpenPhase24, onOpenPhase25, onOpenPhase26, onOpenPhase27, onOpenPhase28, onOpenPhase29, onOpenPhase30, onOpenPhase31, onOpenPhase32, onOpenPhase33, onOpenPhase34, onOpenPhase35, onOpenPhase36 }) => {
   const brandName = profile?.siteTitle || 'SedRazavi';
   const lawyerName = profile?.lawyerName || ATTORNEY_INFO.name;
   const address = profile?.officeAddress || ATTORNEY_INFO.officeAddress;
@@ -389,6 +395,66 @@ export const Footer: React.FC<FooterProps> = ({ profile, onOpenFinance, onOpenPh
                     className="hover:text-purple-400 transition-colors flex items-center gap-2 text-right text-purple-400 font-bold"
                   >
                     <span className="text-purple-400">👥</span> مرکز CRM موکلین و آلارم جلسات دادگاه (فاز ۳۰)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase31 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase31}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-[#D4AF37] font-bold"
+                  >
+                    <span className="text-[#D4AF37]">🎨</span> یکپارچگی پیشرفته المنتور پرو و Theme Builder (فاز ۳۱)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase32 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase32}
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2 text-right text-emerald-400 font-bold"
+                  >
+                    <span className="text-emerald-400">💳</span> سامانه پرداخت آداپتور، ووکامرس/نیتیو و مودیان (فاز ۳۲)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase33 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase33}
+                    className="hover:text-purple-400 transition-colors flex items-center gap-2 text-right text-purple-400 font-bold"
+                  >
+                    <span className="text-purple-400">👥</span> سامانه ارجاع همکاران، سهم‌الوکاله و نظارت (فاز ۳۳)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase34 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase34}
+                    className="hover:text-[#D4AF37] transition-colors flex items-center gap-2 text-right text-[#D4AF37] font-bold"
+                  >
+                    <span className="text-[#D4AF37]">⚖️</span> تحلیل آراء دیوان عالی کشور، فرجام و ماده ۴۷۷ (فاز ۳۴)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase35 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase35}
+                    className="hover:text-amber-400 transition-colors flex items-center gap-2 text-right text-amber-400 font-bold"
+                  >
+                    <span className="text-amber-400">⚖️</span> داوری تجاری اتاق بازرگانی، انشا و ابطال رای (فاز ۳۵)
+                  </button>
+                </li>
+              )}
+              {onOpenPhase36 && (
+                <li>
+                  <button
+                    onClick={onOpenPhase36}
+                    className="hover:text-emerald-400 transition-colors flex items-center gap-2 text-right text-emerald-400 font-bold"
+                  >
+                    <span className="text-emerald-400">🏢</span> مناقصات دولتی، ضمانت‌نامه بانکی و دستور موقت (فاز ۳۶)
                   </button>
                 </li>
               )}

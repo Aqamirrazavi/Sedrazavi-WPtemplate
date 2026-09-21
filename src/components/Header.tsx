@@ -40,6 +40,8 @@ import {
   ShieldAlert,
   Ship,
   Receipt,
+  CreditCard,
+  Sliders,
 } from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
 import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
@@ -82,6 +84,12 @@ export type ThemeViewMode =
   | 'economic-crimes'
   | 'customs-transit'
   | 'legal-crm'
+  | 'elementor-pro'
+  | 'payment-adapter'
+  | 'associate-referral'
+  | 'supreme-court-appeals'
+  | 'commercial-arbitration'
+  | 'government-tenders'
   | 'code'
   | 'archive'
   | 'single';
@@ -518,7 +526,7 @@ export const Header: React.FC<HeaderProps> = ({
                       }}
                       className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-blue-500/10 hover:text-blue-400 transition-colors"
                     >
-                      <span className="font-bold text-blue-400">احراز هویت دوحالته و 2FA (فاز ۱۶)</span>
+                      <span className="font-bold text-blue-400">سیستم ورود دوگانه وکلا، رمز ادمین و 2FA (پارت ۱۶)</span>
                       <KeyRound className="w-3.5 h-3.5 text-blue-400" />
                     </button>
                     <button
@@ -528,7 +536,7 @@ export const Header: React.FC<HeaderProps> = ({
                       }}
                       className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
                     >
-                      <span className="font-bold text-[#D4AF37]">اتصال یکپارچه دو پنل و SSO (فاز ۱۷)</span>
+                      <span className="font-bold text-[#D4AF37]">یکپارچگی دو پنل، SSO و همگام‌سازی داده (پارت ۱۷)</span>
                       <Shield className="w-3.5 h-3.5 text-[#D4AF37]" />
                     </button>
                     <button
@@ -538,7 +546,7 @@ export const Header: React.FC<HeaderProps> = ({
                       }}
                       className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
                     >
-                      <span className="font-bold text-rose-400">مخفی‌سازی ۱۲ برگه ادمین و سئو (فاز ۱۸)</span>
+                      <span className="font-bold text-rose-400">مخفی‌سازی ۱۲ صفحه ادمین، سئو و سوئیچ حالت (پارت ۱۸)</span>
                       <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
                     </button>
                     <button
@@ -548,28 +556,28 @@ export const Header: React.FC<HeaderProps> = ({
                       }}
                       className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
                     >
-                      <span className="font-bold text-[#D4AF37]">مخزن ۲۴ متغیر Design Tokens (فاز ۱۹)</span>
+                      <span className="font-bold text-[#D4AF37]">مخزن ۲۴ متغیر سراسری Design Tokens (پارت ۱۹)</span>
                       <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
                     </button>
                     <button
                       onClick={() => {
-                        setActiveView('ajax-search');
+                        setActiveView('elementor-pro');
                         setPagesDropdownOpen(false);
                       }}
                       className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-amber-500/10 hover:text-amber-400 transition-colors"
                     >
-                      <span className="font-bold text-amber-400">جستجو و فیلتر پیشرفته آژاکس (فاز ۲۰)</span>
-                      <Search className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="font-bold text-amber-400">یکپارچگی کامل با المنتور و ۸ ویجت اختصاصی (پارت ۲۰)</span>
+                      <Sliders className="w-3.5 h-3.5 text-amber-400" />
                     </button>
                     <button
                       onClick={() => {
-                        setActiveView('case-prediction');
+                        setActiveView('payment-adapter');
                         setPagesDropdownOpen(false);
                       }}
                       className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
                     >
-                      <span className="font-bold text-emerald-400">پیش‌بینی برد و ریسک دادرسی (فاز ۲۱)</span>
-                      <Scale className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="font-bold text-emerald-400">سیستم پرداخت Adapter Pattern و مودیان (پارت ۲۱)</span>
+                      <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
                     </button>
                     <button
                       onClick={() => {
@@ -660,6 +668,66 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       <span className="font-bold text-purple-400">مرکز هوشمند CRM و آلارم دادگاه (فاز ۳۰)</span>
                       <Receipt className="w-3.5 h-3.5 text-purple-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('elementor-pro');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold text-[#D4AF37]">یکپارچگی پیشرفته المنتور پرو و Theme Builder (فاز ۳۱)</span>
+                      <Sliders className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('payment-adapter');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
+                    >
+                      <span className="font-bold text-emerald-400">سامانه پرداخت آداپتور، ووکامرس/نیتیو و مودیان (فاز ۳۲)</span>
+                      <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('associate-referral');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-purple-500/10 hover:text-purple-400 transition-colors"
+                    >
+                      <span className="font-bold text-purple-400">سامانه ارجاع همکاران، سهم‌الوکاله و نظارت (فاز ۳۳)</span>
+                      <Users className="w-3.5 h-3.5 text-purple-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('supreme-court-appeals');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold text-[#D4AF37]">تحلیل آراء دیوان عالی کشور، فرجام و ماده ۴۷۷ (فاز ۳۴)</span>
+                      <Scale className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('commercial-arbitration');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-amber-500/10 hover:text-amber-400 transition-colors"
+                    >
+                      <span className="font-bold text-amber-400">داوری تجاری اتاق بازرگانی، انشا و ابطال رای (فاز ۳۵)</span>
+                      <Gavel className="w-3.5 h-3.5 text-amber-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('government-tenders');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
+                    >
+                      <span className="font-bold text-emerald-400">مناقصات دولتی، ضمانت‌نامه بانکی و دستور موقت (فاز ۳۶)</span>
+                      <Building2 className="w-3.5 h-3.5 text-emerald-400" />
                     </button>
                   </div>
                 )}
@@ -1431,7 +1499,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
                 className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-blue-400 font-bold"
               >
-                🔑 احراز هویت دوحالته وکلای دفتر (فاز ۱۶)
+                🔑 سیستم ورود دوگانه وکلا، رمز ادمین و 2FA (پارت ۱۶)
               </button>
 
               <button
@@ -1442,7 +1510,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
                 className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
               >
-                🔄 اتصال یکپارچه دو پنل و SSO (فاز ۱۷)
+                🔄 یکپارچگی دو پنل، SSO و همگام‌سازی داده (پارت ۱۷)
               </button>
 
               <button
@@ -1453,7 +1521,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
                 className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-rose-400 font-bold"
               >
-                🛡️ مخفی‌سازی صفحات ادمین و سئو (فاز ۱۸)
+                🛡️ مخفی‌سازی ۱۲ صفحه ادمین، سئو و سوئیچ حالت (پارت ۱۸)
               </button>
 
               <button
@@ -1464,29 +1532,29 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
                 className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
               >
-                🎨 مخزن Design Tokens پوسته (فاز ۱۹)
+                🎨 مخزن ۲۴ متغیر سراسری Design Tokens (پارت ۱۹)
               </button>
 
               <button
                 type="button"
                 onClick={() => {
-                  setActiveView('ajax-search');
+                  setActiveView('elementor-pro');
                   setMobileMenuOpen(false);
                 }}
                 className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-amber-400 font-bold"
               >
-                🔍 جستجو و فیلتر آژاکس (فاز ۲۰)
+                📐 یکپارچگی کامل با المنتور و ۸ ویجت اختصاصی (پارت ۲۰)
               </button>
 
               <button
                 type="button"
                 onClick={() => {
-                  setActiveView('case-prediction');
+                  setActiveView('payment-adapter');
                   setMobileMenuOpen(false);
                 }}
                 className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-emerald-400 font-bold"
               >
-                ⚖️ ارزیابی شانس برد و تحلیل ریسک (فاز ۲۱)
+                💳 سیستم پرداخت Adapter Pattern و مودیان (پارت ۲۱)
               </button>
 
               <button
@@ -1586,6 +1654,72 @@ export const Header: React.FC<HeaderProps> = ({
                 className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-purple-400 font-bold"
               >
                 👥 مرکز CRM و آلارم دادگاه (فاز ۳۰)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('elementor-pro');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+              >
+                🎨 یکپارچگی پیشرفته المنتور پرو و Theme Builder (فاز ۳۱)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('payment-adapter');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-emerald-400 font-bold"
+              >
+                💳 سامانه پرداخت آداپتور، ووکامرس/نیتیو و مودیان (فاز ۳۲)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('associate-referral');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-purple-400 font-bold"
+              >
+                👥 سامانه ارجاع همکاران، سهم‌الوکاله و نظارت (فاز ۳۳)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('supreme-court-appeals');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+              >
+                ⚖️ تحلیل آراء دیوان عالی کشور، فرجام و ماده ۴۷۷ (فاز ۳۴)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('commercial-arbitration');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-amber-400 font-bold"
+              >
+                ⚖️ داوری تجاری اتاق بازرگانی، انشا و ابطال رای (فاز ۳۵)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('government-tenders');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-emerald-400 font-bold"
+              >
+                🏢 مناقصات دولتی، ضمانت‌نامه بانکی و دستور موقت (فاز ۳۶)
               </button>
 
               <a

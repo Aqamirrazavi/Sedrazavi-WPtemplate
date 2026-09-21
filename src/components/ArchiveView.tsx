@@ -8,6 +8,10 @@ import {
   Search,
   Grid,
   List,
+  Table,
+  Columns,
+  LayoutGrid,
+  Milestone,
   ArrowUpDown,
   Filter,
   Eye,
@@ -64,7 +68,52 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'newest' | 'most_viewed' | 'title'>('newest');
-  const [viewLayout, setViewLayout] = useState<'grid' | 'list'>('grid');
+  
+  // 6-Mode Layout Switcher (Part 13: Card, Table, List, Masonry, Compact, Timeline)
+  type LayoutMode = 'card' | 'table' | 'list' | 'masonry' | 'compact' | 'timeline';
+  const [viewLayout, setViewLayout] = useState<LayoutMode>(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlLayout = urlParams.get('layout') as LayoutMode;
+      if (urlLayout && ['card', 'table', 'list', 'masonry', 'compact', 'timeline'].includes(urlLayout)) {
+        return urlLayout;
+      }
+      const saved = localStorage.getItem('sedrazavi_archive_layout') as LayoutMode;
+      if (saved && ['card', 'table', 'list', 'masonry', 'compact', 'timeline'].includes(saved)) {
+        return saved;
+      }
+    }
+    return 'card';
+  });
+  const [isLayoutSwitching, setIsLayoutSwitching] = useState(false);
+
+  const handleLayoutChange = (layout: LayoutMode) => {
+    setIsLayoutSwitching(true);
+    setViewLayout(layout);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sedrazavi_archive_layout', layout);
+      const url = new URL(window.location.href);
+      url.searchParams.set('layout', layout);
+      window.history.replaceState({}, '', url.toString());
+    }
+    setTimeout(() => {
+      setIsLayoutSwitching(false);
+    }, 200);
+  };
+
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === '1') handleLayoutChange('card');
+      if (e.key === '2') handleLayoutChange('table');
+      if (e.key === '3') handleLayoutChange('list');
+      if (e.key === '4') handleLayoutChange('masonry');
+      if (e.key === '5') handleLayoutChange('compact');
+      if (e.key === '6') handleLayoutChange('timeline');
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Newsletter form state in sidebar
   const [newsletterEmail, setNewsletterEmail] = useState('');

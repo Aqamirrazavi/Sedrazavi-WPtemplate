@@ -42,6 +42,12 @@ import { LaborSocialSecuritySuite } from './components/labor-social-security/Lab
 import { EconomicCrimesDefenseSuite } from './components/economic-crimes/EconomicCrimesDefenseSuite';
 import { CustomsTransitDisputesSuite } from './components/customs-transit/CustomsTransitDisputesSuite';
 import { LegalCrmSmartNotifierSuite } from './components/legal-crm-notifier/LegalCrmSmartNotifierSuite';
+import { FullElementorIntegrationSuite } from './components/elementor-integration/FullElementorIntegrationSuite';
+import { PaymentAdapterSystemSuite } from './components/payment-adapter/PaymentAdapterSystemSuite';
+import { LegalAssociateReferralSuite } from './components/associate-referral/LegalAssociateReferralSuite';
+import { SupremeCourtAppealsSuite } from './components/supreme-court-appeals/SupremeCourtAppealsSuite';
+import { CommercialArbitrationSuite } from './components/commercial-arbitration/CommercialArbitrationSuite';
+import { GovernmentTendersGuaranteesSuite } from './components/government-tenders/GovernmentTendersGuaranteesSuite';
 import { ArchiveView } from './components/ArchiveView';
 import { SingleContentView } from './components/SingleContentView';
 import { OnboardingTour } from './components/OnboardingTour';
@@ -1005,6 +1011,154 @@ export default function App() {
               onOpenPhase28={() => setActiveView('economic-crimes')}
               onOpenPhase29={() => setActiveView('customs-transit')}
               onOpenPhase30={() => setActiveView('legal-crm')}
+              onOpenPhase31={() => setActiveView('elementor-pro')}
+              onOpenPhase32={() => setActiveView('payment-adapter')}
+            />
+          </div>
+        )}
+
+        {activeView === 'elementor-pro' && (
+          <div>
+            <FullElementorIntegrationSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+              onOpenPhase31={() => setActiveView('elementor-pro')}
+              onOpenPhase32={() => setActiveView('payment-adapter')}
+            />
+          </div>
+        )}
+
+        {activeView === 'payment-adapter' && (
+          <div>
+            <PaymentAdapterSystemSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+              onOpenPhase31={() => setActiveView('elementor-pro')}
+              onOpenPhase32={() => setActiveView('payment-adapter')}
+              onOpenPhase33={() => setActiveView('associate-referral')}
+              onOpenPhase34={() => setActiveView('supreme-court-appeals')}
+              onOpenPhase35={() => setActiveView('commercial-arbitration')}
+              onOpenPhase36={() => setActiveView('government-tenders')}
+            />
+          </div>
+        )}
+
+        {activeView === 'associate-referral' && (
+          <div>
+            <LegalAssociateReferralSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+              onOpenPhase31={() => setActiveView('elementor-pro')}
+              onOpenPhase32={() => setActiveView('payment-adapter')}
+              onOpenPhase33={() => setActiveView('associate-referral')}
+              onOpenPhase34={() => setActiveView('supreme-court-appeals')}
+              onOpenPhase35={() => setActiveView('commercial-arbitration')}
+              onOpenPhase36={() => setActiveView('government-tenders')}
+            />
+          </div>
+        )}
+
+        {activeView === 'supreme-court-appeals' && (
+          <div>
+            <SupremeCourtAppealsSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+              onOpenPhase31={() => setActiveView('elementor-pro')}
+              onOpenPhase32={() => setActiveView('payment-adapter')}
+              onOpenPhase33={() => setActiveView('associate-referral')}
+              onOpenPhase34={() => setActiveView('supreme-court-appeals')}
+              onOpenPhase35={() => setActiveView('commercial-arbitration')}
+              onOpenPhase36={() => setActiveView('government-tenders')}
+            />
+          </div>
+        )}
+
+        {activeView === 'commercial-arbitration' && (
+          <div>
+            <CommercialArbitrationSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+              onOpenPhase31={() => setActiveView('elementor-pro')}
+              onOpenPhase32={() => setActiveView('payment-adapter')}
+              onOpenPhase33={() => setActiveView('associate-referral')}
+              onOpenPhase34={() => setActiveView('supreme-court-appeals')}
+              onOpenPhase35={() => setActiveView('commercial-arbitration')}
+              onOpenPhase36={() => setActiveView('government-tenders')}
+            />
+          </div>
+        )}
+
+        {activeView === 'government-tenders' && (
+          <div>
+            <GovernmentTendersGuaranteesSuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenDashboard={() => setActiveView('dashboard')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+              onOpenPhase31={() => setActiveView('elementor-pro')}
+              onOpenPhase32={() => setActiveView('payment-adapter')}
+              onOpenPhase33={() => setActiveView('associate-referral')}
+              onOpenPhase34={() => setActiveView('supreme-court-appeals')}
+              onOpenPhase35={() => setActiveView('commercial-arbitration')}
+              onOpenPhase36={() => setActiveView('government-tenders')}
             />
           </div>
         )}
