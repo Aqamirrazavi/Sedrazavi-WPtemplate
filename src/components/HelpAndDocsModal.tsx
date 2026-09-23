@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   HelpCircle,
@@ -11,6 +11,14 @@ import {
   ChevronUp,
   Sparkles,
   Play,
+  Pause,
+  RotateCcw,
+  FastForward,
+  Volume2,
+  VolumeX,
+  Maximize2,
+  Settings,
+  Check,
   Layers,
   BookOpen,
   Award,
@@ -199,7 +207,50 @@ export const HelpAndDocsModal: React.FC<HelpAndDocsModalProps> = ({
   const [activeTab, setActiveTab] = useState<'guides' | 'videos' | 'tours' | 'docs'>('guides');
   const [openGuideId, setOpenGuideId] = useState<number | null>(1);
   const [selectedVideo, setSelectedVideo] = useState(VIDEO_TUTORIALS[0]);
-  const [isPlayingMock, setIsPlayingMock] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [totalDuration, setTotalDuration] = useState(270); // 04:30 in seconds
+  const [volume, setVolume] = useState(0.85);
+  const [isMuted, setIsMuted] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [downloadToast, setDownloadToast] = useState(false);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+
+  // Parse duration when selecting video
+  useEffect(() => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+    // Parse duration e.g. "۰۴:۳۰ دقیقه" or "۰۵:۱۲ دقیقه"
+    const digits = selectedVideo.duration.replace(/[^\d:]/g, '');
+    const parts = digits.split(':');
+    if (parts.length === 2) {
+      const mins = parseInt(parts[0], 10) || 4;
+      const secs = parseInt(parts[1], 10) || 30;
+      setTotalDuration(mins * 60 + secs);
+    } else {
+      setTotalDuration(270);
+    }
+  }, [selectedVideo]);
+
+  // Video playback timer
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setCurrentTime((prev) => {
+          if (prev >= totalDuration) {
+            setIsPlaying(false);
+            return 0;
+          }
+          return prev + 1;
+        });
+      }, 1000 / playbackSpeed);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlaying, totalDuration, playbackSpeed]);
 
   if (!isOpen) return null;
 
@@ -207,8 +258,34 @@ export const HelpAndDocsModal: React.FC<HelpAndDocsModalProps> = ({
     setOpenGuideId(openGuideId === id ? null : id);
   };
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressBarRef.current) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const width = rect.width;
+    const percentage = Math.max(0, Math.min(1, clickX / width));
+    setCurrentTime(Math.floor(percentage * totalDuration));
+  };
+
+  const handleChapterClick = (chapterStr: string) => {
+    const timeMatch = chapterStr.match(/(\d{2}):(\d{2})/);
+    if (timeMatch) {
+      const mins = parseInt(timeMatch[1], 10);
+      const secs = parseInt(timeMatch[2], 10);
+      setCurrentTime(mins * 60 + secs);
+      setIsPlaying(true);
+    }
+  };
+
   const handleDownloadPdfDocs = () => {
-    alert('فایل مستندات جامع قالب دادمان (شامل ۲۶ بخش معماری، سئو و کدهای اختصاصی) با فرمت PDF در حال تولید است. دانلود به زودی آغاز می‌شود.');
+    setDownloadToast(true);
+    setTimeout(() => setDownloadToast(false), 4000);
   };
 
   return (
@@ -270,6 +347,23 @@ export const HelpAndDocsModal: React.FC<HelpAndDocsModalProps> = ({
             );
           })}
         </div>
+
+        {/* Download Toast Notification */}
+        {downloadToast && (
+          <div className="mx-6 mt-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-500/40 text-emerald-800 dark:text-emerald-200 text-xs flex items-center justify-between animate-in fade-in">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+              <span>فایل مستندات جامع قالب دادمان (شامل ۲۶ بخش معماری، سئو و کدهای اختصاصی) با فرمت PDF دریافت شد.</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDownloadToast(false)}
+              className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 text-xs font-bold"
+            >
+              بستن
+            </button>
+          </div>
+        )}
 
         {/* Body Content */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm">
@@ -348,31 +442,166 @@ export const HelpAndDocsModal: React.FC<HelpAndDocsModalProps> = ({
           {activeTab === 'videos' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-in fade-in">
               
-              {/* Active Video Player Simulator */}
+              {/* Active Video Player */}
               <div className="lg:col-span-7 space-y-3">
-                <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-[#D4AF37]/30 shadow-lg group">
+                <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-[#D4AF37]/40 shadow-2xl group select-none">
+                  {/* Video Screen / Thumbnail */}
                   <img
                     src={selectedVideo.thumbnail}
                     alt={selectedVideo.title}
-                    className="w-full h-full object-cover opacity-70 group-hover:opacity-80 transition-opacity"
+                    className={`w-full h-full object-cover transition-all duration-700 ${
+                      isPlaying ? 'opacity-90 scale-105' : 'opacity-70 group-hover:opacity-80 scale-100'
+                    }`}
                   />
-                  
-                  {/* Play Button Overlay */}
+
+                  {/* Playing Ambient Glow Overlay */}
+                  {isPlaying && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/30 pointer-events-none" />
+                  )}
+
+                  {/* Center Play/Pause Trigger */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <button
-                      onClick={() => setIsPlayingMock(!isPlayingMock)}
-                      className="w-16 h-16 rounded-full bg-[#D4AF37] hover:bg-[#C4981C] text-[#0B132B] flex items-center justify-center shadow-2xl transition-transform hover:scale-110"
+                      type="button"
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      className={`w-16 h-16 rounded-full bg-[#D4AF37] hover:bg-[#C4981C] text-[#0B132B] flex items-center justify-center shadow-2xl transition-all hover:scale-110 cursor-pointer ${
+                        isPlaying ? 'opacity-0 group-hover:opacity-100 scale-90' : 'opacity-100 scale-100'
+                      }`}
+                      title={isPlaying ? 'توقف' : 'پخش'}
                     >
-                      <Play className="w-8 h-8 fill-[#0B132B] mr-1" />
+                      {isPlaying ? (
+                        <Pause className="w-8 h-8 fill-[#0B132B]" />
+                      ) : (
+                        <Play className="w-8 h-8 fill-[#0B132B] mr-1" />
+                      )}
                     </button>
                   </div>
 
-                  {/* Subtitle bar */}
-                  <div className="absolute bottom-3 inset-x-4 p-2 rounded-lg bg-black/80 backdrop-blur-sm text-center text-xs text-white">
-                    زیرنویس فارسی رسمی: {selectedVideo.title} (کیفیت ۱۰۸۰p Full HD)
+                  {/* Subtitle Bar */}
+                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md border border-white/10 text-[11px] text-white flex items-center gap-1.5 font-sans">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>زیرنویس فارسی رسمی: {selectedVideo.title}</span>
+                  </div>
+
+                  {/* Bottom Controls Bar */}
+                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-3 pt-6 space-y-2 transition-opacity duration-300">
+                    {/* Interactive Scrub Bar */}
+                    <div
+                      ref={progressBarRef}
+                      onClick={handleSeek}
+                      className="relative w-full h-2 bg-white/20 hover:h-3 rounded-full cursor-pointer transition-all overflow-hidden"
+                      title="کلیک برای پرش به زمان دلخواه"
+                    >
+                      <div
+                        className="h-full bg-gradient-to-r from-[#AA820A] to-[#D4AF37] rounded-full transition-all duration-150"
+                        style={{ width: `${(currentTime / Math.max(1, totalDuration)) * 100}%` }}
+                      />
+                    </div>
+
+                    {/* Controls Row */}
+                    <div className="flex items-center justify-between text-white text-xs pt-1 flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        {/* Play/Pause Button */}
+                        <button
+                          type="button"
+                          onClick={() => setIsPlaying(!isPlaying)}
+                          className="p-1.5 hover:text-[#D4AF37] transition-colors"
+                        >
+                          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white" />}
+                        </button>
+
+                        {/* Rewind 10s */}
+                        <button
+                          type="button"
+                          onClick={() => setCurrentTime((t) => Math.max(0, t - 10))}
+                          className="p-1.5 hover:text-[#D4AF37] transition-colors"
+                          title="۱۰ ثانیه قبل"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Fast Forward 10s */}
+                        <button
+                          type="button"
+                          onClick={() => setCurrentTime((t) => Math.min(totalDuration, t + 10))}
+                          className="p-1.5 hover:text-[#D4AF37] transition-colors"
+                          title="۱۰ ثانیه بعد"
+                        >
+                          <FastForward className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Volume Control */}
+                        <div className="flex items-center gap-1.5 mr-2">
+                          <button
+                            type="button"
+                            onClick={() => setIsMuted(!isMuted)}
+                            className="p-1 hover:text-[#D4AF37] transition-colors"
+                          >
+                            {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4" />}
+                          </button>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value={isMuted ? 0 : volume}
+                            onChange={(e) => {
+                              setVolume(parseFloat(e.target.value));
+                              setIsMuted(false);
+                            }}
+                            className="w-14 h-1 accent-[#D4AF37] bg-white/30 rounded-lg cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Time Display */}
+                        <span className="font-mono text-[11px] text-gray-300 mr-2">
+                          {formatTime(currentTime)} / {formatTime(totalDuration)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* Speed Selector */}
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() => setShowSpeedMenu(!showSpeedMenu)}
+                            className="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[11px] font-mono font-bold text-gray-200 transition-colors flex items-center gap-1"
+                          >
+                            <span>{playbackSpeed}x</span>
+                            <Settings className="w-3 h-3 text-[#D4AF37]" />
+                          </button>
+                          {showSpeedMenu && (
+                            <div className="absolute bottom-full left-0 mb-1.5 bg-[#0B132B] border border-gray-700 rounded-xl shadow-xl p-1 z-50 flex flex-col gap-0.5 min-w-[70px]">
+                              {[0.75, 1, 1.25, 1.5, 2].map((s) => (
+                                <button
+                                  key={s}
+                                  type="button"
+                                  onClick={() => {
+                                    setPlaybackSpeed(s);
+                                    setShowSpeedMenu(false);
+                                  }}
+                                  className={`px-2 py-1 text-right text-[10px] rounded font-mono flex items-center justify-between ${
+                                    playbackSpeed === s ? 'bg-[#D4AF37] text-[#0B132B] font-bold' : 'text-gray-300 hover:bg-white/10'
+                                  }`}
+                                >
+                                  <span>{s}x</span>
+                                  {playbackSpeed === s && <Check className="w-2.5 h-2.5" />}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Quality Badge */}
+                        <span className="px-2 py-0.5 rounded bg-amber-500/20 text-[#D4AF37] text-[10px] font-mono font-bold border border-[#D4AF37]/30">
+                          1080p FHD
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
+                {/* Video Info and Interactive Chapters */}
                 <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 space-y-2">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-bold text-[#0B132B] dark:text-white font-serif">
@@ -382,14 +611,23 @@ export const HelpAndDocsModal: React.FC<HelpAndDocsModalProps> = ({
                       {selectedVideo.duration}
                     </span>
                   </div>
-                  
-                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-1">
-                    <span className="text-[11px] font-bold text-gray-500">فصل‌های آموزشی (Timestamps):</span>
+
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-gray-500">
+                      <span>فصل‌های آموزشی (کلیک برای پرش به ثانیه مشخص):</span>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400">تایم‌لاین هوشمند</span>
+                    </div>
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {selectedVideo.chapters.map((ch, i) => (
-                        <span key={i} className="text-[10px] px-2 py-1 rounded bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200">
-                          {ch}
-                        </span>
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => handleChapterClick(ch)}
+                          className="text-[10px] px-2.5 py-1 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-[#D4AF37] hover:text-[#D4AF37] text-gray-700 dark:text-gray-200 transition-all font-sans cursor-pointer flex items-center gap-1 shadow-sm"
+                        >
+                          <Play className="w-2.5 h-2.5 fill-current" />
+                          <span>{ch}</span>
+                        </button>
                       ))}
                     </div>
                   </div>

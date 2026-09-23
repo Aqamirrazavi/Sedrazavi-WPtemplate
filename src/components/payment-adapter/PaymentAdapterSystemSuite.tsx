@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDesignTokens } from '../../context/DesignTokensContext';
 import {
   CreditCard,
   Layers,
@@ -68,6 +69,14 @@ export const PaymentAdapterSystemSuite: React.FC<{
   onBackToHome?: () => void;
   onOpenDashboard?: () => void;
 }> = ({ onBackToHome, onOpenDashboard }) => {
+  const { tokens } = useDesignTokens();
+  const [notificationToast, setNotificationToast] = useState<string | null>(null);
+
+  const showNotification = (msg: string) => {
+    setNotificationToast(msg);
+    setTimeout(() => setNotificationToast(null), 4000);
+  };
+
   const [activeTab, setActiveTab] = useState<
     'adapter_architecture' | 'gateways' | 'invoice_generator' | 'einvoice_moadian' | 'fraud_dispute' | 'compliance_reports'
   >('adapter_architecture');
@@ -382,6 +391,22 @@ export const PaymentAdapterSystemSuite: React.FC<{
             )}
           </div>
         </div>
+
+        {/* Dynamic Notification Toast */}
+        {notificationToast && (
+          <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-500/40 text-emerald-800 dark:text-emerald-200 text-xs flex items-center justify-between shadow-lg animate-in fade-in">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+              <span className="font-bold">{notificationToast}</span>
+            </div>
+            <button
+              onClick={() => setNotificationToast(null)}
+              className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 text-xs font-bold"
+            >
+              بستن
+            </button>
+          </div>
+        )}
 
         {/* 6 Core Financial KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
@@ -1022,9 +1047,11 @@ export const PaymentAdapterSystemSuite: React.FC<{
                     <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
                       <div>
                         <h5 className="font-bold text-sm text-gray-900 dark:text-white font-serif">
-                          دفتر وکالت و مشاوره حقوقی سید امیر حسین رضوی
+                          {tokens['brand.name']?.value || `دفتر وکالت و مشاوره حقوقی ${tokens['lawyer.name']?.value || 'دکتر سیده مریم رضوی'}`}
                         </h5>
-                        <p className="text-[11px] text-gray-500">شماره پروانه وکالت: ۱۲۳۴۵ کانون وکلای مرکز</p>
+                        <p className="text-[11px] text-gray-500">
+                          {tokens['lawyer.license']?.value || 'شماره پروانه وکالت: ۱۸۴۵ کانون وکلای مرکز'}
+                        </p>
                       </div>
                       <div className="text-left font-mono text-[11px]">
                         <span className="block font-bold text-gray-900 dark:text-white">
@@ -1072,10 +1099,10 @@ export const PaymentAdapterSystemSuite: React.FC<{
 
                     <div className="flex items-center justify-between pt-2">
                       <span className="text-[10px] text-gray-400">
-                        ممهور به امضای الکترونیک امن دفتر وکالت رضوی
+                        ممهور به امضای الکترونیک امن {tokens['lawyer.name']?.value || 'دفتر وکالت دکتر سیده مریم رضوی'}
                       </span>
                       <button
-                        onClick={() => alert('فایل PDF صورتحساب رسمی دانلود شد.')}
+                        onClick={() => showNotification('فایل PDF صورتحساب رسمی با امضای الکترونیک با موفقیت آماده و دانلود گردید.')}
                         className="px-3 py-1.5 rounded-lg btn-gold text-xs font-bold flex items-center gap-1.5"
                       >
                         <Download className="w-3.5 h-3.5" />
@@ -1306,13 +1333,13 @@ export const PaymentAdapterSystemSuite: React.FC<{
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => alert('پرونده بررسی و تراکنش رفع مسدودی گردید.')}
+                      onClick={() => showNotification('پرونده توسط وکیل بررسی و تراکنش رفع مسدودی گردید.')}
                       className="px-3 py-1.5 rounded-xl bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-xs font-bold"
                     >
                       تایید دستی وکیل
                     </button>
                     <button
-                      onClick={() => alert('تراکنش با استناد به ماده ۱۲ قانون جرایم رایانه‌ای عودت گردید.')}
+                      onClick={() => showNotification('تراکنش با استناد به ماده ۱۲ قانون جرایم رایانه‌ای عودت و مسدود گردید.')}
                       className="px-3 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-bold"
                     >
                       استرداد و مسدودسازی
@@ -1338,7 +1365,7 @@ export const PaymentAdapterSystemSuite: React.FC<{
                   </p>
                 </div>
                 <button
-                  onClick={() => alert('گزارش جامع انطباق مالی در قالب اکسل استخراج گردید.')}
+                  onClick={() => showNotification('گزارش جامع انطباق مالی شاپرک و ماده ۱۰۳ ق.م.م در قالب فایل Excel استخراج گردید.')}
                   className="px-4 py-2 rounded-xl btn-gold text-xs font-bold flex items-center gap-1.5"
                 >
                   <FileSpreadsheet className="w-4 h-4" />

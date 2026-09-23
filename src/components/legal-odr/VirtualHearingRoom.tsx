@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useDesignTokens } from '../../context/DesignTokensContext';
 import {
   Video,
   Mic,
@@ -23,6 +24,7 @@ import { VIRTUAL_HEARING_SCHEDULE_DATA } from '../../data/mockData';
 import { VirtualHearingSession } from '../../types/theme';
 
 export const VirtualHearingRoom: React.FC = () => {
+  const { tokens } = useDesignTokens();
   const [sessions] = useState<VirtualHearingSession[]>(VIRTUAL_HEARING_SCHEDULE_DATA);
   const [activeSession, setActiveSession] = useState<VirtualHearingSession>(sessions[0]);
   const [isMicOn, setIsMicOn] = useState(true);
@@ -118,24 +120,68 @@ export const VirtualHearingRoom: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Screen 1: Arbitrator / Judge (Main Prominent) */}
             <div className="sm:col-span-2 relative aspect-video rounded-2xl bg-[#060B18] border-2 border-[#D4AF37]/60 overflow-hidden shadow-2xl flex items-center justify-center group">
-              <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800"
-                alt="دکتر سیده مریم رضوی"
-                className="w-full h-full object-cover object-top opacity-90"
-              />
+              {isVideoOn ? (
+                <img
+                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800"
+                  alt={tokens['lawyer.name']?.value || 'دکتر سیده مریم رضوی'}
+                  className="w-full h-full object-cover object-top opacity-90 transition-opacity"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center p-6 text-center space-y-3">
+                  <div className="w-20 h-20 rounded-full bg-[#D4AF37]/20 border-2 border-[#D4AF37] flex items-center justify-center text-[#D4AF37] shadow-xl">
+                    <Gavel className="w-10 h-10" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold font-serif text-sm">
+                      {tokens['lawyer.name']?.value || activeSession.judgeOrArbitrator}
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      دوربین موقتاً خاموش است - انتقال صدا به صورت رمزنگاری E2E فعال است
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Screen Sharing Document Overlay */}
+              {isScreenSharing && (
+                <div className="absolute inset-x-4 top-14 bottom-14 rounded-xl bg-slate-900/95 border border-[#D4AF37]/50 p-4 shadow-2xl backdrop-blur-md flex flex-col justify-between text-right animate-in fade-in">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-700">
+                    <span className="text-xs font-bold text-[#D4AF37] flex items-center gap-1.5">
+                      <Monitor className="w-3.5 h-3.5" />
+                      <span>اشتراک‌گذاری زنده سند: صورتجلسه رسیدگی و توافق‌نامه داوری</span>
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">
+                      LIVE STREAM
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-300 space-y-1.5 overflow-hidden font-mono p-2 bg-black/40 rounded-lg">
+                    <p className="text-amber-300 font-bold">بند سوم: تعهدات طرفین در تسویه حساب ریالی</p>
+                    <p className="text-slate-400 text-[11px] leading-relaxed">
+                      خوانده متعهد می‌گردد ظرف مهلت ۱۵ روز کاری از تاریخ ابلاغ رای قطعی داوری، اصل خسارت وارده به میزان مقرر را از طریق سامانه پرداخت دادمان واریز نماید.
+                    </p>
+                  </div>
+                  <div className="text-[10px] text-slate-400 flex items-center justify-between">
+                    <span>ممهور به امضای سرداور: {tokens['lawyer.name']?.value || 'دکتر سیده مریم رضوی'}</span>
+                    <span className="text-emerald-400 font-bold">همگام‌سازی ابری</span>
+                  </div>
+                </div>
+              )}
+
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
 
               {/* Badge Overlays */}
               <div className="absolute top-3 right-3 flex items-center gap-2">
                 <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md text-[#D4AF37] border border-[#D4AF37]/40 text-xs font-bold flex items-center gap-1.5">
                   <Gavel className="w-3.5 h-3.5" />
-                  <span>سرداور مرضی‌الطرفین: {activeSession.judgeOrArbitrator}</span>
+                  <span>سرداور مرضی‌الطرفین: {tokens['lawyer.name']?.value || activeSession.judgeOrArbitrator}</span>
                 </span>
               </div>
 
               <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-bold text-white drop-shadow">میکروفن فعال (در حال استماع)</span>
+                <span className={`w-2.5 h-2.5 rounded-full ${isMicOn ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                <span className="text-xs font-bold text-white drop-shadow">
+                  {isMicOn ? 'میکروفن فعال (در حال استماع)' : 'میکروفن قطع شده است'}
+                </span>
               </div>
             </div>
 

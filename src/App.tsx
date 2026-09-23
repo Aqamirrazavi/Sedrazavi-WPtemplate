@@ -50,6 +50,9 @@ import { CommercialArbitrationSuite } from './components/commercial-arbitration/
 import { GovernmentTendersGuaranteesSuite } from './components/government-tenders/GovernmentTendersGuaranteesSuite';
 import { ArchiveView } from './components/ArchiveView';
 import { SingleContentView } from './components/SingleContentView';
+import { SingleServiceView } from './components/SingleServiceView';
+import { NotFoundPageView } from './components/NotFoundPageView';
+import { InstagramGalleryPageView } from './components/InstagramGalleryPageView';
 import { OnboardingTour } from './components/OnboardingTour';
 import { HelpAndDocsModal } from './components/HelpAndDocsModal';
 import { SurveyWidgetModal } from './components/SurveyWidgetModal';
@@ -110,7 +113,14 @@ export default function App() {
   const [singleContentType, setSingleContentType] = useState<'article' | 'video'>('article');
   const [selectedArticleId, setSelectedArticleId] = useState<string>(ARTICLES_DATA[0]?.id || '1');
   const [selectedVideoId, setSelectedVideoId] = useState<string>('vid-1');
+  const [selectedServiceId, setSelectedServiceId] = useState<string>(SERVICES_DATA[0]?.id || 'srv-1');
   const [archiveInitialType, setArchiveInitialType] = useState<'all' | 'article' | 'video'>('all');
+
+  const handleOpenSingleService = (serviceId: string) => {
+    setSelectedServiceId(serviceId);
+    setActiveView('single-service');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     if (isDarkMode) {
@@ -353,6 +363,67 @@ export default function App() {
             <ServicesPageView
               onBookService={handleBookService}
               onBackToHome={() => setActiveView('preview')}
+              onOpenSingleService={handleOpenSingleService}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+            />
+          </div>
+        )}
+
+        {activeView === 'single-service' && (
+          <div>
+            <SingleServiceView
+              serviceId={selectedServiceId}
+              onBackToServices={() => setActiveView('services-page')}
+              onSelectService={(id) => setSelectedServiceId(id)}
+              onBookConsultation={handleBookService}
+              onContactLawyer={() => setActiveView('contact-page')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+            />
+          </div>
+        )}
+
+        {activeView === 'instagram-gallery' && (
+          <div>
+            <InstagramGalleryPageView
+              onBackToHome={() => setActiveView('preview')}
+              onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase5={() => setActiveView('odr-suite')}
+              onOpenPhase6={() => setActiveView('legal-ai')}
+              onOpenPhase7={() => setActiveView('strategy-suite')}
+              onOpenPhase8={() => setActiveView('corporate-suite')}
+            />
+          </div>
+        )}
+
+        {activeView === 'not-found' && (
+          <div>
+            <NotFoundPageView
+              onBackToHome={() => setActiveView('preview')}
+              onNavigateView={(view) => {
+                if (view === 'services') setActiveView('services-page');
+                else if (view === 'archive') setActiveView('archive');
+                else if (view === 'contact') setActiveView('contact-page');
+                else setActiveView('preview');
+              }}
+              onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
             />
             <Footer
               profile={lawyerProfile}

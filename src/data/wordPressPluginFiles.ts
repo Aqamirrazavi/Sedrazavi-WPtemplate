@@ -113,6 +113,12 @@ if (!class_exists('SedRazavi_Addons_Loader')) {
                 'elementor-widgets.php',
                 'admin-settings.php',
                 'otp-auth-integration.php',
+                'class-sedrazavi-auth-dual-mode.php',
+                'class-sedrazavi-dual-panel-unified.php',
+                'class-sedrazavi-admin-protection.php',
+                'class-sedrazavi-design-tokens.php',
+                'class-sedrazavi-elementor-widgets.php',
+                'class-sedrazavi-payment-adapter.php',
             );
 
             foreach ($modules as $module) {

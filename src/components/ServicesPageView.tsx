@@ -20,11 +20,13 @@ import { SERVICES_DATA } from '../data/mockData';
 interface ServicesPageViewProps {
   onBookService: (serviceTitle: string) => void;
   onBackToHome: () => void;
+  onOpenSingleService?: (serviceId: string) => void;
 }
 
 export const ServicesPageView: React.FC<ServicesPageViewProps> = ({
   onBookService,
   onBackToHome,
+  onOpenSingleService,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -165,10 +167,20 @@ export const ServicesPageView: React.FC<ServicesPageViewProps> = ({
                 </div>
               </div>
 
-              <div className="pt-6 mt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                <span className="text-xs font-semibold text-[#D4AF37]">
-                  امکان تقسیط حق‌الوکاله
-                </span>
+              <div className="pt-6 mt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
+                {onOpenSingleService ? (
+                  <button
+                    onClick={() => onOpenSingleService(service.id)}
+                    className="text-xs font-bold text-[#D4AF37] hover:underline flex items-center gap-1"
+                  >
+                    <span>جزئیات خدمت</span>
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                  </button>
+                ) : (
+                  <span className="text-xs font-semibold text-[#D4AF37]">
+                    امکان تقسیط حق‌الوکاله
+                  </span>
+                )}
                 <button
                   onClick={() => onBookService(service.title)}
                   className="btn-gold px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md hover:scale-105 transition-all"

@@ -42,8 +42,13 @@ import {
   Receipt,
   CreditCard,
   Sliders,
+  AlertTriangle,
+  Eye,
+  EyeOff,
+  Instagram,
 } from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
+import { useDesignTokens } from '../context/DesignTokensContext';
 import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
 import { MegaMenu } from './MegaMenu';
 
@@ -92,7 +97,10 @@ export type ThemeViewMode =
   | 'government-tenders'
   | 'code'
   | 'archive'
-  | 'single';
+  | 'single'
+  | 'single-service'
+  | 'not-found'
+  | 'instagram-gallery';
 
 interface HeaderProps {
   activeView: ThemeViewMode;
@@ -133,11 +141,13 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   lawyerProfile,
 }) => {
-  const brandName = lawyerProfile?.siteTitle || 'SedRazavi';
-  const licenseNumber = lawyerProfile?.licenseNumber || ATTORNEY_INFO.licenseNumber;
-  const workingHours = lawyerProfile?.workingHours || ATTORNEY_INFO.workingHours;
-  const phoneNumber = lawyerProfile?.phone || ATTORNEY_INFO.phone;
-  const lawyerTitle = lawyerProfile?.lawyerTitle || 'دفتر وکالت و مشاوره حقوقی تخصصی';
+  const { uiMode, toggleUiMode, tokens } = useDesignTokens();
+  const brandName = tokens['brand.name']?.value || lawyerProfile?.siteTitle || 'SedRazavi';
+  const lawyerName = tokens['lawyer.name']?.value || ATTORNEY_INFO.name;
+  const licenseNumber = tokens['lawyer.license']?.value || lawyerProfile?.licenseNumber || ATTORNEY_INFO.licenseNumber;
+  const workingHours = tokens['contact.hours']?.value || lawyerProfile?.workingHours || ATTORNEY_INFO.workingHours;
+  const phoneNumber = tokens['contact.phone']?.value || lawyerProfile?.phone || ATTORNEY_INFO.phone;
+  const lawyerTitle = tokens['lawyer.title']?.value || lawyerProfile?.lawyerTitle || 'دفتر وکالت و مشاوره حقوقی تخصصی';
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
@@ -167,6 +177,26 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
+      {/* Part 18: Admin Mode Active Red Fixed Banner */}
+      {uiMode === 'admin' && (
+        <div className="bg-[#8B0000] text-white text-xs py-1.5 px-4 flex items-center justify-between border-b border-red-700/60 shadow-inner z-50">
+          <div className="container mx-auto flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-300 animate-pulse" />
+              <span className="font-bold">⚠️ حالت ادمین فعال است – شما در حال مشاهده‌ی ساختار کامل، صفحات فنی و منوهای ادمین هستید (پارت ۱۸).</span>
+            </div>
+            <button
+              type="button"
+              onClick={toggleUiMode}
+              className="px-2.5 py-0.5 rounded bg-white text-[#8B0000] hover:bg-gray-100 font-bold transition-all text-[11px] flex items-center gap-1 shadow cursor-pointer"
+            >
+              <EyeOff className="w-3 h-3" />
+              <span>سوئیچ به حالت عمومی (مخفی‌سازی صفحات ادمین)</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Top Notification / Bar */}
       <div className="bg-[#0B132B] text-gray-300 text-xs py-2 px-4 border-b border-[#D4AF37]/20">
         <div className="container mx-auto flex flex-wrap items-center justify-between gap-2">
@@ -401,6 +431,36 @@ export const Header: React.FC<HeaderProps> = ({
                     </button>
                     <button
                       onClick={() => {
+                        setActiveView('single-service');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">برگه خدمت تکی ۹ بخشی (پارت ۴.۵)</span>
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('instagram-gallery');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">گالری اینستاگرام و رسانه (پارت ۴.۸)</span>
+                      <Instagram className="w-3.5 h-3.5 text-pink-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('not-found');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                    >
+                      <span className="font-bold">برگه خطای ۴۰۴ استاندارد (404.php)</span>
+                      <Compass className="w-3.5 h-3.5 text-rose-500" />
+                    </button>
+                    <button
+                      onClick={() => {
                         setActiveView('finance');
                         setPagesDropdownOpen(false);
                       }}
@@ -519,66 +579,75 @@ export const Header: React.FC<HeaderProps> = ({
                       <span className="font-bold text-emerald-400">دیوان عدالت اداری و شهرداری (فاز ۱۵)</span>
                       <Gavel className="w-3.5 h-3.5 text-emerald-400" />
                     </button>
-                    <button
-                      onClick={() => {
-                        setActiveView('auth-dual-mode');
-                        setPagesDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-blue-500/10 hover:text-blue-400 transition-colors"
-                    >
-                      <span className="font-bold text-blue-400">سیستم ورود دوگانه وکلا، رمز ادمین و 2FA (پارت ۱۶)</span>
-                      <KeyRound className="w-3.5 h-3.5 text-blue-400" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setActiveView('dual-panel-unified');
-                        setPagesDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
-                    >
-                      <span className="font-bold text-[#D4AF37]">یکپارچگی دو پنل، SSO و همگام‌سازی داده (پارت ۱۷)</span>
-                      <Shield className="w-3.5 h-3.5 text-[#D4AF37]" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setActiveView('admin-protection');
-                        setPagesDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
-                    >
-                      <span className="font-bold text-rose-400">مخفی‌سازی ۱۲ صفحه ادمین، سئو و سوئیچ حالت (پارت ۱۸)</span>
-                      <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setActiveView('design-tokens');
-                        setPagesDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
-                    >
-                      <span className="font-bold text-[#D4AF37]">مخزن ۲۴ متغیر سراسری Design Tokens (پارت ۱۹)</span>
-                      <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setActiveView('elementor-pro');
-                        setPagesDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-amber-500/10 hover:text-amber-400 transition-colors"
-                    >
-                      <span className="font-bold text-amber-400">یکپارچگی کامل با المنتور و ۸ ویجت اختصاصی (پارت ۲۰)</span>
-                      <Sliders className="w-3.5 h-3.5 text-amber-400" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setActiveView('payment-adapter');
-                        setPagesDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
-                    >
-                      <span className="font-bold text-emerald-400">سیستم پرداخت Adapter Pattern و مودیان (پارت ۲۱)</span>
-                      <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
-                    </button>
+                    {/* Part 18: Admin-Only Pages (Hidden in Public Mode, Visible in Admin Mode) */}
+                    {uiMode === 'admin' && (
+                      <div className="pt-2 border-t border-red-500/30 my-1 space-y-1">
+                        <div className="px-3 py-1 text-[10px] font-bold text-red-400 flex items-center justify-between">
+                          <span>صفحات تخصصی ادمین (پارت‌های ۱۶ تا ۲۱)</span>
+                          <span className="px-1.5 py-0.5 bg-red-500/20 text-red-300 rounded text-[9px] font-mono">حالت ادمین</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setActiveView('auth-dual-mode');
+                            setPagesDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-blue-500/10 hover:text-blue-400 transition-colors"
+                        >
+                          <span className="font-bold text-blue-400">سیستم ورود دوگانه وکلا، رمز ادمین و 2FA (پارت ۱۶)</span>
+                          <KeyRound className="w-3.5 h-3.5 text-blue-400" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActiveView('dual-panel-unified');
+                            setPagesDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                        >
+                          <span className="font-bold text-[#D4AF37]">یکپارچگی دو پنل، SSO و همگام‌سازی داده (پارت ۱۷)</span>
+                          <Shield className="w-3.5 h-3.5 text-[#D4AF37]" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActiveView('admin-protection');
+                            setPagesDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
+                        >
+                          <span className="font-bold text-rose-400">مخفی‌سازی ۱۲ صفحه ادمین، سئو و سوئیچ حالت (پارت ۱۸)</span>
+                          <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActiveView('design-tokens');
+                            setPagesDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] transition-colors"
+                        >
+                          <span className="font-bold text-[#D4AF37]">مخزن ۲۴ متغیر سراسری Design Tokens (پارت ۱۹)</span>
+                          <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActiveView('elementor-pro');
+                            setPagesDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-amber-500/10 hover:text-amber-400 transition-colors"
+                        >
+                          <span className="font-bold text-amber-400">یکپارچگی کامل با المنتور و ۸ ویجت اختصاصی (پارت ۲۰)</span>
+                          <Sliders className="w-3.5 h-3.5 text-amber-400" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActiveView('payment-adapter');
+                            setPagesDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
+                        >
+                          <span className="font-bold text-emerald-400">سیستم پرداخت Adapter Pattern و مودیان (پارت ۲۱)</span>
+                          <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
+                        </button>
+                      </div>
+                    )}
                     <button
                       onClick={() => {
                         setActiveView('epc-procurement');
@@ -1062,6 +1131,24 @@ export const Header: React.FC<HeaderProps> = ({
                 )
               )}
 
+              {/* Part 18 Mode Switcher: Public vs Admin Mode */}
+              <button
+                type="button"
+                onClick={toggleUiMode}
+                aria-label="تغییر حالت عمومی و ادمین"
+                className={`p-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer ${
+                  uiMode === 'admin'
+                    ? 'border-red-500/50 bg-red-950/20 text-red-500 dark:text-red-400 shadow-sm'
+                    : 'border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-[#D4AF37]'
+                }`}
+                title={uiMode === 'admin' ? 'حالت ادمین فعال است (برای سوئیچ به حالت عمومی و مخفی‌سازی صفحات ادمین کلیک کنید)' : 'حالت عمومی فعال است (برای سوئیچ به حالت ادمین کلیک کنید)'}
+              >
+                {uiMode === 'admin' ? <Eye className="w-4 h-4 text-red-500 dark:text-red-400" /> : <EyeOff className="w-4 h-4" />}
+                <span className="hidden 2xl:inline text-[11px] font-bold">
+                  {uiMode === 'admin' ? 'حالت ادمین' : 'حالت عمومی'}
+                </span>
+              </button>
+
               {/* Dark Mode Switcher */}
               <button
                 onClick={() => setIsDarkMode(!isDarkMode)}
@@ -1491,71 +1578,80 @@ export const Header: React.FC<HeaderProps> = ({
                 🏛️ دیوان عدالت اداری و شهرداری (فاز ۱۵)
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveView('auth-dual-mode');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-blue-400 font-bold"
-              >
-                🔑 سیستم ورود دوگانه وکلا، رمز ادمین و 2FA (پارت ۱۶)
-              </button>
+              {/* Part 18: Admin-Only Mobile Menu Items (Hidden in Public Mode) */}
+              {uiMode === 'admin' && (
+                <div className="pt-2 border-t border-red-500/30 my-2 space-y-1 bg-red-950/10 p-2 rounded-xl">
+                  <div className="px-2 py-1 text-[10px] font-bold text-red-400 flex items-center justify-between">
+                    <span>صفحات تخصصی ادمین (پارت‌های ۱۶ تا ۲۱)</span>
+                    <span className="px-1.5 py-0.5 bg-red-500/20 text-red-300 rounded text-[9px]">حالت ادمین</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveView('auth-dual-mode');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-blue-400 font-bold"
+                  >
+                    🔑 سیستم ورود دوگانه وکلا، رمز ادمین و 2FA (پارت ۱۶)
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveView('dual-panel-unified');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
-              >
-                🔄 یکپارچگی دو پنل، SSO و همگام‌سازی داده (پارت ۱۷)
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveView('dual-panel-unified');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+                  >
+                    🔄 یکپارچگی دو پنل، SSO و همگام‌سازی داده (پارت ۱۷)
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveView('admin-protection');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-rose-400 font-bold"
-              >
-                🛡️ مخفی‌سازی ۱۲ صفحه ادمین، سئو و سوئیچ حالت (پارت ۱۸)
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveView('admin-protection');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-rose-400 font-bold"
+                  >
+                    🛡️ مخفی‌سازی ۱۲ صفحه ادمین، سئو و سوئیچ حالت (پارت ۱۸)
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveView('design-tokens');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
-              >
-                🎨 مخزن ۲۴ متغیر سراسری Design Tokens (پارت ۱۹)
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveView('design-tokens');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#D4AF37] font-bold"
+                  >
+                    🎨 مخزن ۲۴ متغیر سراسری Design Tokens (پارت ۱۹)
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveView('elementor-pro');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-amber-400 font-bold"
-              >
-                📐 یکپارچگی کامل با المنتور و ۸ ویجت اختصاصی (پارت ۲۰)
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveView('elementor-pro');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-amber-400 font-bold"
+                  >
+                    📐 یکپارچگی کامل با المنتور و ۸ ویجت اختصاصی (پارت ۲۰)
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveView('payment-adapter');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-emerald-400 font-bold"
-              >
-                💳 سیستم پرداخت Adapter Pattern و مودیان (پارت ۲۱)
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveView('payment-adapter');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-right block py-2.5 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-emerald-400 font-bold"
+                  >
+                    💳 سیستم پرداخت Adapter Pattern و مودیان (پارت ۲۱)
+                  </button>
+                </div>
+              )}
 
               <button
                 type="button"

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDesignTokens } from '../context/DesignTokensContext';
 import {
   Scale,
   Award,
@@ -24,6 +25,13 @@ export const AboutPageView: React.FC<AboutPageViewProps> = ({
   onBookConsultation,
   onBackToHome,
 }) => {
+  const { tokens } = useDesignTokens();
+  const lawyerName = tokens['lawyer.name']?.value || 'دکتر سیده مریم رضوی';
+  const lawyerLicense = tokens['lawyer.license']?.value || 'شماره پروانه وکالت: ۲۴۷۸۱';
+  const lawyerTitle = tokens['lawyer.title']?.value || 'وکیل پایه یک دادگستری و داور رسمی دعاوی تجاری بین‌المللی';
+  const barAssoc = tokens['legal.bar_assoc']?.value || 'کانون وکلای مرکز';
+  const brandName = tokens['brand.name']?.value || 'SedRazavi';
+
   return (
     <div className="py-12 sm:py-16 bg-[#F4F6F9] dark:bg-[#070D1E] min-h-screen text-[#0B132B] dark:text-gray-100 font-persian">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl space-y-16">
@@ -38,7 +46,7 @@ export const AboutPageView: React.FC<AboutPageViewProps> = ({
             </button>
             <ChevronLeft className="w-4 h-4" />
             <span className="text-[#0B132B] dark:text-[#F3E5AB] font-bold">
-              درباره وکیل دکتر سیده مریم رضوی
+              درباره وکیل {lawyerName}
             </span>
           </div>
 
@@ -58,23 +66,23 @@ export const AboutPageView: React.FC<AboutPageViewProps> = ({
               <div className="relative rounded-2xl overflow-hidden border-2 border-[#D4AF37]/50 shadow-2xl bg-gray-900">
                 <img
                   src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800"
-                  alt="دکتر سیده مریم رضوی"
+                  alt={lawyerName}
                   className="w-full h-[520px] object-cover object-top"
                 />
                 <div className="absolute bottom-4 right-4 left-4 p-4 rounded-xl bg-[#0B132B]/95 backdrop-blur-md border border-[#D4AF37]/40 shadow-xl space-y-1 text-right">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black text-[#D4AF37]">
-                      شماره پروانه وکالت: ۲۴۷۸۱
+                      {lawyerLicense}
                     </span>
                     <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
-                      کانون وکلای مرکز
+                      {barAssoc}
                     </span>
                   </div>
                   <h3 className="text-sm font-bold text-white">
-                    دکتر سیده مریم رضوی (SedRazavi)
+                    {lawyerName} ({brandName})
                   </h3>
                   <p className="text-[11px] text-gray-300">
-                    وکیل پایه یک دادگستری و داور رسمی دعاوی تجاری بین‌المللی
+                    {lawyerTitle}
                   </p>
                 </div>
               </div>

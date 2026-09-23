@@ -515,6 +515,32 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
           />
         ) : (
           <div className="space-y-8">
+            {/* Onboarding & Customization Wizard Banner for Purchasing Attorneys */}
+            <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-l from-[#0B132B] via-[#1C2541] to-[#0B132B] border-2 border-[#D4AF37]/50 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl text-right">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-xl bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center text-[#D4AF37]">
+                    <Sliders className="w-4 h-4" />
+                  </span>
+                  <h3 className="text-base font-bold font-serif text-white">
+                    ویزارد تنظیم هویت و راه‌های ارتباطی وکیل (مخصوص خریداران قالب و افزونه)
+                  </h3>
+                </div>
+                <p className="text-xs text-gray-300 max-w-2xl leading-relaxed">
+                  با کلیک روی این دکمه، می‌توانید نام، شماره پروانه، آدرس دفتر، تلفن ثابت، موبایل، شبکه‌های اجتماعی (تلگرام، ایتا، واتساپ)، بیوگرافی و عکس‌های خود را بدون کدنویسی و بدون نیاز به المنتور وارد نمایید تا بلافاصله در کل فرانت‌اند، هدر، فوتر و رسیدها جایگزین شود.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('customizer')}
+                className="btn-gold px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shrink-0 shadow-lg shadow-[#D4AF37]/30 hover:scale-105 transition-all"
+              >
+                <Sliders className="w-4 h-4" />
+                <span>شخصی‌سازی مشخصات و لینک‌های من</span>
+              </button>
+            </div>
+
             {/* 7 Sections of the Attorney Executive Dashboard */}
             <AttorneyExecutiveDashboard
               cases={cases}

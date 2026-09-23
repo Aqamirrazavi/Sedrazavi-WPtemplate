@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDesignTokens } from '../../context/DesignTokensContext';
 import {
   ShieldAlert,
   Eye,
@@ -41,8 +42,8 @@ export const AdminPagesProtectionSuite: React.FC<{
   onBackToHome?: () => void;
   onOpenDashboard?: () => void;
 }> = ({ onBackToHome, onOpenDashboard }) => {
-  // Global Mode State: 'public' vs 'admin'
-  const [uiMode, setUiMode] = useState<'public' | 'admin'>('admin');
+  // Global Mode State: 'public' vs 'admin' (Synced globally across entire application)
+  const { uiMode, setUiMode } = useDesignTokens();
 
   // Search simulator
   const [searchQuery, setSearchQuery] = useState('');

@@ -59,18 +59,12 @@ export const WordPressCodeViewer: React.FC = () => {
 
   const themeCategories = [
     'همه',
-    'قالب اصلی (Templates)',
-    'بخش‌های داخلی (Inc)',
-    'برگه‌ها و آرشیوها',
-    'استایل و دارایی‌ها (Assets)',
-    'پیکربندی گیت و CI/CD (.github)',
-    'مستندات و زبان',
+    ...Array.from(new Set(WORDPRESS_THEME_FILES.map((f) => f.category)))
   ];
 
   const pluginCategories = [
     'همه',
-    'هسته افزونه (Plugin Core)',
-    'ماژول‌های افزونه (Includes)',
+    ...Array.from(new Set(WORDPRESS_PLUGIN_FILES.map((f) => f.category)))
   ];
 
   const currentFiles = activeSource === 'theme' ? WORDPRESS_THEME_FILES : WORDPRESS_PLUGIN_FILES;

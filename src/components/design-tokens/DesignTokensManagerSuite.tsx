@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDesignTokens } from '../../context/DesignTokensContext';
 import {
   Sparkles,
   Sliders,
@@ -36,6 +37,7 @@ export const DesignTokensManagerSuite: React.FC<{
   onBackToHome?: () => void;
   onOpenDashboard?: () => void;
 }> = ({ onBackToHome, onOpenDashboard }) => {
+  const { tokens: globalTokens, updateTokens } = useDesignTokens();
   const [activeCategory, setActiveCategory] = useState<'personal' | 'contact' | 'pricing' | 'brand' | 'social' | 'legal'>('personal');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [previewPage, setPreviewPage] = useState<'home' | 'services' | 'contact'>('home');
@@ -43,7 +45,8 @@ export const DesignTokensManagerSuite: React.FC<{
   const [showVersionHistory, setShowVersionHistory] = useState(false);
 
   // 24 Global Tokens specified in Part 19
-  const [tokens, setTokens] = useState<Record<string, TokenItem>>({
+  const [tokens, setTokens] = useState<Record<string, TokenItem>>(() => {
+    return globalTokens ? { ...globalTokens } : {
     // Category 1: Personal (5)
     'lawyer.name': {
       key: 'lawyer.name',
@@ -271,6 +274,7 @@ export const DesignTokensManagerSuite: React.FC<{
       type: 'url',
       helper: 'آدرس برگه قوانین و حریم خصوصی سامانه.',
     },
+    };
   });
 
   // Version History Simulator
@@ -297,8 +301,9 @@ export const DesignTokensManagerSuite: React.FC<{
     }));
   };
 
-  // Save all tokens
+  // Save all tokens globally
   const handleSaveTokens = () => {
+    updateTokens(tokens);
     setSaveToast(true);
     setTimeout(() => setSaveToast(false), 3000);
   };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDesignTokens } from '../context/DesignTokensContext';
 import { ATTORNEY_INFO } from '../data/mockData';
 import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
 import { ShieldCheck, Award, GraduationCap, CheckCircle2, Quote, Sparkles } from 'lucide-react';
@@ -8,9 +9,10 @@ interface AboutSectionProps {
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
-  const lawyerName = profile?.lawyerName || ATTORNEY_INFO.name;
-  const lawyerTitle = profile?.lawyerTitle || ATTORNEY_INFO.title;
-  const licenseNumber = profile?.licenseNumber || ATTORNEY_INFO.licenseNumber;
+  const { tokens } = useDesignTokens();
+  const lawyerName = profile?.lawyerName || tokens['lawyer.name']?.value || ATTORNEY_INFO.name;
+  const lawyerTitle = profile?.lawyerTitle || tokens['lawyer.title']?.value || ATTORNEY_INFO.title;
+  const licenseNumber = profile?.licenseNumber || tokens['lawyer.license']?.value || ATTORNEY_INFO.licenseNumber;
   const portraitImage = profile?.portraitImage || ATTORNEY_INFO.portraitImage;
   const bio = profile?.bio || `سرکار خانم دکتر سیده مریم رضوی پس از فراغت از تحصیل در مقطع دکترای حقوق بین‌الملل و خصوصی از دانشگاه تهران و گذراندن دوره‌های تخصصی داوری بین‌المللی، دفتر وکالت خود را با نام مؤسسه حقوقی SedRazavi بنا نهاد. ایشان تاکنون وکالت بیش از ۱۲۸۰ پرونده سنگین حقوقی، ملکی، تجاری و داوری را با بالاترین درصد موفقیت بر عهده داشته است.`;
   const quote = profile?.quote || `«وکالت در پیشگاه قانون، نه صرفاً یک پیشه، بلکه عهدنامه‌ای مقدس برای احقاق حق مظلوم، پایبندی به شرافت حرفه‌ای و برقراری توازن عدالت است.»`;

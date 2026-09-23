@@ -1,4 +1,5 @@
 import { WordPressFile } from '../types/theme';
+import { WORDPRESS_PARTS_16_TO_21 } from './wordPressParts16to21';
 
 export const WORDPRESS_THEME_FILES: WordPressFile[] = [
   {
@@ -1328,6 +1329,12 @@ $required_modules = array(
     'inc/setup.php',
     'inc/security.php',
     'inc/ux-improvements.php',
+    'includes/class-sedrazavi-auth-dual-mode.php',
+    'includes/class-sedrazavi-dual-panel-unified.php',
+    'includes/class-sedrazavi-admin-protection.php',
+    'includes/class-sedrazavi-design-tokens.php',
+    'includes/class-sedrazavi-elementor-widgets.php',
+    'includes/class-sedrazavi-payment-adapter.php',
 );
 
 foreach ($required_modules as $mod) {
@@ -7025,6 +7032,7 @@ class SedRazavi_Security {
 }
 
 SedRazavi_Security::init();`
-  }
+  },
+  ...WORDPRESS_PARTS_16_TO_21,
 ];
 

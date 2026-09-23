@@ -150,7 +150,21 @@ export interface ElementorBlockDef {
 export interface WordPressFile {
   path: string;
   filename: string;
-  category: 'قالب اصلی (Templates)' | 'بخش‌های داخلی (Inc)' | 'برگه‌ها و آرشیوها' | 'استایل و دارایی‌ها (Assets)' | 'پیکربندی گیت و CI/CD (.github)' | 'مستندات و زبان' | 'افزونه مکمل (Plugin Addons)' | 'ماژول‌های افزونه (Plugin Includes)';
+  category:
+    | 'قالب اصلی (Templates)'
+    | 'بخش‌های داخلی (Inc)'
+    | 'برگه‌ها و آرشیوها'
+    | 'استایل و دارایی‌ها (Assets)'
+    | 'پیکربندی گیت و CI/CD (.github)'
+    | 'مستندات و زبان'
+    | 'افزونه مکمل (Plugin Addons)'
+    | 'ماژول‌های افزونه (Plugin Includes)'
+    | 'امنیت و احراز هویت (Security & Auth)'
+    | 'هسته و مدیریت (Core & Admin)'
+    | 'امنیت و بهینه‌سازی (Security & SEO)'
+    | 'شخصی‌سازی و متغیرها (Tokens & Style)'
+    | 'صفحه‌ساز و ویجت‌ها (Elementor Widgets)'
+    | 'مالی و پرداخت (Payments & Tax)';
   description: string;
   code: string;
 }

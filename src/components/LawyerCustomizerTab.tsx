@@ -34,6 +34,7 @@ import {
   resetLawyerProfile
 } from '../utils/lawyerCustomizationStorage';
 import { StoryItem } from '../types/theme';
+import { useDesignTokens } from '../context/DesignTokensContext';
 
 interface LawyerCustomizerTabProps {
   profile: LawyerSiteProfile;
@@ -44,6 +45,7 @@ export const LawyerCustomizerTab: React.FC<LawyerCustomizerTabProps> = ({
   profile,
   onUpdateProfile,
 }) => {
+  const { updateToken } = useDesignTokens();
   const [formData, setFormData] = useState<LawyerSiteProfile>(profile);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [activeSubSection, setActiveSubSection] = useState<'identity' | 'slider' | 'stories' | 'gallery' | 'social' | 'seo'>('identity');
@@ -66,6 +68,23 @@ export const LawyerCustomizerTab: React.FC<LawyerCustomizerTabProps> = ({
     if (e) e.preventDefault();
     saveLawyerProfile(formData);
     onUpdateProfile(formData);
+
+    // Sync with global design tokens so any component reading tokens updates immediately
+    if (formData.lawyerName) updateToken('lawyer.name', formData.lawyerName);
+    if (formData.lawyerTitle) updateToken('lawyer.title', formData.lawyerTitle);
+    if (formData.licenseNumber) updateToken('lawyer.license', formData.licenseNumber);
+    if (formData.phone) updateToken('contact.phone', formData.phone);
+    if (formData.mobile) updateToken('contact.mobile', formData.mobile);
+    if (formData.email) updateToken('contact.email', formData.email);
+    if (formData.officeAddress) updateToken('contact.address', formData.officeAddress);
+    if (formData.workingHours) updateToken('contact.hours', formData.workingHours);
+    if (formData.socialLinks) {
+      if (formData.socialLinks.telegram) updateToken('social.telegram', formData.socialLinks.telegram);
+      if (formData.socialLinks.instagram) updateToken('social.instagram', formData.socialLinks.instagram);
+      if (formData.socialLinks.linkedin) updateToken('social.linkedin', formData.socialLinks.linkedin);
+      if (formData.socialLinks.eitaa) updateToken('social.ita', formData.socialLinks.eitaa);
+    }
+
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3500);
   };

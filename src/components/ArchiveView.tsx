@@ -508,29 +508,90 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
               </select>
             </div>
 
-            {/* View Grid / List Toggle */}
-            <div className="hidden sm:flex items-center p-1 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            {/* 6-Mode Layout Switcher (Part 13: Card, Table, List, Masonry, Compact, Timeline) */}
+            <div className="flex items-center p-1 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 gap-0.5">
               <button
-                onClick={() => setViewLayout('grid')}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  viewLayout === 'grid'
-                    ? 'bg-white dark:bg-[#0B132B] text-[#D4AF37] shadow-sm'
-                    : 'text-gray-400 hover:text-gray-600'
+                type="button"
+                onClick={() => handleLayoutChange('card')}
+                className={`p-1.5 rounded-lg transition-all text-xs flex items-center gap-1 ${
+                  viewLayout === 'card'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#D4AF37] shadow-sm font-bold'
+                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
                 }`}
-                title="نمایش ۳ ستونی"
+                title="نمایش کارتی (کلید 1)"
               >
                 <Grid className="w-4 h-4" />
+                <span className="hidden xl:inline text-[10px]">کارتی</span>
               </button>
+
               <button
-                onClick={() => setViewLayout('list')}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  viewLayout === 'list'
-                    ? 'bg-white dark:bg-[#0B132B] text-[#D4AF37] shadow-sm'
-                    : 'text-gray-400 hover:text-gray-600'
+                type="button"
+                onClick={() => handleLayoutChange('table')}
+                className={`p-1.5 rounded-lg transition-all text-xs flex items-center gap-1 ${
+                  viewLayout === 'table'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#D4AF37] shadow-sm font-bold'
+                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
                 }`}
-                title="نمایش تک‌ستونی"
+                title="نمایش جدولی فشرده (کلید 2)"
+              >
+                <Table className="w-4 h-4" />
+                <span className="hidden xl:inline text-[10px]">جدولی</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleLayoutChange('list')}
+                className={`p-1.5 rounded-lg transition-all text-xs flex items-center gap-1 ${
+                  viewLayout === 'list'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#D4AF37] shadow-sm font-bold'
+                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                }`}
+                title="نمایش لیستی خطی (کلید 3)"
               >
                 <List className="w-4 h-4" />
+                <span className="hidden xl:inline text-[10px]">لیستی</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleLayoutChange('masonry')}
+                className={`p-1.5 rounded-lg transition-all text-xs flex items-center gap-1 ${
+                  viewLayout === 'masonry'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#D4AF37] shadow-sm font-bold'
+                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                }`}
+                title="نمایش ماسونری ستونی (کلید 4)"
+              >
+                <Columns className="w-4 h-4" />
+                <span className="hidden xl:inline text-[10px]">ماسونری</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleLayoutChange('compact')}
+                className={`p-1.5 rounded-lg transition-all text-xs flex items-center gap-1 ${
+                  viewLayout === 'compact'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#D4AF37] shadow-sm font-bold'
+                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                }`}
+                title="نمایش گرید فشرده مربعی (کلید 5)"
+              >
+                <LayoutGrid className="w-4 h-4" />
+                <span className="hidden xl:inline text-[10px]">فشرده</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleLayoutChange('timeline')}
+                className={`p-1.5 rounded-lg transition-all text-xs flex items-center gap-1 ${
+                  viewLayout === 'timeline'
+                    ? 'bg-white dark:bg-[#0B132B] text-[#D4AF37] shadow-sm font-bold'
+                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                }`}
+                title="نمایش تایم‌لاین گاه‌شمار (کلید 6)"
+              >
+                <Milestone className="w-4 h-4" />
+                <span className="hidden xl:inline text-[10px]">گاه‌شمار</span>
               </button>
             </div>
           </div>
@@ -575,84 +636,323 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
               </div>
             ) : archiveType === 'articles' ? (
               
-              /* 4. Articles Grid (۳ ستون در دسکتاپ، ۲ ستون در تبلت، ۱ ستون در موبایل) */
-              <div
-                className={
-                  viewLayout === 'grid'
-                    ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'
-                    : 'space-y-4'
-                }
-              >
-                {paginatedArticles.map((article) => (
-                  <article
-                    key={article.id}
-                    id={`post-${article.id}`}
-                    onClick={() => onSelectArticle?.(article.id)}
-                    className={`post-card group bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#D4AF37] transition-all cursor-pointer flex flex-col justify-between ${
-                      viewLayout === 'list' ? 'sm:flex-row sm:items-stretch' : ''
-                    }`}
-                  >
-                    {/* Post Thumbnail (16:9 ratio, lazy load, zoom hover) */}
-                    <div
-                      className={`relative overflow-hidden bg-gray-100 dark:bg-gray-800 ${
-                        viewLayout === 'list'
-                          ? 'w-full sm:w-60 h-48 sm:h-auto shrink-0'
-                          : 'h-48 w-full'
-                      }`}
-                    >
-                      <img
-                        src={article.thumbnail}
-                        alt={article.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <span className="post-category absolute top-3 right-3 px-3 py-1 rounded-md bg-[#D4AF37] text-[#0B132B] text-[11px] font-bold shadow-md">
-                        {article.category}
-                      </span>
-                    </div>
-
-                    {/* Post Content */}
-                    <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                      <div>
-                        {/* Meta */}
-                        <div className="post-meta flex items-center gap-3 text-[11px] text-gray-400 mb-2">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-[#D4AF37]" />
-                            <span>{article.date}</span>
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-[#D4AF37]" />
-                            <span>{article.readTime}</span>
+              /* 6-Mode Layout Rendering (Part 13) */
+              <div className={`transition-opacity duration-200 ${isLayoutSwitching ? 'opacity-40' : 'opacity-100'}`}>
+                {/* Mode 1: Card Layout */}
+                {viewLayout === 'card' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {paginatedArticles.map((article) => (
+                      <article
+                        key={article.id}
+                        id={`post-${article.id}`}
+                        onClick={() => onSelectArticle?.(article.id)}
+                        className="post-card group bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#D4AF37] transition-all cursor-pointer flex flex-col justify-between"
+                      >
+                        <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-800 h-48 w-full">
+                          <img
+                            src={article.thumbnail}
+                            alt={article.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <span className="post-category absolute top-3 right-3 px-3 py-1 rounded-md bg-[#D4AF37] text-[#0B132B] text-[11px] font-bold shadow-md">
+                            {article.category}
                           </span>
                         </div>
 
-                        {/* Title */}
-                        <h2 className="post-title text-base font-bold font-serif text-[#0B132B] dark:text-white group-hover:text-[#D4AF37] transition-colors leading-relaxed line-clamp-2">
-                          {article.title}
-                        </h2>
+                        <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                          <div>
+                            <div className="post-meta flex items-center gap-3 text-[11px] text-gray-400 mb-2">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-[#D4AF37]" />
+                                <span>{article.date}</span>
+                              </span>
+                              <span>•</span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-[#D4AF37]" />
+                                <span>{article.readTime}</span>
+                              </span>
+                            </div>
 
-                        {/* Excerpt */}
-                        <p className="post-excerpt text-xs text-gray-500 dark:text-gray-400 line-clamp-3 mt-2 leading-relaxed">
-                          {article.summary}
-                        </p>
-                      </div>
+                            <h2 className="post-title text-base font-bold font-serif text-[#0B132B] dark:text-white group-hover:text-[#D4AF37] transition-colors leading-relaxed line-clamp-2">
+                              {article.title}
+                            </h2>
 
-                      {/* Footer */}
-                      <div className="post-footer pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
-                        <span className="post-author text-gray-400 text-[11px] flex items-center gap-1">
-                          <User className="w-3 h-3 text-gray-400" />
-                          <span>{article.author}</span>
-                        </span>
+                            <p className="post-excerpt text-xs text-gray-500 dark:text-gray-400 line-clamp-3 mt-2 leading-relaxed">
+                              {article.summary}
+                            </p>
+                          </div>
 
-                        <span className="post-read-more text-[#D4AF37] font-bold group-hover:translate-x-[-4px] transition-transform flex items-center gap-1">
-                          <span>مطالعه بیشتر</span>
-                          <ChevronLeft className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
+                          <div className="post-footer pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
+                            <span className="post-author text-gray-400 text-[11px] flex items-center gap-1">
+                              <User className="w-3 h-3 text-gray-400" />
+                              <span>{article.author}</span>
+                            </span>
+
+                            <span className="post-read-more text-[#D4AF37] font-bold group-hover:translate-x-[-4px] transition-transform flex items-center gap-1">
+                              <span>مطالعه بیشتر</span>
+                              <ChevronLeft className="w-3.5 h-3.5" />
+                            </span>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+
+                {/* Mode 2: Table Layout */}
+                {viewLayout === 'table' && (
+                  <div className="bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-right text-xs">
+                        <thead className="bg-[#D4AF37]/10 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700 text-[#0B132B] dark:text-gray-200 font-bold">
+                          <tr>
+                            <th className="py-3 px-4 w-20">تصویر</th>
+                            <th className="py-3 px-4 min-w-[220px]">عنوان مطلب</th>
+                            <th className="py-3 px-4">دسته‌بندی</th>
+                            <th className="py-3 px-4">نویسنده</th>
+                            <th className="py-3 px-4">تاریخ انتشار</th>
+                            <th className="py-3 px-4 text-center">عملیات</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                          {paginatedArticles.map((article) => (
+                            <tr
+                              key={article.id}
+                              onClick={() => onSelectArticle?.(article.id)}
+                              className="hover:bg-amber-500/5 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
+                            >
+                              <td className="py-3 px-4">
+                                <img
+                                  src={article.thumbnail}
+                                  alt={article.title}
+                                  loading="lazy"
+                                  className="w-14 h-11 object-cover rounded-lg shadow-sm"
+                                />
+                              </td>
+                              <td className="py-3 px-4 font-serif font-bold text-[#0B132B] dark:text-white hover:text-[#D4AF37]">
+                                <div className="line-clamp-2 leading-relaxed">{article.title}</div>
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#D4AF37]/15 text-[#D4AF37] font-bold text-[10px]">
+                                  {article.category}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-gray-500 dark:text-gray-400">
+                                {article.author}
+                              </td>
+                              <td className="py-3 px-4 text-gray-400 font-mono text-[11px]">
+                                {article.date}
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <button
+                                  type="button"
+                                  className="px-3 py-1 rounded-lg bg-[#D4AF37] text-[#0B132B] font-bold text-[11px] hover:bg-amber-400 transition-colors shadow-sm inline-flex items-center gap-1"
+                                >
+                                  <span>مشاهده</span>
+                                  <ChevronLeft className="w-3 h-3" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  </article>
-                ))}
+                  </div>
+                )}
+
+                {/* Mode 3: List Layout */}
+                {viewLayout === 'list' && (
+                  <div className="space-y-4">
+                    {paginatedArticles.map((article) => (
+                      <article
+                        key={article.id}
+                        onClick={() => onSelectArticle?.(article.id)}
+                        className="post-card group bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#D4AF37] transition-all cursor-pointer flex flex-col sm:flex-row sm:items-stretch"
+                      >
+                        <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-800 w-full sm:w-64 h-48 sm:h-auto shrink-0">
+                          <img
+                            src={article.thumbnail}
+                            alt={article.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <span className="post-category absolute top-3 right-3 px-3 py-1 rounded-md bg-[#D4AF37] text-[#0B132B] text-[11px] font-bold shadow-md">
+                            {article.category}
+                          </span>
+                        </div>
+
+                        <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                          <div>
+                            <div className="post-meta flex items-center gap-3 text-[11px] text-gray-400 mb-2">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-[#D4AF37]" />
+                                <span>{article.date}</span>
+                              </span>
+                              <span>•</span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-[#D4AF37]" />
+                                <span>{article.readTime}</span>
+                              </span>
+                            </div>
+
+                            <h2 className="post-title text-base font-bold font-serif text-[#0B132B] dark:text-white group-hover:text-[#D4AF37] transition-colors leading-relaxed line-clamp-2">
+                              {article.title}
+                            </h2>
+
+                            <p className="post-excerpt text-xs text-gray-500 dark:text-gray-400 line-clamp-3 mt-2 leading-relaxed">
+                              {article.summary}
+                            </p>
+                          </div>
+
+                          <div className="post-footer pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
+                            <span className="post-author text-gray-400 text-[11px] flex items-center gap-1">
+                              <User className="w-3 h-3 text-gray-400" />
+                              <span>{article.author}</span>
+                            </span>
+
+                            <span className="post-read-more text-[#D4AF37] font-bold group-hover:translate-x-[-4px] transition-transform flex items-center gap-1">
+                              <span>مطالعه کامل مقاله</span>
+                              <ChevronLeft className="w-3.5 h-3.5" />
+                            </span>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+
+                {/* Mode 4: Masonry Layout */}
+                {viewLayout === 'masonry' && (
+                  <div className="columns-1 md:columns-2 xl:columns-3 gap-6 space-y-6">
+                    {paginatedArticles.map((article, idx) => (
+                      <article
+                        key={article.id}
+                        onClick={() => onSelectArticle?.(article.id)}
+                        className="break-inside-avoid group bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#D4AF37] transition-all cursor-pointer flex flex-col justify-between"
+                        style={{ animationDelay: `${idx * 60}ms` }}
+                      >
+                        <div className={`relative overflow-hidden bg-gray-100 dark:bg-gray-800 w-full ${idx % 3 === 0 ? 'h-56' : idx % 2 === 0 ? 'h-40' : 'h-48'}`}>
+                          <img
+                            src={article.thumbnail}
+                            alt={article.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <span className="absolute top-3 right-3 px-3 py-1 rounded-md bg-[#D4AF37] text-[#0B132B] text-[11px] font-bold shadow-md">
+                            {article.category}
+                          </span>
+                        </div>
+
+                        <div className="p-5 space-y-3">
+                          <div className="flex items-center gap-3 text-[11px] text-gray-400">
+                            <span>{article.date}</span>
+                            <span>•</span>
+                            <span>{article.readTime}</span>
+                          </div>
+
+                          <h2 className="text-base font-bold font-serif text-[#0B132B] dark:text-white group-hover:text-[#D4AF37] transition-colors leading-relaxed">
+                            {article.title}
+                          </h2>
+
+                          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                            {article.summary}
+                          </p>
+
+                          <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
+                            <span className="text-gray-400 text-[11px]">{article.author}</span>
+                            <span className="text-[#D4AF37] font-bold flex items-center gap-1">
+                              <span>مطالعه</span>
+                              <ChevronLeft className="w-3.5 h-3.5" />
+                            </span>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+
+                {/* Mode 5: Compact Grid Layout */}
+                {viewLayout === 'compact' && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {paginatedArticles.map((article) => (
+                      <article
+                        key={article.id}
+                        onClick={() => onSelectArticle?.(article.id)}
+                        className="group relative aspect-square rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-[#D4AF37] transition-all cursor-pointer bg-black"
+                      >
+                        <img
+                          src={article.thumbnail}
+                          alt={article.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-80 group-hover:opacity-60"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B132B] via-[#0B132B]/60 to-transparent p-4 flex flex-col justify-between text-right">
+                          <span className="self-start px-2 py-0.5 rounded bg-[#D4AF37] text-[#0B132B] text-[10px] font-bold shadow">
+                            {article.category}
+                          </span>
+                          <div>
+                            <div className="text-[10px] text-gray-300 font-mono mb-1">{article.date}</div>
+                            <h3 className="text-xs sm:text-sm font-bold font-serif text-white group-hover:text-[#D4AF37] transition-colors line-clamp-2 leading-relaxed">
+                              {article.title}
+                            </h3>
+                            <div className="hidden group-hover:block text-[11px] text-gray-300 mt-1 line-clamp-2 transition-all">
+                              {article.summary}
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+
+                {/* Mode 6: Timeline Layout */}
+                {viewLayout === 'timeline' && (
+                  <div className="relative before:absolute before:inset-0 before:right-6 sm:before:right-1/2 before:w-0.5 before:bg-[#D4AF37]/30 space-y-8 pr-12 sm:pr-0">
+                    {paginatedArticles.map((article, idx) => {
+                      const isEven = idx % 2 === 0;
+                      return (
+                        <div
+                          key={article.id}
+                          onClick={() => onSelectArticle?.(article.id)}
+                          className={`relative flex flex-col sm:flex-row items-center cursor-pointer group ${
+                            isEven ? 'sm:flex-row-reverse' : ''
+                          }`}
+                        >
+                          {/* Timeline node */}
+                          <div className="absolute right-[-24px] sm:right-1/2 sm:translate-x-1/2 w-5 h-5 rounded-full bg-[#0B132B] border-2 border-[#D4AF37] group-hover:scale-125 transition-transform shadow-md z-10 flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+                          </div>
+
+                          {/* Content card (50% on desktop) */}
+                          <div className={`w-full sm:w-[calc(50%-2rem)] ${isEven ? 'sm:pr-6' : 'sm:pl-6'}`}>
+                            <div className="bg-white dark:bg-[#0B132B] p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-[#D4AF37] transition-all">
+                              <div className="flex items-center justify-between text-[11px] text-gray-400 mb-2">
+                                <span className="text-[#D4AF37] font-bold font-mono">{article.date}</span>
+                                <span className="px-2 py-0.5 rounded bg-[#D4AF37]/10 text-[#D4AF37] font-bold text-[10px]">
+                                  {article.category}
+                                </span>
+                              </div>
+                              <h3 className="text-base font-bold font-serif text-[#0B132B] dark:text-white group-hover:text-[#D4AF37] transition-colors mb-2 leading-relaxed">
+                                {article.title}
+                              </h3>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed mb-3">
+                                {article.summary}
+                              </p>
+                              <div className="flex items-center justify-between text-xs pt-2 border-t border-gray-100 dark:border-gray-800">
+                                <span className="text-gray-400 text-[11px]">{article.author}</span>
+                                <span className="text-[#D4AF37] font-bold flex items-center gap-1">
+                                  <span>جزئیات</span>
+                                  <ChevronLeft className="w-3 h-3" />
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
             ) : archiveType === 'videos' ? (
