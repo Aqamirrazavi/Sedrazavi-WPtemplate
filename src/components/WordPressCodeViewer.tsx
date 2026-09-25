@@ -42,7 +42,7 @@ export const WordPressCodeViewer: React.FC = () => {
   const [copiedCode, setCopiedCode] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
   const [downloadSuccessMessage, setDownloadSuccessMessage] = useState<string | null>(null);
-  const [activeSubTab, setActiveSubTab] = useState<'files' | 'cicd' | 'wsod_fix'>('files');
+  const [activeSubTab, setActiveSubTab] = useState<'files' | 'architecture' | 'wsod_fix' | 'cicd'>('files');
   const [screenshotDataUrl, setScreenshotDataUrl] = useState<string>('');
 
   // CI/CD Simulator state
@@ -410,6 +410,18 @@ export const WordPressCodeViewer: React.FC = () => {
             </button>
 
             <button
+              onClick={() => setActiveSubTab('architecture')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                activeSubTab === 'architecture'
+                  ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] shadow-md'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
+              }`}
+            >
+              <Package className="w-3.5 h-3.5 text-[#D4AF37]" />
+              معماری تفکیک پوسته و افزونه هسته (sedrazavi-legal-core)
+            </button>
+
+            <button
               onClick={() => setActiveSubTab('wsod_fix')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                 activeSubTab === 'wsod_fix'
@@ -418,7 +430,7 @@ export const WordPressCodeViewer: React.FC = () => {
               }`}
             >
               <Wrench className="w-3.5 h-3.5" />
-              راهنمای جامع حل قطعی صفحه سفید (WSOD & Debug Engine)
+              راهنمای جامع حل قطعی صفحه سفید (WSOD)
             </button>
 
             <button
@@ -613,6 +625,156 @@ export const WordPressCodeViewer: React.FC = () => {
 
             </div>
           </>
+        ) : activeSubTab === 'architecture' ? (
+          /* Modular Architecture & Addon Pack View */
+          <div className="space-y-8 animate-fadeIn text-right">
+            {/* Header Card */}
+            <div className="bg-white dark:bg-[#0B132B] rounded-3xl p-6 sm:p-8 border border-[#D4AF37]/40 shadow-xl space-y-6">
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <div className="w-12 h-12 rounded-2xl bg-[#D4AF37]/15 text-[#D4AF37] flex items-center justify-center">
+                  <Package className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold font-serif text-[#0B132B] dark:text-white">
+                    معماری تفکیک پوسته و افزونه هسته حقوقی (Decoupled Theme & Addon Pack Architecture)
+                  </h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    الگوی استاندارد وردپرس VIP: حفظ سبکی پوسته و محول کردن ابزارهای ۳۶‌گانه حقوقی به افزونه مجزای <code className="font-mono text-[#D4AF37]">sedrazavi-legal-core</code>.
+                  </p>
+                </div>
+              </div>
+
+              {/* 3 Core Principles */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-2">
+                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300 font-bold text-xs">
+                    <Layers className="w-4 h-4 text-[#D4AF37]" />
+                    <span>۱. لایه نمایش سبک (Theme)</span>
+                  </div>
+                  <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                    پوسته فقط شامل فایل‌های CSS، استایل‌های رسپانسیو، الگوهای برگه، هدر، فوتر و ۱۰ ویجت سبک المنتور است. بدون وابستگی مستقیم به دیتابیس یا کرش‌های سنگین.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-2">
+                  <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300 font-bold text-xs">
+                    <Cpu className="w-4 h-4 text-emerald-500" />
+                    <span>۲. هسته ماژولار (Legal Core Plugin)</span>
+                  </div>
+                  <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                    ۳۶ سامانه تخصصی در افزونه <code className="font-mono">sedrazavi-addons</code> تجمیع شده‌اند. هر ماژول دارای کلید اختصاصی در جدول <code className="font-mono">wp_options</code> بوده و قابل فعال/غیرفعال‌سازی است.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-2">
+                  <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 font-bold text-xs">
+                    <Shield className="w-4 h-4 text-blue-500" />
+                    <span>۳. پایداری ۱۰۰٪ و ضد WSOD</span>
+                  </div>
+                  <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                    با تفکیک لایه‌ها، در صورت تغییر قالب، داده‌های پرونده‌ها و قراردادها هرگز از بین نمی‌روند. همچنین خطای یک ماژول فرعی مانع از لود شدن وب‌سایت نمی‌گردد.
+                  </p>
+                </div>
+              </div>
+
+              {/* Architecture Layered Diagram */}
+              <div className="p-5 rounded-2xl bg-gray-50 dark:bg-[#070D1E] border border-gray-200 dark:border-gray-800 space-y-4">
+                <h3 className="text-xs font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                  <Terminal className="w-4 h-4 text-[#D4AF37]" />
+                  دیاگرام لایه‌ای جریان پردازش (Processing Pipeline):
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center text-xs">
+                  <div className="p-3 rounded-xl bg-white dark:bg-[#0B132B] border border-gray-300 dark:border-gray-700 space-y-1">
+                    <span className="font-bold text-[#D4AF37] block">لایه ۱: کلاینت</span>
+                    <span className="text-[10px] text-gray-500 dark:text-gray-400 block">مرورگر موکل / موبایل</span>
+                    <div className="text-[10px] font-mono text-gray-400">HTML5 / Tailwind</div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-white dark:bg-[#0B132B] border border-gray-300 dark:border-gray-700 space-y-1">
+                    <span className="font-bold text-amber-500 block">لایه ۲: پوسته وردپرس</span>
+                    <span className="text-[10px] text-gray-500 dark:text-gray-400 block">sedrazavi-law-theme</span>
+                    <div className="text-[10px] font-mono text-gray-400">Template Hierarchy</div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-white dark:bg-[#0B132B] border border-gray-300 dark:border-gray-700 space-y-1">
+                    <span className="font-bold text-emerald-500 block">لایه ۳: افزونه هسته</span>
+                    <span className="text-[10px] text-gray-500 dark:text-gray-400 block">sedrazavi-legal-core</span>
+                    <div className="text-[10px] font-mono text-gray-400">36 Legal Modules / REST</div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-white dark:bg-[#0B132B] border border-gray-300 dark:border-gray-700 space-y-1">
+                    <span className="font-bold text-blue-500 block">لایه ۴: پایگاه داده</span>
+                    <span className="text-[10px] text-gray-500 dark:text-gray-400 block">MySQL & wp_options</span>
+                    <div className="text-[10px] font-mono text-gray-400">Encrypted AES-256</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Code Implementation Box */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-gray-700 dark:text-gray-300">
+                    نمونه راه‌انداز ماژولار در فایل <code className="font-mono text-[#D4AF37]">sedrazavi-legal-core.php</code>:
+                  </span>
+                  <span className="text-[10px] text-gray-400 font-mono">PHP 8.2 • Singleton Loader</span>
+                </div>
+                <div className="p-4 rounded-2xl bg-black text-gray-200 font-mono text-xs overflow-x-auto text-left" dir="ltr">
+                  <pre className="space-y-1">
+{`<?php
+/**
+ * Plugin Name: SedRazavi Legal Core Addons
+ * Description: Modular Legal Suite Engine (Arbitration, Cyber, AML, Court Fee, OTP SMS).
+ * Version: 2.5.0
+ * Author: Dr. Seyedeh Maryam Razavi
+ */
+
+if (!defined('ABSPATH')) exit;
+
+final class SedRazavi_Legal_Core {
+    private static $instance = null;
+    private $active_modules = [];
+
+    public static function instance() {
+        if (is_null(self::$instance)) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    private function __construct() {
+        $this->load_active_modules();
+        add_action('init', [$this, 'register_shortcodes']);
+        add_action('rest_api_init', [$this, 'register_rest_routes']);
+    }
+
+    private function load_active_modules() {
+        $enabled = get_option('sedrazavi_enabled_modules', [
+            'court_fee'   => true,
+            'arbitration' => true,
+            'cyber_crime' => true,
+            'aml_suite'   => true,
+            'otp_sms'     => true,
+        ]);
+
+        foreach ($enabled as $module => $is_active) {
+            if ($is_active) {
+                $file = plugin_dir_path(__FILE__) . "modules/{$module}/class-{$module}.php";
+                if (file_exists($file)) {
+                    require_once $file;
+                }
+            }
+        }
+    }
+}
+
+add_action('plugins_loaded', ['SedRazavi_Legal_Core', 'instance']);`}
+                  </pre>
+                </div>
+              </div>
+
+            </div>
+          </div>
         ) : activeSubTab === 'wsod_fix' ? (
           /* WSOD Troubleshooting Guide View */
           <div className="space-y-8 animate-fadeIn">

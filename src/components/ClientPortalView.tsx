@@ -556,6 +556,20 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             </h4>
 
             <div className="space-y-3">
+              {uploadedFiles.length === 0 && (!activeCase.documents || activeCase.documents.length === 0) && (
+                <div className="p-8 rounded-2xl bg-gray-50 dark:bg-gray-800/40 border border-dashed border-gray-300 dark:border-gray-700 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-[#D4AF37] flex items-center justify-center mx-auto">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                  <h5 className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                    تاکنون سندی برای این پرونده ثبت نشده است
+                  </h5>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+                    با استفاده از کادر بالا می‌توانید مدارک هویتی، تصاویر قراردادها یا اسناد موردنیاز وکیل را بارگذاری فرمایید.
+                  </p>
+                </div>
+              )}
+
               {/* Newly uploaded docs */}
               {uploadedFiles.map((item, idx) => (
                 <div

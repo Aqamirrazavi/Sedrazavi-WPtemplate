@@ -67,6 +67,9 @@ import { OtpAuthModal } from './components/OtpAuthModal';
 import { QuickCallbackModal } from './components/QuickCallbackModal';
 import { LawyerHeroSlider } from './components/LawyerHeroSlider';
 import { TextBannerSlider } from './components/TextBannerSlider';
+import { ClientPortalView } from './components/ClientPortalView';
+import { VectorBackgroundRenderer } from './components/VectorBackgroundRenderer';
+import { Scale, User, Briefcase, Lock } from 'lucide-react';
 import {
   LawyerSiteProfile,
   getStoredLawyerProfile,
@@ -90,9 +93,31 @@ export default function App() {
   const [isQuickCallbackOpen, setIsQuickCallbackOpen] = useState(false);
   const [isLiveConsultationOpen, setIsLiveConsultationOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<'guest' | 'client' | 'lawyer' | 'admin'>('guest');
+  const [otpModalInitialTab, setOtpModalInitialTab] = useState<'client' | 'lawyer'>('client');
   const [userPhone, setUserPhone] = useState('');
   const [userName, setUserName] = useState('');
   const [selectedServiceToBook, setSelectedServiceToBook] = useState<string>('');
+
+  const handleLoginSuccess = (
+    identifier: string,
+    name?: string,
+    role: 'client' | 'lawyer' | 'admin' = 'client'
+  ) => {
+    setIsLoggedIn(true);
+    setUserRole(role);
+    setUserPhone(identifier);
+    setUserName(name || (role === 'lawyer' ? 'دکتر سیده مریم رضوی' : 'موکل گرامی'));
+    setActiveView('dashboard');
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserRole('guest');
+    setUserPhone('');
+    setUserName('');
+    setActiveView('preview');
+  };
 
   // Dynamic Lawyer Customization Profile (Allows attorney to fully customize without Elementor)
   const [lawyerProfile, setLawyerProfile] = useState<LawyerSiteProfile>(getStoredLawyerProfile());
@@ -178,7 +203,14 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9] dark:bg-[#070D1E] text-[#0B132B] dark:text-gray-100 transition-colors duration-300 font-persian">
+    <div className="min-h-screen bg-[#F4F6F9] dark:bg-[#070D1E] text-[#0B132B] dark:text-gray-100 transition-colors duration-300 font-persian relative">
+      {/* 30 Animated Abstract Vector Line Backgrounds (Adapts dynamically to the active backend theme palette) */}
+      <VectorBackgroundRenderer
+        presetId={lawyerProfile.appearance?.vectorBackground?.presetId || 'dynamic-flowing-waves'}
+        opacity={lawyerProfile.appearance?.vectorBackground?.opacity ?? 0.65}
+        speed={lawyerProfile.appearance?.vectorBackground?.speed || 'normal'}
+      />
+
       {/* Sticky Header */}
       <Header
         activeView={activeView}
@@ -199,15 +231,15 @@ export default function App() {
         onOpenArticleArchive={() => handleOpenArchive('article')}
         onOpenVideoArchive={() => handleOpenArchive('video')}
         onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
-        onOpenOtpAuth={() => setIsOtpModalOpen(true)}
+        onOpenOtpAuth={() => {
+          setOtpModalInitialTab('client');
+          setIsOtpModalOpen(true);
+        }}
         onOpenQuickCallback={() => setIsQuickCallbackOpen(true)}
         isLoggedIn={isLoggedIn}
+        userRole={userRole}
         currentUserPhone={userPhone}
-        onLogout={() => {
-          setIsLoggedIn(false);
-          setUserPhone('');
-          setUserName('');
-        }}
+        onLogout={handleLogout}
       />
 
       {/* Floating Yellow/Gold Scroll Sidebar & ScrollSpy Progress Tracker */}
@@ -238,7 +270,7 @@ export default function App() {
       />
 
       {/* Main Content Area based on active view */}
-      <main>
+      <main className="bg-legal-vector min-h-screen">
         {activeView === 'preview' && (
           <div>
             {/* 0. Religious & Literary Text Banner Slider (SPEC Part 3 Section 4 & Part 4 Section 1) */}
@@ -254,8 +286,8 @@ export default function App() {
               />
             </div>
 
-            {/* 1.5. Dynamic Lawyer Hero Slider / Carousel (Under Stories) */}
-            {lawyerProfile.heroSlider && lawyerProfile.heroSlider.length > 0 && (
+            {/* 1.5. Dynamic Lawyer Hero Slider / Carousel (Under Stories - Optional to prevent visual clutter) */}
+            {lawyerProfile.showHeroSlider && lawyerProfile.heroSlider && lawyerProfile.heroSlider.length > 0 && (
               <div id="slider" className="border-b border-gray-200/60 dark:border-gray-800">
                 <LawyerHeroSlider
                   slides={lawyerProfile.heroSlider}
@@ -521,19 +553,82 @@ export default function App() {
 
         {activeView === 'dashboard' && (
           <div>
-            <LawyerDashboard
-              initialPortalMode={isLoggedIn ? 'client' : 'attorney'}
-              userPhoneNumber={userPhone}
-              userName={userName}
-              lawyerProfile={lawyerProfile}
-              onUpdateLawyerProfile={(updated) => setLawyerProfile(updated)}
-              onLogout={() => {
-                setIsLoggedIn(false);
-                setUserPhone('');
-                setUserName('');
-              }}
-              onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
-            />
+            {userRole === 'client' ? (
+              <div className="py-8 min-h-screen">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                  <ClientPortalView
+                    userPhoneNumber={userPhone}
+                    userName={userName}
+                    onLogout={handleLogout}
+                    onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+                    onBackToMainDashboard={() => setActiveView('preview')}
+                  />
+                </div>
+              </div>
+            ) : userRole === 'lawyer' || userRole === 'admin' ? (
+              <LawyerDashboard
+                initialPortalMode="attorney"
+                userPhoneNumber={userPhone}
+                userName={userName}
+                lawyerProfile={lawyerProfile}
+                onUpdateLawyerProfile={(updated) => setLawyerProfile(updated)}
+                onLogout={handleLogout}
+                onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+              />
+            ) : (
+              /* Security Barrier for Unauthenticated Guests */
+              <div className="min-h-[75vh] flex items-center justify-center p-4">
+                <div className="max-w-md w-full p-8 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-2xl text-center space-y-6">
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/10 text-[#D4AF37] flex items-center justify-center shadow-inner">
+                    <Scale className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold font-serif text-[#0B132B] dark:text-white">
+                      پیشخوان اختصاصی و محرمانه
+                    </h2>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+                      جهت حفظ محرمانگی اسناد پرونده‌های موکلین و ابزارهای راهبری وکیل، دسترسی به این بخش نیازمند ورود به حساب کاربری است.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOtpModalInitialTab('client');
+                        setIsOtpModalOpen(true);
+                      }}
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] font-bold text-xs shadow-md shadow-[#D4AF37]/25 hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <User className="w-4 h-4" />
+                      <span>ورود موکلین و مراجعین (با پیامک یا رمز)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOtpModalInitialTab('lawyer');
+                        setIsOtpModalOpen(true);
+                      }}
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#0B132B] dark:bg-gray-800 hover:bg-[#1C2541] text-white border border-[#D4AF37]/50 font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Briefcase className="w-4 h-4 text-[#D4AF37]" />
+                      <span>ورود وکیل دادگستری (با رمز مدیریت وردپرس)</span>
+                    </button>
+                  </div>
+
+                  <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                    <button
+                      type="button"
+                      onClick={() => setActiveView('preview')}
+                      className="text-xs text-gray-500 dark:text-gray-400 hover:text-[#D4AF37] transition-colors cursor-pointer"
+                    >
+                      بازگشت به صفحه اصلی سایت
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             <Footer
               profile={lawyerProfile}
               onOpenFinance={() => setActiveView('finance')}
@@ -1241,12 +1336,10 @@ export default function App() {
       <OtpAuthModal
         isOpen={isOtpModalOpen}
         onClose={() => setIsOtpModalOpen(false)}
+        initialRoleTab={otpModalInitialTab}
         onOpenQuickCallback={() => setIsQuickCallbackOpen(true)}
-        onLoginSuccess={(phone, name) => {
-          setIsLoggedIn(true);
-          setUserPhone(phone);
-          setUserName(name || 'موکل گرامی');
-          setActiveView('dashboard');
+        onLoginSuccess={(identifier, name, role) => {
+          handleLoginSuccess(identifier, name, role);
         }}
       />
 

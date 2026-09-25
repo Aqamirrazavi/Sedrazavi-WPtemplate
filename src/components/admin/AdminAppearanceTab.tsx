@@ -19,7 +19,18 @@ import {
   Palette,
   Layers,
   ArrowRight,
+  Shield,
+  Gavel,
+  Briefcase,
+  Zap,
+  Waves,
+  Activity,
+  Radio,
 } from 'lucide-react';
+import { THEME_PALETTES, ThemePalettePreset } from '../../data/themePalettes';
+import { VECTOR_BACKGROUND_PRESETS, VectorBackgroundPreset } from '../../data/vectorBackgroundPresets';
+import { applyPaletteToDom } from '../../utils/themePaletteApplier';
+import { useDesignTokens } from '../../context/DesignTokensContext';
 
 interface AdminAppearanceTabProps {
   profile: LawyerSiteProfile;
@@ -31,8 +42,10 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
   onUpdateProfile,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<
-    'light' | 'dark' | 'typography' | 'advanced' | 'preview' | 'save_reset'
-  >('light');
+    'palettes_30' | 'vector_30' | 'light' | 'dark' | 'typography' | 'advanced' | 'preview' | 'save_reset'
+  >('palettes_30');
+  const [paletteCategoryFilter, setPaletteCategoryFilter] = useState<string>('all');
+  const [vectorCategoryFilter, setVectorCategoryFilter] = useState<string>('all');
 
   const [appearance, setAppearance] = useState(
     profile.appearance || {
@@ -65,6 +78,7 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
     }
   );
 
+  const { updateToken } = useDesignTokens();
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [copiedCss, setCopiedCss] = useState(false);
 
@@ -75,8 +89,91 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
     };
     saveLawyerProfile(updated);
     onUpdateProfile(updated);
+
+    // Apply live CSS variables to the document
+    applyPaletteToDom(appearance.lightPalette, appearance.darkPalette);
+
+    // Synchronize design tokens
+    updateToken('color.primary', appearance.lightPalette.goldPrimary);
+    updateToken('color.secondary', appearance.lightPalette.goldSecondary);
+    updateToken('color.background', appearance.lightPalette.bg);
+    updateToken('color.text', appearance.lightPalette.text);
+
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3000);
+  };
+
+  const handleApplyFullSuite = (preset: ThemePalettePreset) => {
+    const nextApp = {
+      ...appearance,
+      lightPalette: preset.lightColors,
+      darkPalette: preset.darkColors,
+    };
+    setAppearance(nextApp);
+    const updated: LawyerSiteProfile = {
+      ...profile,
+      appearance: nextApp,
+    };
+    saveLawyerProfile(updated);
+    onUpdateProfile(updated);
+    applyPaletteToDom(preset.lightColors, preset.darkColors);
+    updateToken('color.primary', preset.lightColors.goldPrimary);
+    updateToken('color.secondary', preset.lightColors.goldSecondary);
+    updateToken('color.background', preset.lightColors.bg);
+    updateToken('color.text', preset.lightColors.text);
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 3000);
+  };
+
+  const handleSelectVectorPreset = (presetId: string) => {
+    const current = appearance.vectorBackground || {
+      presetId: 'dynamic-flowing-waves',
+      opacity: 0.65,
+      speed: 'normal',
+      enableGlow: true,
+      density: 'balanced',
+    };
+    const nextVector = {
+      ...current,
+      presetId,
+    };
+    const nextApp = {
+      ...appearance,
+      vectorBackground: nextVector,
+    };
+    setAppearance(nextApp);
+    const updated: LawyerSiteProfile = {
+      ...profile,
+      appearance: nextApp,
+    };
+    saveLawyerProfile(updated);
+    onUpdateProfile(updated);
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 3000);
+  };
+
+  const handleUpdateVectorConfig = (patch: Partial<NonNullable<typeof appearance.vectorBackground>>) => {
+    const current = appearance.vectorBackground || {
+      presetId: 'dynamic-flowing-waves',
+      opacity: 0.65,
+      speed: 'normal',
+      enableGlow: true,
+      density: 'balanced',
+    };
+    const nextVector = { ...current, ...patch };
+    const nextApp = {
+      ...appearance,
+      vectorBackground: nextVector,
+    };
+    setAppearance(nextApp);
+    const updated: LawyerSiteProfile = {
+      ...profile,
+      appearance: nextApp,
+    };
+    saveLawyerProfile(updated);
+    onUpdateProfile(updated);
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 2000);
   };
 
   const handleReset = () => {
@@ -133,6 +230,16 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
 
   return (
     <div className="bg-white dark:bg-[#0B132B] rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
+      {/* Guidance info for buyer lawyer */}
+      <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs flex items-center justify-between gap-3 text-amber-900 dark:text-amber-200">
+        <div className="flex items-center gap-2.5">
+          <Sparkles className="w-4 h-4 text-[#D4AF37] shrink-0" />
+          <span>
+            <strong>راهنمای وکیل:</strong> این بخش مختص پالت‌های رنگی، فونت و استایل‌های شب/روز است. جهت ویرایش نام وکیل، شماره پروانه، عکس پرسنلی، بیوگرافی و شبکه‌های اجتماعی از زبانه «۱۶. هویت کامل وکیل» در نوار بالای داشبورد استفاده فرمایید.
+          </span>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800">
         <div>
@@ -147,8 +254,32 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
           </p>
         </div>
 
-        {/* 6 Sub-Tab Navigation Pills */}
+        {/* 8 Sub-Tab Navigation Pills */}
         <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => setActiveSubTab('palettes_30')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeSubTab === 'palettes_30'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] shadow-sm border border-[#D4AF37]/60'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Palette className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>۱. مخزن ۳۰ تم رنگی (شب و روز)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('vector_30')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeSubTab === 'vector_30'
+                ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/30 text-amber-900 dark:text-[#F3E5AB] shadow-sm border border-[#D4AF37]'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Waves className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>۲. پس‌زمینه‌های وکتوری (۳۰ مدل)</span>
+          </button>
+
           <button
             onClick={() => setActiveSubTab('light')}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -158,7 +289,7 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
             }`}
           >
             <Sun className="w-3.5 h-3.5" />
-            <span>۱. پالت روز</span>
+            <span>۳. پالت روز</span>
           </button>
 
           <button
@@ -170,7 +301,7 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
             }`}
           >
             <Moon className="w-3.5 h-3.5" />
-            <span>۲. پالت شب</span>
+            <span>۴. پالت شب</span>
           </button>
 
           <button
@@ -182,7 +313,7 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
             }`}
           >
             <Type className="w-3.5 h-3.5" />
-            <span>۳. تایپوگرافی</span>
+            <span>۵. تایپوگرافی</span>
           </button>
 
           <button
@@ -194,7 +325,7 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
             }`}
           >
             <Sliders className="w-3.5 h-3.5" />
-            <span>۴. پیشرفته</span>
+            <span>۶. پیشرفته</span>
           </button>
 
           <button
@@ -206,7 +337,7 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
             }`}
           >
             <Eye className="w-3.5 h-3.5" />
-            <span>۵. پیش‌نمایش زنده</span>
+            <span>۷. پیش‌نمایش زنده</span>
           </button>
 
           <button
@@ -218,83 +349,630 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
             }`}
           >
             <Save className="w-3.5 h-3.5" />
-            <span>۶. ذخیره و خروجی</span>
+            <span>۸. ذخیره و خروجی</span>
           </button>
         </div>
       </div>
 
       {/* Content for each tab */}
-      {/* 1. Light Palette */}
+      
+      {/* 0. 30 Palettes Suite (Master Backend Hub) */}
+      {activeSubTab === 'palettes_30' && (
+        <div className="space-y-6">
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-[#D4AF37]/15 to-transparent border border-[#D4AF37]/30 text-xs text-amber-900 dark:text-[#F3E5AB] leading-relaxed">
+            <div className="font-bold flex items-center gap-2 mb-1 text-sm text-[#0B132B] dark:text-white">
+              <Sparkles className="w-4 h-4 text-[#D4AF37]" />
+              <span>مخزن مرکزی ۳۰ تم رنگی حقوقی (پست‌تایپ گرافیکی بک‌اند)</span>
+            </div>
+            سرکار خانم دکتر رضوی، مطابق درخواست شما این بخش در مدیریت پنل قرار گرفت تا بتوانید از میان ۳۰ تم رنگی دسته‌بندی‌شده (شامل هر دو پالت اختصاصی روز و شب هماهنگ)، تم دلخواه را انتخاب و ذخیره نمایید. تم ذخیره شده در کل فرانت‌اند اعمال شده و کاربر در سایت تنها با دکمه روز/شب (خورشید و ماه) بین حالت روشن و تاریک آن جابجا می‌شود.
+          </div>
+
+          {/* Category Filter Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+            {[
+              { id: 'all', label: 'همه ۳۰ تم' },
+              { id: 'classic', label: 'کلاسیک و دادگستری' },
+              { id: 'corporate', label: 'شرکتی و پیمانکاری' },
+              { id: 'real-estate', label: 'ملکی و سرقفلی' },
+              { id: 'criminal', label: 'کیفری و سایبری' },
+              { id: 'arbitration', label: 'داوری و بین‌الملل' },
+              { id: 'tech', label: 'استارتاپ و مالکیت فکری' },
+              { id: 'specialized', label: 'دیوان عدالت و تخصصی' },
+              { id: 'luxury', label: 'پریمیوم و لوکس' },
+            ].map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setPaletteCategoryFilter(cat.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  paletteCategoryFilter === cat.id
+                    ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] shadow-sm'
+                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          {/* 30 Palettes Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {THEME_PALETTES.filter(
+              (p) => paletteCategoryFilter === 'all' || p.category === paletteCategoryFilter
+            ).map((preset) => {
+              const isSelected =
+                appearance.lightPalette.goldPrimary === preset.lightColors.goldPrimary &&
+                appearance.darkPalette.bg === preset.darkColors.bg;
+
+              return (
+                <div
+                  key={preset.id}
+                  className={`p-4 rounded-2xl border text-right transition-all flex flex-col justify-between relative bg-white dark:bg-gray-800/90 shadow-sm ${
+                    isSelected
+                      ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/40 shadow-md'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-[#D4AF37]/60'
+                  }`}
+                >
+                  {isSelected && (
+                    <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-[#D4AF37] text-[#0B132B] font-bold text-[10px] flex items-center gap-1 shadow-sm">
+                      <Check className="w-3 h-3" />
+                      <span>تم فعال سایت</span>
+                    </span>
+                  )}
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-[#D4AF37]/15 text-[#AA820A] dark:text-[#F3E5AB]">
+                        {preset.badge}
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-md font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300">
+                        {preset.recommendedPractice || preset.category}
+                      </span>
+                    </div>
+
+                    <h4 className="text-sm font-bold text-[#0B132B] dark:text-white">
+                      {preset.title}
+                    </h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">
+                      {preset.desc}
+                    </p>
+                  </div>
+
+                  {/* Visual Swatches for BOTH Day and Night Modes */}
+                  <div className="my-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700/60 space-y-2.5">
+                    {/* Day Swatch */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-700 dark:text-amber-400">
+                        <Sun className="w-3.5 h-3.5" />
+                        <span>پالت روز:</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-4 h-4 rounded-full border border-gray-300 shadow-xs" style={{ backgroundColor: preset.lightColors.bg }} title="پس‌زمینه روز" />
+                        <span className="w-4 h-4 rounded-full border border-gray-300 shadow-xs" style={{ backgroundColor: preset.lightColors.text }} title="متن روز" />
+                        <span className="w-4 h-4 rounded-full border border-gray-300 shadow-xs" style={{ backgroundColor: preset.lightColors.goldPrimary }} title="رنگ طلایی/تأکیدی روز" />
+                        <span className="w-4 h-4 rounded-full border border-gray-300 shadow-xs" style={{ backgroundColor: preset.lightColors.goldSecondary }} title="رنگ ثانویه روز" />
+                      </div>
+                    </div>
+
+                    {/* Night Swatch */}
+                    <div className="flex items-center justify-between pt-1.5 border-t border-gray-200/60 dark:border-gray-800">
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-700 dark:text-indigo-400">
+                        <Moon className="w-3.5 h-3.5" />
+                        <span>پالت شب:</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-4 h-4 rounded-full border border-gray-600 shadow-xs" style={{ backgroundColor: preset.darkColors.bg }} title="پس‌زمینه شب" />
+                        <span className="w-4 h-4 rounded-full border border-gray-600 shadow-xs" style={{ backgroundColor: preset.darkColors.text }} title="متن شب" />
+                        <span className="w-4 h-4 rounded-full border border-gray-600 shadow-xs" style={{ backgroundColor: preset.darkColors.goldPrimary }} title="رنگ طلایی/تأکیدی شب" />
+                        <span className="w-4 h-4 rounded-full border border-gray-600 shadow-xs" style={{ backgroundColor: preset.darkColors.cardBg }} title="باکس‌های شب" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Apply Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleApplyFullSuite(preset)}
+                    className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] hover:from-[#1C2541] hover:to-[#0B132B] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
+                    }`}
+                  >
+                    {isSelected ? (
+                      <>
+                        <Check className="w-4 h-4" />
+                        <span>این تم در حال حاضر در سایت فعال است</span>
+                      </>
+                    ) : (
+                      <>
+                        <Palette className="w-4 h-4 text-[#D4AF37]" />
+                        <span>انتخاب و اعمال این تم (روز و شب) در فرانت‌اند</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 2. 30 Animated Vector Line Backgrounds (پست‌تایپ پس‌زمینه‌های وکتوری انیمیشنی) */}
+      {activeSubTab === 'vector_30' && (
+        <div className="space-y-6">
+          {/* Header Explanation Banner */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-[#D4AF37]/15 to-transparent border border-[#D4AF37]/30 text-xs text-amber-900 dark:text-[#F3E5AB] leading-relaxed">
+            <div className="font-bold flex items-center gap-2 mb-1.5 text-sm text-[#0B132B] dark:text-white">
+              <Waves className="w-4 h-4 text-[#D4AF37]" />
+              <span>مخزن اختصاصی ۳۰ وکتور دیزاین خطی و امواج انیمیشنی (Animated Vector Lines & Wave Mesh)</span>
+            </div>
+            سرکار خانم دکتر رضوی، مطابق دستور شما، این ۳۰ مدل وکتور الهام‌گرفته از مدرن‌ترین الگوهای وکتور خطی لندینگ پیج (شامل امواج سینوسی روان، کانتورهای تراز توپوگرافی ملکی، شبکه امنیتی اسناد رسمی گیلوش، صور فلکی و گره‌های پیوسته، مدارهای داده سایبری و هندسه اسلیمی) در بک‌اند پیاده‌سازی شدند. هر کدام از این ۳۰ مدل را انتخاب فرمایید، بلافاصله روی لندینگ‌پیج فرانت‌اند اعمال شده و <strong>به صورت کاملاً داینامیک رنگ و درخشش خود را از ۳۰ پالت تم فعال در تب ۱ دریافت می‌کنند.</strong>
+          </div>
+
+          {/* Quick Settings Bar: Opacity & Speed */}
+          <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/80 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
+                مدل وکتور فعال فعلی:
+              </span>
+              <span className="px-3 py-1 rounded-xl bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] text-xs font-bold shadow-sm">
+                {VECTOR_BACKGROUND_PRESETS.find(
+                  (p) => p.id === (appearance.vectorBackground?.presetId || 'dynamic-flowing-waves')
+                )?.title || '۱. امواج مواج سینوسی روان'}
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4">
+              {/* Opacity slider */}
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                  شفافیت وکتور:
+                </label>
+                <input
+                  type="range"
+                  min="0.15"
+                  max="1"
+                  step="0.05"
+                  value={appearance.vectorBackground?.opacity ?? 0.65}
+                  onChange={(e) =>
+                    handleUpdateVectorConfig({ opacity: parseFloat(e.target.value) })
+                  }
+                  className="w-24 accent-[#D4AF37] cursor-pointer"
+                />
+                <span className="text-xs font-mono text-[#D4AF37] font-bold">
+                  {Math.round((appearance.vectorBackground?.opacity ?? 0.65) * 100)}%
+                </span>
+              </div>
+
+              {/* Speed Buttons */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-gray-600 dark:text-gray-300 ml-1">
+                  سرعت انیمیشن:
+                </span>
+                {(
+                  [
+                    { id: 'slow', label: 'آرام' },
+                    { id: 'normal', label: 'استاندارد' },
+                    { id: 'fast', label: 'پرشتاب' },
+                  ] as const
+                ).map((spd) => (
+                  <button
+                    key={spd.id}
+                    type="button"
+                    onClick={() => handleUpdateVectorConfig({ speed: spd.id })}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      (appearance.vectorBackground?.speed || 'normal') === spd.id
+                        ? 'bg-[#D4AF37] text-[#0B132B] font-black shadow-sm'
+                        : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-[#D4AF37]'
+                    }`}
+                  >
+                    {spd.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Category Filter Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+            {[
+              { id: 'all', label: 'همه ۳۰ مدل وکتور' },
+              { id: 'waves', label: 'امواج سینوسی و روبان‌های سیال' },
+              { id: 'contours', label: 'کانتورهای تراز و توپوگرافی' },
+              { id: 'guilloche', label: 'شبکه امنیتی گیلوش اسناد رسمی' },
+              { id: 'constellation', label: 'صور فلکی و گره‌های پیوسته' },
+              { id: 'cyber', label: 'مدارهای سایبری، فتا و بلاک‌چین' },
+              { id: 'geometric', label: 'هندسه مدرن، فیبوناچی و منشور' },
+              { id: 'architectural', label: 'معماری ستون‌ها و کاخ دادگستری' },
+            ].map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setVectorCategoryFilter(cat.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  vectorCategoryFilter === cat.id
+                    ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] shadow-sm'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          {/* 30 Vector Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {VECTOR_BACKGROUND_PRESETS.filter((preset) =>
+              vectorCategoryFilter === 'all' ? true : preset.category === vectorCategoryFilter
+            ).map((preset) => {
+              const isActive =
+                (appearance.vectorBackground?.presetId || 'dynamic-flowing-waves') === preset.id;
+              return (
+                <div
+                  key={preset.id}
+                  className={`rounded-2xl p-4 border transition-all duration-300 flex flex-col justify-between group shadow-sm hover:shadow-md ${
+                    isActive
+                      ? 'border-[#D4AF37] bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent dark:bg-gray-800/90 ring-2 ring-[#D4AF37]/50'
+                      : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800/60 hover:border-[#D4AF37]/70 hover:translate-y-[-2px]'
+                  }`}
+                >
+                  {/* Mini Animated Graphic Preview Box */}
+                  <div className="relative h-28 w-full rounded-xl overflow-hidden bg-[#070D1E] border border-gray-800 mb-3 flex items-center justify-center">
+                    <div
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        background: `radial-gradient(circle at 75% 25%, ${appearance.lightPalette.goldPrimary}22 0%, transparent 60%)`,
+                      }}
+                    />
+                    {/* SVG Graphic with dynamic CSS stroke that takes current theme palette gold color */}
+                    <svg
+                      viewBox="0 0 400 160"
+                      className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-500"
+                    >
+                      <defs>
+                        <linearGradient id={`preview-grad-${preset.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor={appearance.lightPalette.goldPrimary} stopOpacity="0.9" />
+                          <stop offset="100%" stopColor={appearance.lightPalette.goldSecondary} stopOpacity="0.4" />
+                        </linearGradient>
+                      </defs>
+
+                      {/* Wave Flow Graphic */}
+                      {preset.category === 'waves' && (
+                        <g>
+                          {[15, 35, 55, 75, 95, 115, 135].map((y, idx) => (
+                            <path
+                              key={idx}
+                              d={`M 0 ${y} Q 100 ${y - 25 + (idx % 2) * 30} 200 ${y} T 400 ${y + 10}`}
+                              fill="none"
+                              stroke={`url(#preview-grad-${preset.id})`}
+                              strokeWidth={idx % 2 === 0 ? 1.5 : 1}
+                              strokeOpacity={0.4 + (idx % 3) * 0.2}
+                            />
+                          ))}
+                        </g>
+                      )}
+
+                      {/* Contours Graphic */}
+                      {preset.category === 'contours' && (
+                        <g>
+                          {[25, 45, 65, 85, 105, 125].map((r, idx) => (
+                            <ellipse
+                              key={idx}
+                              cx={280}
+                              cy={80}
+                              rx={r * 1.6}
+                              ry={r * 0.75}
+                              fill="none"
+                              stroke={`url(#preview-grad-${preset.id})`}
+                              strokeWidth={idx % 2 === 0 ? 1.5 : 1}
+                              strokeOpacity={0.4 + (idx % 3) * 0.2}
+                              transform="rotate(-15 280 80)"
+                            />
+                          ))}
+                        </g>
+                      )}
+
+                      {/* Guilloche Mesh Graphic */}
+                      {preset.category === 'guilloche' && (
+                        <g transform="translate(200, 80)">
+                          {[0, 30, 60, 90, 120, 150].map((angle, idx) => (
+                            <ellipse
+                              key={idx}
+                              cx={0}
+                              cy={0}
+                              rx={140}
+                              ry={40}
+                              fill="none"
+                              stroke={`url(#preview-grad-${preset.id})`}
+                              strokeWidth={1}
+                              strokeOpacity={0.35 + (idx % 2) * 0.25}
+                              transform={`rotate(${angle})`}
+                            />
+                          ))}
+                        </g>
+                      )}
+
+                      {/* Constellation Graphic */}
+                      {preset.category === 'constellation' && (
+                        <g>
+                          {[
+                            { x: 50, y: 40 }, { x: 130, y: 70 }, { x: 220, y: 35 }, { x: 310, y: 90 }, { x: 370, y: 45 },
+                            { x: 90, y: 120 }, { x: 190, y: 135 }, { x: 270, y: 125 },
+                          ].map((pt, idx, arr) => (
+                            <React.Fragment key={idx}>
+                              {idx < arr.length - 1 && (
+                                <line
+                                  x1={pt.x}
+                                  y1={pt.y}
+                                  x2={arr[idx + 1].x}
+                                  y2={arr[idx + 1].y}
+                                  stroke={`url(#preview-grad-${preset.id})`}
+                                  strokeWidth={1}
+                                  strokeOpacity={0.5}
+                                />
+                              )}
+                              <circle cx={pt.x} cy={pt.y} r={3} fill={appearance.lightPalette.goldPrimary} />
+                            </React.Fragment>
+                          ))}
+                        </g>
+                      )}
+
+                      {/* Cyber Matrix Graphic */}
+                      {preset.category === 'cyber' && (
+                        <g>
+                          {[25, 55, 85, 115, 140].map((y, idx) => (
+                            <path
+                              key={idx}
+                              d={`M 0 ${y} L ${120 + idx * 30} ${y} L ${160 + idx * 30} ${y + 20} L 400 ${y + 20}`}
+                              fill="none"
+                              stroke={`url(#preview-grad-${preset.id})`}
+                              strokeWidth={1.4}
+                              strokeDasharray="8 6"
+                              strokeOpacity={0.6}
+                            />
+                          ))}
+                        </g>
+                      )}
+
+                      {/* Geometric / Architecture Graphic */}
+                      {(preset.category === 'geometric' || preset.category === 'architectural') && (
+                        <g>
+                          {[0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400].map((x, idx) => (
+                            <React.Fragment key={idx}>
+                              <line
+                                x1={x}
+                                y1={0}
+                                x2={x + 90}
+                                y2={160}
+                                stroke={`url(#preview-grad-${preset.id})`}
+                                strokeWidth={1}
+                                strokeOpacity={0.3}
+                              />
+                              <line
+                                x1={x}
+                                y1={160}
+                                x2={x + 90}
+                                y2={0}
+                                stroke={appearance.lightPalette.goldSecondary}
+                                strokeWidth={0.8}
+                                strokeOpacity={0.2}
+                              />
+                            </React.Fragment>
+                          ))}
+                        </g>
+                      )}
+                    </svg>
+
+                    {/* Active Ribbon Badge on Preview */}
+                    {isActive && (
+                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-[#D4AF37] text-[#0B132B] text-[10px] font-black shadow-md flex items-center gap-1">
+                        <Check className="w-3 h-3" />
+                        <span>مدل فعال</span>
+                      </span>
+                    )}
+
+                    <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-sm text-[10px] font-mono text-gray-300">
+                      {preset.categoryLabel}
+                    </span>
+                  </div>
+
+                  {/* Card Content */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-bold text-[#D4AF37] font-mono">
+                        مدل شماره #{preset.number}
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-amber-500/10 text-amber-800 dark:text-[#F3E5AB]">
+                        {preset.badge}
+                      </span>
+                    </div>
+
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight mt-1 group-hover:text-[#D4AF37] transition-colors">
+                      {preset.title}
+                    </h4>
+
+                    <p className="text-[11px] text-gray-400 font-mono mt-0.5 truncate">
+                      {preset.titleEn}
+                    </p>
+
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 leading-relaxed line-clamp-2">
+                      {preset.desc}
+                    </p>
+
+                    <div className="mt-2.5 p-2 rounded-xl bg-gray-50 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/60 text-[11px] text-gray-500 dark:text-gray-400">
+                      <strong className="text-gray-700 dark:text-gray-300">کاربرد پیشنهادی:</strong>{' '}
+                      {preset.recommendedUse}
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectVectorPreset(preset.id)}
+                      className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                        isActive
+                          ? 'bg-emerald-600 text-white shadow-md'
+                          : 'bg-gray-100 dark:bg-gray-700 hover:bg-[#D4AF37] text-gray-800 dark:text-gray-200 hover:text-[#0B132B] shadow-sm'
+                      }`}
+                    >
+                      {isActive ? (
+                        <>
+                          <Check className="w-4 h-4" />
+                          <span>فعال روی کل لندینگ‌پیج</span>
+                        </>
+                      ) : (
+                        <>
+                          <Waves className="w-4 h-4" />
+                          <span>انتخاب و اعمال این مدل در سایت</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       {activeSubTab === 'light' && (
         <div className="space-y-6">
           <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200">
             <strong>راهنما:</strong> این تنظیمات برای تم روشن (پالت روز) اعمال می‌شود. می‌توانید یکی از ۵ پالت رسمی آماده SedRazavi را با یک کلیک انتخاب نموده یا مقادیر را اختصاصی ویرایش کنید.
           </div>
 
-          {/* 5 Ready Day Palettes (Part 2.1) */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-              انتخاب سریع از میان ۵ پالت آماده روز (SPEC Part 2.1):
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
-              {[
-                {
-                  id: 'classic-day',
-                  title: '۱. کلاسیک SedRazavi (پیش‌فرض)',
-                  desc: 'سرمه‌ای + طلایی',
-                  colors: { bg: '#F4F6F9', text: '#1C2541', goldPrimary: '#D4AF37', goldSecondary: '#B8960F', border: '#E0E4EC' },
-                },
-                {
-                  id: 'modern-day',
-                  title: '۲. مدرن',
-                  desc: 'آبی نفتی + سفید',
-                  colors: { bg: '#FFFFFF', text: '#2C3E50', goldPrimary: '#3498DB', goldSecondary: '#2980B9', border: '#DEE2E6' },
-                },
-                {
-                  id: 'warm-day',
-                  title: '۳. گرم',
-                  desc: 'قهوه‌ای + کرم + طلایی',
-                  colors: { bg: '#FDF6E3', text: '#5D4037', goldPrimary: '#D4AF37', goldSecondary: '#B8960F', border: '#E8DCC8' },
-                },
-                {
-                  id: 'minimal-day',
-                  title: '۴. مینیمال',
-                  desc: 'مشکی + سفید',
-                  colors: { bg: '#FAFAFA', text: '#212121', goldPrimary: '#000000', goldSecondary: '#424242', border: '#E0E0E0' },
-                },
-                {
-                  id: 'luxury-day',
-                  title: '۵. لوکس',
-                  desc: 'بنفش سلطنتی + زرین',
-                  colors: { bg: '#F3E5F5', text: '#4A148C', goldPrimary: '#FFD700', goldSecondary: '#FFA000', border: '#E1BEE7' },
-                },
-              ].map((preset) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() =>
-                    setAppearance({
-                      ...appearance,
-                      lightPalette: preset.colors,
-                    })
-                  }
-                  className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-[#D4AF37] bg-white dark:bg-gray-800 text-right transition-all group flex flex-col justify-between"
-                >
-                  <div>
-                    <span className="block text-[11px] font-bold text-gray-800 dark:text-white group-hover:text-[#D4AF37]">
-                      {preset.title}
-                    </span>
-                    <span className="block text-[10px] text-gray-400 mt-0.5">
-                      {preset.desc}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1 mt-2.5 pt-2 border-t border-gray-100 dark:border-gray-700">
-                    <span className="w-4 h-4 rounded-full border border-gray-300" style={{ backgroundColor: preset.colors.bg }} title="پس‌زمینه" />
-                    <span className="w-4 h-4 rounded-full border border-gray-300" style={{ backgroundColor: preset.colors.text }} title="متن" />
-                    <span className="w-4 h-4 rounded-full border border-gray-300" style={{ backgroundColor: preset.colors.goldPrimary }} title="تأکیدی" />
-                  </div>
-                </button>
-              ))}
+          {/* 11 Ready Day Palettes (5 Original + 6 New Legal Scenarios) */}
+          <div className="space-y-6">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  <span>۵ پالت اولیه استاندارد روز (SPEC Part 2.1):</span>
+                </label>
+                <span className="text-[11px] text-gray-400">کلاسیک، مدرن، گرم، مینیمال و لوکس</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                {THEME_PALETTES.filter((p) => p.category === 'original').map((preset) => {
+                  const isSelected =
+                    appearance.lightPalette.bg === preset.lightColors.bg &&
+                    appearance.lightPalette.goldPrimary === preset.lightColors.goldPrimary;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => {
+                        const newLight = preset.lightColors;
+                        setAppearance({
+                          ...appearance,
+                          lightPalette: newLight,
+                        });
+                        applyPaletteToDom(newLight, appearance.darkPalette);
+                      }}
+                      className={`p-3.5 rounded-2xl border text-right transition-all group flex flex-col justify-between relative ${
+                        isSelected
+                          ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/30 bg-amber-500/5 dark:bg-[#D4AF37]/10 shadow-md'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-[#D4AF37]/60 bg-white dark:bg-gray-800'
+                      }`}
+                    >
+                      {isSelected && (
+                        <span className="absolute top-2 left-2 w-5 h-5 rounded-full bg-[#D4AF37] text-[#0B132B] flex items-center justify-center text-[10px] font-bold">
+                          ✓
+                        </span>
+                      )}
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                            {preset.badge}
+                          </span>
+                        </div>
+                        <span className="block text-xs font-bold text-gray-800 dark:text-white group-hover:text-[#D4AF37] line-clamp-1">
+                          {preset.title}
+                        </span>
+                        <span className="block text-[10px] text-gray-400 mt-0.5 line-clamp-2">
+                          {preset.desc}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">
+                        <span className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600" style={{ backgroundColor: preset.lightColors.bg }} title="پس‌زمینه" />
+                        <span className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600" style={{ backgroundColor: preset.lightColors.text }} title="متن" />
+                        <span className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600" style={{ backgroundColor: preset.lightColors.goldPrimary }} title="رنگ تأکیدی" />
+                        <span className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600" style={{ backgroundColor: preset.lightColors.goldSecondary }} title="رنگ ثانویه" />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 6 New Legal Scenario Palettes */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>۶ سناریوی جدید رنگی تخصصی و پرستیژ حقوقی (New Legal Scenarios):</span>
+                </label>
+                <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                  ۶ پالت اضافه شده
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {THEME_PALETTES.filter((p) => p.category === 'new-scenario').map((preset) => {
+                  const isSelected =
+                    appearance.lightPalette.bg === preset.lightColors.bg &&
+                    appearance.lightPalette.goldPrimary === preset.lightColors.goldPrimary;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => {
+                        const newLight = preset.lightColors;
+                        setAppearance({
+                          ...appearance,
+                          lightPalette: newLight,
+                        });
+                        applyPaletteToDom(newLight, appearance.darkPalette);
+                      }}
+                      className={`p-3.5 rounded-2xl border text-right transition-all group flex flex-col justify-between relative ${
+                        isSelected
+                          ? 'border-emerald-500 ring-2 ring-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 shadow-md'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-emerald-500/60 bg-white dark:bg-gray-800'
+                      }`}
+                    >
+                      {isSelected && (
+                        <span className="absolute top-2 left-2 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">
+                          ✓
+                        </span>
+                      )}
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                            {preset.badge}
+                          </span>
+                        </div>
+                        <span className="block text-xs font-bold text-gray-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                          {preset.title}
+                        </span>
+                        <span className="block text-[11px] font-semibold text-gray-600 dark:text-gray-300 mt-1">
+                          {preset.desc}
+                        </span>
+                        <span className="block text-[10px] text-gray-400 dark:text-gray-400 mt-1">
+                          حوزه پیشنهادی: {preset.recommendedPractice}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600" style={{ backgroundColor: preset.lightColors.bg }} title="پس‌زمینه" />
+                          <span className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600" style={{ backgroundColor: preset.lightColors.text }} title="متن" />
+                          <span className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600" style={{ backgroundColor: preset.lightColors.goldPrimary }} title="رنگ تأکیدی" />
+                          <span className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600" style={{ backgroundColor: preset.lightColors.goldSecondary }} title="رنگ ثانویه" />
+                        </div>
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold group-hover:underline">
+                          انتخاب پالت روز &larr;
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -459,70 +1137,139 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
             <strong>راهنما:</strong> پالت‌های حالت شب (Dark Mode). می‌توانید از میان ۵ پالت آماده منطبق با استانداردهای SedRazavi انتخاب نموده یا مقادیر را تنظیم فرمایید.
           </div>
 
-          {/* 5 Ready Dark Palettes (Part 2.1) */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-              انتخاب سریع از میان ۵ پالت آماده شب (SPEC Part 2.1):
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
-              {[
-                {
-                  id: 'classic-night',
-                  title: '۱. کلاسیک شب (پیش‌فرض)',
-                  desc: 'سرمه‌ای تیره + طلایی',
-                  colors: { bg: '#0B132B', cardBg: '#1A2A4A', text: '#E8ECF1', goldPrimary: '#D4AF37', goldGlow: 'rgba(212, 175, 55, 0.4)' },
-                },
-                {
-                  id: 'modern-night',
-                  title: '۲. مدرن شب',
-                  desc: 'آبی تیره + نفتی روشن',
-                  colors: { bg: '#1A1A2E', cardBg: '#252540', text: '#EAEAEA', goldPrimary: '#3498DB', goldGlow: 'rgba(52, 152, 219, 0.4)' },
-                },
-                {
-                  id: 'warm-night',
-                  title: '۳. گرم شب',
-                  desc: 'قهوه‌ای تیره + طلایی گرم',
-                  colors: { bg: '#2D1B0E', cardBg: '#3D2817', text: '#F5E6D3', goldPrimary: '#D4A574', goldGlow: 'rgba(212, 165, 116, 0.4)' },
-                },
-                {
-                  id: 'minimal-night',
-                  title: '۴. مینیمال شب',
-                  desc: 'مشکی + خاکستری روشن',
-                  colors: { bg: '#121212', cardBg: '#1E1E1E', text: '#E0E0E0', goldPrimary: '#FFFFFF', goldGlow: 'rgba(255, 255, 255, 0.3)' },
-                },
-                {
-                  id: 'luxury-night',
-                  title: '۵. لوکس شب',
-                  desc: 'بنفش عمیق + طلایی درخشان',
-                  colors: { bg: '#1A0B2E', cardBg: '#2A1545', text: '#E8D5F0', goldPrimary: '#FFD700', goldGlow: 'rgba(255, 215, 0, 0.45)' },
-                },
-              ].map((preset) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() =>
-                    setAppearance({
-                      ...appearance,
-                      darkPalette: preset.colors,
-                    })
-                  }
-                  className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-[#D4AF37] bg-white dark:bg-gray-800 text-right transition-all group flex flex-col justify-between"
-                >
-                  <div>
-                    <span className="block text-[11px] font-bold text-gray-800 dark:text-white group-hover:text-[#D4AF37]">
-                      {preset.title}
-                    </span>
-                    <span className="block text-[10px] text-gray-400 mt-0.5">
-                      {preset.desc}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1 mt-2.5 pt-2 border-t border-gray-100 dark:border-gray-700">
-                    <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.colors.bg }} title="پس‌زمینه" />
-                    <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.colors.cardBg }} title="کارت‌ها" />
-                    <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.colors.goldPrimary }} title="تأکیدی" />
-                  </div>
-                </button>
-              ))}
+          {/* 11 Ready Dark Palettes (5 Original + 6 New Legal Scenarios) */}
+          <div className="space-y-6">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                  <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>۵ پالت اولیه استاندارد شب (SPEC Part 2.1):</span>
+                </label>
+                <span className="text-[11px] text-gray-400">کلاسیک شب، مدرن، گرم، مینیمال و لوکس</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                {THEME_PALETTES.filter((p) => p.category === 'original').map((preset) => {
+                  const isSelected =
+                    appearance.darkPalette.bg === preset.darkColors.bg &&
+                    appearance.darkPalette.goldPrimary === preset.darkColors.goldPrimary;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => {
+                        const newDark = preset.darkColors;
+                        setAppearance({
+                          ...appearance,
+                          darkPalette: newDark,
+                        });
+                        applyPaletteToDom(appearance.lightPalette, newDark);
+                      }}
+                      className={`p-3.5 rounded-2xl border text-right transition-all group flex flex-col justify-between relative ${
+                        isSelected
+                          ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/30 bg-[#D4AF37]/10 shadow-md'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-[#D4AF37]/60 bg-white dark:bg-gray-800'
+                      }`}
+                    >
+                      {isSelected && (
+                        <span className="absolute top-2 left-2 w-5 h-5 rounded-full bg-[#D4AF37] text-[#0B132B] flex items-center justify-center text-[10px] font-bold">
+                          ✓
+                        </span>
+                      )}
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                            {preset.badge}
+                          </span>
+                        </div>
+                        <span className="block text-xs font-bold text-gray-800 dark:text-white group-hover:text-[#D4AF37] line-clamp-1">
+                          {preset.title}
+                        </span>
+                        <span className="block text-[10px] text-gray-400 mt-0.5 line-clamp-2">
+                          {preset.desc}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">
+                        <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.bg }} title="پس‌زمینه" />
+                        <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.cardBg }} title="کارت‌ها" />
+                        <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.text }} title="متن" />
+                        <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.goldPrimary }} title="تأکیدی / درخشش" />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 6 New Legal Scenario Palettes (Night) */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-bold text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>۶ سناریوی جدید رنگی تخصصی و پرستیژ حقوقی در حالت شب (New Night Scenarios):</span>
+                </label>
+                <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-500/20">
+                  ۶ پالت شب اضافه شده
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {THEME_PALETTES.filter((p) => p.category === 'new-scenario').map((preset) => {
+                  const isSelected =
+                    appearance.darkPalette.bg === preset.darkColors.bg &&
+                    appearance.darkPalette.goldPrimary === preset.darkColors.goldPrimary;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => {
+                        const newDark = preset.darkColors;
+                        setAppearance({
+                          ...appearance,
+                          darkPalette: newDark,
+                        });
+                        applyPaletteToDom(appearance.lightPalette, newDark);
+                      }}
+                      className={`p-3.5 rounded-2xl border text-right transition-all group flex flex-col justify-between relative ${
+                        isSelected
+                          ? 'border-indigo-500 ring-2 ring-indigo-500/30 bg-indigo-950/20 shadow-md'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-indigo-500/60 bg-white dark:bg-gray-800'
+                      }`}
+                    >
+                      {isSelected && (
+                        <span className="absolute top-2 left-2 w-5 h-5 rounded-full bg-indigo-500 text-white flex items-center justify-center text-[10px] font-bold">
+                          ✓
+                        </span>
+                      )}
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">
+                            {preset.badge}
+                          </span>
+                        </div>
+                        <span className="block text-xs font-bold text-gray-800 dark:text-white group-hover:text-indigo-400">
+                          {preset.title}
+                        </span>
+                        <span className="block text-[11px] font-semibold text-gray-400 mt-1">
+                          {preset.desc}
+                        </span>
+                        <span className="block text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+                          حوزه پیشنهادی: {preset.recommendedPractice}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.bg }} title="پس‌زمینه شب" />
+                          <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.cardBg }} title="کارت‌ها" />
+                          <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.text }} title="متن" />
+                          <span className="w-4 h-4 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.goldPrimary }} title="تأکیدی / نئون" />
+                        </div>
+                        <span className="text-[10px] text-indigo-400 font-bold group-hover:underline">
+                          انتخاب پالت شب &larr;
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -842,6 +1589,49 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
       {/* 5. Live Preview */}
       {activeSubTab === 'preview' && (
         <div className="space-y-6">
+          {/* Quick 1-Click Suite Applicator */}
+          <div className="p-5 rounded-3xl bg-gradient-to-l from-amber-500/10 via-[#D4AF37]/5 to-transparent border border-[#D4AF37]/30 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Palette className="w-5 h-5 text-[#D4AF37]" />
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                  تست سریع و اعمال همزمان ست دوقلو (پالت روز + پالت شب با هم):
+                </h4>
+              </div>
+              <span className="text-xs text-[#D4AF37] font-bold">۱۱ سناریوی آماده</span>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              با انتخاب هر ست، هر دو حالت روزانه و شبانه متناسب با حوزه حقوقی مربوطه فوراً تنظیم، ذخیره و در سایت اعمال می‌شوند.
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 pt-1">
+              {THEME_PALETTES.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => handleApplyFullSuite(preset)}
+                  className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-[#D4AF37] text-right transition-all flex flex-col justify-between group shadow-sm hover:scale-[1.02]"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200 group-hover:text-[#D4AF37]">
+                      {preset.title.split('.')[1] || preset.title}
+                    </span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500">
+                      {preset.badge}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center gap-1">
+                      <span className="w-3.5 h-3.5 rounded-full border border-gray-300" style={{ backgroundColor: preset.lightColors.goldPrimary }} title="روز" />
+                      <span className="w-3.5 h-3.5 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.bg }} title="شب" />
+                    </div>
+                    <span className="text-[10px] text-[#D4AF37] font-bold">اعمال ست &larr;</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <span className="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-4">
               نمونه زنده کارت خدمت حقوقی با تنظیمات انتخابی فعلی شما:

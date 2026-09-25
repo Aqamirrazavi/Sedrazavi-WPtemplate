@@ -76,32 +76,32 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
             </div>
 
-            {/* Primary CTAs */}
+            {/* Primary & Secondary Action Hierarchy */}
             <div className="flex flex-wrap items-center gap-3 pt-4">
               <button
                 onClick={onOpenBooking}
-                className="btn-gold px-6 py-3.5 text-sm md:text-base flex items-center gap-2 rounded-xl shadow-lg shadow-[#D4AF37]/25"
+                className="btn-gold px-7 py-3.5 text-sm md:text-base flex items-center gap-2 rounded-2xl shadow-xl shadow-[#D4AF37]/30 hover:scale-[1.02] cursor-pointer"
               >
-                <Calendar className="w-5 h-5" />
+                <Calendar className="w-5 h-5 text-white" />
                 <span>درخواست نوبت مشاوره حضوری</span>
               </button>
 
               {onOpenQuickCallback && (
                 <button
                   onClick={onOpenQuickCallback}
-                  className="px-5 py-3.5 text-sm md:text-base flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-md shadow-emerald-600/20"
+                  className="px-5 py-3 text-sm md:text-base flex items-center gap-2 rounded-2xl bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 font-semibold transition-all cursor-pointer shadow-sm"
                 >
-                  <Phone className="w-4 h-4" />
-                  <span>تماس فوری با وکیل (بدون ثبت‌نام)</span>
+                  <Phone className="w-4 h-4 text-emerald-500" />
+                  <span>تماس فوری (بدون ثبت‌نام)</span>
                 </button>
               )}
 
               <button
                 onClick={onOpenCaseTracker}
-                className="btn-outline-navy dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800 px-5 py-3 text-sm md:text-base flex items-center gap-2 rounded-xl"
+                className="px-4 py-3 text-sm md:text-base flex items-center gap-2 rounded-2xl text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/80 transition-all cursor-pointer"
               >
                 <Search className="w-4 h-4 text-[#D4AF37]" />
-                <span>پیگیری پرونده</span>
+                <span>استعلام پرونده</span>
               </button>
             </div>
 

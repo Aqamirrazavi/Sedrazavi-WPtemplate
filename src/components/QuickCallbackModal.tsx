@@ -13,6 +13,8 @@ import {
   UserCheck
 } from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
+import { normalizeIranPhone } from '../utils/clientAccountsStorage';
+import { isValidIranMobile } from '../utils/persianNumberHelper';
 
 interface QuickCallbackModalProps {
   isOpen: boolean;
@@ -26,6 +28,7 @@ export const QuickCallbackModal: React.FC<QuickCallbackModalProps> = ({
   onOpenOtpLogin,
 }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [clientName, setClientName] = useState('');
   const [legalTopic, setLegalTopic] = useState('مشاوره تلفنی فوری');
   const [briefNote, setBriefNote] = useState('');
@@ -36,7 +39,13 @@ export const QuickCallbackModal: React.FC<QuickCallbackModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phoneNumber) return;
+    setPhoneError('');
+    
+    const normalized = normalizeIranPhone(phoneNumber);
+    if (!normalized || !isValidIranMobile(normalized)) {
+      setPhoneError('لطفاً شماره موبایل معتبر ۱۱ رقمی ایران (مثال: ۰۹۱۲۳۴۵۶۷۸۹) وارد فرمایید.');
+      return;
+    }
 
     setIsSubmitting(true);
     setTimeout(() => {
@@ -49,6 +58,7 @@ export const QuickCallbackModal: React.FC<QuickCallbackModalProps> = ({
   const resetForm = () => {
     setSubmittedCode(null);
     setPhoneNumber('');
+    setPhoneError('');
     setClientName('');
     setBriefNote('');
     onClose();
@@ -62,8 +72,8 @@ export const QuickCallbackModal: React.FC<QuickCallbackModalProps> = ({
         <div className="bg-gradient-to-r from-[#0B132B] via-[#1C2541] to-[#0B132B] p-6 text-white relative border-b border-[#D4AF37]/20">
           <button
             onClick={resetForm}
-            className="absolute top-5 left-5 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors"
-            aria-label="بستن"
+            className="absolute top-4 left-4 w-11 h-11 flex items-center justify-center rounded-2xl bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors cursor-pointer"
+            aria-label="بستن پنجره"
           >
             <X className="w-5 h-5" />
           </button>
@@ -170,13 +180,26 @@ export const QuickCallbackModal: React.FC<QuickCallbackModalProps> = ({
                     type="tel"
                     required
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={(e) => {
+                      setPhoneNumber(e.target.value);
+                      if (phoneError) setPhoneError('');
+                    }}
                     placeholder="۰۹۱۲۳۴۵۶۷۸۹"
                     dir="ltr"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white font-mono text-sm focus:outline-none focus:border-[#D4AF37]"
+                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl border bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white font-mono text-sm focus:outline-none ${
+                      phoneError
+                        ? 'border-rose-500 focus:border-rose-500 ring-1 ring-rose-500'
+                        : 'border-gray-300 dark:border-gray-700 focus:border-[#D4AF37]'
+                    }`}
                   />
                   <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-3.5" />
                 </div>
+                {phoneError && (
+                  <p className="mt-1.5 text-xs text-rose-500 dark:text-rose-400 font-bold flex items-center gap-1 animate-fadeIn">
+                    <span>⚠️</span>
+                    <span>{phoneError}</span>
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  ChevronUp,
   Building2,
   Briefcase,
   Gavel,
@@ -46,6 +47,8 @@ import {
   Eye,
   EyeOff,
   Instagram,
+  Palette,
+  LogOut,
 } from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
 import { useDesignTokens } from '../context/DesignTokensContext';
@@ -117,6 +120,7 @@ interface HeaderProps {
   onOpenOtpAuth?: () => void;
   onOpenQuickCallback?: () => void;
   isLoggedIn?: boolean;
+  userRole?: 'guest' | 'client' | 'lawyer' | 'admin';
   currentUserPhone?: string;
   onLogout?: () => void;
   lawyerProfile?: LawyerSiteProfile;
@@ -137,6 +141,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenOtpAuth,
   onOpenQuickCallback,
   isLoggedIn,
+  userRole = 'guest',
   currentUserPhone,
   onLogout,
   lawyerProfile,
@@ -153,6 +158,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const [pagesDropdownOpen, setPagesDropdownOpen] = useState(false);
+  const [isExecutiveBarCollapsed, setIsExecutiveBarCollapsed] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pagesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -177,22 +183,101 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      {/* Part 18: Admin Mode Active Red Fixed Banner */}
+      {/* Luxury SedRazavi Executive Bar (Replaces harsh red banner with luxury legal prestige) */}
       {uiMode === 'admin' && (
-        <div className="bg-[#8B0000] text-white text-xs py-1.5 px-4 flex items-center justify-between border-b border-red-700/60 shadow-inner z-50">
-          <div className="container mx-auto flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-300 animate-pulse" />
-              <span className="font-bold">⚠️ حالت ادمین فعال است – شما در حال مشاهده‌ی ساختار کامل، صفحات فنی و منوهای ادمین هستید (پارت ۱۸).</span>
+        <div className="bg-gradient-to-r from-[#070D1E] via-[#0F172A] to-[#070D1E] text-white text-xs border-b border-[#D4AF37]/30 shadow-md relative z-50 transition-all duration-300">
+          <div className="container mx-auto px-4 py-2 flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-lg bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center text-[#D4AF37]">
+                <ShieldCheck className="w-3.5 h-3.5" />
+              </div>
+              <span className="font-bold text-gray-200">
+                میز راهبری و مدیریت وکیل <span className="text-[#D4AF37]">(Executive Bar)</span>
+              </span>
+              <span className="hidden md:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                دسترسی کامل فعال
+              </span>
             </div>
-            <button
-              type="button"
-              onClick={toggleUiMode}
-              className="px-2.5 py-0.5 rounded bg-white text-[#8B0000] hover:bg-gray-100 font-bold transition-all text-[11px] flex items-center gap-1 shadow cursor-pointer"
-            >
-              <EyeOff className="w-3 h-3" />
-              <span>سوئیچ به حالت عمومی (مخفی‌سازی صفحات ادمین)</span>
-            </button>
+
+            {!isExecutiveBarCollapsed ? (
+              <div className="flex items-center gap-2 flex-wrap text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setActiveView('dashboard')}
+                  className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-[#D4AF37] hover:text-[#0B132B] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  <Briefcase className="w-3 h-3 text-[#D4AF37]" />
+                  <span>داشبورد پرونده‌ها</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveView('wordpress')}
+                  className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-[#D4AF37] hover:text-[#0B132B] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  <Code className="w-3 h-3 text-[#D4AF37]" />
+                  <span>کدهای تم و افزونه وردپرس</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onOpenTour}
+                  className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-[#D4AF37] hover:text-[#0B132B] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  <Sparkles className="w-3 h-3 text-[#D4AF37]" />
+                  <span>تور راهنما</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onOpenHelp}
+                  className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-[#D4AF37] hover:text-[#0B132B] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  <HelpCircle className="w-3 h-3 text-[#D4AF37]" />
+                  <span>مستندات و شورت‌کدها</span>
+                </button>
+
+                <div className="h-4 w-px bg-gray-700 mx-1 hidden sm:block" />
+
+                <button
+                  type="button"
+                  onClick={toggleUiMode}
+                  className="px-3 py-1 rounded-lg bg-amber-500/20 text-[#F3E5AB] hover:bg-[#D4AF37] hover:text-[#0B132B] font-bold transition-all flex items-center gap-1 border border-[#D4AF37]/40 cursor-pointer shadow-sm"
+                  title="تغییر به نمای عمومی جهت مشاهده سایت دقیقا از دید موکلین"
+                >
+                  <EyeOff className="w-3 h-3" />
+                  <span>مشاهده سایت از دید موکل (حالت عمومی)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsExecutiveBarCollapsed(true)}
+                  className="p-1 rounded-md text-gray-400 hover:text-white transition-colors"
+                  title="جمع‌کردن نوار راهبری"
+                >
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsExecutiveBarCollapsed(false)}
+                  className="px-2.5 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white text-[11px] font-bold transition-all flex items-center gap-1"
+                >
+                  <span>باز کردن ابزارها</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#D4AF37]" />
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleUiMode}
+                  className="px-2 py-0.5 rounded-lg bg-amber-500/20 text-[#F3E5AB] text-[11px] font-bold flex items-center gap-1"
+                >
+                  <EyeOff className="w-3 h-3" />
+                  <span>حالت عمومی</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -215,29 +300,21 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-3 text-xs">
             <button
               onClick={onOpenSurvey}
-              className="hover:text-[#D4AF37] transition-colors flex items-center gap-1 text-gray-300"
+              className="hover:text-[#D4AF37] transition-colors flex items-center gap-1 text-gray-300 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
               نظرسنجی خدمات
             </button>
             <span className="text-gray-600">|</span>
             <button
-              onClick={onOpenTour}
-              className="hover:text-[#D4AF37] transition-colors flex items-center gap-1 text-gray-300"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-              راهنمای تعاملی
-            </button>
-            <span className="text-gray-600">|</span>
-            <button
               onClick={onOpenHelp}
-              className="hover:text-[#D4AF37] transition-colors flex items-center gap-1 text-gray-300"
+              className="hover:text-[#D4AF37] transition-colors flex items-center gap-1 text-gray-300 cursor-pointer"
             >
-              <HelpCircle className="w-3.5 h-3.5" />
-              آکادمی و مستندات
+              <HelpCircle className="w-3.5 h-3.5 text-[#D4AF37]" />
+              راهنمای موکلین و استعلام
             </button>
             <span className="text-gray-600">|</span>
-            <a href={`tel:${phoneNumber}`} className="text-gray-200 hover:text-[#D4AF37] font-mono flex items-center gap-1">
+            <a href={`tel:${phoneNumber}`} className="text-gray-200 hover:text-[#D4AF37] font-mono flex items-center gap-1 font-bold">
               <Phone className="w-3 h-3 text-[#D4AF37]" />
               {phoneNumber}
             </a>
@@ -257,20 +334,17 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center justify-between">
             
             {/* Logo & Identity */}
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveView('preview')}>
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#D4AF37] via-[#C4981C] to-[#AA820A] flex items-center justify-center text-white shadow-md shadow-[#D4AF37]/30 transition-transform hover:scale-105">
-                <Scale className="w-6 h-6" />
+            <div className="flex items-center gap-2.5 sm:gap-3 cursor-pointer min-w-0 shrink" onClick={() => setActiveView('preview')}>
+              <div className="w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-xl bg-gradient-to-br from-[#D4AF37] via-[#C4981C] to-[#AA820A] flex items-center justify-center text-white shadow-md shadow-[#D4AF37]/30 transition-transform hover:scale-105">
+                <Scale className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold font-serif text-[#0B132B] dark:text-white leading-tight">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="text-base sm:text-xl font-bold font-serif text-[#0B132B] dark:text-white leading-tight truncate">
                     {brandName}
                   </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#D4AF37]/15 text-[#AA820A] dark:text-[#F3E5AB] font-bold border border-[#D4AF37]/30">
-                    پوسته رسمی وردپرس
-                  </span>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium truncate max-w-[130px] sm:max-w-[240px] md:max-w-none">
                   {lawyerTitle}
                 </p>
               </div>
@@ -306,7 +380,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${megaMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
-                {/* Standalone Mega Menu Component */}
+                {/* Standalone Mega Menu Component (Digikala Layout) */}
                 <MegaMenu
                   isOpen={megaMenuOpen}
                   onClose={() => setMegaMenuOpen(false)}
@@ -324,6 +398,10 @@ export const Header: React.FC<HeaderProps> = ({
                   }}
                   onOpenBooking={() => {
                     onOpenBooking?.();
+                    setMegaMenuOpen(false);
+                  }}
+                  onNavigateView={(view) => {
+                    setActiveView(view);
                     setMegaMenuOpen(false);
                   }}
                 />
@@ -858,8 +936,9 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </nav>
 
-            {/* View Switchers Tabs (Interactive Theme Controls) */}
-            <div className="hidden lg:flex items-center p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700">
+            {/* View Switchers Tabs (Interactive Theme Controls - Visible only in Admin Mode) */}
+            {uiMode === 'admin' && (
+              <div className="hidden lg:flex items-center p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => setActiveView('preview')}
                 className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
@@ -1089,96 +1168,231 @@ export const Header: React.FC<HeaderProps> = ({
                 ZIP پوسته
               </button>
             </div>
+            )}
 
             {/* Right Action Icons */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               {/* Quick Guest Callback (Priority #1 - No registration needed) */}
               {onOpenQuickCallback && (
                 <button
                   type="button"
                   onClick={onOpenQuickCallback}
-                  className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border border-emerald-600/30 text-xs font-bold transition-all"
+                  className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border border-emerald-600/30 text-xs font-bold transition-all shrink-0"
                   title="درخواست تماس سریع بدون نیاز به ساخت حساب"
                 >
                   <Phone className="w-3.5 h-3.5" />
-                  <span>تماس فوری (بدون ثبت‌نام)</span>
+                  <span>تماس فوری</span>
                 </button>
               )}
 
-              {/* OTP Login / Client Portal Button */}
+              {/* Login / Portal Button with Role Awareness */}
               {isLoggedIn ? (
-                <button
-                  type="button"
-                  onClick={() => setActiveView('dashboard')}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#0B132B] dark:bg-gray-800 text-white border border-[#D4AF37] text-xs font-bold shadow-sm"
-                  title="ورود به کارتابل موکل"
-                >
-                  <UserCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
-                  <span>پرتال من ({currentUserPhone ? currentUserPhone.slice(-4) : 'موکل'})</span>
-                </button>
+                <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('dashboard')}
+                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 min-h-[44px] rounded-xl bg-[#0B132B] dark:bg-gray-800 text-white border border-[#D4AF37] text-xs font-bold shadow-sm cursor-pointer shrink-0"
+                    title={userRole === 'lawyer' || userRole === 'admin' ? 'ورود به پیشخوان مدیریت وکیل' : 'ورود به کارتابل موکل'}
+                  >
+                    {userRole === 'lawyer' || userRole === 'admin' ? (
+                      <>
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
+                        <span className="hidden sm:inline">پیشخوان وکیل</span>
+                        <span className="sm:hidden text-[11px]">پیشخوان</span>
+                      </>
+                    ) : (
+                      <>
+                        <UserCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
+                        <span className="hidden sm:inline">پرتال من</span>
+                        <span className="sm:hidden text-[11px]">پرتال</span>
+                      </>
+                    )}
+                  </button>
+                  {onLogout && (
+                    <button
+                      type="button"
+                      onClick={onLogout}
+                      aria-label="خروج از حساب کاربری"
+                      title="خروج از حساب"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 transition-colors cursor-pointer shrink-0"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               ) : (
                 onOpenOtpAuth && (
                   <button
                     type="button"
                     onClick={onOpenOtpAuth}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-[#F3E5AB] border border-amber-500/30 text-xs font-bold transition-all"
-                    title="ورود و ثبت‌نام سریع با شماره موبایل و کد پیامکی"
+                    className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-2 min-h-[44px] rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-[#F3E5AB] border border-amber-500/30 text-xs font-bold transition-all cursor-pointer shrink-0"
+                    title="ورود موکلین و وکیل"
                   >
                     <KeyRound className="w-3.5 h-3.5 text-[#D4AF37]" />
-                    <span className="hidden sm:inline">ورود موکلین (پیامکی)</span>
-                    <span className="sm:hidden">ورود</span>
+                    <span className="hidden sm:inline">ورود / ثبت‌نام</span>
+                    <span className="sm:hidden text-[11px]">ورود</span>
                   </button>
                 )
               )}
 
-              {/* Part 18 Mode Switcher: Public vs Admin Mode */}
-              <button
-                type="button"
-                onClick={toggleUiMode}
-                aria-label="تغییر حالت عمومی و ادمین"
-                className={`p-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer ${
-                  uiMode === 'admin'
-                    ? 'border-red-500/50 bg-red-950/20 text-red-500 dark:text-red-400 shadow-sm'
-                    : 'border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-[#D4AF37]'
-                }`}
-                title={uiMode === 'admin' ? 'حالت ادمین فعال است (برای سوئیچ به حالت عمومی و مخفی‌سازی صفحات ادمین کلیک کنید)' : 'حالت عمومی فعال است (برای سوئیچ به حالت ادمین کلیک کنید)'}
-              >
-                {uiMode === 'admin' ? <Eye className="w-4 h-4 text-red-500 dark:text-red-400" /> : <EyeOff className="w-4 h-4" />}
-                <span className="hidden 2xl:inline text-[11px] font-bold">
-                  {uiMode === 'admin' ? 'حالت ادمین' : 'حالت عمومی'}
-                </span>
-              </button>
+              {/* Mode Switcher: Visible ONLY if user is logged in as Lawyer/Admin */}
+              {isLoggedIn && (userRole === 'lawyer' || userRole === 'admin') && (
+                <button
+                  type="button"
+                  onClick={toggleUiMode}
+                  aria-label="تغییر حالت عمومی و ادمین"
+                  className={`min-h-[44px] px-2.5 py-2 rounded-xl border transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0 ${
+                    uiMode === 'admin'
+                      ? 'border-[#D4AF37]/60 bg-amber-500/10 text-amber-800 dark:text-[#F3E5AB] shadow-sm'
+                      : 'border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-[#D4AF37]'
+                  }`}
+                  title={uiMode === 'admin' ? 'حالت راهبری فعال است' : 'حالت عمومی فعال است'}
+                >
+                  {uiMode === 'admin' ? <ShieldCheck className="w-4 h-4 text-[#D4AF37]" /> : <Eye className="w-4 h-4" />}
+                  <span className="hidden 2xl:inline text-[11px] font-bold">
+                    {uiMode === 'admin' ? 'نمای راهبری' : 'نمای عمومی'}
+                  </span>
+                </button>
+              )}
 
               {/* Dark Mode Switcher */}
               <button
                 onClick={() => setIsDarkMode(!isDarkMode)}
                 aria-label="تغییر حالت شب و روز"
-                className="p-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800 text-gray-700 dark:text-yellow-400 hover:border-[#D4AF37] transition-all"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800 text-gray-700 dark:text-yellow-400 hover:border-[#D4AF37] transition-all cursor-pointer shrink-0"
               >
                 {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
 
-              {/* Quick CTA Button */}
+              {/* Primary CTA Button (Desktop) */}
               <a
                 href="#booking"
                 onClick={() => {
                   if (activeView !== 'preview') setActiveView('preview');
                 }}
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-white font-semibold text-xs shadow-md shadow-[#D4AF37]/25 hover:shadow-lg hover:shadow-[#D4AF37]/40 hover:-translate-y-0.5 transition-all"
+                className="hidden lg:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#DFBF58] to-[#AA820A] text-[#0B132B] font-bold text-xs shadow-md shadow-[#D4AF37]/30 hover:shadow-lg hover:shadow-[#D4AF37]/50 hover:-translate-y-0.5 transition-all shrink-0"
               >
-                <Calendar className="w-3.5 h-3.5" />
-                رزرو نوبت
+                <Calendar className="w-3.5 h-3.5 text-[#0B132B]" />
+                رزرو نوبت مشاوره
               </a>
 
-              {/* Mobile Menu Button */}
+              {/* Mobile Menu Button - Guaranteed 100% visible, high-contrast, shrink-0 */}
               <button
+                type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="xl:hidden p-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+                aria-label="منوی سایت در موبایل"
+                title="منوی اصلی و دسته‌بندی‌ها"
+                className={`xl:hidden min-w-[44px] min-h-[44px] p-2.5 rounded-xl border-2 transition-all flex items-center justify-center cursor-pointer shadow-md shrink-0 ${
+                  mobileMenuOpen
+                    ? 'border-[#D4AF37] bg-[#D4AF37] text-[#0B132B]'
+                    : 'border-[#D4AF37] bg-amber-500/10 dark:bg-[#0B132B] text-[#0B132B] dark:text-[#F3E5AB] hover:bg-[#D4AF37]/20'
+                }`}
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileMenuOpen ? <X className="w-5 h-5 font-bold" /> : <Menu className="w-5 h-5 font-bold" />}
               </button>
             </div>
 
+          </div>
+        </div>
+
+        {/* Mobile Horizontal Swipeable Quick-Navigation Bar (قابلیت سوایپ افقی به چپ و راست) */}
+        <div className="xl:hidden relative border-t border-gray-100 dark:border-gray-800/80 bg-gray-50/95 dark:bg-[#0B132B]/95 backdrop-blur-sm px-2 py-1.5">
+          <div className="swipeable-tabs flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 px-1 scroll-smooth">
+            <button
+              onClick={() => {
+                setActiveView('preview');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-colors whitespace-nowrap ${
+                activeView === 'preview'
+                  ? 'bg-[#D4AF37] text-[#0B132B] shadow-sm'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+              }`}
+            >
+              <Layout className="w-3 h-3" />
+              <span>خانه</span>
+            </button>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-colors whitespace-nowrap ${
+                mobileMenuOpen
+                  ? 'bg-[#D4AF37] text-[#0B132B] shadow-sm'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+              }`}
+            >
+              <Scale className="w-3 h-3 text-[#D4AF37]" />
+              <span>دسته‌بندی خدمات</span>
+              <ChevronDown className="w-3 h-3" />
+            </button>
+
+            {onOpenBooking && (
+              <button
+                onClick={onOpenBooking}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold shrink-0 bg-gradient-to-r from-amber-500/20 to-amber-600/20 text-amber-900 dark:text-[#F3E5AB] border border-amber-500/40 whitespace-nowrap"
+              >
+                <Calendar className="w-3 h-3 text-[#D4AF37]" />
+                <span>رزرو نوبت</span>
+              </button>
+            )}
+
+            {onOpenQuickCallback && (
+              <button
+                onClick={onOpenQuickCallback}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold shrink-0 bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 whitespace-nowrap"
+              >
+                <Phone className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                <span>تماس فوری</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => setActiveView('services-page')}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-colors whitespace-nowrap ${
+                activeView === 'services-page'
+                  ? 'bg-[#D4AF37] text-[#0B132B]'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+              }`}
+            >
+              <Briefcase className="w-3 h-3" />
+              <span>دعاوی تخصصی</span>
+            </button>
+
+            <button
+              onClick={() => setActiveView('tracking-page')}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-colors whitespace-nowrap ${
+                activeView === 'tracking-page'
+                  ? 'bg-[#D4AF37] text-[#0B132B]'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+              }`}
+            >
+              <FileSearch className="w-3 h-3" />
+              <span>استعلام پرونده</span>
+            </button>
+
+            <button
+              onClick={() => setActiveView('about-page')}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-colors whitespace-nowrap ${
+                activeView === 'about-page'
+                  ? 'bg-[#D4AF37] text-[#0B132B]'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+              }`}
+            >
+              <Users className="w-3 h-3" />
+              <span>درباره وکیل</span>
+            </button>
+
+            <button
+              onClick={() => setActiveView('contact-page')}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-colors whitespace-nowrap ${
+                activeView === 'contact-page'
+                  ? 'bg-[#D4AF37] text-[#0B132B]'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+              }`}
+            >
+              <Phone className="w-3 h-3" />
+              <span>ارتباط با دفتر</span>
+            </button>
           </div>
         </div>
 

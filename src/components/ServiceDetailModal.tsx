@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ServiceItem } from '../types/theme';
 import { X, CheckCircle, Clock, DollarSign, FileText, ArrowLeft, Calendar } from 'lucide-react';
 
@@ -13,6 +13,16 @@ export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
   onClose,
   onBook,
 }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && service) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [service, onClose]);
+
   if (!service) return null;
 
   return (
@@ -30,7 +40,8 @@ export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
           
           <button
             onClick={onClose}
-            className="absolute top-4 left-4 p-2 rounded-full bg-black/60 text-white hover:bg-black hover:text-red-400 transition-colors"
+            className="absolute top-4 left-4 w-11 h-11 flex items-center justify-center rounded-2xl bg-black/60 text-white hover:bg-black hover:text-red-400 transition-colors cursor-pointer"
+            aria-label="بستن پنجره"
           >
             <X className="w-5 h-5" />
           </button>

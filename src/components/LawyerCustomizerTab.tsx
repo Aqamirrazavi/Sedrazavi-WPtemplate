@@ -25,7 +25,8 @@ import {
   Linkedin,
   Send,
   Video,
-  AlertCircle
+  AlertCircle,
+  Palette,
 } from 'lucide-react';
 import {
   LawyerSiteProfile,
@@ -35,6 +36,8 @@ import {
 } from '../utils/lawyerCustomizationStorage';
 import { StoryItem } from '../types/theme';
 import { useDesignTokens } from '../context/DesignTokensContext';
+import { THEME_PALETTES, ThemePalettePreset } from '../data/themePalettes';
+import { applyPaletteToDom } from '../utils/themePaletteApplier';
 
 interface LawyerCustomizerTabProps {
   profile: LawyerSiteProfile;
@@ -48,7 +51,7 @@ export const LawyerCustomizerTab: React.FC<LawyerCustomizerTabProps> = ({
   const { updateToken } = useDesignTokens();
   const [formData, setFormData] = useState<LawyerSiteProfile>(profile);
   const [savedSuccess, setSavedSuccess] = useState(false);
-  const [activeSubSection, setActiveSubSection] = useState<'identity' | 'slider' | 'stories' | 'gallery' | 'social' | 'seo'>('identity');
+  const [activeSubSection, setActiveSubSection] = useState<'identity' | 'slider' | 'stories' | 'gallery' | 'social' | 'seo' | 'appearance'>('identity');
 
   // Editing state for Hero Slider
   const [editingSlideIndex, setEditingSlideIndex] = useState<number | null>(null);
@@ -83,6 +86,14 @@ export const LawyerCustomizerTab: React.FC<LawyerCustomizerTabProps> = ({
       if (formData.socialLinks.instagram) updateToken('social.instagram', formData.socialLinks.instagram);
       if (formData.socialLinks.linkedin) updateToken('social.linkedin', formData.socialLinks.linkedin);
       if (formData.socialLinks.eitaa) updateToken('social.ita', formData.socialLinks.eitaa);
+    }
+
+    if (formData.appearance) {
+      applyPaletteToDom(formData.appearance.lightPalette, formData.appearance.darkPalette);
+      updateToken('color.primary', formData.appearance.lightPalette.goldPrimary);
+      updateToken('color.secondary', formData.appearance.lightPalette.goldSecondary);
+      updateToken('color.background', formData.appearance.lightPalette.bg);
+      updateToken('color.text', formData.appearance.lightPalette.text);
     }
 
     setSavedSuccess(true);
@@ -218,6 +229,16 @@ export const LawyerCustomizerTab: React.FC<LawyerCustomizerTabProps> = ({
 
   return (
     <div className="space-y-6 text-right font-persian">
+      {/* Guidance info for buyer lawyer */}
+      <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs flex items-center justify-between gap-3 text-amber-900 dark:text-amber-200">
+        <div className="flex items-center gap-2.5">
+          <Sparkles className="w-4 h-4 text-[#D4AF37] shrink-0" />
+          <span>
+            <strong>راهنمای وکیل:</strong> در این پنل هویت حرفه‌ای، عکس پرسنلی، شماره پروانه، اسلایدر و استوری‌ها تنظیم می‌شوند. جهت تنظیم تم‌های رنگی، پالت‌های روز و شب و قلم‌ها، زبانه «۸. تنظیمات ظاهری» در دسترس است.
+          </span>
+        </div>
+      </div>
+
       {/* Top Banner with Actions */}
       <div className="p-5 rounded-3xl bg-gradient-to-l from-[#0B132B] via-[#1C2541] to-[#0B132B] border border-[#D4AF37]/30 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
         <div className="space-y-1">
@@ -342,6 +363,19 @@ export const LawyerCustomizerTab: React.FC<LawyerCustomizerTabProps> = ({
         >
           <Globe className="w-4 h-4" />
           <span>عنوان سایت و سئو (Meta SEO)</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSubSection('appearance')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+            activeSubSection === 'appearance'
+              ? 'bg-[#D4AF37] text-[#0B132B] shadow-md'
+              : 'bg-white dark:bg-[#0B132B] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:text-[#D4AF37]'
+          }`}
+        >
+          <Palette className="w-4 h-4" />
+          <span>پالت و رنگ‌بندی پوسته (۱۱ سناریو)</span>
         </button>
       </div>
 
@@ -577,14 +611,26 @@ export const LawyerCustomizerTab: React.FC<LawyerCustomizerTabProps> = ({
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={handleAddSlide}
-              className="btn-gold px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md self-start sm:self-auto"
-            >
-              <Plus className="w-4 h-4" />
-              <span>افزودن اسلاید جدید</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300 cursor-pointer bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700">
+                <input
+                  type="checkbox"
+                  checked={formData.showHeroSlider === true}
+                  onChange={(e) => setFormData({ ...formData, showHeroSlider: e.target.checked })}
+                  className="rounded text-[#D4AF37] focus:ring-[#D4AF37]"
+                />
+                <span>نمایش اسلایدر در صفحه اصلی</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={handleAddSlide}
+                className="btn-gold px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md self-start sm:self-auto cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>افزودن اسلاید جدید</span>
+              </button>
+            </div>
           </div>
 
           {/* Modal / Form for editing single slide */}
@@ -1189,6 +1235,192 @@ export const LawyerCustomizerTab: React.FC<LawyerCustomizerTabProps> = ({
                 onChange={(e) => setFormData({ ...formData, canonicalUrl: e.target.value })}
                 className="w-full px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs font-mono text-gray-900 dark:text-white focus:border-[#D4AF37] focus:outline-none"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════ تب ۷: پالت و سناریوی رنگ‌بندی پوسته (۱۱ سناریو) ══════════ */}
+      {activeSubSection === 'appearance' && (
+        <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
+          <div className="border-b border-gray-100 dark:border-gray-800 pb-3 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-[#0B132B] dark:text-white flex items-center gap-2">
+                <Palette className="w-4 h-4 text-[#D4AF37]" />
+                <span>انتخاب سناریو و پالت رنگی پوسته وکیل (۱۱ سناریوی آماده)</span>
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                با انتخاب هر سناریو، رنگ‌بندی تم برای هر دو حالت روزانه و شبانه با پرستیژ حقوقی متناسب اعمال و تنظیم می‌گردد.
+              </p>
+            </div>
+            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+              ۶ سناریوی جدید اضافه شد
+            </span>
+          </div>
+
+          {/* 5 Original Palettes */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>۵ پالت اولیه رسمی قالب (SPEC Part 2.1):</span>
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {THEME_PALETTES.filter((p) => p.category === 'original').map((preset) => {
+                const isSelected =
+                  formData.appearance?.lightPalette?.bg === preset.lightColors.bg &&
+                  formData.appearance?.lightPalette?.goldPrimary === preset.lightColors.goldPrimary;
+
+                return (
+                  <div
+                    key={preset.id}
+                    onClick={() => {
+                      const nextApp = {
+                        ...(formData.appearance || {
+                          typography: {
+                            headingFont: 'Vazirmatn',
+                            bodyFont: 'Vazirmatn',
+                            baseFontSize: 16,
+                            lineHeight: 1.6,
+                          },
+                          advanced: {
+                            borderRadius: 16,
+                            enableAnimations: true,
+                            buttonPulse: true,
+                            hoverLift: true,
+                          },
+                        }),
+                        lightPalette: preset.lightColors,
+                        darkPalette: preset.darkColors,
+                      };
+                      setFormData({ ...formData, appearance: nextApp });
+                      applyPaletteToDom(preset.lightColors, preset.darkColors);
+                    }}
+                    className={`p-3.5 rounded-2xl border text-right cursor-pointer transition-all flex flex-col justify-between ${
+                      isSelected
+                        ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/30 bg-amber-500/5 dark:bg-[#D4AF37]/10 shadow-md'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-[#D4AF37]/60 bg-gray-50/50 dark:bg-gray-800/60'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] px-2 py-0.5 rounded font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                          {preset.badge}
+                        </span>
+                        {isSelected && (
+                          <span className="text-[10px] font-bold text-[#D4AF37]">فعال ✓</span>
+                        )}
+                      </div>
+                      <span className="block text-xs font-bold text-gray-800 dark:text-white">
+                        {preset.title}
+                      </span>
+                      <span className="block text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                        {preset.desc}
+                      </span>
+                      <span className="block text-[10px] text-gray-400 mt-1">
+                        کاربرد: {preset.recommendedPractice}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-3.5 h-3.5 rounded-full border border-gray-300" style={{ backgroundColor: preset.lightColors.goldPrimary }} title="طلایی روز" />
+                        <span className="w-3.5 h-3.5 rounded-full border border-gray-300" style={{ backgroundColor: preset.lightColors.bg }} title="پس‌زمینه روز" />
+                        <span className="w-3.5 h-3.5 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.bg }} title="شب" />
+                      </div>
+                      <span className="text-[10px] text-[#D4AF37] font-bold">انتخاب &larr;</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 6 New Legal Scenarios */}
+          <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+                <span>۶ سناریوی جدید رنگی تخصصی و پرستیژ حقوقی (New Legal Scenarios):</span>
+              </h4>
+              <span className="text-[11px] text-gray-400">طراحی شده برای گرایش‌های مختلف وکالت</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {THEME_PALETTES.filter((p) => p.category === 'new-scenario').map((preset) => {
+                const isSelected =
+                  formData.appearance?.lightPalette?.bg === preset.lightColors.bg &&
+                  formData.appearance?.lightPalette?.goldPrimary === preset.lightColors.goldPrimary;
+
+                return (
+                  <div
+                    key={preset.id}
+                    onClick={() => {
+                      const nextApp = {
+                        ...(formData.appearance || {
+                          typography: {
+                            headingFont: 'Vazirmatn',
+                            bodyFont: 'Vazirmatn',
+                            baseFontSize: 16,
+                            lineHeight: 1.6,
+                          },
+                          advanced: {
+                            borderRadius: 16,
+                            enableAnimations: true,
+                            buttonPulse: true,
+                            hoverLift: true,
+                          },
+                        }),
+                        lightPalette: preset.lightColors,
+                        darkPalette: preset.darkColors,
+                      };
+                      setFormData({ ...formData, appearance: nextApp });
+                      applyPaletteToDom(preset.lightColors, preset.darkColors);
+                    }}
+                    className={`p-3.5 rounded-2xl border text-right cursor-pointer transition-all flex flex-col justify-between ${
+                      isSelected
+                        ? 'border-emerald-500 ring-2 ring-emerald-500/30 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-md'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-emerald-500/60 bg-gray-50/50 dark:bg-gray-800/60'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                          {preset.badge}
+                        </span>
+                        {isSelected && (
+                          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                            فعال ✓
+                          </span>
+                        )}
+                      </div>
+                      <span className="block text-xs font-bold text-gray-800 dark:text-white">
+                        {preset.title}
+                      </span>
+                      <span className="block text-[11px] text-gray-600 dark:text-gray-300 mt-1">
+                        {preset.desc}
+                      </span>
+                      <div className="mt-2 p-1.5 rounded-lg bg-white/70 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-800">
+                        <span className="block text-[9px] text-gray-400">گرایش پیشنهادی:</span>
+                        <span className="block text-[10px] font-semibold text-gray-700 dark:text-gray-200">
+                          {preset.recommendedPractice}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-700/60">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-3.5 h-3.5 rounded-full border border-gray-300" style={{ backgroundColor: preset.lightColors.goldPrimary }} title="روز" />
+                        <span className="w-3.5 h-3.5 rounded-full border border-gray-300" style={{ backgroundColor: preset.lightColors.bg }} title="پس‌زمینه روز" />
+                        <span className="w-3.5 h-3.5 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.goldPrimary }} title="شب" />
+                        <span className="w-3.5 h-3.5 rounded-full border border-gray-600" style={{ backgroundColor: preset.darkColors.bg }} title="پس‌زمینه شب" />
+                      </div>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                        انتخاب سناریو &larr;
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

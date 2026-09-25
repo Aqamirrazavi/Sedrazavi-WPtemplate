@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ArticleItem } from '../types/theme';
 import { X, Clock, Calendar, Eye, Share2, Tag, BookOpen } from 'lucide-react';
 
@@ -8,6 +8,16 @@ interface ArticleModalProps {
 }
 
 export const ArticleModal: React.FC<ArticleModalProps> = ({ article, onClose }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && article) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [article, onClose]);
+
   if (!article) return null;
 
   return (
@@ -25,7 +35,8 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({ article, onClose }) 
 
           <button
             onClick={onClose}
-            className="absolute top-4 left-4 p-2 rounded-full bg-black/60 text-white hover:text-red-400 transition-colors"
+            className="absolute top-4 left-4 w-11 h-11 flex items-center justify-center rounded-2xl bg-black/60 text-white hover:text-red-400 transition-colors cursor-pointer"
+            aria-label="بستن مقاله"
           >
             <X className="w-5 h-5" />
           </button>

@@ -433,12 +433,84 @@ export const CaseTrackingPageView: React.FC<CaseTrackingPageViewProps> = ({
 
         {/* Not Found Banner */}
         {notFound && (
-          <div className="rounded-2xl p-6 bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-center space-y-2 animate-fadeIn">
-            <AlertCircle className="w-8 h-8 mx-auto" />
-            <h3 className="font-bold text-sm">پرونده‌ای با این مشخصات در سامانه یافت نشد</h3>
-            <p className="text-xs">
-              لطفاً شماره پرونده درج‌شده روی قرارداد وکالت یا کد ملی را بررسی فرمایید، یا جهت بررسی دستی با شماره ۰۲۱-۸۸۹۹۰۰۱۱ تماس بگیرید.
-            </p>
+          <div className="rounded-2xl p-6 sm:p-8 bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-center space-y-4 animate-fadeIn">
+            <AlertCircle className="w-10 h-10 mx-auto text-rose-500" />
+            <div className="space-y-1">
+              <h3 className="font-bold text-base">پرونده‌ای با این مشخصات در سامانه یافت نشد</h3>
+              <p className="text-xs max-w-lg mx-auto text-gray-600 dark:text-gray-300">
+                لطفاً شماره پرونده درج‌شده روی قرارداد وکالت (مانند SR-1402-8821) یا کد ملی را بررسی فرمایید، یا از نمونه‌های تستی بالای صفحه استفاده کنید.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setNotFound(false);
+                  setCaseNumberInput('');
+                  setNationalCodeInput('');
+                }}
+                className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-700 text-xs font-bold hover:bg-gray-100 transition-all cursor-pointer"
+              >
+                پاک کردن فرم و جستجوی مجدد
+              </button>
+              <button
+                type="button"
+                onClick={() => selectPresetCase(DEMO_CASES[0])}
+                className="px-4 py-2 rounded-xl bg-[#D4AF37] text-[#0B132B] text-xs font-bold hover:bg-[#b8952b] transition-all cursor-pointer"
+              >
+                بارگذاری پرونده نمونه (سلطانی)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Initial Empty State Guide (When no search has been made yet) */}
+        {!searchedCase && !notFound && (
+          <div className="rounded-3xl p-6 sm:p-10 bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 text-center space-y-6 shadow-sm animate-fadeIn">
+            <div className="w-16 h-16 mx-auto rounded-3xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37]">
+              <Scale className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2 max-w-xl mx-auto">
+              <h3 className="text-lg font-bold font-serif text-[#0B132B] dark:text-white">
+                سامانه هوشمند و امن پیگیری الکترونیک پرونده‌ها
+              </h3>
+              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                جهت استعلام آخرین وضعیت لوایح تقدیمی، ابلاغیه‌های ثنا و تاریخ دادگاه، شماره کلاسه پرونده خود را در کادر بالا وارد نموده یا از دکمه‌های «تست زنده» استفاده نمایید.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-right pt-2">
+              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#070D1E] border border-gray-100 dark:border-gray-800 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-gray-800 dark:text-gray-200">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>استعلام برخط و لحظه‌ای</span>
+                </div>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                  اتصال به گردش دادرسی و تقویم جلسات شعبه بدون نیاز به حضور فیزیکی در دادگاه.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#070D1E] border border-gray-100 dark:border-gray-800 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-gray-800 dark:text-gray-200">
+                  <Lock className="w-4 h-4 text-[#D4AF37]" />
+                  <span>محرمانگی تام اطلاعات</span>
+                </div>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                  حفظ اسرار پرونده منطبق بر ماده ۴۳ قانون وکالت و رمزنگاری اسناد قضایی.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#070D1E] border border-gray-100 dark:border-gray-800 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-gray-800 dark:text-gray-200">
+                  <FileText className="w-4 h-4 text-blue-500" />
+                  <span>دریافت نسخ معتبر لوایح</span>
+                </div>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                  دسترسی مستقیم موکل به فایل‌های PDF دادخواست‌ها، آرای دادگاه و مستندات پرونده.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 

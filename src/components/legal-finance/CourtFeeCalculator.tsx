@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   Coins,
 } from 'lucide-react';
+import { rialsToTomansVerbal, formatThousands } from '../../utils/persianNumberHelper';
 
 export const CourtFeeCalculator: React.FC = () => {
   const [calcType, setCalcType] = useState<'court_fee' | 'attorney_tariff' | 'delay_damages' | 'diyeh' | 'mehrieh'>('court_fee');
@@ -334,9 +335,9 @@ export const CourtFeeCalculator: React.FC = () => {
                   />
                   <span className="absolute left-3 top-3.5 text-xs text-gray-400">ریال</span>
                 </div>
-                <div className="mt-1 flex items-center justify-between text-xs text-[#AA820A] dark:text-[#D4AF37] font-semibold">
-                  <span>معادل:</span>
-                  <span>{formatTomans(claimAmount)}</span>
+                <div className="mt-1.5 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#AA820A] dark:text-[#D4AF37] font-semibold gap-1 bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
+                  <span className="text-gray-500 dark:text-gray-400">معادل به حروف و تومان:</span>
+                  <span className="font-bold">{formatTomans(claimAmount)} — ({rialsToTomansVerbal(claimAmount)})</span>
                 </div>
               </div>
 
@@ -396,9 +397,9 @@ export const CourtFeeCalculator: React.FC = () => {
                   />
                   <span className="absolute left-3 top-3.5 text-xs text-gray-400">ریال</span>
                 </div>
-                <div className="mt-1 flex items-center justify-between text-xs text-[#AA820A] dark:text-[#D4AF37] font-semibold">
-                  <span>معادل:</span>
-                  <span>{formatTomans(claimAmount)}</span>
+                <div className="mt-1.5 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#AA820A] dark:text-[#D4AF37] font-semibold gap-1 bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
+                  <span className="text-gray-500 dark:text-gray-400">معادل به حروف و تومان:</span>
+                  <span className="font-bold">{formatTomans(claimAmount)} — ({rialsToTomansVerbal(claimAmount)})</span>
                 </div>
               </div>
 
@@ -441,16 +442,19 @@ export const CourtFeeCalculator: React.FC = () => {
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
                   مبلغ اصل بدهی یا چک (ریال)
                 </label>
-                <input
-                  type="number"
-                  value={debtAmount}
-                  onChange={(e) => setDebtAmount(Number(e.target.value) || 0)}
-                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm font-mono text-left focus:outline-none focus:border-[#D4AF37]"
-                  dir="ltr"
-                />
-                <div className="mt-1 flex items-center justify-between text-xs text-[#AA820A] dark:text-[#D4AF37] font-semibold">
-                  <span>معادل:</span>
-                  <span>{formatTomans(debtAmount)}</span>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={debtAmount}
+                    onChange={(e) => setDebtAmount(Number(e.target.value) || 0)}
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm font-mono text-left focus:outline-none focus:border-[#D4AF37]"
+                    dir="ltr"
+                  />
+                  <span className="absolute left-3 top-3.5 text-xs text-gray-400">ریال</span>
+                </div>
+                <div className="mt-1.5 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#AA820A] dark:text-[#D4AF37] font-semibold gap-1 bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
+                  <span className="text-gray-500 dark:text-gray-400">معادل به حروف و تومان:</span>
+                  <span className="font-bold">{formatTomans(debtAmount)} — ({rialsToTomansVerbal(debtAmount)})</span>
                 </div>
               </div>
 

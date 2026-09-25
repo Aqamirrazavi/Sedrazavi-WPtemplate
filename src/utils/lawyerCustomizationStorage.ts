@@ -50,6 +50,7 @@ export interface LawyerSiteProfile {
 
   // Lawyer Hero Carousel / Showcase Slider (Under Stories)
   heroSlider: LawyerSlideItem[];
+  showHeroSlider?: boolean;
 
   // Interactive Stories
   stories: StoryItem[];
@@ -89,6 +90,13 @@ export interface LawyerSiteProfile {
       enableAnimations: boolean;
       buttonPulse: boolean;
       hoverLift: boolean;
+    };
+    vectorBackground?: {
+      presetId: string;
+      opacity: number;
+      speed: 'slow' | 'normal' | 'fast';
+      enableGlow: boolean;
+      density: 'minimal' | 'balanced' | 'dense';
     };
   };
 
@@ -246,6 +254,7 @@ export const DEFAULT_LAWYER_PROFILE: LawyerSiteProfile = {
       ctaLink: '#booking',
     },
   ],
+  showHeroSlider: false,
 
   stories: STORIES_DATA,
 
@@ -279,6 +288,13 @@ export const DEFAULT_LAWYER_PROFILE: LawyerSiteProfile = {
       enableAnimations: true,
       buttonPulse: true,
       hoverLift: true,
+    },
+    vectorBackground: {
+      presetId: 'dynamic-flowing-waves',
+      opacity: 0.6,
+      speed: 'normal',
+      enableGlow: true,
+      density: 'balanced',
     },
   },
 
