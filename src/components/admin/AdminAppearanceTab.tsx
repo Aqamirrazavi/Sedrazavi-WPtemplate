@@ -28,12 +28,14 @@ import {
   Radio,
   Building2,
   GitBranch,
+  Search,
 } from 'lucide-react';
 import { THEME_PALETTES, ThemePalettePreset } from '../../data/themePalettes';
 import { VECTOR_BACKGROUND_PRESETS, VectorBackgroundPreset } from '../../data/vectorBackgroundPresets';
 import { applyPaletteToDom, generateElementorKitSettings, generateElementorPhpSyncSnippet } from '../../utils/themePaletteApplier';
 import { useDesignTokens } from '../../context/DesignTokensContext';
 import { LawFirmScenarioManager } from './LawFirmScenarioManager';
+import { AdminSeoInspectorTab } from './AdminSeoInspectorTab';
 
 interface AdminAppearanceTabProps {
   profile: LawyerSiteProfile;
@@ -45,7 +47,7 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
   onUpdateProfile,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<
-    'palettes_30' | 'vector_30' | 'elementor_sync' | 'firm_scenarios' | 'light' | 'dark' | 'typography' | 'advanced' | 'preview' | 'save_reset'
+    'palettes_30' | 'vector_30' | 'elementor_sync' | 'firm_scenarios' | 'seo_inspector' | 'light' | 'dark' | 'typography' | 'advanced' | 'preview' | 'save_reset'
   >('palettes_30');
   const [paletteCategoryFilter, setPaletteCategoryFilter] = useState<string>('all');
   const [vectorCategoryFilter, setVectorCategoryFilter] = useState<string>('all');
@@ -368,6 +370,18 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
           </button>
 
           <button
+            onClick={() => setActiveSubTab('seo_inspector')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeSubTab === 'seo_inspector'
+                ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/30 text-emerald-900 dark:text-emerald-200 shadow-sm border border-emerald-500/50'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Search className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>۱۰. مدیریت سئو، متاتگ‌ها و اسکیما (SEO Engine)</span>
+          </button>
+
+          <button
             onClick={() => setActiveSubTab('save_reset')}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
               activeSubTab === 'save_reset'
@@ -376,7 +390,7 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
             }`}
           >
             <Save className="w-3.5 h-3.5" />
-            <span>۱۰. ذخیره و خروجی</span>
+            <span>۱۱. ذخیره و خروجی</span>
           </button>
         </div>
       </div>
@@ -1097,6 +1111,14 @@ add_action('sedrazavi_after_palette_update', function($palette_id) {
         <LawFirmScenarioManager
           lawyerProfile={profile}
           onUpdateLawyerProfile={onUpdateProfile}
+        />
+      )}
+
+      {/* 2.7 SEO Engine, Meta Tags & Schema Inspector */}
+      {activeSubTab === 'seo_inspector' && (
+        <AdminSeoInspectorTab
+          profile={profile}
+          onUpdateProfile={onUpdateProfile}
         />
       )}
 

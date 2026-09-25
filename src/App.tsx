@@ -59,6 +59,8 @@ import { SurveyWidgetModal } from './components/SurveyWidgetModal';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { GoldScrollSidebar } from './components/GoldScrollSidebar';
 import { TeamHierarchySection } from './components/TeamHierarchySection';
+import { DynamicSeoHead } from './components/DynamicSeoHead';
+import { QuickCaseTrackerModal } from './components/QuickCaseTrackerModal';
 import { AboutPageView } from './components/AboutPageView';
 import { ServicesPageView } from './components/ServicesPageView';
 import { ContactPageView } from './components/ContactPageView';
@@ -93,6 +95,7 @@ export default function App() {
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [isQuickCallbackOpen, setIsQuickCallbackOpen] = useState(false);
   const [isLiveConsultationOpen, setIsLiveConsultationOpen] = useState(false);
+  const [isQuickCaseTrackerOpen, setIsQuickCaseTrackerOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<'guest' | 'client' | 'lawyer' | 'admin'>('guest');
   const [otpModalInitialTab, setOtpModalInitialTab] = useState<'client' | 'lawyer'>('client');
@@ -172,15 +175,7 @@ export default function App() {
   };
 
   const handleOpenCaseTracker = () => {
-    if (activeView !== 'preview') {
-      setActiveView('preview');
-    }
-    setTimeout(() => {
-      const el = document.getElementById('cases');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    setIsQuickCaseTrackerOpen(true);
   };
 
   const handleSelectArticle = (articleId: string) => {
@@ -205,6 +200,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F4F6F9] dark:bg-[#070D1E] text-[#0B132B] dark:text-gray-100 transition-colors duration-300 font-persian relative">
+      {/* Dynamic SEO Title, Meta Description and Multi-Lawyer Schema.org Engine */}
+      <DynamicSeoHead profile={lawyerProfile} />
+
       {/* 30 Animated & Static Abstract Vector Line Backgrounds (Adapts dynamically to the active backend theme palette) */}
       <VectorBackgroundRenderer
         presetId={lawyerProfile.appearance?.vectorBackground?.presetId || 'dynamic-flowing-waves'}
@@ -1398,6 +1396,13 @@ export default function App() {
       <SurveyWidgetModal
         isOpen={isSurveyOpen}
         onClose={() => setIsSurveyOpen(false)}
+      />
+
+      {/* Quick Case Tracking Modal (Direct Instant Inquiry - UI/UX Refinement) */}
+      <QuickCaseTrackerModal
+        isOpen={isQuickCaseTrackerOpen}
+        onClose={() => setIsQuickCaseTrackerOpen(false)}
+        onOpenConsultation={() => handleBookService(SERVICES_DATA[0].title)}
       />
 
       {/* GDPR / Cookie Consent Banner (Section 13) */}

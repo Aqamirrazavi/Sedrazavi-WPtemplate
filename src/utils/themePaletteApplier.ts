@@ -98,9 +98,23 @@ export function generatePaletteCss(light: LightPaletteColors, dark: DarkPaletteC
 }
 
 .gold-gradient-text {
-  background: linear-gradient(135deg, var(--sr-gold-primary, #D4AF37) 0%, var(--sr-gold-secondary, #B8960F) 100%) !important;
+  background: linear-gradient(135deg, var(--sr-gold-secondary, #AA820A) 0%, var(--sr-gold-primary, #D4AF37) 50%, var(--sr-gold-secondary, #8A6B0A) 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.05));
+}
+
+[data-theme="dark"] .gold-gradient-text,
+.dark .gold-gradient-text {
+  background: linear-gradient(135deg, #F3E5AB 0%, var(--sr-gold-primary, #D4AF37) 60%, var(--sr-gold-secondary, #AA820A) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 1px 2px rgba(212, 175, 55, 0.25));
+}
+
+/* High Contrast Touch Ergonomics (WCAG 2.1 AA) */
+button, select, input, a {
+  touch-action: manipulation;
 }
 
 /* Elementor Direct Widget Selectors Synchronization */
