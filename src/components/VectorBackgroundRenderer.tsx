@@ -1,11 +1,14 @@
 import React, { useId } from 'react';
 import { VECTOR_BACKGROUND_PRESETS, VectorBackgroundPreset } from '../data/vectorBackgroundPresets';
 
-interface VectorBackgroundRendererProps {
+export interface VectorBackgroundRendererProps {
   presetId?: string;
   opacity?: number;
   speed?: 'slow' | 'normal' | 'fast';
   className?: string;
+  isAnimated?: boolean;
+  mode?: 'animated' | 'static';
+  blendMode?: 'normal' | 'multiply' | 'screen' | 'overlay' | 'soft-light';
 }
 
 export const VectorBackgroundRenderer: React.FC<VectorBackgroundRendererProps> = ({
@@ -13,9 +16,14 @@ export const VectorBackgroundRenderer: React.FC<VectorBackgroundRendererProps> =
   opacity = 0.6,
   speed = 'normal',
   className = '',
+  isAnimated = true,
+  mode = 'animated',
+  blendMode = 'normal',
 }) => {
   const maskId = useId();
   const gradId = useId();
+
+  const isActuallyAnimated = mode === 'animated' && isAnimated;
 
   // Find active preset or default to first
   const preset =
@@ -27,7 +35,10 @@ export const VectorBackgroundRenderer: React.FC<VectorBackgroundRendererProps> =
   return (
     <div
       className={`fixed inset-0 pointer-events-none overflow-hidden z-0 select-none ${className}`}
-      style={{ opacity }}
+      style={{
+        opacity,
+        mixBlendMode: blendMode !== 'normal' ? (blendMode as any) : undefined,
+      }}
       aria-hidden="true"
     >
       <style>{`
@@ -59,27 +70,27 @@ export const VectorBackgroundRenderer: React.FC<VectorBackgroundRendererProps> =
         }
 
         .sr-anim-wave-flow {
-          animation: sr-wave-flow ${speedDuration} ease-in-out infinite;
+          animation: ${isActuallyAnimated ? `sr-wave-flow ${speedDuration} ease-in-out infinite` : 'none'};
           transform-origin: center center;
         }
         .sr-anim-contour-drift {
-          animation: sr-contour-drift ${speedDuration} ease-in-out infinite;
+          animation: ${isActuallyAnimated ? `sr-contour-drift ${speedDuration} ease-in-out infinite` : 'none'};
           transform-origin: center center;
         }
         .sr-anim-guilloche-rotate {
-          animation: sr-guilloche-rotate ${speedDuration} linear infinite;
+          animation: ${isActuallyAnimated ? `sr-guilloche-rotate ${speedDuration} linear infinite` : 'none'};
           transform-origin: center center;
         }
         .sr-anim-mesh-pulse {
-          animation: sr-mesh-pulse calc(${speedDuration} * 0.4) ease-in-out infinite;
+          animation: ${isActuallyAnimated ? `sr-mesh-pulse calc(${speedDuration} * 0.4) ease-in-out infinite` : 'none'};
           transform-origin: center center;
         }
         .sr-anim-dash-travel {
           stroke-dasharray: 12 18;
-          animation: sr-dash-travel ${speedDuration} linear infinite;
+          animation: ${isActuallyAnimated ? `sr-dash-travel ${speedDuration} linear infinite` : 'none'};
         }
         .sr-anim-gentle-float {
-          animation: sr-gentle-float calc(${speedDuration} * 0.5) ease-in-out infinite;
+          animation: ${isActuallyAnimated ? `sr-gentle-float calc(${speedDuration} * 0.5) ease-in-out infinite` : 'none'};
         }
       `}</style>
 

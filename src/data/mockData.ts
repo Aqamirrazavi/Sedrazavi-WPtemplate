@@ -538,6 +538,33 @@ export const CASES_INITIAL_DATA: CaseItem[] = [
 
 export const ELEMENTOR_BLOCKS_DATA: ElementorBlockDef[] = [
   {
+    id: 'el-vector-bg',
+    code: 'sedrazavi_vector_background',
+    title: 'ویجت وکتور بک‌گراند (۳۰ مدل ثابت و متحرک)',
+    titleEn: 'Abstract Vector Background (30 Static & Animated)',
+    category: 'هیرو و معرفی',
+    description: 'ویجت وکتوری و خطوط امواج لوکس الهام‌گرفته از مدرن‌ترین وب‌سایت‌ها با بیش از ۳۰ مدل، سوئیچ بین حالت ثابت و متحرک، اتصال به پالت رنگی و هماهنگی کامل با المنتور.',
+    icon: 'Sparkles',
+    options: [
+      { name: 'مدل وکتور بک‌گراند', type: 'select', defaultValue: '۱. امواج مواج سینوسی روان', options: [
+        '۱. امواج مواج سینوسی روان',
+        '۲. کانتورهای تراز توپوگرافی حقوقی',
+        '۳. شبکه امنیتی گیلوش و اوراق بهادار',
+        '۴. صورت فلکی میزان و پیوندهای شبکه‌ای',
+        '۵. مسیرهای داده و دادرسی سایبری',
+        '۶. خطوط پرسپکتیو ستون‌های کاخ عدالت',
+        '۷. روبان‌های سیال فیبوناچی زرین',
+        '۸. امواج ژیروسکوپیک تعادل حقوقی'
+      ] },
+      { name: 'حالت نمایش وکتور', type: 'select', defaultValue: 'متحرک و انیمیشنی (Dynamic Animated)', options: ['متحرک و انیمیشنی (Dynamic Animated)', 'ثابت و ایستا (Static Luxury Line-Art)'] },
+      { name: 'حالت آمیختگی رنگ (Blend Mode)', type: 'select', defaultValue: 'عادی (Normal)', options: ['عادی (Normal)', 'هم‌پوشانی لوکس (Overlay)', 'ضرب در زمینه (Multiply)', 'نور ملایم (Soft Light)'] },
+      { name: 'سرعت حرکت انیمیشن', type: 'select', defaultValue: 'استاندارد', options: ['آرام', 'استاندارد', 'پرشتاب'] },
+      { name: 'شفافیت و وضوح خطوط', type: 'select', defaultValue: '۶۰ درصد', options: ['۳۰ درصد', '۵۰ درصد', '۶۰ درصد', '۸۰ درصد', '۱۰۰ درصد'] },
+      { name: 'اتصال خودکار به پالت فعال سایت', type: 'boolean', defaultValue: true },
+      { name: 'ماسک گرادیانت محافظ خوانایی متن', type: 'boolean', defaultValue: true }
+    ]
+  },
+  {
     id: 'el-1',
     code: 'sedrazavi_hero_classic',
     title: 'هیرو کلاسیک وکالت SedRazavi',

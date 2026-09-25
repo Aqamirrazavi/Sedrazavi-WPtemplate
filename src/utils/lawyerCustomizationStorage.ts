@@ -97,7 +97,24 @@ export interface LawyerSiteProfile {
       speed: 'slow' | 'normal' | 'fast';
       enableGlow: boolean;
       density: 'minimal' | 'balanced' | 'dense';
+      mode?: 'animated' | 'static';
+      isAnimated?: boolean;
+      blendMode?: 'normal' | 'multiply' | 'screen' | 'overlay' | 'soft-light';
     };
+  };
+
+  // 1.1 Multi-Lawyer Firm Scenario Configuration (4 Scenarios)
+  firmScenario?: {
+    currentScenario: 'solo' | 'partners' | 'senior_associates' | 'enterprise';
+    firmNameFa: string;
+    firmNameEn: string;
+    registrationNumber: string;
+    leadAttorneysCount: number;
+    associatesCount: number;
+    internsCount: number;
+    enableIndependentCaseBooking: boolean;
+    enableMultiLawyerCaseSharing: boolean;
+    hierarchyRules: string;
   };
 
   // 2. Banner Settings (Auto-rotate, pause on hover, copy button)
@@ -295,7 +312,23 @@ export const DEFAULT_LAWYER_PROFILE: LawyerSiteProfile = {
       speed: 'normal',
       enableGlow: true,
       density: 'balanced',
+      mode: 'animated',
+      isAnimated: true,
+      blendMode: 'normal',
     },
+  },
+
+  firmScenario: {
+    currentScenario: 'senior_associates',
+    firmNameFa: 'موسسه حقوقی و داوری بین‌المللی رضوی و همکاران',
+    firmNameEn: 'SedRazavi & Partners Law Firm',
+    registrationNumber: '۴۸۲۹۱ / ث.م',
+    leadAttorneysCount: 2,
+    associatesCount: 5,
+    internsCount: 4,
+    enableIndependentCaseBooking: true,
+    enableMultiLawyerCaseSharing: true,
+    hierarchyRules: 'نظارت مستقیم وکیل سرپرست بر لوایح کارآموزان و تقسیم سهم حق‌الوکاله طبق آیین‌نامه داخلی کانون',
   },
 
   bannerSettings: {

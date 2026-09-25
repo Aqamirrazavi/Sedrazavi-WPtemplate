@@ -18,6 +18,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onOpenOtpAuth,
   profile,
 }) => {
+  const scenario = profile?.firmScenario?.currentScenario || 'senior_associates';
   const lawyerName = profile?.lawyerName || ATTORNEY_INFO.name;
   const lawyerTitle = profile?.lawyerTitle || ATTORNEY_INFO.title;
   const degree = profile?.degree || ATTORNEY_INFO.degree;
@@ -37,18 +38,49 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           {/* Left Column (Content & CTAs) */}
           <div className="lg:col-span-7 space-y-6 text-right">
             
-            {/* Experience Pill */}
+            {/* Experience Pill - Dynamic according to Scenario */}
             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/30 text-[#0B132B] dark:text-[#F3E5AB] text-xs sm:text-sm font-semibold shadow-sm">
               <Award className="w-4 h-4 text-[#D4AF37]" />
-              <span>{degree} • بیش از {experienceYears} سال سابقه وکالت</span>
+              {scenario === 'solo' && <span>{degree} • بیش از {experienceYears} سال سابقه وکالت فردی</span>}
+              {scenario === 'partners' && <span>دفتر همکاران و شرکای پایه یک دادگستری (Chambers) • استقلال پرونده‌ای</span>}
+              {scenario === 'senior_associates' && <span>کانون سرپرستی دکتر رضوی • نظارت مستقیم بر کارآموزان و لوایح</span>}
+              {scenario === 'enterprise' && <span>موسسه حقوقی بین‌المللی SedRazavi • ۵ دپارتمان تخصصی حقوقی</span>}
             </div>
 
             {/* Main Headline */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-serif text-[#0B132B] dark:text-white leading-[1.25]">
-              عدالت با دقت،{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
-                حرفه‌ای‌گری با تعهد
-              </span>
+              {scenario === 'solo' && (
+                <>
+                  عدالت با دقت،{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
+                    حرفه‌ای‌گری با تعهد
+                  </span>
+                </>
+              )}
+              {scenario === 'partners' && (
+                <>
+                  شورای شرکا؛{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
+                    هم‌افزایی وکلای پایه یک دادگستری
+                  </span>
+                </>
+              )}
+              {scenario === 'senior_associates' && (
+                <>
+                  دفاع راهبردی؛{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
+                    نظارت عالیه وکیل سرپرست بر پرونده‌ها
+                  </span>
+                </>
+              )}
+              {scenario === 'enterprise' && (
+                <>
+                  کنسرسیوم حقوقی؛{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
+                    خدمات جامع دپارتمانی و داوری تجاری
+                  </span>
+                </>
+              )}
             </h1>
 
             {/* Sub-headline / Slogan */}

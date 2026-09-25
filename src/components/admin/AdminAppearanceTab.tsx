@@ -26,11 +26,14 @@ import {
   Waves,
   Activity,
   Radio,
+  Building2,
+  GitBranch,
 } from 'lucide-react';
 import { THEME_PALETTES, ThemePalettePreset } from '../../data/themePalettes';
 import { VECTOR_BACKGROUND_PRESETS, VectorBackgroundPreset } from '../../data/vectorBackgroundPresets';
-import { applyPaletteToDom } from '../../utils/themePaletteApplier';
+import { applyPaletteToDom, generateElementorKitSettings, generateElementorPhpSyncSnippet } from '../../utils/themePaletteApplier';
 import { useDesignTokens } from '../../context/DesignTokensContext';
+import { LawFirmScenarioManager } from './LawFirmScenarioManager';
 
 interface AdminAppearanceTabProps {
   profile: LawyerSiteProfile;
@@ -42,7 +45,7 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
   onUpdateProfile,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<
-    'palettes_30' | 'vector_30' | 'light' | 'dark' | 'typography' | 'advanced' | 'preview' | 'save_reset'
+    'palettes_30' | 'vector_30' | 'elementor_sync' | 'firm_scenarios' | 'light' | 'dark' | 'typography' | 'advanced' | 'preview' | 'save_reset'
   >('palettes_30');
   const [paletteCategoryFilter, setPaletteCategoryFilter] = useState<string>('all');
   const [vectorCategoryFilter, setVectorCategoryFilter] = useState<string>('all');
@@ -341,6 +344,30 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
           </button>
 
           <button
+            onClick={() => setActiveSubTab('elementor_sync')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeSubTab === 'elementor_sync'
+                ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/30 text-amber-900 dark:text-[#F3E5AB] shadow-sm border border-[#D4AF37]'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>۸. همگام‌ساز رنگ‌های المنتور (Global Sync)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('firm_scenarios')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeSubTab === 'firm_scenarios'
+                ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] shadow-sm font-black'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#D4AF37]'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>۹. سناریوهای دفاتر حقوقی (۴ سناریو بدون حذف داده)</span>
+          </button>
+
+          <button
             onClick={() => setActiveSubTab('save_reset')}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
               activeSubTab === 'save_reset'
@@ -349,7 +376,7 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
             }`}
           >
             <Save className="w-3.5 h-3.5" />
-            <span>۸. ذخیره و خروجی</span>
+            <span>۱۰. ذخیره و خروجی</span>
           </button>
         </div>
       </div>
@@ -509,11 +536,11 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
             سرکار خانم دکتر رضوی، مطابق دستور شما، این ۳۰ مدل وکتور الهام‌گرفته از مدرن‌ترین الگوهای وکتور خطی لندینگ پیج (شامل امواج سینوسی روان، کانتورهای تراز توپوگرافی ملکی، شبکه امنیتی اسناد رسمی گیلوش، صور فلکی و گره‌های پیوسته، مدارهای داده سایبری و هندسه اسلیمی) در بک‌اند پیاده‌سازی شدند. هر کدام از این ۳۰ مدل را انتخاب فرمایید، بلافاصله روی لندینگ‌پیج فرانت‌اند اعمال شده و <strong>به صورت کاملاً داینامیک رنگ و درخشش خود را از ۳۰ پالت تم فعال در تب ۱ دریافت می‌کنند.</strong>
           </div>
 
-          {/* Quick Settings Bar: Opacity & Speed */}
+          {/* Quick Settings Bar: Mode (Static vs Animated), Opacity, Speed & Blend Mode */}
           <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/80 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
-                مدل وکتور فعال فعلی:
+                مدل فعال فعلی:
               </span>
               <span className="px-3 py-1 rounded-xl bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] text-xs font-bold shadow-sm">
                 {VECTOR_BACKGROUND_PRESETS.find(
@@ -523,10 +550,36 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
+              {/* Static vs Animated Mode Toggle */}
+              <div className="flex items-center gap-1 p-1 bg-white dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+                <button
+                  type="button"
+                  onClick={() => handleUpdateVectorConfig({ mode: 'animated', isAnimated: true })}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    (appearance.vectorBackground?.mode || 'animated') === 'animated'
+                      ? 'bg-[#D4AF37] text-[#0B132B] font-black shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'
+                  }`}
+                >
+                  متحرک و انیمیشنی
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUpdateVectorConfig({ mode: 'static', isAnimated: false })}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    appearance.vectorBackground?.mode === 'static'
+                      ? 'bg-[#0B132B] dark:bg-white text-white dark:text-[#0B132B] font-black shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'
+                  }`}
+                >
+                  ثابت و بدون حرکت (Luxury Static)
+                </button>
+              </div>
+
               {/* Opacity slider */}
               <div className="flex items-center gap-2">
                 <label className="text-xs font-bold text-gray-600 dark:text-gray-300">
-                  شفافیت وکتور:
+                  شفافیت:
                 </label>
                 <input
                   type="range"
@@ -537,38 +590,57 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
                   onChange={(e) =>
                     handleUpdateVectorConfig({ opacity: parseFloat(e.target.value) })
                   }
-                  className="w-24 accent-[#D4AF37] cursor-pointer"
+                  className="w-20 accent-[#D4AF37] cursor-pointer"
                 />
                 <span className="text-xs font-mono text-[#D4AF37] font-bold">
                   {Math.round((appearance.vectorBackground?.opacity ?? 0.65) * 100)}%
                 </span>
               </div>
 
-              {/* Speed Buttons */}
+              {/* Speed Buttons (Only when animated) */}
+              {(appearance.vectorBackground?.mode || 'animated') === 'animated' && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-gray-600 dark:text-gray-300 ml-1">
+                    سرعت:
+                  </span>
+                  {(
+                    [
+                      { id: 'slow', label: 'آرام' },
+                      { id: 'normal', label: 'استاندارد' },
+                      { id: 'fast', label: 'پرشتاب' },
+                    ] as const
+                  ).map((spd) => (
+                    <button
+                      key={spd.id}
+                      type="button"
+                      onClick={() => handleUpdateVectorConfig({ speed: spd.id })}
+                      className={`px-2 py-1 rounded-lg text-xs font-bold transition-all ${
+                        (appearance.vectorBackground?.speed || 'normal') === spd.id
+                          ? 'bg-[#D4AF37] text-[#0B132B] font-black shadow-sm'
+                          : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-[#D4AF37]'
+                      }`}
+                    >
+                      {spd.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Blend Mode Selection */}
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-gray-600 dark:text-gray-300 ml-1">
-                  سرعت انیمیشن:
-                </span>
-                {(
-                  [
-                    { id: 'slow', label: 'آرام' },
-                    { id: 'normal', label: 'استاندارد' },
-                    { id: 'fast', label: 'پرشتاب' },
-                  ] as const
-                ).map((spd) => (
-                  <button
-                    key={spd.id}
-                    type="button"
-                    onClick={() => handleUpdateVectorConfig({ speed: spd.id })}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                      (appearance.vectorBackground?.speed || 'normal') === spd.id
-                        ? 'bg-[#D4AF37] text-[#0B132B] font-black shadow-sm'
-                        : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-[#D4AF37]'
-                    }`}
-                  >
-                    {spd.label}
-                  </button>
-                ))}
+                <label className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                  بلندینگ:
+                </label>
+                <select
+                  value={appearance.vectorBackground?.blendMode || 'normal'}
+                  onChange={(e) => handleUpdateVectorConfig({ blendMode: e.target.value as any })}
+                  className="p-1 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-xs font-bold text-gray-700 dark:text-gray-200"
+                >
+                  <option value="normal">عادی (Normal)</option>
+                  <option value="overlay">هم‌پوشانی (Overlay)</option>
+                  <option value="multiply">ضرب در زمینه (Multiply)</option>
+                  <option value="soft-light">نور ملایم (Soft Light)</option>
+                </select>
               </div>
             </div>
           </div>
@@ -834,6 +906,201 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
           </div>
         </div>
       )}
+
+      {/* 2.5 Elementor Global Colors Synchronization Suite */}
+      {activeSubTab === 'elementor_sync' && (
+        <div className="space-y-6">
+          {/* Header Explanation Banner */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-[#D4AF37]/15 to-transparent border border-[#D4AF37]/30 text-xs text-amber-900 dark:text-[#F3E5AB] leading-relaxed">
+            <div className="font-bold flex items-center gap-2 mb-1.5 text-sm text-[#0B132B] dark:text-white">
+              <Sparkles className="w-4 h-4 text-[#D4AF37]" />
+              <span>موتور همگام‌سازی لحظه‌ای پالت‌های تم با رنگ‌های اصلی المنتور (Elementor Global Colors Sync)</span>
+            </div>
+            با انتخاب هر کدام از ۳۰ پالت رنگی در تب ۱، سیستم به صورت همزمان متغیرهای جهانی کیت پیش‌فرض المنتور (شامل <code className="font-mono bg-black/10 dark:bg-white/10 px-1 py-0.5 rounded">--e-global-color-primary</code>، <code className="font-mono bg-black/10 dark:bg-white/10 px-1 py-0.5 rounded">--e-global-color-secondary</code>، <code className="font-mono bg-black/10 dark:bg-white/10 px-1 py-0.5 rounded">--e-global-color-text</code> و <code className="font-mono bg-black/10 dark:bg-white/10 px-1 py-0.5 rounded">--e-global-color-accent</code>) را بازنویسی می‌کند. تمامی المان‌های طراحی‌شده با المنتور (دکمه‌ها، آیکون‌ها، عناوین و خطوط تقسیم) بلافاصله رنگ پالت جدید را به خود می‌گیرند.
+          </div>
+
+          {/* Real-time Color Variables Status Card */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 space-y-2">
+              <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                Primary (رنگ اصلی المنتور)
+              </div>
+              <div className="flex items-center gap-3">
+                <span
+                  className="w-7 h-7 rounded-xl shadow-sm border border-black/10"
+                  style={{ backgroundColor: appearance.lightPalette.goldPrimary }}
+                />
+                <span className="font-mono text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {appearance.lightPalette.goldPrimary}
+                </span>
+              </div>
+              <div className="text-[10px] text-gray-400 font-mono">
+                --e-global-color-primary
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 space-y-2">
+              <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                Secondary (رنگ ثانویه لوکس)
+              </div>
+              <div className="flex items-center gap-3">
+                <span
+                  className="w-7 h-7 rounded-xl shadow-sm border border-black/10"
+                  style={{ backgroundColor: appearance.lightPalette.goldSecondary }}
+                />
+                <span className="font-mono text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {appearance.lightPalette.goldSecondary}
+                </span>
+              </div>
+              <div className="text-[10px] text-gray-400 font-mono">
+                --e-global-color-secondary
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 space-y-2">
+              <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                Text (رنگ متون و عناوین حقوقی)
+              </div>
+              <div className="flex items-center gap-3">
+                <span
+                  className="w-7 h-7 rounded-xl shadow-sm border border-black/10"
+                  style={{ backgroundColor: appearance.lightPalette.text }}
+                />
+                <span className="font-mono text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {appearance.lightPalette.text}
+                </span>
+              </div>
+              <div className="text-[10px] text-gray-400 font-mono">
+                --e-global-color-text
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 space-y-2">
+              <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                Accent (آکسان و نشانه‌ها)
+              </div>
+              <div className="flex items-center gap-3">
+                <span
+                  className="w-7 h-7 rounded-xl shadow-sm border border-black/10"
+                  style={{ backgroundColor: appearance.lightPalette.goldPrimary }}
+                />
+                <span className="font-mono text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {appearance.lightPalette.goldPrimary}
+                </span>
+              </div>
+              <div className="text-[10px] text-gray-400 font-mono">
+                --e-global-color-accent
+              </div>
+            </div>
+          </div>
+
+          {/* Live Elementor Widget Synchronization Simulation */}
+          <div className="p-6 rounded-3xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-[#0B132B] dark:text-white flex items-center gap-2">
+                <Eye className="w-4 h-4 text-[#D4AF37]" />
+                <span>پیش‌نمایش زنده المان‌های المنتور با رنگ‌های فعال پالت:</span>
+              </h4>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 font-bold">
+                همگام‌شده با المنتور ۳.x
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Elementor Button Mockup */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 space-y-3">
+                <div className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                  دکمه اصلی المنتور (Elementor Button)
+                </div>
+                <button
+                  type="button"
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white shadow-sm flex items-center justify-center gap-2 transition-all"
+                  style={{
+                    backgroundColor: appearance.lightPalette.goldPrimary,
+                    borderColor: appearance.lightPalette.goldSecondary,
+                  }}
+                >
+                  <Gavel className="w-4 h-4" />
+                  <span>رزرو نوبت مشاوره حقوقی</span>
+                </button>
+              </div>
+
+              {/* Elementor Icon Box Mockup */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 space-y-2">
+                <div className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                  جعبه آیکون المنتور (Icon Box)
+                </div>
+                <div className="flex items-center gap-3">
+                  <span
+                    className="p-2.5 rounded-xl text-white shadow-sm"
+                    style={{ backgroundColor: appearance.lightPalette.goldPrimary }}
+                  >
+                    <Briefcase className="w-4 h-4" />
+                  </span>
+                  <div>
+                    <div className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                      داوری تجاری و قراردادها
+                    </div>
+                    <div className="text-[10px] text-gray-400">
+                      پشتیبانی از پالت سراسری
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Elementor Counter Mockup */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 space-y-1">
+                <div className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                  شمارنده آمار (Elementor Counter)
+                </div>
+                <div
+                  className="text-2xl font-bold font-mono"
+                  style={{ color: appearance.lightPalette.goldPrimary }}
+                >
+                  +۱,۲۸۰
+                </div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400">
+                  پرونده موفق و مختومه
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* PHP Hook & JSON Kit Schema Snippet */}
+          <div className="p-5 rounded-2xl bg-gray-900 border border-gray-800 text-gray-200 space-y-3 dir-ltr text-left">
+            <div className="flex items-center justify-between text-xs font-bold text-gray-400">
+              <span>WordPress / Elementor Auto-Sync Hook (functions.php)</span>
+              <span className="text-[10px] text-[#D4AF37] font-mono">Hook: sedrazavi_after_palette_update</span>
+            </div>
+            <pre className="font-mono text-[11px] overflow-x-auto leading-relaxed max-h-48 text-gray-300">
+              <code>{`// Auto-inject theme palette to Elementor Default Kit Post Meta
+add_action('sedrazavi_after_palette_update', function($palette_id) {
+    $kit_id = get_option('elementor_active_kit');
+    if (!$kit_id) return;
+    $settings = get_post_meta($kit_id, '_elementor_page_settings', true) ?: [];
+    $settings['system_colors'] = [
+        ['_id' => 'primary',   'color' => '${appearance.lightPalette.goldPrimary}'],
+        ['_id' => 'secondary', 'color' => '${appearance.lightPalette.goldSecondary}'],
+        ['_id' => 'text',      'color' => '${appearance.lightPalette.text}'],
+        ['_id' => 'accent',    'color' => '${appearance.lightPalette.goldPrimary}']
+    ];
+    update_post_meta($kit_id, '_elementor_page_settings', $settings);
+    \\Elementor\\Plugin::$instance->files_manager->clear_cache();
+});`}</code>
+            </pre>
+          </div>
+        </div>
+      )}
+
+      {/* 2.6 Law Firm Scenarios Manager (4 Scenarios with Zero Data Loss) */}
+      {activeSubTab === 'firm_scenarios' && (
+        <LawFirmScenarioManager
+          lawyerProfile={profile}
+          onUpdateLawyerProfile={onUpdateProfile}
+        />
+      )}
+
+      {/* 3. Light Palette */}
       {activeSubTab === 'light' && (
         <div className="space-y-6">
           <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200">

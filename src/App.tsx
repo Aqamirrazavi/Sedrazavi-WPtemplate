@@ -58,6 +58,7 @@ import { HelpAndDocsModal } from './components/HelpAndDocsModal';
 import { SurveyWidgetModal } from './components/SurveyWidgetModal';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { GoldScrollSidebar } from './components/GoldScrollSidebar';
+import { TeamHierarchySection } from './components/TeamHierarchySection';
 import { AboutPageView } from './components/AboutPageView';
 import { ServicesPageView } from './components/ServicesPageView';
 import { ContactPageView } from './components/ContactPageView';
@@ -204,11 +205,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F4F6F9] dark:bg-[#070D1E] text-[#0B132B] dark:text-gray-100 transition-colors duration-300 font-persian relative">
-      {/* 30 Animated Abstract Vector Line Backgrounds (Adapts dynamically to the active backend theme palette) */}
+      {/* 30 Animated & Static Abstract Vector Line Backgrounds (Adapts dynamically to the active backend theme palette) */}
       <VectorBackgroundRenderer
         presetId={lawyerProfile.appearance?.vectorBackground?.presetId || 'dynamic-flowing-waves'}
         opacity={lawyerProfile.appearance?.vectorBackground?.opacity ?? 0.65}
         speed={lawyerProfile.appearance?.vectorBackground?.speed || 'normal'}
+        mode={lawyerProfile.appearance?.vectorBackground?.mode || 'animated'}
+        isAnimated={lawyerProfile.appearance?.vectorBackground?.isAnimated ?? true}
+        blendMode={lawyerProfile.appearance?.vectorBackground?.blendMode || 'normal'}
       />
 
       {/* Sticky Header */}
@@ -327,6 +331,12 @@ export default function App() {
               <AboutSection profile={lawyerProfile} />
             </div>
 
+            {/* 5.5 Team & Hierarchy Section (Dynamic based on Scenario: Solo / Partners / Senior+Associates / Enterprise) */}
+            <TeamHierarchySection
+              profile={lawyerProfile}
+              onOpenBooking={(lawyerName) => handleBookService(SERVICES_DATA[0].title)}
+            />
+
             {/* 6. Testimonials Slider */}
             <div id="testimonials">
               <TestimonialsSlider testimonials={TESTIMONIALS_DATA} />
@@ -350,7 +360,10 @@ export default function App() {
             <div id="booking">
               <div id="tracking"></div>
               <div id="cases"></div>
-              <ContactAndBookingSection preselectedService={selectedServiceToBook} />
+              <ContactAndBookingSection
+                preselectedService={selectedServiceToBook}
+                profile={lawyerProfile}
+              />
             </div>
 
             {/* 10. Footer */}

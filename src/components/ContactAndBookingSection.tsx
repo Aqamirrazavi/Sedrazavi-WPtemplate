@@ -1,20 +1,46 @@
 import React, { useState } from 'react';
 import { ATTORNEY_INFO, SERVICES_DATA, CASES_INITIAL_DATA } from '../data/mockData';
 import { CaseItem } from '../types/theme';
-import { Calendar, Phone, Mail, MapPin, Clock, Search, ShieldCheck, CheckCircle2, AlertCircle, FileText, Send, Sparkles } from 'lucide-react';
+import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
+import {
+  Calendar,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Search,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
+  FileText,
+  Send,
+  Sparkles,
+  Users,
+  Award,
+  GraduationCap,
+  Briefcase
+} from 'lucide-react';
 
 interface ContactAndBookingSectionProps {
   preselectedService?: string;
+  profile?: LawyerSiteProfile;
+  preselectedLawyer?: string;
 }
 
 export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> = ({
   preselectedService,
+  profile,
+  preselectedLawyer,
 }) => {
+  const scenario = profile?.firmScenario?.currentScenario || 'senior_associates';
+
   // Booking Form State
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [serviceType, setServiceType] = useState(preselectedService || SERVICES_DATA[0].title);
   const [consultationMode, setConsultationMode] = useState<'in_person' | 'phone' | 'online'>('in_person');
+  const [selectedLawyer, setSelectedLawyer] = useState(preselectedLawyer || 'دکتر سیده مریم رضوی (وکیل سرپرست)');
+  const [counselRole, setCounselRole] = useState<'principal' | 'partner' | 'associate' | 'trainee'>('principal');
   const [selectedDate, setSelectedDate] = useState('۱۴۰۳/۰۶/۱۵');
   const [selectedTime, setSelectedTime] = useState('۱۶:۰۰ الی ۱۷:۰۰');
   const [notes, setNotes] = useState('');
@@ -63,15 +89,18 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
   };
 
   const calculateEstimatedFee = () => {
-    switch (consultationMode) {
-      case 'phone':
-        return '۱,۵۰۰,۰۰۰ تومان (مشاوره تلفنی ۳۰ دقیقه‌ای)';
-      case 'online':
-        return '۲,۰۰۰,۰۰۰ تومان (مشاوره ویدیویی آنلاین ۴۵ دقیقه‌ای)';
-      case 'in_person':
-      default:
-        return '۳,۰۰۰,۰۰۰ تومان (مشاوره حضوری در دفتر وکالت ۶۰ دقیقه‌ای)';
+    let base = 3000000;
+    if (consultationMode === 'phone') base = 1500000;
+    if (consultationMode === 'online') base = 2000000;
+
+    if (counselRole === 'trainee') {
+      const discounted = Math.round(base * 0.5);
+      return `${discounted.toLocaleString('fa-IR')} تومان (تعرفه اقتصادی ۵۰٪ تخفیف - کارآموز وکالت با نظارت سرپرست)`;
+    } else if (counselRole === 'associate') {
+      const discounted = Math.round(base * 0.75);
+      return `${discounted.toLocaleString('fa-IR')} تومان (تعرفه وکیل پایه یک همکار)`;
     }
+    return `${base.toLocaleString('fa-IR')} تومان (تعرفه مشاوره راهبردی وکیل سرپرست / شریک ارشد)`;
   };
 
   return (
@@ -166,6 +195,97 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
                     />
                   </div>
                 </div>
+
+                {/* Multi-Lawyer / Counsel Selection (Dynamic based on Scenario) */}
+                {scenario !== 'solo' && (
+                  <div className="p-4 rounded-2xl bg-amber-500/5 dark:bg-amber-400/5 border border-[#D4AF37]/30 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                        <Users className="w-4 h-4 text-[#D4AF37]" />
+                        <span>انتخاب وکیل و رده مشاوره:</span>
+                      </label>
+                      <span className="text-[10px] text-[#AA820A] dark:text-[#F3E5AB] font-bold">
+                        {scenario === 'partners' && 'دفتر همکاران و شرکا'}
+                        {scenario === 'senior_associates' && 'تعرفه دو سطحی سرپرست / کارآموز'}
+                        {scenario === 'enterprise' && 'کادر وکلای دپارتمانی'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedLawyer('دکتر سیده مریم رضوی (وکیل سرپرست و ارشد)');
+                          setCounselRole('principal');
+                        }}
+                        className={`p-2.5 rounded-xl border text-right transition-all flex items-center justify-between text-xs ${
+                          counselRole === 'principal'
+                            ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] border-transparent shadow-sm font-bold'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Award className="w-4 h-4 text-[#D4AF37]" />
+                          <div>
+                            <div className="font-bold">دکتر سیده مریم رضوی</div>
+                            <div className="text-[10px] opacity-80">وکیل سرپرست • مشاوره استراتژیک</div>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-bold">عالی</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedLawyer('دکتر علیرضا کاظمی (وکیل پایه یک همکار)');
+                          setCounselRole('associate');
+                        }}
+                        className={`p-2.5 rounded-xl border text-right transition-all flex items-center justify-between text-xs ${
+                          counselRole === 'associate'
+                            ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] border-transparent shadow-sm font-bold'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="w-4 h-4 text-blue-500" />
+                          <div>
+                            <div className="font-bold">دکتر علیرضا کاظمی</div>
+                            <div className="text-[10px] opacity-80">وکیل پایه یک • دعاوی تجاری</div>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-bold">تخصصی</span>
+                      </button>
+
+                      {scenario === 'senior_associates' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedLawyer('جناب آقای مهدی سهرابی (کارآموز وکالت)');
+                            setCounselRole('trainee');
+                          }}
+                          className={`sm:col-span-2 p-2.5 rounded-xl border text-right transition-all flex items-center justify-between text-xs ${
+                            counselRole === 'trainee'
+                              ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-white dark:text-[#0B132B] border-transparent shadow-sm font-bold'
+                              : 'bg-white dark:bg-gray-800 border-emerald-500/40 text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <GraduationCap className="w-4 h-4 text-emerald-500" />
+                            <div>
+                              <div className="font-bold">جناب آقای مهدی سهرابی (کارآموز وکالت تحت نظارت سرپرست)</div>
+                              <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                                تعرفه حمایتی اقتصادی (۵۰٪ تخفیف) • بررسی و امضای لوایح توسط سرپرست
+                              </div>
+                            </div>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
+                            اقتصادی
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Consultation Mode Selector */}
                 <div>
