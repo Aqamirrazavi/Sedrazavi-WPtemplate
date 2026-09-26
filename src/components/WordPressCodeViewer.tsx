@@ -512,9 +512,9 @@ export const WordPressCodeViewer: React.FC = () => {
                   </span>
                 </div>
 
-                {filteredFiles.map((file) => (
+                {filteredFiles.map((file, index) => (
                   <div
-                    key={file.path}
+                    key={`${file.path}-${index}`}
                     onClick={() => setSelectedFile(file)}
                     className={`p-3 rounded-xl border cursor-pointer transition-all ${
                       selectedFile.path === file.path

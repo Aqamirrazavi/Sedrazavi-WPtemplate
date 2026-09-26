@@ -24,6 +24,7 @@ import {
   Lock
 } from 'lucide-react';
 import { getStoredClientAccounts } from '../utils/clientAccountsStorage';
+import { CaseProgressTracker } from './CaseProgressTracker';
 
 interface CaseTrackingPageViewProps {
   onBackToHome: () => void;
@@ -586,6 +587,16 @@ export const CaseTrackingPageView: React.FC<CaseTrackingPageViewProps> = ({
                 {searchedCase.attorneySummary}
               </p>
             </div>
+
+            {/* Visual Case Progress Tracker Component (Multi-step judicial timeline) */}
+            <CaseProgressTracker
+              steps={searchedCase.steps}
+              caseNumber={searchedCase.caseNumber}
+              statusCode={searchedCase.statusCode}
+              currentStatusText={searchedCase.status}
+              nextHearingDate={searchedCase.nextHearingDate}
+              hearingDaysRemaining={searchedCase.hearingDaysRemaining}
+            />
 
             {/* Visual Judicial Timeline */}
             <div className="space-y-4">

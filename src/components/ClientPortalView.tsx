@@ -34,6 +34,7 @@ import {
   updateClientAccount,
   normalizeIranPhone
 } from '../utils/clientAccountsStorage';
+import { ClientPortalQuickAccessWidget } from './ClientPortalQuickAccessWidget';
 
 interface ClientCase {
   id: string;
@@ -306,6 +307,18 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* New Quick Access Dashboard Widget (Recent Case Updates & Upcoming Hearing Dates) */}
+      <ClientPortalQuickAccessWidget
+        cases={MOCK_CLIENT_CASES}
+        activeCaseId={selectedCaseId}
+        onSelectCase={(caseId) => {
+          setSelectedCaseId(caseId);
+          setActiveTab('case');
+        }}
+        onSwitchTab={setActiveTab}
+        onOpenBooking={onOpenBooking}
+      />
 
       {/* Case Selector Dropdown / Pills */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm">

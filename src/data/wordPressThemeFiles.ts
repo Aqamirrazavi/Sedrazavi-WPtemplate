@@ -6078,10 +6078,10 @@ get_header();
   },
 
   {
-    path: 'style.css',
-    filename: 'style.css',
-    category: 'استایل و دارایی‌ها (Assets)',
-    description: 'فایل هدر استاندارد پوسته وردپرس دکتر سیده مریم رضوی (Part 1.1 Specification)',
+    path: 'specs/part-1-1-style-spec.css',
+    filename: 'part-1-1-style-spec.css',
+    category: 'مستندات و زبان',
+    description: 'فایل مشخصات و استانداردهای هدر استایل پوسته وردپرس دکتر سیده مریم رضوی (Part 1.1 Specification)',
     code: `/*
 Theme Name: قالب اختصاصی وکیل دکتر سیده مریم رضوی
 Theme URI: https://sedrazavi-law.ir
@@ -6125,10 +6125,10 @@ body {
   },
 
   {
-    path: 'functions.php',
-    filename: 'functions.php',
-    category: 'قالب اصلی (Templates)',
-    description: 'هسته اصلی توابع وردپرس، ثبت شورت‌کدها، پست‌تایپ‌ها، متادیتاها و اسکریپت‌ها (Part 1.2 Specification)',
+    path: 'specs/part-1-2-functions-spec.php',
+    filename: 'part-1-2-functions-spec.php',
+    category: 'مستندات و زبان',
+    description: 'مشخصات فنی و توابع استاندارد ثبت شورت‌کدها، پست‌تایپ‌ها و متادیتاها (Part 1.2 Specification)',
     code: `<?php
 /**
  * SedRazavi Law Firm Theme Functions & Definitions
@@ -6223,10 +6223,10 @@ add_action('init', 'sedrazavi_register_custom_post_types');
   },
 
   {
-    path: 'header.php',
-    filename: 'header.php',
-    category: 'قالب اصلی (Templates)',
-    description: 'سربرگ اصلی پوسته شامل متاتگ‌های امنیتی، ناوبری ریسپانسیو و اسلایدر عبارات حکیمانه (Part 1.3 Specification)',
+    path: 'specs/part-1-3-header-spec.php',
+    filename: 'part-1-3-header-spec.php',
+    category: 'مستندات و زبان',
+    description: 'مشخصات سربرگ اصلی پوسته شامل متاتگ‌های امنیتی، ناوبری ریسپانسیو و اسلایدر عبارات حکیمانه (Part 1.3 Specification)',
     code: `<?php
 /**
  * The header for SedRazavi Law Firm Theme
