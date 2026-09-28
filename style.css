@@ -1,0 +1,36 @@
+/*
+Theme Name: SedRazavi Law Firm (پوسته حقوقی و وکالت سید رضوی)
+Theme URI: https://t.me/sedrazavi
+Author: دفتر وکالت سید رضوی (سیده مریم رضوی و سید امیر حسین رضوی فردویی)
+Author URI: https://t.me/sedrazavi
+Description: پوسته اختصاصی، فوق‌پیشرفته و هوشمند دفاتر وکالت و داوری بین‌المللی بر پایه معماری هایبرید مدرن React 19 + Tailwind CSS و فریم‌ورک استاندارد وردپرس. مجهز به شورت‌کدهای هوشمند جهت تعبیه در المنتور، ماشین‌حساب‌های قضایی و دیه، کارتابل استعلام پرونده موکلین و سامانه رزرو وقت آنلاین.
+Version: 2.5.0
+Requires at least: 6.0
+Tested up to: 6.7
+Requires PHP: 8.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: sedrazavi
+Tags: law-firm, legal, attorney, rtl-language-support, custom-colors, theme-options, translation-ready
+
+================================================================================
+WordPress Hybrid Theme Stylesheet
+این فایل شناسنامه رسمی پوسته در پیشخوان وردپرس (نمایش > پوسته‌ها) است.
+استایل‌های کامپایل‌شده فرانت‌اند React و Tailwind از طریق functions.php و فایل
+public/app-dist/index.css یا dist/assets/*.css به صورت استاندارد بارگذاری می‌شوند.
+================================================================================
+*/
+
+body {
+    direction: rtl;
+    text-align: right;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Vazirmatn", "IRANSans", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #070D1E;
+    color: #F8FAFC;
+}
+
+#root {
+    min-height: 100vh;
+}

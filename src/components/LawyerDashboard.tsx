@@ -19,6 +19,9 @@ import { AdminInvoicesTab } from './admin/AdminInvoicesTab';
 import { AdminEmailsTab } from './admin/AdminEmailsTab';
 import { ClientAccountManager } from './ClientAccountManager';
 import { CourtFeeCalculator } from './legal-finance/CourtFeeCalculator';
+import { HtmlCssExportModal } from './HtmlCssExportModal';
+import { ReactShortcodeGeneratorModal } from './ReactShortcodeGeneratorModal';
+import { AdminReactShortcodesTab } from './admin/AdminReactShortcodesTab';
 import {
   LawyerSiteProfile,
   getStoredLawyerProfile,
@@ -56,6 +59,8 @@ import {
   ChevronDown,
   Calculator,
   UserCheck,
+  Code,
+  FileCode,
 } from 'lucide-react';
 
 export type AdminSubTabKey =
@@ -74,7 +79,8 @@ export type AdminSubTabKey =
   | 'backup'
   | 'logs'
   | 'comments'
-  | 'customizer';
+  | 'customizer'
+  | 'react-php-generator';
 
 interface LawyerDashboardProps {
   initialPortalMode?: 'attorney' | 'client';
@@ -119,6 +125,8 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('همه');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showManualAccountModal, setShowManualAccountModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showReactPhpGeneratorModal, setShowReactPhpGeneratorModal] = useState(false);
 
   // New Case Form state
   const [newCaseNumber, setNewCaseNumber] = useState(`۱۴۰۳-${(cases.length + 1).toString().padStart(3, '0')}`);
@@ -247,6 +255,26 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setShowReactPhpGeneratorModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#0B132B] to-[#1C2541] hover:brightness-110 text-[#D4AF37] border border-[#D4AF37]/50 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+              title="مولد قالب فایل PHP شورت‌کدهای React همراه با wp_enqueue_script و wp_localize_script"
+            >
+              <FileCode className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>مولد PHP شورت‌کدهای React</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#D4AF37] text-[#0B132B] font-bold">وردپرس</span>
+            </button>
+
+            <button
+              onClick={() => setShowExportModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-[#AA820A] dark:text-[#F3E5AB] border border-[#D4AF37]/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+              title="استخراج کدهای آماده HTML و CSS برای ویجت‌های المنتور و گوتنبرگ وردپرس + راهنمای REST API"
+            >
+              <Code className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>استخراج HTML / CSS برای المنتور</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#D4AF37] text-[#0B132B] font-bold">ویجت</span>
+            </button>
+
             <button
               onClick={() => setShowManualAccountModal(true)}
               className="px-3.5 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
@@ -462,6 +490,18 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             <Sliders className="w-3.5 h-3.5 text-[#AA820A] dark:text-[#0B132B]" />
             <span>۱۶. هویت کامل وکیل</span>
           </button>
+
+          <button
+            onClick={() => setActiveSubTab('react-php-generator')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'react-php-generator'
+                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm font-bold'
+                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <FileCode className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>۱۷. مولد PHP شورت‌کدهای React</span>
+          </button>
         </div>
 
         {/* Content Views */}
@@ -513,6 +553,8 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             profile={lawyerProfile}
             onUpdateProfile={handleProfileUpdated}
           />
+        ) : activeSubTab === 'react-php-generator' ? (
+          <AdminReactShortcodesTab onOpenModal={() => setShowReactPhpGeneratorModal(true)} />
         ) : (
           <div className="space-y-8">
             {/* Onboarding & Customization Wizard Banner for Purchasing Attorneys */}
@@ -799,6 +841,18 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
         onAccountCreated={(acc) => {
           // Add notification or handle state if needed
         }}
+      />
+
+      {/* HTML & CSS Snippets Export & WordPress Integration Guide Modal */}
+      <HtmlCssExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+      />
+
+      {/* React UI Components PHP Shortcode Template Generator Modal */}
+      <ReactShortcodeGeneratorModal
+        isOpen={showReactPhpGeneratorModal}
+        onClose={() => setShowReactPhpGeneratorModal(false)}
       />
     </div>
   );

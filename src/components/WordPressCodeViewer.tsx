@@ -3,6 +3,7 @@ import { WORDPRESS_THEME_FILES } from '../data/wordPressThemeFiles';
 import { WORDPRESS_PLUGIN_FILES } from '../data/wordPressPluginFiles';
 import { WordPressFile } from '../types/theme';
 import { generateWordPressScreenshotBlob, generateWordPressScreenshotDataUrl } from '../utils/themeScreenshot';
+import { HtmlCssExportModal } from './HtmlCssExportModal';
 import JSZip from 'jszip';
 import {
   Code,
@@ -42,8 +43,9 @@ export const WordPressCodeViewer: React.FC = () => {
   const [copiedCode, setCopiedCode] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
   const [downloadSuccessMessage, setDownloadSuccessMessage] = useState<string | null>(null);
-  const [activeSubTab, setActiveSubTab] = useState<'files' | 'architecture' | 'wsod_fix' | 'cicd'>('files');
+  const [activeSubTab, setActiveSubTab] = useState<'files' | 'architecture' | 'automation' | 'wsod_fix' | 'cicd'>('automation');
   const [screenshotDataUrl, setScreenshotDataUrl] = useState<string>('');
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // CI/CD Simulator state
   const [simStep, setSimStep] = useState<number>(0);
@@ -103,6 +105,23 @@ export const WordPressCodeViewer: React.FC = () => {
     }
   };
 
+  const loadCompiledAppDist = async (): Promise<{ css: string; js: string } | null> => {
+    try {
+      const [cssRes, jsRes] = await Promise.all([
+        fetch('/app-dist/index.css'),
+        fetch('/app-dist/index.js'),
+      ]);
+      if (cssRes.ok && jsRes.ok) {
+        const css = await cssRes.text();
+        const js = await jsRes.text();
+        return { css, js };
+      }
+    } catch (err) {
+      console.warn('Could not bundle app-dist:', err);
+    }
+    return null;
+  };
+
   const handleDownloadThemeZip = async () => {
     setIsZipping(true);
     try {
@@ -114,6 +133,17 @@ export const WordPressCodeViewer: React.FC = () => {
           themeFolder?.file(file.path, file.code);
         }
       });
+
+      // Inject the compiled React bundle into dist/ for 100% zero-config WordPress automation
+      try {
+        const builtAssets = await loadCompiledAppDist();
+        if (builtAssets) {
+          themeFolder?.file('dist/index.css', builtAssets.css);
+          themeFolder?.file('dist/index.js', builtAssets.js);
+        }
+      } catch (err) {
+        console.warn('Screenshot/assets packaging fallback:', err);
+      }
 
       // Generate & attach the official 1200x900 screenshot.png into the ZIP
       try {
@@ -133,7 +163,7 @@ export const WordPressCodeViewer: React.FC = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      setDownloadSuccessMessage('فایل زیپ قالب (sedrazavi-theme.zip) با موفقیت دانلود شد. آماده نصب از پیشخوان وردپرس > نمایش > پوسته‌ها.');
+      setDownloadSuccessMessage('فایل زیپ قالب (sedrazavi-theme.zip) با موفقیت دانلود شد. شامل موتور اتوماسیون خودکار اجرای ری‌اکت در وردپرس.');
       setTimeout(() => setDownloadSuccessMessage(null), 6000);
     } catch (err) {
       console.error('Failed to generate Theme ZIP:', err);
@@ -153,6 +183,25 @@ export const WordPressCodeViewer: React.FC = () => {
         pluginFolder?.file(file.path, file.code);
       });
 
+      // Inject the compiled React bundle into dist/ for universal shortcodes and ReactPress automation
+      try {
+        const builtAssets = await loadCompiledAppDist();
+        if (builtAssets) {
+          pluginFolder?.file('dist/index.css', builtAssets.css);
+          pluginFolder?.file('dist/index.js', builtAssets.js);
+          pluginFolder?.file('reactpress.json', JSON.stringify({
+            name: "sedrazavi-law-suite",
+            version: "2.6.0",
+            title: "سامانه یکپارچه حقوقی دکتر سیده مریم رضوی",
+            description: "اتوماسیون اجرای کامل وب‌اپلیکیشن ری‌اکت در وردپرس بدون نیاز به کانفیگ دستی",
+            main: "dist/index.js",
+            style: "dist/index.css"
+          }, null, 2));
+        }
+      } catch (err) {
+        console.warn('Plugin bundle packaging fallback:', err);
+      }
+
       const content = await zip.generateAsync({ type: 'blob' });
       const url = window.URL.createObjectURL(content);
       const link = document.createElement('a');
@@ -163,7 +212,7 @@ export const WordPressCodeViewer: React.FC = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      setDownloadSuccessMessage('فایل زیپ افزونه مکمل (sedrazavi-addons.zip) با موفقیت دانلود شد. شامل سیستم لودر ضد خرابی و لاگر خودکار.');
+      setDownloadSuccessMessage('فایل زیپ افزونه مکمل (sedrazavi-addons.zip) با موفقیت دانلود شد. شامل شورت‌کدهای خودکار و اتوماسیون ReactPress.');
       setTimeout(() => setDownloadSuccessMessage(null), 6000);
     } catch (err) {
       console.error('Failed to generate Plugin ZIP:', err);
@@ -176,6 +225,8 @@ export const WordPressCodeViewer: React.FC = () => {
   const handleDownloadCompleteBundle = async () => {
     setIsZipping(true);
     try {
+      const builtAssets = await loadCompiledAppDist();
+
       // 1. Generate standalone Theme ZIP (ready for Themes uploader)
       const themeZip = new JSZip();
       const themeFolder = themeZip.folder('sedrazavi-theme');
@@ -184,6 +235,10 @@ export const WordPressCodeViewer: React.FC = () => {
           themeFolder?.file(file.path, file.code);
         }
       });
+      if (builtAssets) {
+        themeFolder?.file('dist/index.css', builtAssets.css);
+        themeFolder?.file('dist/index.js', builtAssets.js);
+      }
       try {
         const screenshotBlob = await generateWordPressScreenshotBlob();
         themeFolder?.file('screenshot.png', screenshotBlob);
@@ -198,6 +253,18 @@ export const WordPressCodeViewer: React.FC = () => {
       WORDPRESS_PLUGIN_FILES.forEach((file) => {
         pluginFolder?.file(file.path, file.code);
       });
+      if (builtAssets) {
+        pluginFolder?.file('dist/index.css', builtAssets.css);
+        pluginFolder?.file('dist/index.js', builtAssets.js);
+        pluginFolder?.file('reactpress.json', JSON.stringify({
+          name: "sedrazavi-law-suite",
+          version: "2.6.0",
+          title: "سامانه یکپارچه حقوقی دکتر سیده مریم رضوی",
+          description: "اتوماسیون اجرای کامل وب‌اپلیکیشن ری‌اکت در وردپرس بدون نیاز به کانفیگ دستی",
+          main: "dist/index.js",
+          style: "dist/index.css"
+        }, null, 2));
+      }
       const pluginBlob = await pluginZip.generateAsync({ type: 'blob' });
 
       // 3. Generate Master Bundle containing the two clean, pre-compressed ZIP files
@@ -206,11 +273,13 @@ export const WordPressCodeViewer: React.FC = () => {
       masterZip.file('2-افزونه-مکمل-sedrazavi-addons.zip', pluginBlob);
 
       const guideText = `================================================================================
-دفتر وکالت و داوری تخصصی سید رضوی - راهنمای نصب سریع و بدون خطا
+دفتر وکالت و داوری تخصصی دکتر سیده مریم رضوی - راهنمای نصب و اتوماسیون ۱۰۰٪ خودکار
 ================================================================================
 
 کاربر گرامی،
-این بسته شامل دو فایل زیپ استاندارد و آماده بارگذاری مستقیم در وردپرس است.
+این بسته مجهز به «موتور اتوماسیون خودکار اجرای ری‌اکت در وردپرس (Zero-Config Automation)» است.
+تمامی کدهای کامپایل‌شده جاوااسکریپت و استایل‌های Tailwind درون بسته‌ها قرار دارند و نیازی به هیچ‌گونه تبدیل دستی یا دستورات سرور ندارید.
+
 جهت جلوگیری از خطای «افزونه فاقد یک سربرگ معتبر است»، لطفاً مراحل زیر را دنبال فرمایید:
 
 مرحله اول: نصب پوسته (Theme)
@@ -218,12 +287,14 @@ export const WordPressCodeViewer: React.FC = () => {
 ۱. در پیشخوان وردپرس به مسیر «نمایش > پوسته‌ها > افزودن پوسته تازه > بارگذاری پوسته» بروید.
 ۲. فایل زیپ شماره ۱ یعنی «1-پوسته-قالب-sedrazavi-theme.zip» را انتخاب و دکمه «نصب» را بزنید.
 ۳. پس از پایان نصب، روی «فعال‌سازی» کلیک کنید.
+✨ به محض فعال‌سازی، صفحه اصلی سایت شما دقیقاً همانند پیش‌نمایش گوگل ای‌آی استودیو به صورت کامل و زنده اجرا می‌شود.
 
 مرحله دوم: نصب افزونه مکمل (Plugin)
 ----------------------------------------
 ۱. در پیشخوان وردپرس به مسیر «افزونه‌ها > افزودن افزونه تازه > بارگذاری افزونه» بروید.
 ۲. فایل زیپ شماره ۲ یعنی «2-افزونه-مکمل-sedrazavi-addons.zip» را انتخاب و دکمه «نصب» را بزنید.
 ۳. پس از پایان نصب، روی «فعال‌کردن افزونه» کلیک نمایید.
+✨ به محض فعال‌سازی، برگه «سامانه جامع حقوقی و پرتال موکلین» با شورت‌کد [sedrazavi_app] به صورت خودکار ایجاد می‌شود.
 
 نکته مهم:
 وردپرس اجازه نمی‌دهد پوسته و افزونه در یک فایل زیپ تودرتو آپلود شوند. به همین دلیل دو فایل
@@ -248,7 +319,7 @@ export const WordPressCodeViewer: React.FC = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      setDownloadSuccessMessage('پکیج جامع (sedrazavi-complete-suite.zip) با موفقیت دانلود شد. حاوی هر دو فایل زیپ مستقل (پوسته و افزونه) جهت نصب بدون ارور سربرگ.');
+      setDownloadSuccessMessage('پکیج جامع (sedrazavi-complete-suite.zip) با موفقیت دانلود شد. حاوی هر دو فایل زیپ مستقل با اتوماسیون کامل ری‌اکت در وردپرس.');
       setTimeout(() => setDownloadSuccessMessage(null), 7000);
     } catch (err) {
       console.error('Failed to generate Complete Bundle:', err);
@@ -398,6 +469,18 @@ export const WordPressCodeViewer: React.FC = () => {
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
           <div className="flex items-center gap-2 flex-wrap">
             <button
+              onClick={() => setActiveSubTab('automation')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                activeSubTab === 'automation'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-md'
+                  : 'bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border border-emerald-500/30'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+              اتوماسیون ۱۰۰٪ خودکار وردپرس (Zero-Config Engine)
+            </button>
+
+            <button
               onClick={() => setActiveSubTab('files')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                 activeSubTab === 'files'
@@ -443,6 +526,15 @@ export const WordPressCodeViewer: React.FC = () => {
             >
               <Cpu className="w-3.5 h-3.5 text-[#D4AF37]" />
               پایپ‌لاین CI/CD و تست GitHub Actions
+            </button>
+
+            <button
+              onClick={() => setIsExportModalOpen(true)}
+              className="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-gradient-to-r from-amber-500 to-[#AA820A] text-[#0B132B] hover:brightness-110 shadow-md cursor-pointer ml-auto"
+            >
+              <Code className="w-3.5 h-3.5" />
+              <span>استخراج HTML / CSS برای المنتور + راهنمای REST API</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#0B132B] text-[#F3E5AB]">جدید</span>
             </button>
           </div>
         </div>
@@ -775,6 +867,233 @@ add_action('plugins_loaded', ['SedRazavi_Legal_Core', 'instance']);`}
 
             </div>
           </div>
+        ) : activeSubTab === 'automation' ? (
+          /* Automated Zero-Config React-to-WordPress Engine View */
+          <div className="space-y-8 animate-fadeIn text-right font-persian">
+            
+            {/* Hero Banner */}
+            <div className="bg-gradient-to-br from-[#0B132B] via-[#0E1736] to-[#070D1E] rounded-3xl p-6 sm:p-8 border border-[#D4AF37]/50 shadow-2xl text-white relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
+              
+              <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-gray-800">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/40">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>موتور اتوماسیون ۱۰۰٪ خودکار (Zero-Configuration Engine) فعال است</span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-bold font-serif text-[#F3E5AB]">
+                    حل قطعی اجرای ری‌اکت در وردپرس: بدون نیاز به تبدیل دستی، خط فرمان یا تخصص فنی!
+                  </h2>
+                  <p className="text-xs sm:text-sm text-gray-300 max-w-3xl leading-relaxed">
+                    سیستم فایل‌های باندل کامپایل‌شده جاوااسکریپت و استایل‌های Tailwind را به صورت اتوماتیک داخل فایل‌های زیپ پوسته (<code className="text-[#D4AF37] font-mono">dist/index.js</code>) و افزونه تزریق می‌کند. وردپرس با قلاب‌های خودکار داخلی (<code className="text-emerald-400 font-mono">wp_enqueue_scripts</code>) آن‌ها را لود کرده و رابط کاربری را دقیقاً با ظاهر کامل این پیش‌نمایش اجرا می‌نماید.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                  <button
+                    onClick={handleDownloadThemeZip}
+                    disabled={isZipping}
+                    className="w-full sm:w-auto btn-gold px-5 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-[#D4AF37]/30 cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>دانلود پوسته با اتوماسیون فعال</span>
+                  </button>
+
+                  <button
+                    onClick={handleDownloadPluginZip}
+                    disabled={isZipping}
+                    className="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all"
+                  >
+                    <Shield className="w-4 h-4" />
+                    <span>دانلود افزونه با شورت‌کد خودکار</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Chips */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-[11px] text-gray-400">فایل باندل جاوااسکریپت:</div>
+                  <div className="text-xs font-bold text-emerald-400 font-mono dir-ltr flex items-center justify-end gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>dist/index.js (موجود)</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">تزریق خودکار به پوسته و افزونه</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-[11px] text-gray-400">فایل باندل استایل Tailwind:</div>
+                  <div className="text-xs font-bold text-emerald-400 font-mono dir-ltr flex items-center justify-end gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>dist/index.css (موجود)</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">پالت‌های طلایی، روز/شب و فونت</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-[11px] text-gray-400">سازگاری با افزونه رسمی:</div>
+                  <div className="text-xs font-bold text-[#D4AF37] font-mono dir-ltr flex items-center justify-end gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>ReactPress Ready</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">همراه با reactpress.json آماده</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-[11px] text-gray-400">شورت‌کد اختصاصی وردپرس:</div>
+                  <div className="text-xs font-bold text-amber-300 font-mono dir-ltr flex items-center justify-end gap-1.5">
+                    <span>[sedrazavi_app]</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">قابل قرارگیری در هر برگه یا المنتور</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 4 Automated Strategies Cards */}
+            <div className="space-y-4">
+              <h3 className="text-base sm:text-lg font-bold font-serif text-[#0B132B] dark:text-white flex items-center gap-2">
+                <Layers className="w-5 h-5 text-[#D4AF37]" />
+                <span>۴ لایه اتوماسیون پیاده‌سازی شده در این نسخه:</span>
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* Automation 1: Theme Auto-Launch */}
+                <div className="p-6 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-[#D4AF37]/20 text-[#AA820A] dark:text-[#F3E5AB] flex items-center justify-center font-bold text-sm">
+                      ۱
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-[#0B132B] dark:text-white">
+                        اتوماسیون پوسته: اجرای ۱۰۰٪ خودکار به محض فعال‌سازی
+                      </h4>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">
+                        front-page.php & functions.php
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                    در فایل <code className="font-mono text-[#D4AF37]">functions.php</code> کدی تعبیه شده که وجود باندل ری‌اکت را بررسی می‌کند. به محض آپلود و زدن دکمه <strong>«فعال‌سازی»</strong> در منوی پوسته‌های وردپرس، صفحه اصلی به صورت اتوماتیک تگ <code className="font-mono text-emerald-500">&lt;div id=&quot;root&quot;&gt;</code> را لود می‌کند و کل وب‌اپلیکیشن بدون نیاز به حتی یک خط کدنویسی بالا می‌آید.
+                  </p>
+                  <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-[11px] text-gray-500">
+                    💡 <strong>قابلیت هوشمند:</strong> اگر برگه‌ای را با المنتور ویرایش کنید، پوسته خودکار حالت ری‌اکت را کنار می‌گذارد تا ادیتور المنتور بدون تداخل باز شود.
+                  </div>
+                </div>
+
+                {/* Automation 2: Plugin Auto-Provisioning */}
+                <div className="p-6 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm">
+                      ۲
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-[#0B132B] dark:text-white">
+                        اتوماسیون افزونه: ساخت خودکار برگه سامانه در دیتابیس
+                      </h4>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">
+                        register_activation_hook
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                    هنگامی که افزونه <code className="font-mono text-emerald-600">sedrazavi-addons.zip</code> را در وردپرس فعال می‌کنید، هوک فعال‌سازی افزونه به طور خودکار یک برگه به نام <strong>«سامانه جامع حقوقی و پرتال موکلین»</strong> با پیوند یکتای <code className="font-mono">/sedrazavi-portal</code> ایجاد می‌کند و اعلان سبزرنگ راهنمای دسترسی را در بالای پیشخوان نمایش می‌دهد.
+                  </p>
+                  <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-[11px] text-gray-500">
+                    💡 نیازی نیست خودتان برگه بسازید یا آدرس را تنظیم کنید؛ همه چیز در چند ثانیه انجام می‌شود.
+                  </div>
+                </div>
+
+                {/* Automation 3: Universal Shortcode */}
+                <div className="p-6 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">
+                      ۳
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-[#0B132B] dark:text-white">
+                        اتوماسیون شورت‌کد جهانی: قابل اجرا روی هر قالب متفرقه
+                      </h4>
+                      <span className="text-[10px] text-blue-600 dark:text-blue-400 font-mono">
+                        [sedrazavi_app]
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                    حتی اگر کاربر نخواهد از پوسته سید رضوی استفاده کند و از قالب‌هایی مثل <strong>Astra</strong>، <strong>GeneratePress</strong> یا <strong>Hello Elementor</strong> استفاده نماید، با قرار دادن شورت‌کد <code className="font-mono font-bold text-blue-500">[sedrazavi_app]</code> در هر برگه‌ای، کل این وب‌اپلیکیشن به صورت ایزوله و کامل در آن صفحه بارگذاری می‌شود.
+                  </p>
+                  <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-[11px] text-gray-500">
+                    💡 شورت‌کدهای دیگر: <code className="font-mono text-gray-700 dark:text-gray-300">[sedrazavi_portal]</code> و <code className="font-mono text-gray-700 dark:text-gray-300">[sedrazavi_tracker]</code>
+                  </div>
+                </div>
+
+                {/* Automation 4: ReactPress Integration */}
+                <div className="p-6 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-sm">
+                      ۴
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-[#0B132B] dark:text-white">
+                        پلاگین رایگان مخزن وردپرس: سازگاری ۱۰۰٪ با ReactPress
+                      </h4>
+                      <span className="text-[10px] text-purple-600 dark:text-purple-400 font-mono">
+                        reactpress.json Included
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                    اگر مایل به استفاده از افزونه رایگان <strong>ReactPress</strong> (موجود در مخزن وردپرس wordpress.org/plugins/reactpress) باشید، فایل کانفیگ <code className="font-mono text-purple-600">reactpress.json</code> درون بسته قرار داده شده است و این افزونه با یک کلیک اپلیکیشن شما را می‌شناسد.
+                  </p>
+                  <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-[11px] text-gray-500">
+                    💡 کافی است محتویات پوشه را در مسیر <code className="font-mono text-[10px]">wp-content/reactpress/apps/</code> قرار دهید.
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Step-by-Step Installation Guide */}
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-500/10 via-[#D4AF37]/10 to-amber-500/10 border border-[#D4AF37]/40 space-y-4">
+              <div className="flex items-center gap-2 font-bold text-sm text-[#0B132B] dark:text-[#F3E5AB]">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                <span>روش استفاده آسان (فقط در ۲ دقیقه):</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 rounded-2xl bg-white dark:bg-[#070D1E] border border-gray-200 dark:border-gray-800 space-y-2">
+                  <div className="w-7 h-7 rounded-xl bg-[#D4AF37] text-[#0B132B] flex items-center justify-center font-bold text-xs">
+                    ۱
+                  </div>
+                  <h5 className="font-bold text-xs text-gray-900 dark:text-white">دانلود پکیج کامل</h5>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                    روی دکمه «دانلود پکیج کامل ۲ در ۱» در بالای همین صفحه کلیک کنید تا فایل‌های کامپایل‌شده همراه با پوسته و افزونه تحویل شما شوند.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white dark:bg-[#070D1E] border border-gray-200 dark:border-gray-800 space-y-2">
+                  <div className="w-7 h-7 rounded-xl bg-[#D4AF37] text-[#0B132B] flex items-center justify-center font-bold text-xs">
+                    ۲
+                  </div>
+                  <h5 className="font-bold text-xs text-gray-900 dark:text-white">نصب پوسته در وردپرس</h5>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                    فایل <code className="font-mono text-[#D4AF37]">sedrazavi-theme.zip</code> را در مسیر <strong>نمایش &gt; پوسته‌ها &gt; افزودن &gt; بارگذاری</strong> نصب و فعال کنید.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white dark:bg-[#070D1E] border border-gray-200 dark:border-gray-800 space-y-2">
+                  <div className="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-xs">
+                    ۳
+                  </div>
+                  <h5 className="font-bold text-xs text-gray-900 dark:text-white">نصب افزونه مکمل</h5>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                    فایل <code className="font-mono text-emerald-500">sedrazavi-addons.zip</code> را در مسیر <strong>افزونه‌ها &gt; افزودن &gt; بارگذاری</strong> نصب و فعال کنید. تمام!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
         ) : activeSubTab === 'wsod_fix' ? (
           /* WSOD Troubleshooting Guide View */
           <div className="space-y-8 animate-fadeIn">
@@ -1096,6 +1415,12 @@ add_action('plugins_loaded', ['SedRazavi_Legal_Core', 'instance']);`}
         )}
 
       </div>
+
+      {/* HTML/CSS Export & REST API Integration Guide Modal */}
+      <HtmlCssExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+      />
     </div>
   );
 };

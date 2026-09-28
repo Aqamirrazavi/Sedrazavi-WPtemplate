@@ -20,7 +20,11 @@ import {
   Activity,
   Calculator,
   Search,
+  Code,
+  Download,
+  BookOpen,
 } from 'lucide-react';
+import { HtmlCssExportModal } from '../HtmlCssExportModal';
 
 interface AttorneyExecutiveDashboardProps {
   cases: CaseItem[];
@@ -35,6 +39,7 @@ export const AttorneyExecutiveDashboard: React.FC<AttorneyExecutiveDashboardProp
 }) => {
   // Time filter for Traffic & Client Growth Trend
   const [trafficTimeframe, setTrafficTimeframe] = useState<'weekly' | 'monthly' | 'quarterly' | 'yearly'>('monthly');
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // Reminders interactive checklist (Section 7)
   const [reminders, setReminders] = useState([
@@ -191,6 +196,36 @@ export const AttorneyExecutiveDashboard: React.FC<AttorneyExecutiveDashboardProp
 
   return (
     <div className="space-y-8">
+      {/* Quick Access Export HTML/CSS & Integration Tool Banner */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#0B132B] via-[#16203B] to-[#0B132B] border border-[#D4AF37]/50 shadow-lg text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-[#D4AF37] text-[#0B132B] shadow-md shadow-[#D4AF37]/30">
+            <Code className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-bold text-[#F3E5AB]">
+                ابزار استخراج کدهای آماده HTML و CSS (ویژه المنتور، گوتنبرگ و REST API وردپرس)
+              </h3>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
+                حل مشکل نصب
+              </span>
+            </div>
+            <p className="text-xs text-gray-300 mt-0.5">
+              کپی-پیست مستقیم اجزای بصری سامانه در قالب ویجت Custom HTML المنتور بدون نیاز به نصب بسته کامل، همراه با هوک‌های اختصاصی اتصال به REST API
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setIsExportModalOpen(true)}
+          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] font-bold text-xs hover:brightness-110 shadow-md flex items-center gap-2 shrink-0 transition-all cursor-pointer"
+        >
+          <Code className="w-4 h-4" />
+          <span>باز کردن جعبه‌ابزار استخراج</span>
+        </button>
+      </div>
+
       {/* 1. SECTION 1: 4 KPI CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Card 1 */}
@@ -663,6 +698,12 @@ export const AttorneyExecutiveDashboard: React.FC<AttorneyExecutiveDashboardProp
           </form>
         </div>
       </div>
+
+      {/* HTML & CSS Snippets Export & WordPress Integration Guide Modal */}
+      <HtmlCssExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+      />
     </div>
   );
 };

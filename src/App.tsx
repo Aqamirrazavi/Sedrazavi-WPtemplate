@@ -61,6 +61,7 @@ import { GoldScrollSidebar } from './components/GoldScrollSidebar';
 import { TeamHierarchySection } from './components/TeamHierarchySection';
 import { DynamicSeoHead } from './components/DynamicSeoHead';
 import { QuickCaseTrackerModal } from './components/QuickCaseTrackerModal';
+import { HtmlCssExportModal } from './components/HtmlCssExportModal';
 import { AboutPageView } from './components/AboutPageView';
 import { ServicesPageView } from './components/ServicesPageView';
 import { ContactPageView } from './components/ContactPageView';
@@ -96,6 +97,7 @@ export default function App() {
   const [isQuickCallbackOpen, setIsQuickCallbackOpen] = useState(false);
   const [isLiveConsultationOpen, setIsLiveConsultationOpen] = useState(false);
   const [isQuickCaseTrackerOpen, setIsQuickCaseTrackerOpen] = useState(false);
+  const [isHtmlCssExportOpen, setIsHtmlCssExportOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<'guest' | 'client' | 'lawyer' | 'admin'>('guest');
   const [otpModalInitialTab, setOtpModalInitialTab] = useState<'client' | 'lawyer'>('client');
@@ -222,6 +224,7 @@ export default function App() {
         onOpenHelp={() => setIsHelpOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
         onOpenSurvey={() => setIsSurveyOpen(true)}
+        onOpenHtmlCssExport={() => setIsHtmlCssExportOpen(true)}
         lawyerProfile={lawyerProfile}
         onSelectService={(serviceSlug) => {
           setActiveView('preview');
@@ -1403,6 +1406,12 @@ export default function App() {
         isOpen={isQuickCaseTrackerOpen}
         onClose={() => setIsQuickCaseTrackerOpen(false)}
         onOpenConsultation={() => handleBookService(SERVICES_DATA[0].title)}
+      />
+
+      {/* HTML & CSS Snippets Export & WordPress REST API / WP-GraphQL Integration Modal */}
+      <HtmlCssExportModal
+        isOpen={isHtmlCssExportOpen}
+        onClose={() => setIsHtmlCssExportOpen(false)}
       />
 
       {/* GDPR / Cookie Consent Banner (Section 13) */}

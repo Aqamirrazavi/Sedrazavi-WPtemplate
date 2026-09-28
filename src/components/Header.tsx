@@ -113,6 +113,7 @@ interface HeaderProps {
   onOpenHelp: () => void;
   onOpenTour: () => void;
   onOpenSurvey: () => void;
+  onOpenHtmlCssExport?: () => void;
   onOpenArticleArchive?: () => void;
   onOpenVideoArchive?: () => void;
   onSelectService?: (serviceSlug: string) => void;
@@ -134,6 +135,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenHelp,
   onOpenTour,
   onOpenSurvey,
+  onOpenHtmlCssExport,
   onOpenArticleArchive,
   onOpenVideoArchive,
   onSelectService,
@@ -218,6 +220,19 @@ export const Header: React.FC<HeaderProps> = ({
                   <Code className="w-3 h-3 text-[#D4AF37]" />
                   <span>کدهای تم و افزونه وردپرس</span>
                 </button>
+
+                {onOpenHtmlCssExport && (
+                  <button
+                    type="button"
+                    onClick={onOpenHtmlCssExport}
+                    className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:bg-[#D4AF37] hover:text-[#0B132B] text-[#F3E5AB] font-bold transition-all flex items-center gap-1 border border-[#D4AF37]/50 cursor-pointer shadow-sm"
+                    title="استخراج کدهای HTML و CSS ویژه ویجت‌های المنتور و گوتنبرگ وردپرس + راهنمای REST API"
+                  >
+                    <Code className="w-3 h-3 text-[#D4AF37]" />
+                    <span>استخراج HTML / CSS المنتور</span>
+                    <span className="text-[9px] px-1 py-0.2 rounded bg-[#D4AF37] text-[#0B132B] font-black">ویجت</span>
+                  </button>
+                )}
 
                 <button
                   type="button"

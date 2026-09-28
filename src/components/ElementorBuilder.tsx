@@ -28,12 +28,14 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { TextBannerSlider } from './TextBannerSlider';
+import { HtmlCssExportModal } from './HtmlCssExportModal';
 
 export const ElementorBuilder: React.FC = () => {
   const [selectedBlock, setSelectedBlock] = useState<ElementorBlockDef>(ELEMENTOR_BLOCKS_DATA[0]);
   const [activeCategory, setActiveCategory] = useState<string>('همه');
   const [copiedCode, setCopiedCode] = useState(false);
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // Custom live options state for selected block
   const [blockOptions, setBlockOptions] = useState<Record<string, any>>({
@@ -87,8 +89,18 @@ export const ElementorBuilder: React.FC = () => {
             </p>
           </div>
 
-          {/* Device Preview Switcher */}
-          <div className="flex items-center p-1 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsExportModalOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-[#AA820A] text-[#0B132B] font-bold text-xs hover:brightness-110 shadow-md flex items-center gap-2 cursor-pointer transition-all"
+            >
+              <Code className="w-4 h-4" />
+              <span>استخراج HTML / CSS مستقیم برای المنتور</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#0B132B] text-[#F3E5AB]">جدید</span>
+            </button>
+
+            {/* Device Preview Switcher */}
+            <div className="flex items-center p-1 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <button
               onClick={() => setPreviewDevice('desktop')}
               className={`p-2 rounded-lg text-xs font-semibold ${
@@ -118,6 +130,7 @@ export const ElementorBuilder: React.FC = () => {
             </button>
           </div>
         </div>
+      </div>
 
         {/* Category Tabs */}
         <div className="flex flex-wrap items-center gap-2">
@@ -400,6 +413,12 @@ export const ElementorBuilder: React.FC = () => {
         </div>
 
       </div>
+
+      {/* HTML & CSS Snippets Export & WordPress Integration Guide Modal */}
+      <HtmlCssExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+      />
     </div>
   );
 };

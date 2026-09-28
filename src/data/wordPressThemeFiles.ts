@@ -1317,6 +1317,36 @@ function sedrazavi_enqueue_assets() {
             'tracking_found'  => esc_html__('پرونده با موفقیت شناسایی شد.', 'sedrazavi'),
         )
     ));
+
+    // 4. Automated React SPA Engine (موتور اتوماسیون ۱۰۰٪ خودکار اجرای ری‌اکت در وردپرس)
+    $react_css = SEDRAZAVI_THEME_DIR . '/dist/index.css';
+    $react_js  = SEDRAZAVI_THEME_DIR . '/dist/index.js';
+
+    if (file_exists($react_css) && file_exists($react_js)) {
+        wp_enqueue_style(
+            'sedrazavi-react-bundle-style',
+            SEDRAZAVI_THEME_URI . '/dist/index.css',
+            array(),
+            filemtime($react_css)
+        );
+        wp_enqueue_script(
+            'sedrazavi-react-bundle-app',
+            SEDRAZAVI_THEME_URI . '/dist/index.js',
+            array(),
+            filemtime($react_js),
+            true
+        );
+
+        wp_localize_script('sedrazavi-react-bundle-app', 'SedRazaviWPConfig', array(
+            'siteUrl'    => home_url(),
+            'ajaxUrl'    => admin_url('admin-ajax.php'),
+            'themeUri'   => SEDRAZAVI_THEME_URI,
+            'nonce'      => wp_create_nonce('sedrazavi_security_nonce'),
+            'isLoggedIn' => is_user_logged_in(),
+            'siteTitle'  => get_bloginfo('name'),
+            'siteDesc'   => get_bloginfo('description'),
+        ));
+    }
 }
 add_action('wp_enqueue_scripts', 'sedrazavi_enqueue_assets');
 }
@@ -1740,14 +1770,13 @@ if (!defined('ABSPATH')) {
  * @version 2.6.0
  */
 
-get_header();
-
 // بررسی سازگاری کامل با المنتور (Elementor Compatibility)
 if (have_posts()) {
     while (have_posts()) {
         the_post();
         $elementor_data = get_post_meta(get_the_ID(), '_elementor_data', true);
         if (!empty($elementor_data)) {
+            get_header();
             the_content();
             get_footer();
             exit;
@@ -1755,6 +1784,41 @@ if (have_posts()) {
     }
     rewind_posts();
 }
+
+// موتور اتوماسیون ۱۰۰٪ خودکار اجرای ری‌اکت (Automated React SPA Engine)
+$react_bundle_exists = file_exists(get_template_directory() . '/dist/index.js');
+$is_php_mode = isset($_GET['mode']) && $_GET['mode'] === 'php';
+
+if ($react_bundle_exists && !$is_php_mode) {
+    ?><!DOCTYPE html>
+<html <?php language_attributes(); ?> dir="rtl">
+<head>
+    <meta charset="<?php bloginfo('charset'); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php wp_head(); ?>
+</head>
+<body <?php body_class('sedrazavi-react-app-body font-persian'); ?>>
+    <div id="root">
+        <!-- لودر هوشمند پیش از هیدراته شدن ری‌اکت -->
+        <div id="sedrazavi-app-preloader" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0B132B; color: #D4AF37; font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl;">
+            <div style="text-align: center; padding: 2rem;">
+                <div style="width: 48px; height: 48px; border: 3px solid rgba(212,175,55,0.2); border-top-color: #D4AF37; border-radius: 50%; margin: 0 auto 1.5rem; animation: spin 1s linear infinite;"></div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff;">سامانه یکپارچه حقوقی دکتر سیده مریم رضوی</h2>
+                <p style="font-size: 0.875rem; color: #D4AF37;">در حال اجرای اتوماسیون هوشمند پرتال و ابزارهای قضایی...</p>
+            </div>
+            <style>
+                @keyframes spin { to { transform: rotate(360deg); } }
+            </style>
+        </div>
+    </div>
+    <?php wp_footer(); ?>
+</body>
+</html>
+<?php
+    exit;
+}
+
+get_header();
 ?>
 
 <!-- بخش ۱: نکات و استوری‌های آموزشی حقوقی روز (Story Bar) -->
