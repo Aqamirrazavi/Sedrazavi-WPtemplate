@@ -1,0 +1,10 @@
+# Git ignore for SedRazavi Theme
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+node_modules/
+vendor/
+.vscode/
+.idea/
+*.zip

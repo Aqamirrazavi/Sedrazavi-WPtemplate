@@ -1,0 +1,33 @@
+name: Build WordPress Theme ZIP
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  build-zip:
+    name: Package SedRazavi Theme ZIP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate WordPress Archive with .distignore
+        uses: rudlinkon/action-wordpress-build-zip@master
+        with:
+          retention-days: 7
+          install-composer: false
+          npm-run-build: false
+
+      - name: Upload Theme Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sedrazavi-law-theme-latest
+          path: sedrazavi-law-theme.zip
+          retention-days: 7

@@ -1,0 +1,10 @@
+/* SedRazavi RTL Stylesheet */
+body {
+  direction: rtl;
+  unicode-bidi: embed;
+  text-align: right;
+}
+
+.prose {
+  text-align: right;
+}

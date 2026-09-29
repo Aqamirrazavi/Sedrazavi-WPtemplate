@@ -1,0 +1,38 @@
+# SedRazavi Law Firm - Security Hardening & Asset Protection
+# Version: 2.5.0
+
+# 1. Prevent Direct PHP Execution in inc & template parts
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^wp-content/themes/sedrazavi-law-theme/inc/.*.php$ - [F,L]
+RewriteRule ^wp-content/themes/sedrazavi-law-theme/languages/.*.pot$ - [F,L]
+RewriteRule ^wp-content/themes/sedrazavi-law-theme/.distignore$ - [F,L]
+RewriteRule ^wp-content/themes/sedrazavi-law-theme/.gitignore$ - [F,L]
+RewriteRule ^wp-content/uploads/sedrazavi-backups/.*$ - [F,L]
+</IfModule>
+
+# 2. Protect System & Configuration Files
+<FilesMatch "(.(bak|config|sql|fla|psd|ini|log|sh|inc|distignore)|readme.txt)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# 3. Leverage Browser Caching for Theme Assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+</IfModule>

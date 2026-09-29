@@ -214,7 +214,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => setActiveView('wordpress')}
+                  onClick={() => setActiveView('code')}
                   className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-[#D4AF37] hover:text-[#0B132B] font-bold transition-all flex items-center gap-1 cursor-pointer"
                 >
                   <Code className="w-3 h-3 text-[#D4AF37]" />
