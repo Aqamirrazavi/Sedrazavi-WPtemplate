@@ -18,6 +18,17 @@ get_header();
 ?>
 
 <main id="primary" class="site-main">
+    <!-- پیام دسترس‌پذیری برای کاربران بدون جاوااسکریپت (NoScript Fallback) -->
+    <noscript>
+        <div class="sedrazavi-noscript-alert bg-[#D4AF37]/20 border-y border-[#D4AF37] text-white p-4 text-center font-sans text-sm" role="alert">
+            <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-3">
+                <span class="text-xl">⚖️</span>
+                <span>جاوااسکریپت در مرورگر شما غیرفعال است. بخش‌های تعاملی نیازمند جاوااسکریپت هستند؛ جهت هماهنگی فوری با دفتر وکالت ونک تماس حاصل فرمایید:</span>
+                <a href="tel:02188776655" class="text-[#F3E5AB] font-bold underline font-mono">۰۲۱-۸۸۷۷۶۶۵۵</a>
+            </div>
+        </div>
+    </noscript>
+
     <!-- کانتینر اصلی اپلیکیشن فرانت‌اند React -->
     <div id="root">
         <!-- ۱. اسکلت و محتوای غنی سئو اولیه سمت سرور (SSR Content & Preloader) -->
