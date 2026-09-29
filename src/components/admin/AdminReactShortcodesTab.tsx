@@ -302,10 +302,14 @@ add_action('after_setup_theme', 'sedrazavi_theme_setup');
 
 function sedrazavi_enqueue_theme_scripts() {
     wp_enqueue_style('sedrazavi-theme-style', get_stylesheet_uri(), array(), SEDRAZAVI_THEME_VERSION);
-    if (file_exists(SEDRAZAVI_THEME_DIR . '/public/app-dist/index.css')) {
+    if (file_exists(SEDRAZAVI_THEME_DIR . '/dist/index.css')) {
+        wp_enqueue_style('sedrazavi-bundle-css', SEDRAZAVI_THEME_URI . '/dist/index.css', array(), SEDRAZAVI_THEME_VERSION);
+    } elseif (file_exists(SEDRAZAVI_THEME_DIR . '/public/app-dist/index.css')) {
         wp_enqueue_style('sedrazavi-bundle-css', SEDRAZAVI_THEME_URI . '/public/app-dist/index.css', array(), SEDRAZAVI_THEME_VERSION);
     }
-    if (file_exists(SEDRAZAVI_THEME_DIR . '/public/app-dist/index.js')) {
+    if (file_exists(SEDRAZAVI_THEME_DIR . '/dist/index.js')) {
+        wp_enqueue_script('sedrazavi-bundle-js', SEDRAZAVI_THEME_URI . '/dist/index.js', array(), SEDRAZAVI_THEME_VERSION, true);
+    } elseif (file_exists(SEDRAZAVI_THEME_DIR . '/public/app-dist/index.js')) {
         wp_enqueue_script('sedrazavi-bundle-js', SEDRAZAVI_THEME_URI . '/public/app-dist/index.js', array(), SEDRAZAVI_THEME_VERSION, true);
     }
 }
@@ -355,7 +359,23 @@ get_header(); ?>
         jsFolder.file('sedrazavi-react-mount.js', generatedMountJs);
       }
 
-      // ۹. راهنمای نصب README.md
+      // ۹. تزریق باندل‌های کامپایل شده ری‌اکت در dist/
+      try {
+        const [cssRes, jsRes] = await Promise.all([
+          fetch('/app-dist/index.css'),
+          fetch('/app-dist/index.js'),
+        ]);
+        if (cssRes.ok && jsRes.ok) {
+          const css = await cssRes.text();
+          const js = await jsRes.text();
+          zip.file('dist/index.css', css);
+          zip.file('dist/index.js', js);
+        }
+      } catch (distErr) {
+        console.warn('Could not inject app-dist into theme zip:', distErr);
+      }
+
+      // ۱۰. راهنمای نصب README.md
       zip.file('README.md', generatedReadme);
 
       const zipBlob = await zip.generateAsync({ type: 'blob' });

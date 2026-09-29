@@ -42,7 +42,10 @@ function sedrazavi_register_react_assets() {
     $js_bundle  = '';
     $css_bundle = '';
 
-    if (file_exists($theme_dir_path . '/public/app-dist/index.js')) {
+    if (file_exists($theme_dir_path . '/dist/index.js')) {
+        $js_bundle  = $theme_dir_uri . '/dist/index.js';
+        $css_bundle = $theme_dir_uri . '/dist/index.css';
+    } elseif (file_exists($theme_dir_path . '/public/app-dist/index.js')) {
         $js_bundle  = $theme_dir_uri . '/public/app-dist/index.js';
         $css_bundle = $theme_dir_uri . '/public/app-dist/index.css';
     } elseif (file_exists($theme_dir_path . '/dist/assets/index.js')) {
@@ -434,6 +437,66 @@ function sedrazavi_shortcode_trust_badges($atts, $content = null) {
     return ob_get_clean();
 }
 add_shortcode('sedrazavi_react_trust_badges', 'sedrazavi_shortcode_trust_badges');
+
+// ۹. میز تخصصی انطباق بانکی، AML و تحریم‌ها (سازگاری دوگانه نام شورت‌کد)
+function sedrazavi_shortcode_aml_suite($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-aml-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="AmlComplianceSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('AmlComplianceSuite', 'میز تخصصی انطباق بانکی، AML و تحریم‌ها'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_react_aml_suite', 'sedrazavi_shortcode_aml_suite');
+add_shortcode('sedrazavi_aml_compliance_suite', 'sedrazavi_shortcode_aml_suite');
+
+// ۱۰. سامانه دعاوی ملکی، سرقفلی و مشارکت در ساخت
+function sedrazavi_shortcode_real_estate_suite($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-re-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="RealEstateSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('RealEstateSuite', 'سامانه دعاوی ملکی، سرقفلی و ساخت‌وساز'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_react_real_estate_suite', 'sedrazavi_shortcode_real_estate_suite');
+add_shortcode('sedrazavi_real_estate_suite', 'sedrazavi_shortcode_real_estate_suite');
+
+// ۱۱. پرتال کارتابل موکلین (سازگار با نام‌های سنتی و مدرن)
+function sedrazavi_shortcode_client_portal_wrapper($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-portal-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="ClientPortalView" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('ClientPortalView', 'پرتال جامع موکلین و مراجعین'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_client_portal', 'sedrazavi_shortcode_client_portal_wrapper');
+add_shortcode('sedrazavi_react_client_portal', 'sedrazavi_shortcode_client_portal_wrapper');
+
+// ۱۲. سوئیت راهبرد دفاعی و پیش‌بینی آرا (Legal Strategy Suite)
+function sedrazavi_shortcode_legal_strategy_wrapper($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-strat-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="LegalStrategySuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('LegalStrategySuite', 'سوئیت راهبرد دفاعی و تحلیل حقوقی'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_legal_strategy_suite', 'sedrazavi_shortcode_legal_strategy_wrapper');
+add_shortcode('sedrazavi_react_legal_strategy', 'sedrazavi_shortcode_legal_strategy_wrapper');
 
 /**
  * ==============================================================================

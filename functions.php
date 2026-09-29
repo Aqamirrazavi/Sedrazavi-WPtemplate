@@ -68,7 +68,10 @@ function sedrazavi_enqueue_theme_scripts() {
     $js_bundle  = '';
     $css_bundle = '';
 
-    if (file_exists(SEDRAZAVI_THEME_DIR . '/public/app-dist/index.js')) {
+    if (file_exists(SEDRAZAVI_THEME_DIR . '/dist/index.js')) {
+        $js_bundle  = SEDRAZAVI_THEME_URI . '/dist/index.js';
+        $css_bundle = SEDRAZAVI_THEME_URI . '/dist/index.css';
+    } elseif (file_exists(SEDRAZAVI_THEME_DIR . '/public/app-dist/index.js')) {
         $js_bundle  = SEDRAZAVI_THEME_URI . '/public/app-dist/index.js';
         $css_bundle = SEDRAZAVI_THEME_URI . '/public/app-dist/index.css';
     } elseif (file_exists(SEDRAZAVI_THEME_DIR . '/dist/assets/index.js')) {

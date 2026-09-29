@@ -1355,10 +1355,30 @@ add_action('wp_enqueue_scripts', 'sedrazavi_enqueue_assets');
  * 3. Safe Module Inclusions (Protected against Missing Files)
  */
 $required_modules = array(
-    'inc/theme-options.php',
     'inc/setup.php',
+    'inc/theme-options.php',
     'inc/security.php',
     'inc/ux-improvements.php',
+    'inc/case-management.php',
+    'inc/booking.php',
+    'inc/dashboard.php',
+    'inc/elementor-widgets.php',
+    'inc/class-sedrazavi-updater.php',
+    'inc/advanced-backup.php',
+    'inc/analytics-reports.php',
+    'inc/user-roles.php',
+    'inc/educational-tour.php',
+    'inc/integrations.php',
+    'inc/arbitration-cpt.php',
+    'inc/precedents-cpt.php',
+    'inc/legal-vault-deadlines.php',
+    'inc/corporate-international.php',
+    'inc/class-sedrazavi-dashboard.php',
+    'inc/class-sedrazavi-client-portal.php',
+    'inc/class-sedrazavi-calculators.php',
+    'inc/class-sedrazavi-elementor.php',
+    'inc/class-sedrazavi-security.php',
+    'inc/react-shortcodes.php',
     'includes/class-sedrazavi-auth-dual-mode.php',
     'includes/class-sedrazavi-dual-panel-unified.php',
     'includes/class-sedrazavi-admin-protection.php',
@@ -2764,6 +2784,25 @@ if (!function_exists('sedrazavi_register_case_cpt')) {
         );
 
         register_post_type('sedrazavi_case', $args);
+
+        // Register Appointments CPT
+        if (!post_type_exists('sedrazavi_appointment')) {
+            $appointment_labels = array(
+                'name'          => esc_html__('نوبت‌های مشاوره', 'sedrazavi'),
+                'singular_name' => esc_html__('نوبت مشاوره', 'sedrazavi'),
+                'menu_name'     => esc_html__('رزرو نوبت‌ها', 'sedrazavi'),
+                'all_items'     => esc_html__('همه نوبت‌ها', 'sedrazavi'),
+            );
+            register_post_type('sedrazavi_appointment', array(
+                'labels'        => $appointment_labels,
+                'public'        => false,
+                'show_ui'       => true,
+                'show_in_menu'  => true,
+                'menu_icon'     => 'dashicons-calendar-alt',
+                'supports'      => array('title', 'editor', 'custom-fields'),
+                'show_in_rest'  => true,
+            ));
+        }
     }
     add_action('init', 'sedrazavi_register_case_cpt');
 }
@@ -6052,6 +6091,41 @@ function sedrazavi_calculate_quorum_api($request) {
         'required_quorum_desc' => $required_quorum_desc,
         'supervised_by'        => 'دکتر سیده مریم رضوی - دکتری حقوق بین‌الملل'
     ));
+}
+
+/**
+ * ثبت شورت‌کدهای فاز ۱۱ و ۱۲ (AML Compliance و Real Estate Construction)
+ */
+if (!function_exists('sedrazavi_aml_compliance_suite_shortcode')) {
+    function sedrazavi_aml_compliance_suite_shortcode($atts) {
+        ob_start();
+        ?>
+        <div id="sedrazavi-aml-compliance-root" class="sedrazavi-react-root" data-component="AmlComplianceSuite" dir="rtl">
+            <div class="p-6 rounded-2xl bg-gray-900 border border-amber-500/30 text-white text-center">
+                <span class="text-[#D4AF37] font-bold text-sm">میز تخصصی انطباق بانکی، AML، و بررسی فهرست‌های تحریم‌های بین‌المللی</span>
+                <p class="text-xs text-gray-400 mt-2">سامانه در حال بارگذاری مؤلفه استعلام تحریم‌ها و ممیزی تراکنش‌های مشکوک...</p>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+    add_shortcode('sedrazavi_aml_compliance_suite', 'sedrazavi_aml_compliance_suite_shortcode');
+}
+
+if (!function_exists('sedrazavi_real_estate_suite_shortcode')) {
+    function sedrazavi_real_estate_suite_shortcode($atts) {
+        ob_start();
+        ?>
+        <div id="sedrazavi-real-estate-root" class="sedrazavi-react-root" data-component="RealEstateSuite" dir="rtl">
+            <div class="p-6 rounded-2xl bg-gray-900 border border-[#D4AF37]/30 text-white text-center">
+                <span class="text-[#D4AF37] font-bold text-sm">سامانه تخصصی دعاوی ملکی، سرقفلی و قراردادهای مشارکت در ساخت</span>
+                <p class="text-xs text-gray-400 mt-2">محاسبه‌گر قدرالسهم و تحلیل حقوقی کمیسیون ماده ۱۰۰ شهرداری در حال اجراست...</p>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+    add_shortcode('sedrazavi_real_estate_suite', 'sedrazavi_real_estate_suite_shortcode');
 }
 `
   },

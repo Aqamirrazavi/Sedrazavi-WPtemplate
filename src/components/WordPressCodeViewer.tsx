@@ -4,6 +4,7 @@ import { WORDPRESS_PLUGIN_FILES } from '../data/wordPressPluginFiles';
 import { WordPressFile } from '../types/theme';
 import { generateWordPressScreenshotBlob, generateWordPressScreenshotDataUrl } from '../utils/themeScreenshot';
 import { HtmlCssExportModal } from './HtmlCssExportModal';
+import { generatePhpShortcodeTemplate, DEFAULT_GENERATOR_OPTIONS, generateMountingEngineJs } from '../utils/phpShortcodeGenerator';
 import JSZip from 'jszip';
 import {
   Code,
@@ -134,6 +135,12 @@ export const WordPressCodeViewer: React.FC = () => {
         }
       });
 
+      // Inject the comprehensive React Shortcode Bridge and client mount script
+      const shortcodesPhp = generatePhpShortcodeTemplate(DEFAULT_GENERATOR_OPTIONS);
+      const mountJs = generateMountingEngineJs(DEFAULT_GENERATOR_OPTIONS);
+      themeFolder?.file('inc/react-shortcodes.php', shortcodesPhp);
+      themeFolder?.file('assets/js/sedrazavi-react-mount.js', mountJs);
+
       // Inject the compiled React bundle into dist/ for 100% zero-config WordPress automation
       try {
         const builtAssets = await loadCompiledAppDist();
@@ -182,6 +189,12 @@ export const WordPressCodeViewer: React.FC = () => {
       WORDPRESS_PLUGIN_FILES.forEach((file) => {
         pluginFolder?.file(file.path, file.code);
       });
+
+      // Inject React Shortcode engine and mount assets into addon plugin
+      const shortcodesPluginPhp = generatePhpShortcodeTemplate({ ...DEFAULT_GENERATOR_OPTIONS, targetType: 'plugin' });
+      const mountJs = generateMountingEngineJs(DEFAULT_GENERATOR_OPTIONS);
+      pluginFolder?.file('includes/react-shortcodes.php', shortcodesPluginPhp);
+      pluginFolder?.file('assets/js/sedrazavi-react-mount.js', mountJs);
 
       // Inject the compiled React bundle into dist/ for universal shortcodes and ReactPress automation
       try {

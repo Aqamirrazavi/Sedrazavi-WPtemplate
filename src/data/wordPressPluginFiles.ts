@@ -684,6 +684,33 @@ if (!function_exists('sedrazavi_addons_register_post_types')) {
             'rewrite'            => array('slug' => 'lawyers'),
             'show_in_rest'       => true,
         ));
+
+        // ۷. پست‌تایپ رسمی نوبت‌های مشاوره و رزرو وقت (Appointments & Consultations)
+        $appointment_labels = array(
+            'name'                  => esc_html__('نوبت‌های مشاوره', 'sedrazavi-addons'),
+            'singular_name'         => esc_html__('نوبت مشاوره', 'sedrazavi-addons'),
+            'menu_name'             => esc_html__('رزرو نوبت‌ها', 'sedrazavi-addons'),
+            'add_new'               => esc_html__('ثبت نوبت جدید', 'sedrazavi-addons'),
+            'edit_item'             => esc_html__('مشاهده نوبت', 'sedrazavi-addons'),
+            'all_items'             => esc_html__('همه نوبت‌های رزرو', 'sedrazavi-addons'),
+        );
+        register_post_type('sedrazavi_appointment', array(
+            'labels'             => $appointment_labels,
+            'public'             => false,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'menu_icon'          => 'dashicons-calendar-alt',
+            'supports'           => array('title', 'editor', 'custom-fields'),
+            'show_in_rest'       => true,
+        ));
+        register_post_type('sedrazavi_booking', array(
+            'labels'             => $appointment_labels,
+            'public'             => false,
+            'show_ui'            => false,
+            'show_in_menu'       => false,
+            'supports'           => array('title', 'editor', 'custom-fields'),
+            'show_in_rest'       => true,
+        ));
     }
 }
 add_action('init', 'sedrazavi_addons_register_post_types');

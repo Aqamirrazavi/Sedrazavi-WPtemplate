@@ -669,37 +669,28 @@ class SedRazavi_Elementor_Widgets {
      * Register the 8 Legal Widgets
      */
     public static function register_widgets($widgets_manager) {
-        // 1. Hero Luxury Header
-        require_once get_template_directory() . '/elementor-widgets/widget-hero-luxury.php';
-        $widgets_manager->register(new \\SedRazavi_Widget_Hero_Luxury());
+        $widget_files = [
+            'widget-hero-luxury.php'    => '\\SedRazavi_Widget_Hero_Luxury',
+            'widget-lawyer-bio.php'      => '\\SedRazavi_Widget_Lawyer_Bio',
+            'widget-services-grid.php'   => '\\SedRazavi_Widget_Services_Grid',
+            'widget-booking-form.php'    => '\\SedRazavi_Widget_Booking_Form',
+            'widget-case-tracker.php'    => '\\SedRazavi_Widget_Case_Tracker',
+            'widget-tariff-calc.php'     => '\\SedRazavi_Widget_Tariff_Calc',
+            'widget-testimonials.php'   => '\\SedRazavi_Widget_Testimonials',
+            'widget-faq-schema.php'      => '\\SedRazavi_Widget_FAQ_Schema',
+        ];
 
-        // 2. Lawyer Bio & Profile
-        require_once get_template_directory() . '/elementor-widgets/widget-lawyer-bio.php';
-        $widgets_manager->register(new \\SedRazavi_Widget_Lawyer_Bio());
+        $widgets_dir = get_template_directory() . '/elementor-widgets/';
 
-        // 3. Legal Services Grid
-        require_once get_template_directory() . '/elementor-widgets/widget-services-grid.php';
-        $widgets_manager->register(new \\SedRazavi_Widget_Services_Grid());
-
-        // 4. Quick Appointment Booking Form
-        require_once get_template_directory() . '/elementor-widgets/widget-booking-form.php';
-        $widgets_manager->register(new \\SedRazavi_Widget_Booking_Form());
-
-        // 5. ODR Arbitration Dossier Tracker
-        require_once get_template_directory() . '/elementor-widgets/widget-case-tracker.php';
-        $widgets_manager->register(new \\SedRazavi_Widget_Case_Tracker());
-
-        // 6. Judicial Tariff Calculator
-        require_once get_template_directory() . '/elementor-widgets/widget-tariff-calc.php';
-        $widgets_manager->register(new \\SedRazavi_Widget_Tariff_Calc());
-
-        // 7. Verified Client Testimonials
-        require_once get_template_directory() . '/elementor-widgets/widget-testimonials.php';
-        $widgets_manager->register(new \\SedRazavi_Widget_Testimonials());
-
-        // 8. FAQ Accordion with Schema.org JSON-LD
-        require_once get_template_directory() . '/elementor-widgets/widget-faq-schema.php';
-        $widgets_manager->register(new \\SedRazavi_Widget_FAQ_Schema());
+        foreach ($widget_files as $file => $class_name) {
+            $file_path = $widgets_dir . $file;
+            if (file_exists($file_path)) {
+                require_once $file_path;
+                if (class_exists($class_name)) {
+                    $widgets_manager->register(new $class_name());
+                }
+            }
+        }
     }
 }
 
