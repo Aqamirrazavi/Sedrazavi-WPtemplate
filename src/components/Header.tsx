@@ -6,6 +6,8 @@ import {
   Phone,
   Calendar,
   Code,
+  Download,
+  Package,
   Layout,
   Shield,
   HelpCircle,
@@ -949,6 +951,24 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 تماس و رزرو
               </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('code');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 font-bold text-xs ${
+                  activeView === 'code'
+                    ? 'bg-[#D4AF37] text-[#070D1E] shadow-md shadow-[#D4AF37]/30'
+                    : 'bg-[#D4AF37]/15 hover:bg-[#D4AF37] text-[#AA820A] dark:text-[#F3E5AB] hover:text-[#070D1E] border border-[#D4AF37]/40'
+                }`}
+                title="دانلود بسته‌های آماده نصب پوسته و افزونه وردپرس"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>دانلود قالب وردپرس</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-[#070D1E] text-[#D4AF37] font-mono">ZIP</span>
+              </button>
             </nav>
 
             {/* View Switchers Tabs (Interactive Theme Controls - Visible only in Admin Mode) */}
@@ -1326,6 +1346,21 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Layout className="w-3 h-3" />
               <span>خانه</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveView('code');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-colors whitespace-nowrap ${
+                activeView === 'code'
+                  ? 'bg-[#D4AF37] text-[#0B132B] shadow-sm font-black'
+                  : 'bg-amber-500/10 dark:bg-amber-500/20 text-[#AA820A] dark:text-[#F3E5AB] border border-[#D4AF37]/40'
+              }`}
+            >
+              <Download className="w-3 h-3 text-[#D4AF37]" />
+              <span>دانلود قالب (ZIP)</span>
             </button>
 
             <button
