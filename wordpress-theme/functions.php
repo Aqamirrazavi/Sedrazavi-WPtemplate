@@ -110,30 +110,57 @@ function sedrazavi_enqueue_assets() {
         )
     ));
 
-    // 4. Automated React SPA Engine (موتور اتوماسیون ۱۰۰٪ خودکار اجرای ری‌اکت در وردپرس)
-    $react_css = SEDRAZAVI_THEME_DIR . '/dist/index.css';
-    $react_js  = SEDRAZAVI_THEME_DIR . '/dist/index.js';
+    // 4. Automated React SPA Engine (موتور اجرای باندل‌های کامپایل‌شده فرانت‌اند)
+    $asset_rel_paths = array(
+        'assets/dist/',
+        'assets/',
+        'dist/',
+    );
 
-    if (file_exists($react_css) && file_exists($react_js)) {
-        wp_enqueue_style(
-            'sedrazavi-react-bundle-style',
-            SEDRAZAVI_THEME_URI . '/dist/index.css',
-            array(),
-            filemtime($react_css)
-        );
+    $found_css = '';
+    $found_js = '';
+    $asset_base_uri = '';
+
+    foreach ($asset_rel_paths as $rel_path) {
+        $check_css = SEDRAZAVI_THEME_DIR . '/' . $rel_path . 'index.css';
+        $check_js  = SEDRAZAVI_THEME_DIR . '/' . $rel_path . 'index.js';
+        if (file_exists($check_js)) {
+            $found_js = $check_js;
+            $found_css = file_exists($check_css) ? $check_css : '';
+            $asset_base_uri = SEDRAZAVI_THEME_URI . '/' . $rel_path;
+            break;
+        }
+    }
+
+    if (!empty($found_js)) {
+        if (!empty($found_css)) {
+            wp_enqueue_style(
+                'sedrazavi-react-bundle-style',
+                $asset_base_uri . 'index.css',
+                array(),
+                filemtime($found_css)
+            );
+        }
+
         wp_enqueue_script(
             'sedrazavi-react-bundle-app',
-            SEDRAZAVI_THEME_URI . '/dist/index.js',
+            $asset_base_uri . 'index.js',
             array(),
-            filemtime($react_js),
+            filemtime($found_js),
             true
         );
+
+        // تنظیم استاندارد window.__vite_public_path__ پیش از لود باندل اصلی
+        $public_path_inline = 'window.__vite_public_path__ = ' . wp_json_encode($asset_base_uri) . ';';
+        wp_add_inline_script('sedrazavi-react-bundle-app', $public_path_inline, 'before');
 
         wp_localize_script('sedrazavi-react-bundle-app', 'SedRazaviWPConfig', array(
             'siteUrl'    => home_url(),
             'ajaxUrl'    => admin_url('admin-ajax.php'),
+            'restUrl'    => esc_url_raw(rest_url('sedrazavi/v1/')),
             'themeUri'   => SEDRAZAVI_THEME_URI,
-            'nonce'      => wp_create_nonce('sedrazavi_security_nonce'),
+            'assetsUri'  => $asset_base_uri,
+            'nonce'      => wp_create_nonce('wp_rest'),
             'isLoggedIn' => is_user_logged_in(),
             'siteTitle'  => get_bloginfo('name'),
             'siteDesc'   => get_bloginfo('description'),
@@ -142,6 +169,26 @@ function sedrazavi_enqueue_assets() {
 }
 add_action('wp_enqueue_scripts', 'sedrazavi_enqueue_assets');
 }
+
+/**
+ * منوی پیش‌فرض ناوبری در صورت عدم تعریف منو در پیشخوان وردپرس
+ */
+if (!function_exists('sedrazavi_fallback_menu')) {
+function sedrazavi_fallback_menu() {
+    ?>
+    <nav class="hidden xl:flex items-center gap-1 font-medium text-xs text-gray-200">
+        <a href="<?php echo esc_url(home_url('/')); ?>" class="nav-link"><?php esc_html_e('صفحه اصلی', 'sedrazavi'); ?></a>
+        <a href="#services" class="nav-link"><?php esc_html_e('خدمات تخصصی', 'sedrazavi'); ?></a>
+        <a href="#articles" class="nav-link"><?php esc_html_e('آرشیو مقالات و ویدیوها', 'sedrazavi'); ?></a>
+        <a href="#about" class="nav-link"><?php esc_html_e('درباره وکیل', 'sedrazavi'); ?></a>
+        <a href="#tracking" class="nav-link text-[#D4AF37] font-bold"><?php esc_html_e('پیگیری پرونده', 'sedrazavi'); ?></a>
+        <a href="#faq" class="nav-link"><?php esc_html_e('سوالات متداول', 'sedrazavi'); ?></a>
+        <a href="#contact" class="nav-link"><?php esc_html_e('تماس با ما', 'sedrazavi'); ?></a>
+    </nav>
+    <?php
+}
+}
+
 
 /**
  * 3. Safe Module Inclusions (Protected against Missing Files)

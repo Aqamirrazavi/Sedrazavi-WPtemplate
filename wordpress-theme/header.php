@@ -94,14 +94,25 @@ if (!defined('ABSPATH')) {
             </div>
             <div>
                 <div class="flex items-center gap-2">
-                    <span class="brand-title">SedRazavi</span>
+                    <span class="brand-title"><?php bloginfo('name'); ?></span>
                     <span class="badge-official">پوسته رسمی وردپرس</span>
                 </div>
-                <p class="brand-tagline">دفتر وکالت و مشاوره حقوقی تخصصی</p>
+                <p class="brand-tagline"><?php bloginfo('description'); ?></p>
             </div>
         </a>
 
         <!-- ناوبری دسکتاپ (Desktop Navigation) -->
+        <?php
+        if (has_nav_menu('primary')) {
+            wp_nav_menu(array(
+                'theme_location' => 'primary',
+                'container'      => 'nav',
+                'container_class'=> 'hidden xl:flex items-center gap-1 font-medium text-xs text-gray-200',
+                'menu_class'     => 'flex items-center gap-1',
+                'fallback_cb'    => 'sedrazavi_fallback_menu',
+            ));
+        } else {
+        ?>
         <nav class="hidden xl:flex items-center gap-1 font-medium text-xs text-gray-200">
             <a href="<?php echo esc_url(home_url('/')); ?>" class="nav-link"><?php esc_html_e('صفحه اصلی', 'sedrazavi'); ?></a>
             
@@ -125,6 +136,7 @@ if (!defined('ABSPATH')) {
             <a href="#faq" class="nav-link"><?php esc_html_e('سوالات متداول', 'sedrazavi'); ?></a>
             <a href="#contact" class="nav-link"><?php esc_html_e('تماس با ما', 'sedrazavi'); ?></a>
         </nav>
+        <?php } ?>
 
         <!-- دکمه‌های کنترل: تم شب/روز، رزرو نوبت، منوی موبایل -->
         <div class="flex items-center gap-2.5">

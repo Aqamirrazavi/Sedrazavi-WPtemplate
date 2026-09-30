@@ -22,41 +22,13 @@ if (have_posts()) {
     rewind_posts();
 }
 
-// موتور اتوماسیون ۱۰۰٪ خودکار اجرای ری‌اکت (Automated React SPA Engine)
-$react_bundle_exists = file_exists(get_template_directory() . '/dist/index.js');
-$is_php_mode = isset($_GET['mode']) && $_GET['mode'] === 'php';
-
-if ($react_bundle_exists && !$is_php_mode) {
-    ?><!DOCTYPE html>
-<html <?php language_attributes(); ?> dir="rtl">
-<head>
-    <meta charset="<?php bloginfo('charset'); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php wp_head(); ?>
-</head>
-<body <?php body_class('sedrazavi-react-app-body font-persian'); ?>>
-    <div id="root">
-        <!-- لودر هوشمند پیش از هیدراته شدن ری‌اکت -->
-        <div id="sedrazavi-app-preloader" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0B132B; color: #D4AF37; font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl;">
-            <div style="text-align: center; padding: 2rem;">
-                <div style="width: 48px; height: 48px; border: 3px solid rgba(212,175,55,0.2); border-top-color: #D4AF37; border-radius: 50%; margin: 0 auto 1.5rem; animation: spin 1s linear infinite;"></div>
-                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff;">سامانه یکپارچه حقوقی دکتر سیده مریم رضوی</h2>
-                <p style="font-size: 0.875rem; color: #D4AF37;">در حال اجرای اتوماسیون هوشمند پرتال و ابزارهای قضایی...</p>
-            </div>
-            <style>
-                @keyframes spin { to { transform: rotate(360deg); } }
-            </style>
-        </div>
-    </div>
-    <?php wp_footer(); ?>
-</body>
-</html>
-<?php
-    exit;
-}
-
+// بارگذاری سربرگ استاندارد وردپرس (هدر، منوها و متادیتا)
 get_header();
 ?>
+
+<!-- نقطه‌ی مانت اپلیکیشن React و کانتینر اصلی محتوای رندرشده سمت سرور -->
+<div id="root" class="sedrazavi-app-mount">
+
 
 <!-- بخش ۱: نکات و استوری‌های آموزشی حقوقی روز (Story Bar) -->
 <section class="stories-bar-section">
@@ -949,7 +921,7 @@ get_header();
         <button onclick="acceptCookies()" class="btn-gold text-[11px] py-1.5 px-4 font-bold cursor-pointer">پذیرش و تایید</button>
         <button onclick="dismissCookies()" class="text-gray-400 hover:text-white text-[11px] py-1.5 px-2 cursor-pointer">انصراف</button>
     </div>
-</div>
+</div><!-- #root -->
 
 <?php
 get_footer();
