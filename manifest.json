@@ -1,0 +1,317 @@
+{
+  "name": "SedRazavi Legal Suite",
+  "version": "2.6.0",
+  "textdomain": "sedrazavi",
+  "author": "دکتر سیده مریم رضوی",
+  "manifest_hash": "a25250f4aa593c4ff6c83d2557a0a6b81d14d15c_v260",
+  "routes": [
+    {
+      "slug": "home",
+      "path": "/",
+      "title": "صفحه اصلی و پرتال جامع حقوقی",
+      "template": "front-page.php",
+      "fields": {
+        "hero_title": "عدالت با دقت، حرفه‌ای‌گری با تعهد",
+        "hero_subtitle": "دفتر وکالت و داوری تخصصی دکتر سیده مریم رضوی",
+        "hero_experience_years": "۱۵+",
+        "license_number": "۱۸۴۵۲ / ک.و.م",
+        "phone_number": "021-88776655",
+        "emergency_phone": "09120000000",
+        "email": "info@sedrazavi.com",
+        "address": "تهران، میدان ونک، خیابان ملاصدرا، پلاک ۴۲، طبقه ۳، واحد ۶",
+        "working_hours": "شنبه تا چهارشنبه: ۹:۰۰ الی ۱۹:۰۰ | پنج‌شنبه: ۹:۰۰ الی ۱۳:۰۰",
+        "consultation_fee": "۱,۵۰۰,۰۰۰ تومان"
+      }
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "title": "درباره دکتر سیده مریم رضوی",
+      "template": "page-about.php",
+      "fields": {
+        "attorney_name": "دکتر سیده مریم رضوی",
+        "attorney_title": "وکیل پایه یک دادگستری و داور تخصصی کانون وکلای مرکز",
+        "attorney_degree": "دکترای حقوق خصوصی و تجارت بین‌الملل",
+        "bio": "دکتر سیده مریم رضوی با بیش از ۱۵ سال تجربه مستمر در محاکم دادگستری، دیوان عالی کشور و داوری‌های بین‌المللی اتاق بازرگانی، به عنوان وکیل سرپرست، مشاور حقوقی شرکت‌های هلدینگ و متخصص در دعاوی قراردادهای پیچیده تجاری، ملکی و مالکیت فکری فعالیت می‌نماید.",
+        "academic_records": "عضو هیئت علمی، مدرس حقوق مدنی و تجارت، مولف مقالات متعدد پژوهشی در حوزه داوری فرامرزی",
+        "court_admissions": "کانون وکلای دادگستری مرکز، دیوان عدالت اداری، دیوان عالی کشور"
+      }
+    },
+    {
+      "slug": "services",
+      "path": "/services",
+      "title": "خدمات تخصصی حقوقی و وکالت",
+      "template": "page-services.php",
+      "fields": {
+        "services_headline": "دپارتمان‌های ۹‌گانه تخصصی وکالت و داوری",
+        "services_subheadline": "ارائه خدمات فوق‌تخصصی حقوقی با رویکرد پیشگیری از ریسک و دادرسی قاطع",
+        "department_count": "۹ دپارتمان تخصصی",
+        "specialties": "دعاوی شرکت‌ها، داوری بین‌المللی، ملکی و سرقفلی، مالکیت فکری، جرایم سایبری، پولشویی و بانکی، خانواده و ارث، دیوان عدالت، مالیاتی و بورس"
+      }
+    },
+    {
+      "slug": "contact",
+      "path": "/contact",
+      "title": "تماس، تعیین وقت و رزرو مشاوره",
+      "template": "page-contact.php",
+      "fields": {
+        "booking_lead_time": "۲۴ ساعت قبل",
+        "in_person_available": "بله (با هماهنگی قبلی)",
+        "online_consultation_available": "بله (تصویری و تلفنی)",
+        "response_time": "کمتر از ۲ ساعت کاری"
+      }
+    },
+    {
+      "slug": "tracking",
+      "path": "/tracking",
+      "title": "پیگیری آنلاین پرونده و تایم‌لاین دادرسی",
+      "template": "page-tracking.php",
+      "fields": {
+        "tracking_security_level": "رمزنگاری End-to-End و احراز پیامکی ۲FA",
+        "portal_refresh_rate": "لحظه‌ای (Real-time)",
+        "document_vault_active": "بله"
+      }
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "title": "میز کار و داشبورد وکالت",
+      "template": "page-dashboard.php",
+      "fields": {
+        "dashboard_role": "مدیریت وکیل و کارتابل موکلین",
+        "active_cases_counter": "۴۸",
+        "pending_deadlines": "۳"
+      }
+    },
+    {
+      "slug": "calculators",
+      "path": "/calculators",
+      "title": "محاسبه‌گرهای تخصصی حقوقی و تمبر وکالت",
+      "template": "page-calculators.php",
+      "fields": {
+        "tariffs_version": "آیین‌نامه تعرفه حق‌الوکاله مصوب قوه قضاییه ۱۴۰۲",
+        "supported_calculators": "دیه، مهریه به نرخ روز، تاخیر تادیه، تمبر علی‌الحساب مالیاتی و سهم کانون"
+      }
+    },
+    {
+      "slug": "client-portal",
+      "path": "/client-portal",
+      "title": "پرتال اختصاصی موکلین",
+      "template": "page-client-portal.php",
+      "fields": {
+        "portal_notice": "اسناد این بخش صرفاً برای موکلین پرونده قابل دسترسی است.",
+        "support_channel": "سامانه تیکتینگ ۲۴/۷"
+      }
+    },
+    {
+      "slug": "odr-arbitration",
+      "path": "/odr-arbitration",
+      "title": "داوری آنلاین تجاری و دادگاه مجازی (ODR)",
+      "template": "page-odr-arbitration.php",
+      "fields": {
+        "arbitration_rules": "قواعد داوری آنسیترال (UNCITRAL) و مرکز داوری اتاق ایران",
+        "online_hearings": "پلتفرم جلسه استماع مجازی امن"
+      }
+    },
+    {
+      "slug": "legal-intelligence",
+      "path": "/legal-intelligence",
+      "title": "هوش حقوقی و ممیزی قراردادها",
+      "template": "page-legal-intelligence.php",
+      "fields": {
+        "ai_engine_status": "فعال - تحلیل ماتریس ریسک و بندهای عدم مسئولیت",
+        "audit_categories": "تعهدات، شروط فسخ، خسارت تاخیر تادیه، فورس ماژور"
+      }
+    },
+    {
+      "slug": "legal-strategy",
+      "path": "/legal-strategy",
+      "title": "استراتژی دادرسی و تقویم مواعد قضایی",
+      "template": "page-legal-strategy.php",
+      "fields": {
+        "calendar_integration": "محاسبه خودکار مهلت‌های تجدیدنظر، فرجام‌خواهی و واخواهی با احتساب تعطیلات رسمی",
+        "vault_encryption": "SHA-256 اسناد با شناسه قطعی"
+      }
+    },
+    {
+      "slug": "real-estate",
+      "path": "/real-estate",
+      "title": "دعاوی ملکی، سرقفلی و ساخت‌وساز",
+      "template": "page-real-estate-construction.php",
+      "fields": {
+        "specialized_focus": "مشارکت در ساخت، پیش‌فروش، الزام به تنظیم سند، تخلیه ید و حق کسب و پیشه"
+      }
+    },
+    {
+      "slug": "compliance-aml",
+      "path": "/compliance-aml",
+      "title": "انطباق مالیاتی، مبارزه با پولشویی و سامانه مودیان",
+      "template": "page-compliance-aml.php",
+      "fields": {
+        "compliance_standards": "قانون پایانه فروشگاهی، سامانه مودیان و ممیزی تراکنش‌های مشکوک بانکی"
+      }
+    },
+    {
+      "slug": "virtual-court",
+      "path": "/virtual-court",
+      "title": "دادگاه مجازی و شبیه‌ساز دادرسی",
+      "template": "page-virtual-court.php",
+      "fields": {
+        "simulation_modes": "دادگاه نخستین، تجدیدنظر، دیوان عالی کشور"
+      }
+    },
+    {
+      "slug": "petition-generator",
+      "path": "/petition-generator",
+      "title": "لوایح قضایی و دادخواست‌ساز",
+      "template": "page-petition-generator.php",
+      "fields": {
+        "vault_templates": "بیش از ۳۵۰ نمونه دادخواست و لایحه دفاعیه تخصصی"
+      }
+    },
+    {
+      "slug": "contract-audit",
+      "path": "/contract-audit",
+      "title": "ممیزی قرارداد و تحلیل ریسک",
+      "template": "page-contract-audit.php",
+      "fields": {
+        "scoring_matrix": "نمره سلامت حقوقی قرارداد از ۰ تا ۱۰۰"
+      }
+    }
+  ],
+  "api_calls": [
+    {
+      "path": "wp-json/sedrazavi/v1/book-appointment",
+      "method": "POST",
+      "description": "ثبت اینترنتی نوبت مشاوره حقوقی با احراز شماره همراه و تاریخ انتخابی",
+      "request_fields": ["client_name", "client_phone", "service_type", "booking_date", "booking_time", "notes", "_wpnonce"],
+      "response_structure": {"success": true, "booking_id": 123, "message": "نوبت با موفقیت ثبت شد."}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/track-case",
+      "method": "POST",
+      "description": "استعلام برخط وضعیت پرونده با کد پرونده، کدملی یا شماره همراه",
+      "request_fields": ["case_number", "client_phone", "_wpnonce"],
+      "response_structure": {"found": true, "case_number": "1403-LAW-892", "status": "در جریان", "next_session": "1403/08/15"}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/cases",
+      "method": "GET",
+      "description": "دریافت فهرست پرونده‌های تحت وکالت دفتر جهت نمایش در کارتابل موکلین و وکیل",
+      "request_fields": ["status", "page", "per_page"],
+      "response_structure": {"cases": [], "total": 48}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/cases",
+      "method": "POST",
+      "description": "ایجاد پرونده حقوقی جدید یا به‌روزرسانی وضعیت پرونده توسط وکیل",
+      "request_fields": ["case_number", "client_name", "case_type", "status", "court_branch"],
+      "response_structure": {"success": true, "case_id": 456}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/sync/stream",
+      "method": "GET",
+      "description": "سرویس همگام‌سازی برخط تغییرات میان پنل مدیریت و کلاینت",
+      "request_fields": ["client_id", "last_event_id"],
+      "response_structure": {"status": "connected", "events": []}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/auth/login",
+      "method": "POST",
+      "description": "احراز هویت دوگانه ورود وکیل یا موکل با شماره همراه/رمز عبور",
+      "request_fields": ["phone", "password", "role"],
+      "response_structure": {"success": true, "token": "jwt_or_nonce", "user": {}}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/auth/verify-2fa",
+      "method": "POST",
+      "description": "اعتبارسنجی کد پیامکی یکبار مصرف (2FA) در سامانه امنیتی",
+      "request_fields": ["phone", "code"],
+      "response_structure": {"success": true, "authenticated": true}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/auth/logout",
+      "method": "POST",
+      "description": "خروج امن از حساب کاربری و باطل‌سازی نشست فعال",
+      "request_fields": [],
+      "response_structure": {"success": true}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/tokens/all",
+      "method": "GET",
+      "description": "دریافت توکن‌های طراحی (Design Tokens) هویت بصری پوسته",
+      "request_fields": [],
+      "response_structure": {"tokens": {}}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/tokens/update",
+      "method": "POST",
+      "description": "ذخیره‌سازی و به‌روزرسانی توکن‌های طراحی در تنظیمات پوسته",
+      "request_fields": ["tokens"],
+      "response_structure": {"success": true}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/payment/checkout",
+      "method": "POST",
+      "description": "صدور فاکتور و ایجاد لینک درگاه پرداخت حق‌المشاوره و تمبر مالیاتی",
+      "request_fields": ["amount", "description", "client_name", "client_phone"],
+      "response_structure": {"success": true, "invoice_id": 789, "payment_url": "..."}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/quick-callback",
+      "method": "POST",
+      "description": "ثبت درخواست تماس فوری بدون نیاز به احراز هویت اولیه",
+      "request_fields": ["phone", "name", "subject"],
+      "response_structure": {"success": true, "message": "درخواست تماس فوری ثبت گردید."}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/otp/send",
+      "method": "POST",
+      "description": "ارسال کد پیامکی ورود از طریق درگاه کاوه‌نگار / ملی‌پیامک",
+      "request_fields": ["phone"],
+      "response_structure": {"success": true, "message": "کد تایید ارسال شد."}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/otp/verify",
+      "method": "POST",
+      "description": "بررسی صحت کد پیامکی واردشده و ورود به پرتال",
+      "request_fields": ["phone", "code"],
+      "response_structure": {"success": true, "user": {}}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/dashboard-stats",
+      "method": "GET",
+      "description": "دریافت شاخص‌های آماری پرونده‌ها، جلسات دادرسی پیش‌رو و نوبت‌ها",
+      "request_fields": [],
+      "response_structure": {"active_cases": 48, "upcoming_sessions": 3, "consultations_today": 5}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/verify-hash",
+      "method": "POST",
+      "description": "تایید اصالت اسناد و گواهی هش SHA-256 قراردادها",
+      "request_fields": ["document_hash"],
+      "response_structure": {"valid": true, "timestamp": "...", "certified_by": "دکتر رضوی"}
+    },
+    {
+      "path": "wp-json/sedrazavi/v1/corporate-quorum",
+      "method": "POST",
+      "description": "محاسبه هوشمند حدنصاب تشکیل مجمع عمومی و هیئت مدیره شرکت‌های سهامی",
+      "request_fields": ["total_shares", "attending_shares", "meeting_type"],
+      "response_structure": {"quorum_reached": true, "majority_needed": 51}
+    },
+    {
+      "path": "wp-json/wp/v2/posts",
+      "method": "GET",
+      "description": "دریافت مقالات و محتوای بلاگ حقوقی از طریق اندپوینت استاندارد وردپرس",
+      "request_fields": ["per_page", "_embed"],
+      "response_structure": []
+    },
+    {
+      "path": "wp-json/wp/v2/lawyer_service",
+      "method": "GET",
+      "description": "دریافت خدمات تخصصی حقوقی از طریق پست‌تایپ اختصاصی REST",
+      "request_fields": ["per_page"],
+      "response_structure": []
+    }
+  ]
+}

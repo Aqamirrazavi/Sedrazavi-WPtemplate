@@ -1,20 +1,49 @@
 # SedRazavi WordPress Theme - .distignore
-# Excluded files and folders for production zip build
+# Excluded files and directories for production theme package
 
+# Version control & CI
 .git
 .github
 .gitignore
+.gitattributes
 .distignore
+
+# Environment & Sensitive configs
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.cert
+*.crt
+
+# Dependencies & Build Tooling
 node_modules
-tests
-*.log
-*.tmp
-.DS_Store
-Thumbs.db
-composer.json
-composer.lock
+bun.lock
 package.json
 package-lock.json
+composer.json
+composer.lock
 webpack.config.js
 vite.config.ts
 tsconfig.json
+
+# Source code & Dev assets
+src
+scripts
+tests
+
+# Temporary & Cache files
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+*.map
+
+# Archives & Backups
+*.zip
+*.tar
+*.gz
+*.rar
+*.bak

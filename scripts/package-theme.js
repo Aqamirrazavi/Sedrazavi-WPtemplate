@@ -9,17 +9,71 @@ const outputAddonsZip = path.resolve('sedrazavi-addons.zip');
 const outputCompleteZip = path.resolve('sedrazavi-complete-suite.zip');
 const publicDir = path.resolve('public');
 
-async function addDirectoryToZip(zip, currentDir, rootDir, prefix = '') {
+function loadDistignore(dir) {
+  const distignorePath = path.join(dir, '.distignore');
+  const ignorePatterns = [
+    '.git',
+    '.github',
+    '.gitignore',
+    '.gitattributes',
+    '.distignore',
+    '.env',
+    '.env.*',
+    'node_modules',
+    'bun.lock',
+    'package.json',
+    'package-lock.json',
+    'tsconfig.json',
+    'vite.config.ts',
+    '*.zip',
+    '*.tar',
+    '*.gz',
+    '*.log',
+    '*.tmp',
+    '*.map',
+    '.DS_Store',
+    'Thumbs.db',
+  ];
+
+  if (fs.existsSync(distignorePath)) {
+    const lines = fs.readFileSync(distignorePath, 'utf8')
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => l && !l.startsWith('#'));
+    lines.forEach(l => ignorePatterns.push(l));
+  }
+
+  return Array.from(new Set(ignorePatterns));
+}
+
+function shouldIgnore(fileOrDirName, relPath, patterns) {
+  for (const pattern of patterns) {
+    if (pattern.startsWith('*.')) {
+      const ext = pattern.slice(1);
+      if (fileOrDirName.endsWith(ext)) return true;
+    } else if (fileOrDirName === pattern || relPath === pattern || relPath.startsWith(pattern + path.sep)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function addDirectoryToZip(zip, currentDir, rootDir, prefix = '', patterns = []) {
   if (!fs.existsSync(currentDir)) return;
   const files = fs.readdirSync(currentDir);
   for (const file of files) {
     const filePath = path.join(currentDir, file);
     const relPath = path.relative(rootDir, filePath);
+
+    if (shouldIgnore(file, relPath, patterns)) {
+      continue;
+    }
+
     const zipPath = prefix ? path.join(prefix, relPath) : relPath;
     const stat = fs.statSync(filePath);
 
     if (stat.isDirectory()) {
-      await addDirectoryToZip(zip, filePath, rootDir, prefix);
+      await addDirectoryToZip(zip, filePath, rootDir, prefix, patterns);
     } else {
       const content = fs.readFileSync(filePath);
       zip.file(zipPath, content);
@@ -29,9 +83,10 @@ async function addDirectoryToZip(zip, currentDir, rootDir, prefix = '') {
 
 async function packageTheme() {
   console.log('Packaging WordPress theme from:', themeDir);
+  const patterns = loadDistignore(themeDir);
   const zip = new JSZip();
   // Standard WordPress package structure: single root folder named sedrazavi-theme
-  await addDirectoryToZip(zip, themeDir, themeDir, 'sedrazavi-theme');
+  await addDirectoryToZip(zip, themeDir, themeDir, 'sedrazavi-theme', patterns);
 
   const buffer = await zip.generateAsync({
     type: 'nodebuffer',
@@ -50,9 +105,10 @@ async function packageTheme() {
 
 async function packageAddons() {
   console.log('Packaging WordPress addons plugin from:', addonsDir);
+  const patterns = loadDistignore(addonsDir);
   const zip = new JSZip();
   // Standard WordPress plugin package structure: single root folder named sedrazavi-addons
-  await addDirectoryToZip(zip, addonsDir, addonsDir, 'sedrazavi-addons');
+  await addDirectoryToZip(zip, addonsDir, addonsDir, 'sedrazavi-addons', patterns);
 
   const buffer = await zip.generateAsync({
     type: 'nodebuffer',
@@ -99,7 +155,7 @@ async function packageCompleteSuite(themeBuffer, addonsBuffer) {
 - تست شده و بدون کوچکترین تداخل، بدون خطای صفحه سفید (WSOD)
 ================================================================================`;
 
-  zip.file('راهنمای_مهم_نصب_بدون_خطا.txt', guide);
+  zip.file('README-راهنمای-نصب.txt', guide);
 
   const buffer = await zip.generateAsync({
     type: 'nodebuffer',
@@ -121,8 +177,4 @@ async function main() {
   await packageCompleteSuite(themeBuf, addonsBuf);
 }
 
-main().catch((err) => {
-  console.error('Error generating theme zip:', err);
-  process.exit(1);
-});
-
+main().catch(console.error);

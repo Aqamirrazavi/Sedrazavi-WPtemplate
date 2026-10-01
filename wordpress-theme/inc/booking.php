@@ -16,12 +16,20 @@ if (!function_exists('sedrazavi_ajax_handle_booking')) {
     function sedrazavi_ajax_handle_booking() {
         check_ajax_referer('sedrazavi_security_nonce', 'security');
 
-        $name    = isset($_POST['client_name']) ? sanitize_text_field($_POST['client_name']) : '';
-        $phone   = isset($_POST['client_phone']) ? sanitize_text_field($_POST['client_phone']) : '';
-        $service = isset($_POST['service_type']) ? sanitize_text_field($_POST['service_type']) : '';
-        $date    = isset($_POST['booking_date']) ? sanitize_text_field($_POST['booking_date']) : '';
-        $time    = isset($_POST['booking_time']) ? sanitize_text_field($_POST['booking_time']) : '';
-        $notes   = isset($_POST['notes']) ? sanitize_textarea_field($_POST['notes']) : '';
+        // Rate limiting: max 5 bookings per 10 minutes per IP
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('booking', 5, 600)) {
+            wp_send_json_error(array(
+                'rate_limited' => true,
+                'message'      => esc_html__('تعداد درخواست‌های شما بیش از حد مجاز است. لطفاً ۱۰ دقیقه دیگر مجدداً تلاش فرمایید.', 'sedrazavi')
+            ), 429);
+        }
+
+        $name    = isset($_POST['client_name']) ? sanitize_text_field(wp_unslash($_POST['client_name'])) : '';
+        $phone   = isset($_POST['client_phone']) ? sanitize_text_field(wp_unslash($_POST['client_phone'])) : '';
+        $service = isset($_POST['service_type']) ? sanitize_text_field(wp_unslash($_POST['service_type'])) : '';
+        $date    = isset($_POST['booking_date']) ? sanitize_text_field(wp_unslash($_POST['booking_date'])) : '';
+        $time    = isset($_POST['booking_time']) ? sanitize_text_field(wp_unslash($_POST['booking_time'])) : '';
+        $notes   = isset($_POST['notes']) ? sanitize_textarea_field(wp_unslash($_POST['notes'])) : '';
 
         if (empty($name) || empty($phone) || empty($service)) {
             wp_send_json_error(array('message' => esc_html__('لطفاً تمامی فیلدهای الزامی را تکمیل نمایید.', 'sedrazavi')));

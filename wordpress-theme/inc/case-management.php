@@ -69,8 +69,16 @@ if (!function_exists('sedrazavi_ajax_track_case')) {
     function sedrazavi_ajax_track_case() {
         check_ajax_referer('sedrazavi_security_nonce', 'security');
 
-        $case_number = isset($_POST['case_number']) ? sanitize_text_field($_POST['case_number']) : '';
-        $client_phone = isset($_POST['client_phone']) ? sanitize_text_field($_POST['client_phone']) : '';
+        // Rate limiting: max 12 tracking queries per 5 minutes per IP
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('tracking', 12, 300)) {
+            wp_send_json_error(array(
+                'rate_limited' => true,
+                'message'      => esc_html__('تعداد استعلام‌های پی‌درپی بیش از حد مجاز است. لطفاً پس از چند دقیقه مجدداً تلاش نمایید.', 'sedrazavi')
+            ), 429);
+        }
+
+        $case_number  = isset($_POST['case_number']) ? sanitize_text_field(wp_unslash($_POST['case_number'])) : '';
+        $client_phone = isset($_POST['client_phone']) ? sanitize_text_field(wp_unslash($_POST['client_phone'])) : '';
 
         if (empty($case_number)) {
             wp_send_json_error(array('message' => esc_html__('لطفاً شماره پرونده را وارد فرمایید.', 'sedrazavi')));

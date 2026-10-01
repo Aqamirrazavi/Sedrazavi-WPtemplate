@@ -15,7 +15,12 @@ if (!defined('ABSPATH')) {
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="profile" href="https://gmpg.org/xfn/11">
-    <?php wp_head(); ?>
+    <?php
+    if (function_exists('sedrazavi_render_dynamic_seo_tags')) {
+        sedrazavi_render_dynamic_seo_tags();
+    }
+    wp_head();
+    ?>
 </head>
 <body <?php body_class('bg-[#0B132B] text-slate-100 antialiased font-sans'); ?>>
 <?php wp_body_open(); ?>
