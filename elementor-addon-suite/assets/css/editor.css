@@ -1,0 +1,13 @@
+/**
+ * Universal Elementor Addon Suite - Editor Panel Styling
+ * Highlights UAS widgets & category in Elementor panel
+ */
+
+.elementor-element-wrapper[data-category="universal-addon-suite"] {
+  border-left: 3px solid #D4AF37;
+}
+
+.elementor-panel-category-title[data-category="universal-addon-suite"] {
+  font-weight: 700;
+  color: #D4AF37 !important;
+}

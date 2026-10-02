@@ -1,0 +1,30 @@
+/**
+ * Universal Elementor Addon Suite - Core Widgets CSS
+ * Version: 1.0.0
+ * Pure, Topic-Agnostic Styles with CSS Custom Properties
+ */
+
+:root {
+  --uas-primary-color: #2563EB;
+  --uas-primary-hover: #1D4ED8;
+  --uas-accent-color: #D4AF37;
+  --uas-text-main: #1E293B;
+  --uas-text-muted: #64748B;
+  --uas-bg-card: #FFFFFF;
+  --uas-border-color: #E2E8F0;
+  --uas-radius-card: 16px;
+  --uas-shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+.dark {
+  --uas-text-main: #F8FAFC;
+  --uas-text-muted: #94A3B8;
+  --uas-bg-card: #0F172A;
+  --uas-border-color: #334155;
+}
+
+.uas-widget-container {
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+}
