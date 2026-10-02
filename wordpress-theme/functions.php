@@ -11,13 +11,13 @@ if (!defined('ABSPATH')) {
 }
 
 if (!defined('SEDRAZAVI_THEME_VERSION')) {
-    define('SEDRAZAVI_THEME_VERSION', '2.5.0');
+    define('SEDRAZAVI_THEME_VERSION', '2.6.0');
 }
 if (!defined('SEDRAZAVI_THEME_DIR')) {
-    define('SEDRAZAVI_THEME_DIR', get_template_directory());
+    define('SEDRAZAVI_THEME_DIR', function_exists('get_template_directory') && get_template_directory() ? get_template_directory() : __DIR__);
 }
 if (!defined('SEDRAZAVI_THEME_URI')) {
-    define('SEDRAZAVI_THEME_URI', get_template_directory_uri());
+    define('SEDRAZAVI_THEME_URI', function_exists('get_template_directory_uri') && get_template_directory_uri() ? get_template_directory_uri() : get_stylesheet_directory_uri());
 }
 
 /**
