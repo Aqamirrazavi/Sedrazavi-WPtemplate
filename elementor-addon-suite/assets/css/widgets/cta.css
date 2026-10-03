@@ -1,0 +1,60 @@
+/**
+ * Universal Call To Action Banner CSS
+ */
+.uas-cta-wrapper {
+  position: relative;
+  width: 100%;
+  padding: 48px 32px;
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  border-radius: var(--uas-radius-card, 24px);
+  text-align: center;
+  color: #FFFFFF;
+  box-shadow: var(--uas-shadow-card, 0 10px 30px rgba(0,0,0,0.1));
+  box-sizing: border-box;
+}
+
+.uas-cta-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.uas-cta-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.uas-cta-desc {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #94A3B8;
+  margin: 0;
+}
+
+.uas-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 36px;
+  border-radius: 12px;
+  background: var(--uas-primary-color, #2563EB);
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 12px;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+  transition: all 0.25s ease;
+}
+
+.uas-cta-btn:hover {
+  background: var(--uas-primary-hover, #1D4ED8);
+  transform: translateY(-2px);
+  color: #FFFFFF;
+}

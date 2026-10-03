@@ -1,0 +1,54 @@
+{
+  "version": "0.4",
+  "title": "UAS - شبکه ویژگی‌ها و قابلیت‌های پیشرفته (3-Column Features Grid)",
+  "type": "section",
+  "content": [
+    {
+      "id": "uas_sec_feat_01",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "padding": { "unit": "px", "top": "50", "right": "0", "bottom": "50", "left": "0" }
+      },
+      "elements": [
+        {
+          "id": "uas_col_feat_01",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_feat_01",
+              "elType": "widget",
+              "widgetType": "uas_services_grid",
+              "settings": {
+                "subtitle": "توانمندی‌ها و قابلیت‌های محوری",
+                "title": "چرا سازمان‌های پیشرو ما را انتخاب می‌کنند؟",
+                "columns": "3",
+                "services_list": [
+                  {
+                    "item_title": "مشاوره راهبردی و مدیریت پروژه",
+                    "item_desc": "طراحی نقشه‌راه اجرایی، تحلیل شاخص‌های عملکرد و تسریع دستیابی به اهداف سازمانی.",
+                    "item_link_text": "اطلاعات بیشتر ←",
+                    "item_link_url": { "url": "#", "is_external": false }
+                  },
+                  {
+                    "item_title": "توسعه پلتفرم‌ها و فناوری‌های نوین",
+                    "item_desc": "پیاده‌سازی سامانه‌های یکپارچه، تحول دیجیتال و بهینه‌سازی فرآیندهای عملیاتی کسب‌وکار.",
+                    "item_link_text": "اطلاعات بیشتر ←",
+                    "item_link_url": { "url": "#", "is_external": false }
+                  },
+                  {
+                    "item_title": "حسابرسی، انطباق و نظارت کیفی",
+                    "item_desc": "پایش استانداردها، کنترل ریسک، تضمین کیفیت و تطبیق با آخرین مقررات و ضوابط صنعت.",
+                    "item_link_text": "اطلاعات بیشتر ←",
+                    "item_link_url": { "url": "#", "is_external": false }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

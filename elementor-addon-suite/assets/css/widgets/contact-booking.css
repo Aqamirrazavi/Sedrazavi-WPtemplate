@@ -1,0 +1,90 @@
+/**
+ * Universal Contact & Booking Form CSS
+ */
+.uas-booking-wrapper {
+  position: relative;
+  width: 100%;
+  padding: 40px;
+  background: var(--uas-bg-card, #FFFFFF);
+  border: 1px solid var(--uas-border-color, #E2E8F0);
+  border-radius: var(--uas-radius-card, 24px);
+  box-shadow: var(--uas-shadow-card, 0 10px 30px rgba(0,0,0,0.05));
+  max-width: 680px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.uas-booking-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.uas-booking-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--uas-text-main, #0F172A);
+  margin: 0 0 8px 0;
+}
+
+.uas-booking-desc {
+  font-size: 14px;
+  color: var(--uas-text-muted, #64748B);
+  margin: 0;
+}
+
+.uas-booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.uas-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: right;
+}
+
+.uas-form-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--uas-text-main, #334155);
+}
+
+.uas-form-input, .uas-form-select, .uas-form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--uas-border-color, #CBD5E1);
+  background: #F8FAFC;
+  font-size: 14px;
+  color: var(--uas-text-main, #0F172A);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.uas-form-input:focus, .uas-form-select:focus, .uas-form-textarea:focus {
+  border-color: var(--uas-primary-color, #2563EB);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  background: #FFFFFF;
+}
+
+.uas-form-submit {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--uas-primary-color, #2563EB);
+  color: #FFFFFF;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+
+.uas-form-submit:hover {
+  background: var(--uas-primary-hover, #1D4ED8);
+  transform: translateY(-2px);
+}

@@ -1,0 +1,50 @@
+/**
+ * Universal Theme Switcher CSS
+ */
+.uas-theme-toggle-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.uas-toggle-pill {
+  width: 52px;
+  height: 28px;
+  background: var(--uas-border-color, #E2E8F0);
+  border-radius: 9999px;
+  position: relative;
+  transition: background-color 0.25s ease;
+}
+
+.dark .uas-toggle-pill {
+  background: var(--uas-primary-color, #2563EB);
+}
+
+.uas-toggle-thumb {
+  width: 22px;
+  height: 22px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.dark .uas-toggle-thumb {
+  transform: translateX(22px);
+  background: #0F172A;
+  color: #F8FAFC;
+}
+
+.uas-toggle-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--uas-text-main, #334155);
+}

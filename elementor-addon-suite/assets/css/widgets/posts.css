@@ -1,0 +1,114 @@
+/**
+ * Universal Posts Grid CSS (Topic-Agnostic)
+ */
+.uas-posts-wrapper {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.uas-posts-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--uas-posts-cols, 3), 1fr);
+  gap: 28px;
+}
+
+.uas-post-card {
+  background: var(--uas-bg-card, #FFFFFF);
+  border: 1px solid var(--uas-border-color, #E2E8F0);
+  border-radius: var(--uas-radius-card, 18px);
+  overflow: hidden;
+  box-shadow: var(--uas-shadow-card, 0 4px 15px rgba(0,0,0,0.03));
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.uas-post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px -5px rgba(0,0,0,0.08);
+  border-color: var(--uas-primary-color, #2563EB);
+}
+
+.uas-post-thumb-wrapper {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: #E2E8F0;
+}
+
+.uas-post-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.uas-post-card:hover .uas-post-thumb {
+  transform: scale(1.05);
+}
+
+.uas-post-body {
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 12px;
+  text-align: right;
+}
+
+.uas-post-date {
+  font-size: 11px;
+  color: var(--uas-text-muted, #94A3B8);
+  font-weight: 600;
+}
+
+.uas-post-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--uas-text-main, #0F172A);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.uas-post-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.uas-post-title a:hover {
+  color: var(--uas-primary-color, #2563EB);
+}
+
+.uas-post-excerpt {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--uas-text-muted, #64748B);
+  margin: 0;
+}
+
+.uas-post-readmore {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--uas-primary-color, #2563EB);
+  text-decoration: none;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+@media (max-width: 991px) {
+  .uas-posts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .uas-posts-grid {
+    grid-template-columns: 1fr;
+  }
+}

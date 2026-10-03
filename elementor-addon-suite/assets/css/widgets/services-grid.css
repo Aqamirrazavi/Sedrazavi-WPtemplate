@@ -1,0 +1,116 @@
+/**
+ * Universal Services Grid CSS (Topic-Agnostic)
+ */
+.uas-services-wrapper {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.uas-services-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.uas-services-subtitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--uas-primary-color, #2563EB);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.uas-services-heading {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--uas-text-main, #0F172A);
+  margin: 0;
+}
+
+.uas-services-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--uas-grid-cols, 3), 1fr);
+  gap: 28px;
+}
+
+.uas-service-card {
+  position: relative;
+  padding: 32px 24px;
+  background: var(--uas-bg-card, #FFFFFF);
+  border: 1px solid var(--uas-border-color, #E2E8F0);
+  border-radius: var(--uas-radius-card, 20px);
+  box-shadow: var(--uas-shadow-card, 0 4px 20px rgba(0,0,0,0.03));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: right;
+  gap: 16px;
+}
+
+.uas-service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 35px -10px rgba(0,0,0,0.08);
+  border-color: var(--uas-primary-color, #2563EB);
+}
+
+.uas-service-icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--uas-primary-color, #2563EB);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  transition: all 0.3s ease;
+}
+
+.uas-service-card:hover .uas-service-icon-box {
+  background: var(--uas-primary-color, #2563EB);
+  color: #FFFFFF;
+}
+
+.uas-service-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--uas-text-main, #0F172A);
+  margin: 0;
+}
+
+.uas-service-card-desc {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--uas-text-muted, #64748B);
+  margin: 0;
+}
+
+.uas-service-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--uas-primary-color, #2563EB);
+  text-decoration: none;
+  margin-top: auto;
+  transition: gap 0.2s ease;
+}
+
+.uas-service-link:hover {
+  gap: 10px;
+}
+
+@media (max-width: 991px) {
+  .uas-services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .uas-services-grid {
+    grid-template-columns: 1fr;
+  }
+}

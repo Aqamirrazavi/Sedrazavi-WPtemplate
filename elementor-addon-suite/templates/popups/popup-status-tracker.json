@@ -1,0 +1,46 @@
+{
+  "version": "0.4",
+  "title": "UAS - پاپ‌آپ استعلام و رهگیری وضعیت (Order & Status Inquiry Popup)",
+  "type": "popup",
+  "page_settings": {
+    "width": { "unit": "px", "size": 560 },
+    "height": "fit_to_content",
+    "position_h": "center",
+    "position_v": "center",
+    "overlay": "yes",
+    "close_button": "yes",
+    "entrance_animation": "fadeIn",
+    "exit_animation": "fadeOut"
+  },
+  "content": [
+    {
+      "id": "uas_popup_sec_tracker",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "background_color": "#FFFFFF",
+        "padding": { "unit": "px", "top": "32", "right": "24", "bottom": "32", "left": "24" }
+      },
+      "elements": [
+        {
+          "id": "uas_popup_col_tracker",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_popup_wid_tracker",
+              "elType": "widget",
+              "widgetType": "uas_cta",
+              "settings": {
+                "title": "سامانه آنلاین رهگیری وضعیت سفارش و پرونده",
+                "description": "با درج شناسه پیگیری یا شماره تماس در پورتال، از آخرین وضعیت اجرایی و تاریخ مراحل بعدی پروژه مطلع شوید.",
+                "button_text": "ورود به پورتال استعلام آنلاین ←",
+                "button_url": { "url": "#tracking", "is_external": false }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

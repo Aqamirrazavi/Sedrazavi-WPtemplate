@@ -1,0 +1,86 @@
+/**
+ * Universal FAQ Accordion CSS
+ */
+.uas-faq-wrapper {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.uas-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.uas-faq-item {
+  border: 1px solid var(--uas-border-color, #E2E8F0);
+  border-radius: var(--uas-radius-card, 16px);
+  background: var(--uas-bg-card, #FFFFFF);
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.uas-faq-item.is-active {
+  border-color: var(--uas-primary-color, #2563EB);
+  box-shadow: var(--uas-shadow-card, 0 4px 20px rgba(0,0,0,0.04));
+}
+
+.uas-faq-question {
+  width: 100%;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: right;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--uas-text-main, #0F172A);
+  transition: color 0.2s;
+}
+
+.uas-faq-question:hover {
+  color: var(--uas-primary-color, #2563EB);
+}
+
+.uas-faq-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--uas-primary-color, #2563EB);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: transform 0.3s ease, background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.uas-faq-item.is-active .uas-faq-icon {
+  transform: rotate(45deg);
+  background: var(--uas-primary-color, #2563EB);
+  color: #FFFFFF;
+}
+
+.uas-faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.3s ease;
+  padding: 0 24px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--uas-text-muted, #475569);
+  text-align: right;
+}
+
+.uas-faq-item.is-active .uas-faq-answer {
+  max-height: 500px;
+  padding: 0 24px 20px 24px;
+}

@@ -1,0 +1,39 @@
+/**
+ * Universal Text Ticker & Quote Banner CSS
+ */
+.uas-ticker-wrapper {
+  position: relative;
+  width: 100%;
+  padding: 16px 24px;
+  background: var(--uas-bg-card, #FFFFFF);
+  border: 1px solid var(--uas-border-color, #E2E8F0);
+  border-radius: var(--uas-radius-card, 16px);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.uas-ticker-badge {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: var(--uas-primary-color, #2563EB);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.uas-ticker-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--uas-text-main, #1E293B);
+  white-space: nowrap;
+  animation: uas-marquee 25s linear infinite;
+}
+
+@keyframes uas-marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}

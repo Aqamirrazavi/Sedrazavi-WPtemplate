@@ -21,12 +21,12 @@ if (!defined('ABSPATH')) {
 }
 
 // Global Plugin Constants
-define('UAS_VERSION', '1.0.0');
-define('UAS_FILE', __FILE__);
-define('UAS_PATH', plugin_dir_path(__FILE__));
-define('UAS_URL', plugin_dir_url(__FILE__));
-define('UAS_MINIMUM_ELEMENTOR_VERSION', '3.5.0');
-define('UAS_MINIMUM_PHP_VERSION', '7.4');
+if (!defined('UAS_VERSION')) define('UAS_VERSION', '1.0.0');
+if (!defined('UAS_FILE')) define('UAS_FILE', __FILE__);
+if (!defined('UAS_PATH')) define('UAS_PATH', plugin_dir_path(__FILE__));
+if (!defined('UAS_URL')) define('UAS_URL', plugin_dir_url(__FILE__));
+if (!defined('UAS_MINIMUM_ELEMENTOR_VERSION')) define('UAS_MINIMUM_ELEMENTOR_VERSION', '3.5.0');
+if (!defined('UAS_MINIMUM_PHP_VERSION')) define('UAS_MINIMUM_PHP_VERSION', '7.4');
 
 /**
  * Main Initialization Class
@@ -58,6 +58,14 @@ final class Universal_Elementor_Addon_Suite {
     public function __construct() {
         add_action('init', [$this, 'i18n']);
         add_action('plugins_loaded', [$this, 'init']);
+    }
+
+    /**
+     * On Plugin Activation
+     */
+    public static function on_activation() {
+        require_once UAS_PATH . 'includes/class-template-importer.php';
+        \UniversalElementorSuite\Template_Importer::run_activation_import();
     }
 
     /**
@@ -181,3 +189,6 @@ final class Universal_Elementor_Addon_Suite {
  * Run Universal Elementor Addon Suite
  */
 Universal_Elementor_Addon_Suite::instance();
+if (function_exists('register_activation_hook')) {
+    register_activation_hook(__FILE__, ['Universal_Elementor_Addon_Suite', 'on_activation']);
+}

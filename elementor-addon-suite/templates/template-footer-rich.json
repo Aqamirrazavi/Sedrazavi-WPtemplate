@@ -1,0 +1,35 @@
+{
+  "version": "0.4",
+  "title": "UAS - فوتر جامع و چندستونه سازمانی (Multi-Column Corporate Footer)",
+  "type": "section",
+  "content": [
+    {
+      "id": "uas_sec_footer_01",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "background_background": "classic",
+        "background_color": "#0F172A",
+        "padding": { "unit": "px", "top": "60", "right": "20", "bottom": "40", "left": "20" }
+      },
+      "elements": [
+        {
+          "id": "uas_col_footer_01",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_footer_ticker",
+              "elType": "widget",
+              "widgetType": "uas_banner_slider",
+              "settings": {
+                "badge": "تعهد و ارزش‌ها",
+                "text": "توسعه پایدار، شفافیت سازمانی و رعایت اصول اخلاق حرفه‌ای سرلوحه تمام فعالیت‌های ماست."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

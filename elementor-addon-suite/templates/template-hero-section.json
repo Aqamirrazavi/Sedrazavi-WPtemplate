@@ -1,0 +1,41 @@
+{
+  "version": "0.4",
+  "title": "UAS - هیرو مدرن شرکتی و سازمانی (Modern Corporate Hero)",
+  "type": "section",
+  "content": [
+    {
+      "id": "uas_sec_hero_01",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "padding": { "unit": "px", "top": "40", "right": "0", "bottom": "40", "left": "0" }
+      },
+      "elements": [
+        {
+          "id": "uas_col_hero_01",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_hero_01",
+              "elType": "widget",
+              "widgetType": "uas_hero",
+              "settings": {
+                "badge_text": "نوآوری در ارائه خدمات برتر",
+                "hero_title": "راهکارهای هوشمند و مدرن برای ارتقای کسب‌وکار شما",
+                "hero_desc": "ما با تلفیق تخصص، نوآوری و تکنولوژی‌های پیشرو، سازمان شما را در مسیر دستیابی به اهداف راهبردی و مزیت‌های پایدار رقابتی همراهی می‌کنیم.",
+                "primary_btn_text": "درخواست مشاوره رایگان",
+                "primary_btn_url": { "url": "#contact", "is_external": false },
+                "secondary_btn_text": "مشاهده پروژه‌ها و خدمات",
+                "secondary_btn_url": { "url": "#services", "is_external": false },
+                "hero_image": {
+                  "url": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

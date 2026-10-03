@@ -1,0 +1,76 @@
+/**
+ * Universal Team Members Showcase CSS
+ */
+.uas-team-wrapper {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.uas-team-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--uas-team-cols, 3), 1fr);
+  gap: 24px;
+}
+
+.uas-team-card {
+  background: var(--uas-bg-card, #FFFFFF);
+  border: 1px solid var(--uas-border-color, #E2E8F0);
+  border-radius: var(--uas-radius-card, 20px);
+  padding: 24px;
+  text-align: center;
+  box-shadow: var(--uas-shadow-card, 0 4px 15px rgba(0,0,0,0.03));
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.uas-team-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--uas-primary-color, #2563EB);
+  box-shadow: 0 15px 30px -5px rgba(0,0,0,0.08);
+}
+
+.uas-team-photo {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--uas-primary-color, #2563EB);
+  margin-bottom: 4px;
+}
+
+.uas-team-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--uas-text-main, #0F172A);
+  margin: 0;
+}
+
+.uas-team-role {
+  font-size: 13px;
+  color: var(--uas-primary-color, #2563EB);
+  font-weight: 600;
+  margin: 0;
+}
+
+.uas-team-bio {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--uas-text-muted, #64748B);
+  margin: 0;
+}
+
+@media (max-width: 991px) {
+  .uas-team-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .uas-team-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "version": "0.4",
+  "title": "UAS - جدول مقایسه پلن‌های تعرفه و اشتراک (Pricing Comparison Table)",
+  "type": "section",
+  "content": [
+    {
+      "id": "uas_sec_price_01",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "padding": { "unit": "px", "top": "50", "right": "0", "bottom": "50", "left": "0" }
+      },
+      "elements": [
+        {
+          "id": "uas_col_price_01",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_price_cta_01",
+              "elType": "widget",
+              "widgetType": "uas_cta",
+              "settings": {
+                "title": "پلن‌های شفاف، منعطف و متناسب با رشد سازمان شما",
+                "description": "از میان گزینه‌های استاندارد، حرفه‌ای و سازمانی، مناسب‌ترین بسته متناسب با بودجه و نیازمندی‌های کسب‌وکار خود را انتخاب فرمایید.",
+                "button_text": "مشاهده جزئیات پلن‌های تعرفه و استعلام فوری ←",
+                "button_url": { "url": "#pricing", "is_external": false }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
