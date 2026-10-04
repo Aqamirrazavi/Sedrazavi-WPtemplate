@@ -498,6 +498,154 @@ function sedrazavi_shortcode_legal_strategy_wrapper($atts, $content = null) {
 add_shortcode('sedrazavi_legal_strategy_suite', 'sedrazavi_shortcode_legal_strategy_wrapper');
 add_shortcode('sedrazavi_react_legal_strategy', 'sedrazavi_shortcode_legal_strategy_wrapper');
 
+// ۱۳. سامانه ورود با رمز یکبار مصرف ایمیلی (Email OTP Magic Login)
+function sedrazavi_shortcode_email_otp($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $a = shortcode_atts(array(
+        'title'    => 'ورود سریع و امن با رمز یکبار مصرف (Email OTP)',
+        'subtitle' => 'برای ورود به سامانه، ایمیل خود را وارد نمایید تا کد ۶ رقمی موقت برای شما ارسال شود.',
+        'class'    => '',
+        'id'       => '',
+    ), $atts, 'sedrazavi_react_email_otp');
+
+    $props = array(
+        'title'    => sanitize_text_field($a['title']),
+        'subtitle' => sanitize_text_field($a['subtitle']),
+    );
+    $unique_id = !empty($a['id']) ? sanitize_html_class($a['id']) : 'sedrazavi-react-otp-' . wp_unique_id();
+    $css_class = trim('sedrazavi-ui-wrapper ' . sanitize_text_field($a['class']));
+
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root <?php echo esc_attr($css_class); ?>" data-component="EmailOtpAuthComponent" data-props="<?php echo esc_attr(wp_json_encode($props)); ?>" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('EmailOtpAuthComponent', 'سیستم ورود با رمز یکبار مصرف ایمیلی'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_react_email_otp', 'sedrazavi_shortcode_email_otp');
+add_shortcode('sedrazavi_email_otp', 'sedrazavi_shortcode_email_otp');
+
+// ۱۴. تایم‌لاین تعاملی پرونده و مواعد دادرسی (Case Interactive Timeline)
+function sedrazavi_shortcode_case_timeline($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $a = shortcode_atts(array(
+        'case_id'     => 'c-01',
+        'case_number' => '۱۴۰۳-۹۸۲۷۳-ونک',
+        'subject'     => 'الزام به تنظیم سند رسمی انتقال ملک و مطالبه خسارت تاخیر تادیه',
+        'class'       => '',
+        'id'          => '',
+    ), $atts, 'sedrazavi_react_case_timeline');
+
+    $props = array(
+        'caseId'      => sanitize_text_field($a['case_id']),
+        'caseNumber'  => sanitize_text_field($a['case_number']),
+        'caseSubject' => sanitize_text_field($a['subject']),
+    );
+    $unique_id = !empty($a['id']) ? sanitize_html_class($a['id']) : 'sedrazavi-react-timeline-' . wp_unique_id();
+    $css_class = trim('sedrazavi-ui-wrapper ' . sanitize_text_field($a['class']));
+
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root <?php echo esc_attr($css_class); ?>" data-component="CaseInteractiveTimeline" data-props="<?php echo esc_attr(wp_json_encode($props)); ?>" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('CaseInteractiveTimeline', 'تایم‌لاین تعاملی و مواعد پرونده'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_react_case_timeline', 'sedrazavi_shortcode_case_timeline');
+add_shortcode('sedrazavi_case_timeline', 'sedrazavi_shortcode_case_timeline');
+
+// ۱۵. نقاط عطف و روند رشد دفتر وکالت (Firm Milestones Timeline)
+function sedrazavi_shortcode_firm_milestones($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-milestones-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="FirmMilestone" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('FirmMilestone', 'سفر رشد و نقاط عطف راهبردی مؤسسه حقوقی'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_react_firm_milestones', 'sedrazavi_shortcode_firm_milestones');
+add_shortcode('sedrazavi_firm_milestones', 'sedrazavi_shortcode_firm_milestones');
+
+// ۱۶. نمودار راداری حوزه‌های تخصصی وکیل (Key Practice Areas Radar Chart)
+function sedrazavi_shortcode_radar_chart($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-radar-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="KeyPracticeAreasRadarChart" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('KeyPracticeAreasRadarChart', 'ماتریس راداری صلاحیت‌های تخصصی وکیل'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_react_radar_chart', 'sedrazavi_shortcode_radar_chart');
+add_shortcode('sedrazavi_radar_chart', 'sedrazavi_shortcode_radar_chart');
+
+// ۱۷. سیستم اعلان‌های بلادرنگ مواعد دادگاه (Lawyer Realtime Toast Notifier)
+function sedrazavi_shortcode_toast_notifier($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-notifier-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="LawyerRealtimeToastNotifier" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('LawyerRealtimeToastNotifier', 'سیستم اعلان‌های زنده مواعد دادگاه و پیام‌ها'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_react_toast_notifier', 'sedrazavi_shortcode_toast_notifier');
+add_shortcode('sedrazavi_toast_notifier', 'sedrazavi_shortcode_toast_notifier');
+
+// ۱۸. شناسنامه رسمی و کارت بیوگرافی قابل پرینت وکیل (Lawyer Print Bio Card)
+function sedrazavi_shortcode_lawyer_bio_card($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-biocard-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="LawyerPrintBioCard" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('LawyerPrintBioCard', 'شناسنامه حرفه‌ای و کارت بیوگرافی وکیل'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_react_lawyer_bio_card', 'sedrazavi_shortcode_lawyer_bio_card');
+add_shortcode('sedrazavi_lawyer_bio_card', 'sedrazavi_shortcode_lawyer_bio_card');
+
+// ۱۹. پنل جامع ادمین و راهبری پرونده‌ها (Comprehensive Admin Portal)
+function sedrazavi_shortcode_admin_portal($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-admin-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="ComprehensiveAdminPortal" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('ComprehensiveAdminPortal', 'پنل جامع مدیریت وکیل و ادمین'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_react_admin_portal', 'sedrazavi_shortcode_admin_portal');
+add_shortcode('sedrazavi_admin_portal', 'sedrazavi_shortcode_admin_portal');
+
+// ۲۰. داشبورد کامل پیشخوان وکیل و موکل (Lawyer Dashboard)
+function sedrazavi_shortcode_dashboard_wrapper($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-dash-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="LawyerDashboard" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('LawyerDashboard', 'میز کار و داشبورد مدیریت وکالت'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_react_dashboard', 'sedrazavi_shortcode_dashboard_wrapper');
+add_shortcode('sedrazavi_lawyer_dashboard', 'sedrazavi_shortcode_dashboard_wrapper');
+
 /**
  * ==============================================================================
  * ۶. اسکریپت خودکار مانت کلاینت در فوتر (Auto Mount Loader in wp_footer)

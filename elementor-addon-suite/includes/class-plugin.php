@@ -125,6 +125,10 @@ class Plugin {
             'uas_banner_slider'   => ['file' => 'class-widget-banner-slider.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Banner_Slider_Widget'],
             'uas_floating_dock'   => ['file' => 'class-widget-floating-dock.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Floating_Dock_Widget'],
             'uas_theme_toggle'    => ['file' => 'class-widget-theme-toggle.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Theme_Toggle_Widget'],
+            'uas_firm_milestones' => ['file' => 'class-widget-firm-milestones.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Firm_Milestones_Widget'],
+            'uas_case_timeline'   => ['file' => 'class-widget-case-timeline.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Case_Timeline_Widget'],
+            'uas_email_otp'       => ['file' => 'class-widget-email-otp.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Email_OTP_Widget'],
+            'uas_radar_chart'     => ['file' => 'class-widget-radar-chart.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Radar_Chart_Widget'],
         ];
 
         foreach ($widgets_map as $widget_id => $data) {

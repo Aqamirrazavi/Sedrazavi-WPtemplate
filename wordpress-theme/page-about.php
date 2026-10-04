@@ -74,6 +74,11 @@ get_header();
                 </div>
             </div>
         </div>
+
+        <!-- تایم‌لاین نقاط عطف و افق رشد دفتر وکالت (Firm Milestones) -->
+        <div class="rounded-3xl p-8 bg-white border border-gray-200 shadow-xl space-y-6 text-right">
+            <?php echo do_shortcode('[sedrazavi_react_firm_milestones]'); ?>
+        </div>
     </div>
 </div>
 
