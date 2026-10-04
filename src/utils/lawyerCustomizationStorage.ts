@@ -488,6 +488,8 @@ export function saveLawyerProfile(profile: LawyerSiteProfile): void {
   }
 }
 
+export const saveStoredLawyerProfile = saveLawyerProfile;
+
 // Reset to default
 export function resetLawyerProfile(): LawyerSiteProfile {
   if (typeof window !== 'undefined') {

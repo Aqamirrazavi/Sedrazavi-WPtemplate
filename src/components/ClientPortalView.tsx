@@ -35,6 +35,7 @@ import {
   normalizeIranPhone
 } from '../utils/clientAccountsStorage';
 import { ClientPortalQuickAccessWidget } from './ClientPortalQuickAccessWidget';
+import { CaseInteractiveTimeline } from './timeline/CaseInteractiveTimeline';
 
 interface ClientCase {
   id: string;
@@ -364,6 +365,18 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
         </button>
 
         <button
+          onClick={() => setActiveTab('timeline')}
+          className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+            activeTab === 'timeline'
+              ? 'bg-[#D4AF37] text-[#0B132B] shadow-md'
+              : 'text-gray-500 dark:text-gray-400 hover:text-[#D4AF37]'
+          }`}
+        >
+          <Calendar className="w-4 h-4" />
+          <span>تایم‌لاین تعاملی و مواعد پرونده</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('documents')}
           className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
             activeTab === 'documents'
@@ -521,6 +534,28 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
           </div>
 
+          {/* Dynamic & Interactive Case Milestones Timeline (Status History & Upcoming Milestones) */}
+          <div className="lg:col-span-12 pt-6 border-t border-gray-200 dark:border-gray-800">
+            <CaseInteractiveTimeline
+              caseId={activeCase.id}
+              caseNumber={activeCase.caseNumber}
+              caseSubject={activeCase.subject}
+              onOpenBooking={onOpenBooking}
+            />
+          </div>
+
+        </div>
+      )}
+
+      {/* Standalone Tab: Case Milestones Timeline */}
+      {activeTab === 'timeline' && (
+        <div className="space-y-6">
+          <CaseInteractiveTimeline
+            caseId={activeCase.id}
+            caseNumber={activeCase.caseNumber}
+            caseSubject={activeCase.subject}
+            onOpenBooking={onOpenBooking}
+          />
         </div>
       )}
 

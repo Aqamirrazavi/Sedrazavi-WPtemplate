@@ -73,7 +73,10 @@ import { LawyerHeroSlider } from './components/LawyerHeroSlider';
 import { TextBannerSlider } from './components/TextBannerSlider';
 import { ClientPortalView } from './components/ClientPortalView';
 import { VectorBackgroundRenderer } from './components/VectorBackgroundRenderer';
-import { Scale, User, Briefcase, Lock } from 'lucide-react';
+import { EmailOtpAuthComponent } from './components/auth/EmailOtpAuthComponent';
+import { ComprehensiveAdminPortal } from './components/admin/ComprehensiveAdminPortal';
+import { AdminHelpAndDocsSystem } from './components/admin/AdminHelpAndDocsSystem';
+import { Scale, User, Briefcase, Lock, X } from 'lucide-react';
 import {
   LawyerSiteProfile,
   getStoredLawyerProfile,
@@ -94,6 +97,7 @@ export default function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isSurveyOpen, setIsSurveyOpen] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [isEmailOtpModalOpen, setIsEmailOtpModalOpen] = useState(false);
   const [isQuickCallbackOpen, setIsQuickCallbackOpen] = useState(false);
   const [isLiveConsultationOpen, setIsLiveConsultationOpen] = useState(false);
   const [isQuickCaseTrackerOpen, setIsQuickCaseTrackerOpen] = useState(false);
@@ -580,67 +584,25 @@ export default function App() {
                 </div>
               </div>
             ) : userRole === 'lawyer' || userRole === 'admin' ? (
-              <LawyerDashboard
-                initialPortalMode="attorney"
+              <ComprehensiveAdminPortal
                 userPhoneNumber={userPhone}
                 userName={userName}
                 lawyerProfile={lawyerProfile}
                 onUpdateLawyerProfile={(updated) => setLawyerProfile(updated)}
                 onLogout={handleLogout}
-                onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+                onBackToHome={() => setActiveView('preview')}
               />
             ) : (
-              /* Security Barrier for Unauthenticated Guests */
-              <div className="min-h-[75vh] flex items-center justify-center p-4">
-                <div className="max-w-md w-full p-8 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-2xl text-center space-y-6">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/10 text-[#D4AF37] flex items-center justify-center shadow-inner">
-                    <Scale className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold font-serif text-[#0B132B] dark:text-white">
-                      پیشخوان اختصاصی و محرمانه
-                    </h2>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
-                      جهت حفظ محرمانگی اسناد پرونده‌های موکلین و ابزارهای راهبری وکیل، دسترسی به این بخش نیازمند ورود به حساب کاربری است.
-                    </p>
-                  </div>
-
-                  <div className="space-y-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOtpModalInitialTab('client');
-                        setIsOtpModalOpen(true);
-                      }}
-                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] font-bold text-xs shadow-md shadow-[#D4AF37]/25 hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <User className="w-4 h-4" />
-                      <span>ورود موکلین و مراجعین (با پیامک یا رمز)</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOtpModalInitialTab('lawyer');
-                        setIsOtpModalOpen(true);
-                      }}
-                      className="w-full py-3.5 px-4 rounded-xl bg-[#0B132B] dark:bg-gray-800 hover:bg-[#1C2541] text-white border border-[#D4AF37]/50 font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <Briefcase className="w-4 h-4 text-[#D4AF37]" />
-                      <span>ورود وکیل دادگستری (با رمز مدیریت وردپرس)</span>
-                    </button>
-                  </div>
-
-                  <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <button
-                      type="button"
-                      onClick={() => setActiveView('preview')}
-                      className="text-xs text-gray-500 dark:text-gray-400 hover:text-[#D4AF37] transition-colors cursor-pointer"
-                    >
-                      بازگشت به صفحه اصلی سایت
-                    </button>
-                  </div>
-                </div>
+              /* Direct Email OTP Magic Login Barrier for Unauthenticated Guests */
+              <div className="min-h-[80vh] flex items-center justify-center p-4">
+                <EmailOtpAuthComponent
+                  onLoginSuccess={(identifier, name, role) => {
+                    handleLoginSuccess(identifier, name, role);
+                  }}
+                  title="ورود با رمز یکبار مصرف به پیشخوان حقوقی"
+                  subtitle="جهت دسترسی به پنل مدیریت پرونده‌ها و خدمات موکلین، آدرس ایمیل خود را وارد فرمایید."
+                  onCancel={() => setActiveView('preview')}
+                />
               </div>
             )}
             <Footer
@@ -1356,6 +1318,28 @@ export default function App() {
           handleLoginSuccess(identifier, name, role);
         }}
       />
+
+      {/* Dedicated Email OTP Magic Login Modal */}
+      {isEmailOtpModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative w-full max-w-lg bg-white dark:bg-[#0B132B] rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800 shadow-2xl">
+            <button
+              onClick={() => setIsEmailOtpModalOpen(false)}
+              className="absolute left-5 top-5 p-2 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <EmailOtpAuthComponent
+              isModal={true}
+              onLoginSuccess={(identifier, name, role) => {
+                handleLoginSuccess(identifier, name, role);
+                setIsEmailOtpModalOpen(false);
+              }}
+              onCancel={() => setIsEmailOtpModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Quick Callback Request Modal (Without Registration - Priority #1) */}
       <QuickCallbackModal

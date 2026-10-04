@@ -3,6 +3,7 @@ import { useDesignTokens } from '../context/DesignTokensContext';
 import { ATTORNEY_INFO } from '../data/mockData';
 import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
 import { ShieldCheck, Award, GraduationCap, CheckCircle2, Quote, Sparkles } from 'lucide-react';
+import { FirmMilestone } from './FirmMilestone';
 
 interface AboutSectionProps {
   profile?: LawyerSiteProfile;
@@ -113,6 +114,9 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
           </div>
 
         </div>
+
+        {/* Firm Milestones & Growth Journey Timeline */}
+        <FirmMilestone />
       </div>
     </section>
   );

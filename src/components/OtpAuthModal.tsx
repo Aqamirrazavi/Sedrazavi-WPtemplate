@@ -19,8 +19,10 @@ import {
   Briefcase,
   AlertCircle,
   FileCheck2,
+  Mail,
 } from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
+import { EmailOtpMagicLogin } from './EmailOtpMagicLogin';
 import {
   findClientByCredentials,
   normalizeIranPhone,
@@ -43,6 +45,11 @@ export const OtpAuthModal: React.FC<OtpAuthModalProps> = ({
   onOpenQuickCallback,
   initialRoleTab = 'client',
 }) => {
+  // Master Auth Mode: 'email-otp' | 'mobile' | 'lawyer'
+  const [authMode, setAuthMode] = useState<'email-otp' | 'mobile' | 'lawyer'>(
+    initialRoleTab === 'lawyer' ? 'lawyer' : 'email-otp'
+  );
+
   // Master Role Tab: 'client' (موکلین) vs 'lawyer' (وکلا و مدیریت وردپرس)
   const [roleTab, setRoleTab] = useState<'client' | 'lawyer'>(initialRoleTab);
 
@@ -76,6 +83,11 @@ export const OtpAuthModal: React.FC<OtpAuthModalProps> = ({
   useEffect(() => {
     if (isOpen && initialRoleTab) {
       setRoleTab(initialRoleTab);
+      if (initialRoleTab === 'lawyer') {
+        setAuthMode('lawyer');
+      } else {
+        setAuthMode('email-otp');
+      }
     }
   }, [isOpen, initialRoleTab]);
 
@@ -269,41 +281,91 @@ export const OtpAuthModal: React.FC<OtpAuthModalProps> = ({
           </button>
         </div>
 
-        {/* Master Role Tabs: Client vs Lawyer/Admin */}
+        {/* Master Auth Mode Tabs: Email OTP (MihanWP Style) vs Mobile/SMS vs Lawyer Admin */}
         <div className="p-3 bg-gray-100/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-800">
-          <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <button
               type="button"
-              onClick={() => setRoleTab('client')}
-              className={`min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all ${
-                roleTab === 'client'
+              onClick={() => setAuthMode('email-otp')}
+              className={`min-h-[44px] flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs font-bold transition-all ${
+                authMode === 'email-otp'
                   ? 'bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] shadow-sm'
                   : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
               }`}
             >
-              <User className="w-4 h-4" />
-              <span>ورود موکلین و مراجعین</span>
+              <div className="flex items-center gap-1">
+                <Mail className="w-3.5 h-3.5" />
+                <span>ورود با ایمیل</span>
+              </div>
+              <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
+                authMode === 'email-otp' ? 'bg-[#0B132B] text-[#D4AF37]' : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+              }`}>
+                OTP
+              </span>
             </button>
 
             <button
               type="button"
-              onClick={() => setRoleTab('lawyer')}
-              className={`min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all ${
-                roleTab === 'lawyer'
+              onClick={() => {
+                setAuthMode('mobile');
+                setRoleTab('client');
+              }}
+              className={`min-h-[44px] flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs font-bold transition-all ${
+                authMode === 'mobile'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
+              }`}
+            >
+              <Phone className="w-3.5 h-3.5" />
+              <span>ورود با موبایل</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode('lawyer');
+                setRoleTab('lawyer');
+              }}
+              className={`min-h-[44px] flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs font-bold transition-all ${
+                authMode === 'lawyer'
                   ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
                   : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
               }`}
             >
-              <Briefcase className="w-4 h-4 text-[#D4AF37]" />
-              <span>ورود وکلا و مدیریت</span>
+              <Briefcase className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>وکلا و مدیریت</span>
             </button>
           </div>
         </div>
 
         {/* ======================================================== */}
+        {/* MODE 1: EMAIL OTP MAGIC LOGIN (LIKE MIHANWORDPRESS)      */}
+        {/* ======================================================== */}
+        {authMode === 'email-otp' && (
+          <div className="p-5 sm:p-6">
+            <div className="p-3 mb-4 rounded-2xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-xs text-[#0B132B] dark:text-[#F3E5AB] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#D4AF37]" />
+                <span className="font-bold">ورود هوشمند با رمز یکبار مصرف ایمیل</span>
+              </div>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400 font-mono">Magic OTP</span>
+            </div>
+
+            <EmailOtpMagicLogin
+              onLoginSuccess={(resolvedEmail, resolvedName, resolvedRole) => {
+                onLoginSuccess(resolvedEmail, resolvedName, resolvedRole);
+                onClose();
+              }}
+              onSwitchToPasswordLogin={() => setAuthMode('lawyer')}
+              onClose={onClose}
+            />
+          </div>
+        )}
+
+        {/* ======================================================== */}
         {/* ROLE 1: LAWYER & ADMIN LOGIN TAB                         */}
         {/* ======================================================== */}
-        {roleTab === 'lawyer' && (
+        {authMode === 'lawyer' && (
           <div className="p-5 sm:p-6 space-y-4">
             <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-[#F3E5AB] leading-relaxed">
               <div className="font-bold flex items-center gap-1.5 mb-1 text-amber-800 dark:text-[#D4AF37]">
@@ -404,7 +466,7 @@ export const OtpAuthModal: React.FC<OtpAuthModalProps> = ({
         {/* ======================================================== */}
         {/* ROLE 2: CLIENT LOGIN TAB (SMS OTP or Lawyer Password)    */}
         {/* ======================================================== */}
-        {roleTab === 'client' && (
+        {authMode === 'mobile' && (
           <div className="p-5 sm:p-6 space-y-4">
             
             {/* Sub-Tabs: Assigned Password vs SMS OTP */}

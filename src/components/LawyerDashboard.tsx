@@ -22,6 +22,11 @@ import { CourtFeeCalculator } from './legal-finance/CourtFeeCalculator';
 import { HtmlCssExportModal } from './HtmlCssExportModal';
 import { ReactShortcodeGeneratorModal } from './ReactShortcodeGeneratorModal';
 import { AdminReactShortcodesTab } from './admin/AdminReactShortcodesTab';
+import { KeyPracticeAreasRadarChart } from './KeyPracticeAreasRadarChart';
+import { LawyerPrintBioCard } from './LawyerPrintBioCard';
+import { LawyerAdminPlaybookModal } from './admin/LawyerAdminPlaybookModal';
+import { LawyerRealtimeToastNotifier } from './notifications/LawyerRealtimeToastNotifier';
+import { downloadCaseloadCsvFile } from '../utils/caseloadCsvExporter';
 import {
   LawyerSiteProfile,
   getStoredLawyerProfile,
@@ -61,6 +66,10 @@ import {
   UserCheck,
   Code,
   FileCode,
+  Printer,
+  X,
+  FileSpreadsheet,
+  BookOpen,
 } from 'lucide-react';
 
 export type AdminSubTabKey =
@@ -127,6 +136,19 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
   const [showManualAccountModal, setShowManualAccountModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showReactPhpGeneratorModal, setShowReactPhpGeneratorModal] = useState(false);
+  const [showPrintProfileModal, setShowPrintProfileModal] = useState(false);
+  const [showPlaybookModal, setShowPlaybookModal] = useState(false);
+  const [downloadNotification, setDownloadNotification] = useState<string | null>(null);
+
+  const handleDownloadCaseloadCsv = () => {
+    const result = downloadCaseloadCsvFile(lawyerProfile, cases);
+    setDownloadNotification(
+      `گزارش جامع داده‌ها با موفقیت دانلود شد (${result.filename} شامل ${cases.length} پرونده جاری، ۶ حوزه تخصصی و تعاملات موکلین).`
+    );
+    setTimeout(() => {
+      setDownloadNotification(null);
+    }, 6000);
+  };
 
   // New Case Form state
   const [newCaseNumber, setNewCaseNumber] = useState(`۱۴۰۳-${(cases.length + 1).toString().padStart(3, '0')}`);
@@ -255,6 +277,14 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            {/* Real-time Notification System & Toast Alerts for Court Deadlines & Client Messages */}
+            <LawyerRealtimeToastNotifier
+              onSelectCase={(caseNum) => {
+                setSearchTerm(caseNum);
+                setActiveSubTab('dashboard');
+              }}
+            />
+
             <button
               onClick={() => setShowReactPhpGeneratorModal(true)}
               className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#0B132B] to-[#1C2541] hover:brightness-110 text-[#D4AF37] border border-[#D4AF37]/50 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
@@ -285,6 +315,36 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
               <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-600 text-white font-mono">پیام‌رسان</span>
             </button>
 
+            <button
+              onClick={() => setShowPrintProfileModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-[#D4AF37]/15 hover:bg-[#D4AF37]/25 text-[#AA820A] dark:text-[#F3E5AB] border border-[#D4AF37]/50 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+              title="چاپ کارت بیوگرافی رسمی و شناسنامه حرفه‌ای وکیل برای موکلین"
+            >
+              <Printer className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>چاپ پروفایل وکیل</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#0B132B] dark:bg-[#D4AF37] text-[#D4AF37] dark:text-[#0B132B] font-mono">Print</span>
+            </button>
+
+            <button
+              onClick={handleDownloadCaseloadCsv}
+              className="px-3.5 py-2 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-700 dark:text-blue-300 border border-blue-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+              title="دانلود فایل اکسل/CSV از فهرست پرونده‌های جاری، ماتریس حوزه‌های تخصصی و خلاصه جلسات موکلین"
+            >
+              <Download className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>دانلود داده‌ها</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-600 text-white font-mono">CSV</span>
+            </button>
+
+            <button
+              onClick={() => setShowPlaybookModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-purple-600/10 hover:bg-purple-600/20 text-purple-700 dark:text-purple-300 border border-purple-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+              title="کتابچه راهنما و دستورالعمل جامع رتق و فتق کارهای وکیل، مدیریت موکلین و راهنمای طراح سایت"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+              <span>دستورالعمل و راهنمای مدیریت</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-600 text-white font-mono">SOP</span>
+            </button>
+
             {activeSubTab === 'dashboard' && (
               <button
                 onClick={() => setShowAddModal(true)}
@@ -296,6 +356,22 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             )}
           </div>
         </div>
+
+        {/* Download Feedback Notification */}
+        {downloadNotification && (
+          <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between gap-2 shadow-sm">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+              <span>{downloadNotification}</span>
+            </div>
+            <button
+              onClick={() => setDownloadNotification(null)}
+              className="text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 p-1 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/50"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* Phase 3 Admin Subtabs Navigation Bar */}
         <div className="p-1.5 rounded-2xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-1.5 overflow-x-auto no-scrollbar">
@@ -590,6 +666,9 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
               onOpenManualAccountModal={() => setShowManualAccountModal(true)}
             />
 
+            {/* Key Practice Areas Radar Chart */}
+            <KeyPracticeAreasRadarChart />
+
         {/* Case Management Table */}
         <div className="bg-white dark:bg-[#0B132B] rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
           
@@ -853,6 +932,27 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
       <ReactShortcodeGeneratorModal
         isOpen={showReactPhpGeneratorModal}
         onClose={() => setShowReactPhpGeneratorModal(false)}
+      />
+
+      {/* Lawyer Printable Profile & Bio Card Modal */}
+      <LawyerPrintBioCard
+        isOpen={showPrintProfileModal}
+        onClose={() => setShowPrintProfileModal(false)}
+        profile={lawyerProfile}
+      />
+
+      {/* Lawyer & Admin Operational Playbook (SOP) Modal */}
+      <LawyerAdminPlaybookModal
+        isOpen={showPlaybookModal}
+        onClose={() => setShowPlaybookModal(false)}
+        onNavigateToTab={(tabKey) => {
+          setActiveSubTab(tabKey as any);
+          setShowPlaybookModal(false);
+        }}
+        onOpenAccountCreator={() => {
+          setShowPlaybookModal(false);
+          setShowManualAccountModal(true);
+        }}
       />
     </div>
   );
