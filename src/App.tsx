@@ -48,6 +48,7 @@ import { LegalAssociateReferralSuite } from './components/associate-referral/Leg
 import { SupremeCourtAppealsSuite } from './components/supreme-court-appeals/SupremeCourtAppealsSuite';
 import { CommercialArbitrationSuite } from './components/commercial-arbitration/CommercialArbitrationSuite';
 import { GovernmentTendersGuaranteesSuite } from './components/government-tenders/GovernmentTendersGuaranteesSuite';
+import { CorporateInsolvencySuite } from './components/corporate-insolvency/CorporateInsolvencySuite';
 import { ArchiveView } from './components/ArchiveView';
 import { SingleContentView } from './components/SingleContentView';
 import { SingleServiceView } from './components/SingleServiceView';
@@ -104,6 +105,7 @@ export default function App() {
   const [isHtmlCssExportOpen, setIsHtmlCssExportOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<'guest' | 'client' | 'lawyer' | 'admin'>('guest');
+  const [adminDashboardMode, setAdminDashboardMode] = useState<'lawyer_dashboard' | 'admin_portal' | 'client_portal'>('lawyer_dashboard');
   const [otpModalInitialTab, setOtpModalInitialTab] = useState<'client' | 'lawyer'>('client');
   const [userPhone, setUserPhone] = useState('');
   const [userName, setUserName] = useState('');
@@ -117,7 +119,10 @@ export default function App() {
     setIsLoggedIn(true);
     setUserRole(role);
     setUserPhone(identifier);
-    setUserName(name || (role === 'lawyer' ? 'دکتر سیده مریم رضوی' : 'موکل گرامی'));
+    setUserName(name || (role === 'admin' ? 'مدیر ارشد سامانه (ادمین)' : role === 'lawyer' ? 'دکتر سیده مریم رضوی' : 'موکل گرامی'));
+    if (role === 'admin' || role === 'lawyer') {
+      setAdminDashboardMode('lawyer_dashboard');
+    }
     setActiveView('dashboard');
   };
 
@@ -584,14 +589,123 @@ export default function App() {
                 </div>
               </div>
             ) : userRole === 'lawyer' || userRole === 'admin' ? (
-              <ComprehensiveAdminPortal
-                userPhoneNumber={userPhone}
-                userName={userName}
-                lawyerProfile={lawyerProfile}
-                onUpdateLawyerProfile={(updated) => setLawyerProfile(updated)}
-                onLogout={handleLogout}
-                onBackToHome={() => setActiveView('preview')}
-              />
+              <div className="min-h-screen">
+                {/* Admin / Lawyer Dual Role Switcher Bar */}
+                <div className="bg-[#0B132B] border-b border-[#D4AF37]/30 py-3.5 px-4 sm:px-6 lg:px-8 sticky top-16 z-30 shadow-lg" dir="rtl">
+                  <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#AA820A] text-[#0B132B] flex items-center justify-center font-bold text-sm shrink-0 shadow-md">
+                        {userRole === 'admin' ? '🛡️' : '⚖️'}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-white text-xs sm:text-sm font-bold">
+                            {userRole === 'admin'
+                              ? 'پیشخوان راهبری مدیر ارشد (دسترسی همزمان ادمین و جانشینی وکیل)'
+                              : 'پیشخوان مدیریت وکیل دادگستری'}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
+                            {userRole === 'admin' ? 'ادمین و وکیل جانشین' : 'وکیل سرپرست'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-400">
+                          {userRole === 'admin'
+                            ? 'امکان مدیریت کامل پرونده‌ها، جانشینی وکیل غایب، ارجاع به وکلای شریک و تنظیمات کل سیستم وردپرس'
+                            : 'مدیریت پرونده‌های حقوقی، جلسات دادگاه و تعامل با موکلین'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Mode Toggle Buttons */}
+                    <div className="flex items-center gap-2 w-full md:w-auto">
+                      <button
+                        onClick={() => setAdminDashboardMode('lawyer_dashboard')}
+                        className={`flex-1 md:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                          adminDashboardMode === 'lawyer_dashboard'
+                            ? 'bg-[#D4AF37] text-[#0B132B] shadow-md shadow-[#D4AF37]/25 font-black'
+                            : 'bg-white/10 text-gray-300 hover:text-white hover:bg-white/15'
+                        }`}
+                        title="ورود به میز کار و پیشخوان اختصاصی وکیل (مدیریت پرونده‌ها، اوقات دادگاه، وکلای همکار)"
+                      >
+                        <Scale className="w-3.5 h-3.5" />
+                        <span>⚖️ داشبورد وکیل (پرونده‌ها و جانشینی)</span>
+                      </button>
+
+                      <button
+                        onClick={() => setAdminDashboardMode('admin_portal')}
+                        className={`flex-1 md:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                          adminDashboardMode === 'admin_portal'
+                            ? 'bg-[#D4AF37] text-[#0B132B] shadow-md shadow-[#D4AF37]/25 font-black'
+                            : 'bg-white/10 text-gray-300 hover:text-white hover:bg-white/15'
+                        }`}
+                        title="ورود به پرتال جامع مدیریت سایت (تنظیمات پوسته، لیست مشتریان، نوبت‌دهی و پشتیبانی)"
+                      >
+                        <Briefcase className="w-3.5 h-3.5" />
+                        <span>⚙️ پرتال جامع ادمین سایت</span>
+                      </button>
+
+                      <button
+                        onClick={() => setAdminDashboardMode('client_portal')}
+                        className={`flex-1 md:flex-initial px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                          adminDashboardMode === 'client_portal'
+                            ? 'bg-[#D4AF37] text-[#0B132B] shadow-md shadow-[#D4AF37]/25 font-black'
+                            : 'bg-white/10 text-gray-300 hover:text-white hover:bg-white/15'
+                        }`}
+                        title="مشاهده و شبیه‌سازی کارتابل از زاویه دید موکل"
+                      >
+                        <User className="w-3.5 h-3.5" />
+                        <span>👤 نمای موکلین</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sub-view Viewport */}
+                {adminDashboardMode === 'lawyer_dashboard' ? (
+                  <LawyerDashboard
+                    userPhoneNumber={userPhone}
+                    userName={userName || (userRole === 'admin' ? 'مدیر ارشد سامانه (ادمین)' : 'دکتر سیده مریم رضوی')}
+                    userRole={userRole}
+                    isAdminActingAsLawyer={userRole === 'admin'}
+                    onLogout={handleLogout}
+                    onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+                    lawyerProfile={lawyerProfile}
+                    onUpdateLawyerProfile={(updated) => setLawyerProfile(updated)}
+                    onSwitchToAdminPortal={() => setAdminDashboardMode('admin_portal')}
+                  />
+                ) : adminDashboardMode === 'admin_portal' ? (
+                  <ComprehensiveAdminPortal
+                    userPhoneNumber={userPhone}
+                    userName={userName}
+                    lawyerProfile={lawyerProfile}
+                    onUpdateLawyerProfile={(updated) => setLawyerProfile(updated)}
+                    onLogout={handleLogout}
+                    onBackToHome={() => setActiveView('preview')}
+                    onSwitchToLawyerDashboard={() => setAdminDashboardMode('lawyer_dashboard')}
+                  />
+                ) : (
+                  <div className="py-8 min-h-screen">
+                    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                      <div className="mb-4 p-3 rounded-2xl bg-amber-500/10 border border-[#D4AF37]/30 text-xs text-[#D4AF37] flex items-center justify-between">
+                        <span>شما در حال بررسی پرتال موکلین در قالب شبیه‌سازی ادمین هستید.</span>
+                        <button
+                          onClick={() => setAdminDashboardMode('lawyer_dashboard')}
+                          className="px-3 py-1 rounded-lg bg-[#D4AF37] text-[#0B132B] font-bold text-xs"
+                        >
+                          بازگشت به پیشخوان وکیل
+                        </button>
+                      </div>
+                      <ClientPortalView
+                        userPhoneNumber={userPhone}
+                        userName={userName || 'مشاهده تستی موکل توسط ادمین'}
+                        onLogout={handleLogout}
+                        onOpenBooking={() => handleBookService(SERVICES_DATA[0].title)}
+                        onBackToMainDashboard={() => setAdminDashboardMode('lawyer_dashboard')}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               /* Direct Email OTP Magic Login Barrier for Unauthenticated Guests */
               <div className="min-h-[80vh] flex items-center justify-center p-4">
@@ -1301,6 +1415,33 @@ export default function App() {
               onOpenPhase34={() => setActiveView('supreme-court-appeals')}
               onOpenPhase35={() => setActiveView('commercial-arbitration')}
               onOpenPhase36={() => setActiveView('government-tenders')}
+              onOpenPhase37={() => setActiveView('corporate-insolvency')}
+            />
+          </div>
+        )}
+
+        {activeView === 'corporate-insolvency' && (
+          <div>
+            <CorporateInsolvencySuite
+              onBackToHome={() => setActiveView('preview')}
+              onOpenBooking={() => handleBookService('مشاوره ورشکستگی، تصفیه دیون و قرارداد ارفاقی')}
+            />
+            <Footer
+              profile={lawyerProfile}
+              onOpenFinance={() => setActiveView('finance')}
+              onOpenPhase25={() => setActiveView('drafting-vault')}
+              onOpenPhase26={() => setActiveView('tax-moadian')}
+              onOpenPhase27={() => setActiveView('labor-social')}
+              onOpenPhase28={() => setActiveView('economic-crimes')}
+              onOpenPhase29={() => setActiveView('customs-transit')}
+              onOpenPhase30={() => setActiveView('legal-crm')}
+              onOpenPhase31={() => setActiveView('elementor-pro')}
+              onOpenPhase32={() => setActiveView('payment-adapter')}
+              onOpenPhase33={() => setActiveView('associate-referral')}
+              onOpenPhase34={() => setActiveView('supreme-court-appeals')}
+              onOpenPhase35={() => setActiveView('commercial-arbitration')}
+              onOpenPhase36={() => setActiveView('government-tenders')}
+              onOpenPhase37={() => setActiveView('corporate-insolvency')}
             />
           </div>
         )}

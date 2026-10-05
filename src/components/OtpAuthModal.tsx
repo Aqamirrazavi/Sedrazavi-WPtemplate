@@ -234,19 +234,25 @@ export const OtpAuthModal: React.FC<OtpAuthModalProps> = ({
 
     setTimeout(() => {
       setIsAdminSubmitting(false);
-      // Validates lawyer login credentials (supports 'admin', 'razavi', 'dr.razavi', 'lawyer' with standard passwords or demo pass)
-      const validUsers = ['admin', 'razavi', 'dr.razavi', 'lawyer', 'maryam.razavi', 'info@sedrazavi.ir'];
       const userClean = adminUsername.trim().toLowerCase();
+      const isAdmin = userClean === 'admin' || userClean.includes('admin');
+      const roleToSet: 'admin' | 'lawyer' = isAdmin ? 'admin' : 'lawyer';
+      const displayName = isAdmin ? 'مدیر ارشد سامانه (ادمین)' : ATTORNEY_INFO.name;
 
-      // Allow login for valid admin accounts or any test attempt
-      onLoginSuccess(adminUsername, 'دکتر سیده مریم رضوی', 'lawyer');
+      onLoginSuccess(adminUsername, displayName, roleToSet);
       onClose();
     }, 600);
   };
 
-  const handleQuickFillLawyerAccount = () => {
+  const handleQuickFillAdminAccount = () => {
     setAdminUsername('admin');
     setAdminPassword('admin1403');
+    setAdminError('');
+  };
+
+  const handleQuickFillLawyerAccount = () => {
+    setAdminUsername('dr.razavi');
+    setAdminPassword('lawyer1403');
     setAdminError('');
   };
 
@@ -447,18 +453,28 @@ export const OtpAuthModal: React.FC<OtpAuthModalProps> = ({
             </form>
 
             {/* Quick Demo Credentials Helper */}
-            <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+            <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-between gap-2">
               <span className="text-[11px] text-gray-400">
-                حساب تستی مدیریت: admin / admin1403
+                ورود سریع تستی:
               </span>
-              <button
-                type="button"
-                onClick={handleQuickFillLawyerAccount}
-                className="text-[11px] font-bold text-[#D4AF37] hover:underline flex items-center gap-1"
-              >
-                <Sparkles className="w-3 h-3" />
-                <span>تکمیل خودکار حساب وکیل</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleQuickFillAdminAccount}
+                  className="text-[11px] font-bold text-[#D4AF37] hover:underline flex items-center gap-1 bg-[#D4AF37]/10 px-2.5 py-1 rounded-lg"
+                >
+                  <ShieldCheck className="w-3 h-3 text-[#D4AF37]" />
+                  <span>مدیر سایت (Admin)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleQuickFillLawyerAccount}
+                  className="text-[11px] font-bold text-gray-600 dark:text-gray-300 hover:text-[#D4AF37] flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-lg"
+                >
+                  <Briefcase className="w-3 h-3" />
+                  <span>وکیل سرپرست</span>
+                </button>
+              </div>
             </div>
           </div>
         )}

@@ -51,6 +51,7 @@ import {
   Instagram,
   Palette,
   LogOut,
+  TrendingDown,
 } from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
 import { useDesignTokens } from '../context/DesignTokensContext';
@@ -100,6 +101,7 @@ export type ThemeViewMode =
   | 'supreme-court-appeals'
   | 'commercial-arbitration'
   | 'government-tenders'
+  | 'corporate-insolvency'
   | 'code'
   | 'archive'
   | 'single'
@@ -892,6 +894,16 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       <span className="font-bold text-emerald-400">مناقصات دولتی، ضمانت‌نامه بانکی و دستور موقت (فاز ۳۶)</span>
                       <Building2 className="w-3.5 h-3.5 text-emerald-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('corporate-insolvency');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
+                    >
+                      <span className="font-bold text-rose-400">ورشکستگی، تصفیه دیون و قرارداد ارفاقی (فاز ۳۷)</span>
+                      <TrendingDown className="w-3.5 h-3.5 text-rose-400" />
                     </button>
                   </div>
                 )}

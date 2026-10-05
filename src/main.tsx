@@ -28,6 +28,7 @@ import { FaqSection } from './components/FaqSection';
 import { TestimonialsSlider } from './components/TestimonialsSlider';
 import { ContactAndBookingSection } from './components/ContactAndBookingSection';
 import { ArticlesSection } from './components/ArticlesSection';
+import { CorporateInsolvencySuite } from './components/corporate-insolvency/CorporateInsolvencySuite';
 
 // Expose React & ReactDOM globally for WordPress integration
 if (typeof window !== 'undefined') {
@@ -60,6 +61,7 @@ if (typeof window !== 'undefined') {
     TestimonialsSlider,
     ContactAndBookingSection,
     ArticlesSection,
+    CorporateInsolvencySuite,
   };
 
   /**

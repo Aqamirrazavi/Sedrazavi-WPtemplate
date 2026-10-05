@@ -455,6 +455,11 @@ get_header();
                 </div>
             </div>
         </div>
+
+        <!-- نقاط عطف و روند رشد مؤسسه حقوقی (Firm Milestones Timeline) -->
+        <div class="mt-16 pt-12 border-t border-gray-800">
+            <?php echo do_shortcode('[sedrazavi_react_firm_milestones]'); ?>
+        </div>
     </div>
 </section>
 

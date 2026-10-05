@@ -26,6 +26,7 @@ import { KeyPracticeAreasRadarChart } from './KeyPracticeAreasRadarChart';
 import { LawyerPrintBioCard } from './LawyerPrintBioCard';
 import { LawyerAdminPlaybookModal } from './admin/LawyerAdminPlaybookModal';
 import { LawyerRealtimeToastNotifier } from './notifications/LawyerRealtimeToastNotifier';
+import { AdminAssociatesDelegationTab } from './admin/AdminAssociatesDelegationTab';
 import { downloadCaseloadCsvFile } from '../utils/caseloadCsvExporter';
 import {
   LawyerSiteProfile,
@@ -70,10 +71,13 @@ import {
   X,
   FileSpreadsheet,
   BookOpen,
+  Users,
+  Settings,
 } from 'lucide-react';
 
 export type AdminSubTabKey =
   | 'dashboard'
+  | 'associates-delegation'
   | 'content'
   | 'bookings'
   | 'invoices'
@@ -95,23 +99,37 @@ interface LawyerDashboardProps {
   initialPortalMode?: 'attorney' | 'client';
   userPhoneNumber?: string;
   userName?: string;
+  userRole?: 'admin' | 'lawyer' | 'client';
+  isAdminActingAsLawyer?: boolean;
   onLogout?: () => void;
   onOpenBooking?: () => void;
   lawyerProfile?: LawyerSiteProfile;
   onUpdateLawyerProfile?: (profile: LawyerSiteProfile) => void;
+  onSwitchToAdminPortal?: () => void;
+  serverContext?: any;
 }
 
 export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
   initialPortalMode = 'attorney',
   userPhoneNumber,
   userName,
+  userRole = 'admin',
+  isAdminActingAsLawyer: isAdminActingAsLawyerProp,
   onLogout,
   onOpenBooking,
   lawyerProfile: externalProfile,
   onUpdateLawyerProfile,
+  onSwitchToAdminPortal,
+  serverContext,
 }) => {
   const [portalMode, setPortalMode] = useState<'attorney' | 'client'>(initialPortalMode);
   const [activeSubTab, setActiveSubTab] = useState<AdminSubTabKey>('dashboard');
+  const [isAdminActingAsLawyer, setIsAdminActingAsLawyer] = useState<boolean>(() => {
+    if (typeof isAdminActingAsLawyerProp === 'boolean') return isAdminActingAsLawyerProp;
+    if (userRole === 'admin') return true;
+    if (typeof window !== 'undefined' && Boolean((window as any).SedRazaviReactConfig?.currentUser?.isAdmin)) return true;
+    return true; // Default admin capability available
+  });
   const [lawyerProfile, setLawyerProfile] = useState<LawyerSiteProfile>(
     externalProfile || getStoredLawyerProfile()
   );
@@ -373,6 +391,50 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
           </div>
         )}
 
+        {/* Admin Acting as Managing Attorney Delegation Notice */}
+        {isAdminActingAsLawyer && (
+          <div className="p-4 rounded-3xl bg-gradient-to-r from-amber-500/15 via-[#D4AF37]/10 to-amber-500/15 border border-[#D4AF37]/50 text-xs text-gray-800 dark:text-[#F3E5AB] flex flex-wrap items-center justify-between gap-3 shadow-md">
+            <div className="flex items-center gap-3">
+              <span className="w-8 h-8 rounded-xl bg-[#D4AF37] text-[#0B132B] flex items-center justify-center font-black text-sm shrink-0 shadow-md">
+                🛡️
+              </span>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <strong className="text-gray-900 dark:text-white font-bold text-xs sm:text-sm">
+                    حالت دسترسی مدیر کل سیستم (Admin Acting as Lead Attorney) فعال است
+                  </strong>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
+                    جانشینی قانونی
+                  </span>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 text-[11px] leading-relaxed">
+                  شما به عنوان ادمین سایت به تمامی اختیارات وکیل سرپرست دسترسی دارید تا در صورت غیاب وکیل، کارهای موکلان، ارجاع به وکلای شریک و اوقات دادرسی متوقف نماند.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {onSwitchToAdminPortal && (
+                <button
+                  type="button"
+                  onClick={onSwitchToAdminPortal}
+                  className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] font-bold text-xs hover:brightness-110 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Briefcase className="w-3.5 h-3.5" />
+                  <span>⚙️ پنل جامع ادمین سایت</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('associates-delegation')}
+                className="px-4 py-2 rounded-xl bg-[#0B132B] text-[#D4AF37] border border-[#D4AF37]/60 text-xs font-bold hover:bg-[#16213E] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span>ارجاع پرونده به وکلای همکار</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Phase 3 Admin Subtabs Navigation Bar */}
         <div className="p-1.5 rounded-2xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-1.5 overflow-x-auto no-scrollbar">
           <button
@@ -385,6 +447,19 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
           >
             <Briefcase className="w-3.5 h-3.5 text-[#D4AF37]" />
             <span>۱. داشبورد و پرونده‌ها</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('associates-delegation')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              activeSubTab === 'associates-delegation'
+                ? 'bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] shadow-sm font-black'
+                : 'text-amber-600 dark:text-amber-400 hover:text-[#0B132B] dark:hover:text-white'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>۲. وکلای همکار و جانشینی</span>
+            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#0B132B] text-[#D4AF37] font-bold">ادمین</span>
           </button>
 
           <button
@@ -581,7 +656,9 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
         </div>
 
         {/* Content Views */}
-        {activeSubTab === 'content' ? (
+        {activeSubTab === 'associates-delegation' ? (
+          <AdminAssociatesDelegationTab cases={cases} />
+        ) : activeSubTab === 'content' ? (
           <AdminContentTab />
         ) : activeSubTab === 'bookings' ? (
           <AdminBookingsTab />

@@ -2,16 +2,26 @@
 /**
  * SedRazavi Law Firm Theme Functions and Definitions
  *
+ * Professional WordPress theme bridge for Dr. Seyedeh Maryam SedRazavi Law Firm.
+ * Implements:
+ * 1. Custom Post Types ('service', 'article', 'case')
+ * 2. Universal React component shortcodes via [react_component name='ComponentName' props='{}']
+ * 3. enqueue_react_assets logic detecting theme production build path
+ * 4. wp_localize_script authentication bridge with user data and REST nonce
+ * 5. Admin Customizer section for dynamic Gold-Navy accent colors and CSS variables
+ * 6. REST API authentication and profile customizer ('inc/wp-rest-auth.php', 'inc/api-handlers.php')
+ *
  * @package SedRazavi
- * @version 2.5.0
+ * @version 3.0.0
  */
 
 if (!defined('ABSPATH')) {
     exit; // Direct access denied
 }
 
+// 1. Core Theme Constants
 if (!defined('SEDRAZAVI_THEME_VERSION')) {
-    define('SEDRAZAVI_THEME_VERSION', '2.6.0');
+    define('SEDRAZAVI_THEME_VERSION', '3.0.0');
 }
 if (!defined('SEDRAZAVI_THEME_DIR')) {
     define('SEDRAZAVI_THEME_DIR', function_exists('get_template_directory') && get_template_directory() ? get_template_directory() : __DIR__);
@@ -21,219 +31,445 @@ if (!defined('SEDRAZAVI_THEME_URI')) {
 }
 
 /**
- * 1. Theme Setup
+ * 2. Theme Setup & Features Support
  */
 if (!function_exists('sedrazavi_theme_setup')) {
-function sedrazavi_theme_setup() {
-    // Internationalization support
-    load_theme_textdomain('sedrazavi', SEDRAZAVI_THEME_DIR . '/languages');
+    function sedrazavi_theme_setup() {
+        // Localization
+        load_theme_textdomain('sedrazavi', SEDRAZAVI_THEME_DIR . '/languages');
 
-    // Title tag support
-    add_theme_support('title-tag');
+        // Document Title tag
+        add_theme_support('title-tag');
 
-    // Post thumbnails
-    add_theme_support('post-thumbnails');
-    add_image_size('sedrazavi-service-card', 600, 400, true);
-    add_image_size('sedrazavi-lawyer-portrait', 700, 900, true);
-    add_image_size('sedrazavi-story-thumb', 200, 200, true);
+        // Featured Images & Responsive Sizes
+        add_theme_support('post-thumbnails');
+        add_image_size('sedrazavi-service-card', 600, 400, true);
+        add_image_size('sedrazavi-lawyer-portrait', 700, 900, true);
+        add_image_size('sedrazavi-article-card', 800, 500, true);
 
-    // Custom Logo
-    add_theme_support('custom-logo', array(
-        'height'      => 80,
-        'width'       => 260,
-        'flex-height' => true,
-        'flex-width'  => true,
-    ));
+        // Custom Logo
+        add_theme_support('custom-logo', [
+            'height'      => 80,
+            'width'       => 260,
+            'flex-height' => true,
+            'flex-width'  => true,
+        ]);
 
-    // HTML5 semantic markup
-    add_theme_support('html5', array(
-        'search-form',
-        'comment-form',
-        'comment-list',
-        'gallery',
-        'caption',
-        'style',
-        'script',
-    ));
+        // HTML5 Semantic Markup
+        add_theme_support('html5', [
+            'search-form',
+            'comment-form',
+            'comment-list',
+            'gallery',
+            'caption',
+            'style',
+            'script',
+        ]);
 
-    // Selective Refresh for Widgets
-    add_theme_support('customize-selective-refresh-widgets');
+        // Selective Refresh for Customizer Widgets
+        add_theme_support('customize-selective-refresh-widgets');
 
-    // Navigation Menus
-    register_nav_menus(array(
-        'primary'  => esc_html__('منوی اصلی سربرگ (Primary Header)', 'sedrazavi'),
-        'footer'   => esc_html__('منوی دسترسی سریع فوتر (Footer Menu)', 'sedrazavi'),
-        'services' => esc_html__('منوی خدمات حقوقی (Legal Services)', 'sedrazavi'),
-    ));
-}
-add_action('after_setup_theme', 'sedrazavi_theme_setup');
+        // Navigation Menus
+        register_nav_menus([
+            'primary'  => esc_html__('منوی اصلی سربرگ (Primary Header)', 'sedrazavi'),
+            'footer'   => esc_html__('منوی دسترسی سریع فوتر (Footer Menu)', 'sedrazavi'),
+            'services' => esc_html__('منوی خدمات حقوقی (Legal Services)', 'sedrazavi'),
+        ]);
+    }
+    add_action('after_setup_theme', 'sedrazavi_theme_setup');
 }
 
 /**
- * 2. Enqueue Scripts & Styles
+ * 3. Custom Post Types Registration ('service', 'article', 'case')
  */
-if (!function_exists('sedrazavi_enqueue_assets')) {
-function sedrazavi_enqueue_assets() {
-    // 1. Web font Vazirmatn via CDN with graceful fallback
-    wp_enqueue_style(
-        'sedrazavi-vazirmatn-font',
-        'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css',
-        array(),
-        '33.003'
-    );
+if (!function_exists('sedrazavi_register_custom_post_types')) {
+    function sedrazavi_register_custom_post_types() {
 
-    // 2. Main Theme Stylesheet
-    wp_enqueue_style(
-        'sedrazavi-main-style',
-        get_stylesheet_uri(),
-        array(),
-        SEDRAZAVI_THEME_VERSION
-    );
+        // CPT 1: Legal Services ('service')
+        if (!post_type_exists('service')) {
+            $service_labels = [
+                'name'               => esc_html__('خدمات حقوقی', 'sedrazavi'),
+                'singular_name'      => esc_html__('خدمت حقوقی', 'sedrazavi'),
+                'menu_name'          => esc_html__('خدمات حقوقی', 'sedrazavi'),
+                'add_new'            => esc_html__('افزودن خدمت جدید', 'sedrazavi'),
+                'add_new_item'       => esc_html__('افزودن خدمت حقوقی جدید', 'sedrazavi'),
+                'edit_item'          => esc_html__('ویرایش خدمت حقوقی', 'sedrazavi'),
+                'new_item'           => esc_html__('خدمت حقوقی جدید', 'sedrazavi'),
+                'view_item'          => esc_html__('مشاهده خدمت حقوقی', 'sedrazavi'),
+                'search_items'       => esc_html__('جستجوی خدمات', 'sedrazavi'),
+                'not_found'          => esc_html__('خدمتی یافت نشد', 'sedrazavi'),
+                'not_found_in_trash' => esc_html__('در سطل زباله یافت نشد', 'sedrazavi'),
+            ];
 
-    // 3. Theme JS Engine
-    wp_enqueue_script(
-        'sedrazavi-theme-bundle',
-        SEDRAZAVI_THEME_URI . '/assets/js/main.js',
-        array(),
-        SEDRAZAVI_THEME_VERSION,
-        true
-    );
+            register_post_type('service', [
+                'labels'              => $service_labels,
+                'public'              => true,
+                'has_archive'         => true,
+                'rewrite'             => ['slug' => 'legal-services'],
+                'menu_icon'           => 'dashicons-hammer',
+                'supports'            => ['title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'revisions'],
+                'show_in_rest'        => true,
+                'hierarchical'        => false,
+            ]);
 
-    // Localize Script for AJAX actions
-    wp_localize_script('sedrazavi-theme-bundle', 'sedrazavi_ajax_obj', array(
-        'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce'    => wp_create_nonce('sedrazavi_security_nonce'),
-        'strings'  => array(
-            'success_booking' => esc_html__('درخواست رزرو شما با موفقیت ثبت شد.', 'sedrazavi'),
-            'error_booking'   => esc_html__('خطایی رخ داد؛ لطفاً دوباره تلاش فرمایید.', 'sedrazavi'),
-            'tracking_found'  => esc_html__('پرونده با موفقیت شناسایی شد.', 'sedrazavi'),
-        )
-    ));
+            register_taxonomy('service_category', ['service'], [
+                'labels'            => [
+                    'name'          => esc_html__('دسته‌بندی خدمات حقوقی', 'sedrazavi'),
+                    'singular_name' => esc_html__('دسته‌بندی خدمت', 'sedrazavi'),
+                ],
+                'hierarchical'      => true,
+                'show_in_rest'      => true,
+                'rewrite'           => ['slug' => 'service-cat'],
+            ]);
+        }
 
-    // 4. Automated React SPA Engine (موتور اجرای باندل‌های کامپایل‌شده فرانت‌اند)
-    $asset_rel_paths = array(
-        'assets/dist/',
-        'assets/',
-        'dist/',
-    );
+        // CPT 2: Legal Articles & Precedents ('article')
+        if (!post_type_exists('article')) {
+            $article_labels = [
+                'name'               => esc_html__('مقالات حقوقی', 'sedrazavi'),
+                'singular_name'      => esc_html__('مقاله حقوقی', 'sedrazavi'),
+                'menu_name'          => esc_html__('مقالات و تحلیل‌ها', 'sedrazavi'),
+                'add_new'            => esc_html__('نگارش مقاله جدید', 'sedrazavi'),
+                'add_new_item'       => esc_html__('افزودن مقاله حقوقی جدید', 'sedrazavi'),
+                'edit_item'          => esc_html__('ویرایش مقاله', 'sedrazavi'),
+                'view_item'          => esc_html__('مشاهده مقاله', 'sedrazavi'),
+                'search_items'       => esc_html__('جستجوی مقالات', 'sedrazavi'),
+                'not_found'          => esc_html__('مقاله‌ای یافت نشد', 'sedrazavi'),
+            ];
 
-    $found_css = '';
-    $found_js = '';
-    $asset_base_uri = '';
+            register_post_type('article', [
+                'labels'              => $article_labels,
+                'public'              => true,
+                'has_archive'         => true,
+                'rewrite'             => ['slug' => 'legal-articles'],
+                'menu_icon'           => 'dashicons-welcome-write-blog',
+                'supports'            => ['title', 'editor', 'thumbnail', 'excerpt', 'author', 'comments', 'custom-fields'],
+                'show_in_rest'        => true,
+            ]);
 
-    foreach ($asset_rel_paths as $rel_path) {
-        $check_css = SEDRAZAVI_THEME_DIR . '/' . $rel_path . 'index.css';
-        $check_js  = SEDRAZAVI_THEME_DIR . '/' . $rel_path . 'index.js';
-        if (file_exists($check_js)) {
-            $found_js = $check_js;
-            $found_css = file_exists($check_css) ? $check_css : '';
-            $asset_base_uri = SEDRAZAVI_THEME_URI . '/' . $rel_path;
-            break;
+            register_taxonomy('article_category', ['article'], [
+                'labels'            => [
+                    'name'          => esc_html__('دسته‌بندی مقالات', 'sedrazavi'),
+                    'singular_name' => esc_html__('دسته مقاله', 'sedrazavi'),
+                ],
+                'hierarchical'      => true,
+                'show_in_rest'      => true,
+                'rewrite'           => ['slug' => 'article-cat'],
+            ]);
+        }
+
+        // CPT 3: Client Cases & Docket Tracking ('case')
+        if (!post_type_exists('case')) {
+            $case_labels = [
+                'name'               => esc_html__('پرونده‌های قضایی', 'sedrazavi'),
+                'singular_name'      => esc_html__('پرونده قضایی', 'sedrazavi'),
+                'menu_name'          => esc_html__('کارتابل پرونده‌ها', 'sedrazavi'),
+                'add_new'            => esc_html__('ثبت پرونده جدید', 'sedrazavi'),
+                'add_new_item'       => esc_html__('ثبت پرونده قضایی موکل', 'sedrazavi'),
+                'edit_item'          => esc_html__('ویرایش پرونده', 'sedrazavi'),
+                'view_item'          => esc_html__('مشاهده پرونده', 'sedrazavi'),
+                'search_items'       => esc_html__('جستجوی پرونده‌ها', 'sedrazavi'),
+                'not_found'          => esc_html__('پرونده‌ای یافت نشد', 'sedrazavi'),
+            ];
+
+            register_post_type('case', [
+                'labels'              => $case_labels,
+                'public'              => true,
+                'has_archive'         => true,
+                'rewrite'             => ['slug' => 'legal-cases'],
+                'menu_icon'           => 'dashicons-portfolio',
+                'supports'            => ['title', 'editor', 'custom-fields', 'revisions'],
+                'show_in_rest'        => true,
+            ]);
+
+            register_taxonomy('case_type', ['case'], [
+                'labels'            => [
+                    'name'          => esc_html__('موضوعات دادرسی', 'sedrazavi'),
+                    'singular_name' => esc_html__('موضوع دعوا', 'sedrazavi'),
+                ],
+                'hierarchical'      => true,
+                'show_in_rest'      => true,
+                'rewrite'           => ['slug' => 'case-topic'],
+            ]);
         }
     }
+    add_action('init', 'sedrazavi_register_custom_post_types');
+}
 
-    if (!empty($found_js)) {
-        if (!empty($found_css)) {
-            wp_enqueue_style(
-                'sedrazavi-react-bundle-style',
-                $asset_base_uri . 'index.css',
-                array(),
-                filemtime($found_css)
+/**
+ * 4. Admin Customizer Section for Site Accent Color (Gold-Navy Theme)
+ */
+if (!function_exists('sedrazavi_customize_register')) {
+    function sedrazavi_customize_register($wp_customize) {
+        $wp_customize->add_section('sedrazavi_theme_colors', [
+            'title'       => esc_html__('رنگ‌بندی و تم طلایی-سرمه‌ای (Gold-Navy Theme)', 'sedrazavi'),
+            'description' => esc_html__('تنظیم و شخصی‌سازی پالت رنگی اختصاصی دفتر وکالت دکتر سیده مریم رضوی و تزریق داینامیک متغیرهای CSS', 'sedrazavi'),
+            'priority'    => 25,
+        ]);
+
+        // Accent Gold Color
+        $wp_customize->add_setting('sedrazavi_gold_color', [
+            'default'           => '#D4AF37',
+            'type'              => 'option',
+            'capability'        => 'edit_theme_options',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'transport'         => 'refresh',
+        ]);
+        $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'sedrazavi_gold_color_ctrl', [
+            'label'    => esc_html__('رنگ طلایی شاخص (Accent Gold)', 'sedrazavi'),
+            'section'  => 'sedrazavi_theme_colors',
+            'settings' => 'sedrazavi_gold_color',
+        ]));
+
+        // Base Navy Color
+        $wp_customize->add_setting('sedrazavi_navy_color', [
+            'default'           => '#0B132B',
+            'type'              => 'option',
+            'capability'        => 'edit_theme_options',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'transport'         => 'refresh',
+        ]);
+        $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'sedrazavi_navy_color_ctrl', [
+            'label'    => esc_html__('رنگ سرمه‌ای تیره پایه (Base Navy)', 'sedrazavi'),
+            'section'  => 'sedrazavi_theme_colors',
+            'settings' => 'sedrazavi_navy_color',
+        ]));
+
+        // Light Gold / Champagne
+        $wp_customize->add_setting('sedrazavi_gold_light', [
+            'default'           => '#F3E5AB',
+            'type'              => 'option',
+            'capability'        => 'edit_theme_options',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'transport'         => 'refresh',
+        ]);
+        $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'sedrazavi_gold_light_ctrl', [
+            'label'    => esc_html__('رنگ طلایی روشن / شامپاینی (Light Gold)', 'sedrazavi'),
+            'section'  => 'sedrazavi_theme_colors',
+            'settings' => 'sedrazavi_gold_light',
+        ]));
+
+        // Emerald Accent
+        $wp_customize->add_setting('sedrazavi_emerald_accent', [
+            'default'           => '#2A9D8F',
+            'type'              => 'option',
+            'capability'        => 'edit_theme_options',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'transport'         => 'refresh',
+        ]);
+        $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'sedrazavi_emerald_accent_ctrl', [
+            'label'    => esc_html__('رنگ زمردی کمکی (Emerald Accent)', 'sedrazavi'),
+            'section'  => 'sedrazavi_theme_colors',
+            'settings' => 'sedrazavi_emerald_accent',
+        ]));
+
+        // Secondary Navy
+        $wp_customize->add_setting('sedrazavi_secondary_navy', [
+            'default'           => '#1C2541',
+            'type'              => 'option',
+            'capability'        => 'edit_theme_options',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'transport'         => 'refresh',
+        ]);
+        $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'sedrazavi_secondary_navy_ctrl', [
+            'label'    => esc_html__('رنگ سرمه‌ای ثانویه (Secondary Navy)', 'sedrazavi'),
+            'section'  => 'sedrazavi_theme_colors',
+            'settings' => 'sedrazavi_secondary_navy',
+        ]));
+    }
+    add_action('customize_register', 'sedrazavi_customize_register');
+}
+
+/**
+ * 5. Inject Dynamic Customizer CSS Variables into WordPress Theme Header
+ */
+if (!function_exists('sedrazavi_customizer_dynamic_css')) {
+    function sedrazavi_customizer_dynamic_css() {
+        $gold_color    = get_option('sedrazavi_gold_color', '#D4AF37');
+        $navy_color    = get_option('sedrazavi_navy_color', '#0B132B');
+        $gold_light    = get_option('sedrazavi_gold_light', '#F3E5AB');
+        $emerald_color = get_option('sedrazavi_emerald_accent', '#2A9D8F');
+        $navy_sec      = get_option('sedrazavi_secondary_navy', '#1C2541');
+        ?>
+        <style id="sedrazavi-customizer-dynamic-css">
+            :root {
+                --color-gold: <?php echo esc_attr($gold_color); ?>;
+                --color-navy: <?php echo esc_attr($navy_color); ?>;
+                --color-gold-light: <?php echo esc_attr($gold_light); ?>;
+                --color-emerald: <?php echo esc_attr($emerald_color); ?>;
+                --color-navy-secondary: <?php echo esc_attr($navy_sec); ?>;
+                --color-primary: <?php echo esc_attr($navy_color); ?>;
+                --color-accent: <?php echo esc_attr($gold_color); ?>;
+            }
+            .text-gold-accent, .text-\[\#D4AF37\] { color: var(--color-gold) !important; }
+            .bg-gold-accent, .bg-\[\#D4AF37\] { background-color: var(--color-gold) !important; }
+            .border-gold-accent, .border-\[\#D4AF37\] { border-color: var(--color-gold) !important; }
+            .bg-navy-base, .bg-\[\#0B132B\] { background-color: var(--color-navy) !important; }
+        </style>
+        <?php
+    }
+    add_action('wp_head', 'sedrazavi_customizer_dynamic_css', 15);
+}
+
+/**
+ * 6. Dynamic Production Build Path Detection & React Asset Enqueuing Logic
+ */
+if (!function_exists('enqueue_react_assets')) {
+    function enqueue_react_assets() {
+        // 6.1. Persian Webfont Vazirmatn
+        wp_enqueue_style(
+            'sedrazavi-vazirmatn-font',
+            'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css',
+            [],
+            '33.003'
+        );
+
+        // 6.2. WordPress Main Stylesheet
+        wp_enqueue_style(
+            'sedrazavi-main-style',
+            get_stylesheet_uri(),
+            [],
+            SEDRAZAVI_THEME_VERSION
+        );
+
+        // 6.3. Production Build Path Detection for Minified CSS
+        $candidate_css_dirs = [
+            'app-dist/index.css',
+            'assets/dist/index.css',
+            'assets/index.css',
+            'dist/index.css',
+        ];
+
+        $enqueued_css_uri = '';
+        foreach ($candidate_css_dirs as $rel_css) {
+            $file_path = SEDRAZAVI_THEME_DIR . '/' . $rel_css;
+            if (file_exists($file_path)) {
+                $enqueued_css_uri = SEDRAZAVI_THEME_URI . '/' . $rel_css;
+                wp_enqueue_style(
+                    'sedrazavi-react-bundle-css',
+                    $enqueued_css_uri,
+                    [],
+                    filemtime($file_path)
+                );
+                break;
+            }
+        }
+
+        // 6.4. Production Build Path Detection for Minified JS
+        $candidate_js_dirs = [
+            'app-dist/index.js',
+            'assets/dist/index.js',
+            'assets/index.js',
+            'dist/index.js',
+        ];
+
+        $enqueued_js_handle = '';
+        foreach ($candidate_js_dirs as $rel_js) {
+            $file_path = SEDRAZAVI_THEME_DIR . '/' . $rel_js;
+            if (file_exists($file_path)) {
+                $js_uri = SEDRAZAVI_THEME_URI . '/' . $rel_js;
+                $enqueued_js_handle = 'sedrazavi-react-bundle-js';
+                wp_register_script(
+                    $enqueued_js_handle,
+                    $js_uri,
+                    [],
+                    filemtime($file_path),
+                    true // footer
+                );
+                wp_enqueue_script($enqueued_js_handle);
+                break;
+            }
+        }
+
+        // 6.5. Mount Engine Script
+        if (file_exists(SEDRAZAVI_THEME_DIR . '/assets/js/sedrazavi-react-mount.js')) {
+            wp_enqueue_script(
+                'sedrazavi-react-mount-engine',
+                SEDRAZAVI_THEME_URI . '/assets/js/sedrazavi-react-mount.js',
+                [$enqueued_js_handle ?: 'jquery'],
+                SEDRAZAVI_THEME_VERSION,
+                true
             );
         }
 
-        wp_enqueue_script(
-            'sedrazavi-react-bundle-app',
-            $asset_base_uri . 'index.js',
-            array(),
-            filemtime($found_js),
-            true
-        );
+        // 6.6. Prepare Localized Server & Auth Context
+        $current_user = wp_get_current_user();
+        $is_user_auth = is_user_logged_in();
 
-        // تنظیم استاندارد window.__vite_public_path__ پیش از لود باندل اصلی
-        $public_path_inline = 'window.__vite_public_path__ = ' . wp_json_encode($asset_base_uri) . ';';
-        wp_add_inline_script('sedrazavi-react-bundle-app', $public_path_inline, 'before');
+        $current_user_payload = [
+            'isLoggedIn'   => $is_user_auth,
+            'id'           => get_current_user_id(),
+            'username'     => $is_user_auth ? $current_user->user_login : '',
+            'displayName'  => $is_user_auth ? $current_user->display_name : '',
+            'email'        => $is_user_auth ? $current_user->user_email : '',
+            'roles'        => $is_user_auth ? (array) $current_user->roles : [],
+            'isAdmin'      => current_user_can('manage_options'),
+            'isLawyer'     => current_user_can('edit_posts') || ($is_user_auth && in_array('lawyer', (array)$current_user->roles, true)),
+            'phone'        => $is_user_auth ? (get_user_meta($current_user->ID, 'phone', true) ?: get_user_meta($current_user->ID, 'billing_phone', true) ?: '') : '',
+        ];
 
-        wp_localize_script('sedrazavi-react-bundle-app', 'SedRazaviWPConfig', array(
-            'siteUrl'    => home_url(),
-            'ajaxUrl'    => admin_url('admin-ajax.php'),
-            'restUrl'    => esc_url_raw(rest_url('sedrazavi/v1/')),
-            'themeUri'   => SEDRAZAVI_THEME_URI,
-            'assetsUri'  => $asset_base_uri,
-            'nonce'      => wp_create_nonce('wp_rest'),
-            'isLoggedIn' => is_user_logged_in(),
-            'siteTitle'  => get_bloginfo('name'),
-            'siteDesc'   => get_bloginfo('description'),
-        ));
+        $saved_profile = get_option('sedrazavi_lawyer_profile', []);
+
+        $localized_payload = [
+            'currentUser'     => $current_user_payload,
+            'nonce'           => wp_create_nonce('wp_rest'),
+            'restNonce'       => wp_create_nonce('wp_rest'),
+            'restUrl'         => esc_url_raw(rest_url('sedrazavi/v1/')),
+            'restRoot'        => esc_url_raw(rest_url()),
+            'loginUrl'        => wp_login_url(),
+            'logoutUrl'       => wp_logout_url(home_url()),
+            'ajaxUrl'         => admin_url('admin-ajax.php'),
+            'ajaxNonce'       => wp_create_nonce('sedrazavi_security_nonce'),
+            'profileSaveUrl'  => esc_url_raw(rest_url('sedrazavi/v1/profile/save')),
+            'profileGetUrl'   => esc_url_raw(rest_url('sedrazavi/v1/profile/get')),
+            'verifySessionUrl'=> esc_url_raw(rest_url('sedrazavi/v1/auth/verify-session')),
+            'lawyerProfile'   => !empty($saved_profile) ? $saved_profile : [
+                'name'           => get_option('sedrazavi_lawyer_name', 'سرکار خانم دکتر سیده مریم رضوی'),
+                'title'          => get_option('sedrazavi_lawyer_title', 'وکیل پایه یک دادگستری و مشاور ارشد حقوقی'),
+                'licenseNumber'  => get_option('sedrazavi_lawyer_license', '۱۸۴۵۲ / ک.و.م'),
+                'phone'          => get_option('sedrazavi_lawyer_phone', '۰۲۱-۸۸۹۹۰۰۱۱'),
+                'mobile'         => get_option('sedrazavi_lawyer_mobile', '۰۹۱۲-۳۴۵۶۷۸۹'),
+                'emergencyPhone' => '۰۲۱-۸۸۷۷۶۶۵۵',
+                'address'        => get_option('sedrazavi_lawyer_address', 'تهران، خیابان ولیعصر، بالاتر از میدان ونک، برج حقوقی SedRazavi'),
+                'primaryColor'   => get_option('sedrazavi_primary_color', '#0B132B'),
+                'goldColor'      => get_option('sedrazavi_gold_color', '#D4AF37'),
+            ],
+            'site'            => [
+                'url'            => home_url(),
+                'name'           => get_bloginfo('name'),
+                'isRtl'          => is_rtl(),
+                'version'        => SEDRAZAVI_THEME_VERSION,
+            ],
+        ];
+
+        // 6.7. wp_localize_script for seamless authentication
+        if ($enqueued_js_handle) {
+            wp_localize_script($enqueued_js_handle, 'SedRazaviAuthBridge', $localized_payload);
+            wp_localize_script($enqueued_js_handle, 'SedRazaviReactConfig', $localized_payload);
+        }
     }
-}
-add_action('wp_enqueue_scripts', 'sedrazavi_enqueue_assets');
+    add_action('wp_enqueue_scripts', 'enqueue_react_assets', 10);
 }
 
 /**
- * منوی پیش‌فرض ناوبری در صورت عدم تعریف منو در پیشخوان وردپرس
+ * 7. Safe Modules Inclusions (Guaranteed Loading of Handlers & Bridge)
  */
-if (!function_exists('sedrazavi_fallback_menu')) {
-function sedrazavi_fallback_menu() {
-    ?>
-    <nav class="hidden xl:flex items-center gap-1 font-medium text-xs text-gray-200">
-        <a href="<?php echo esc_url(home_url('/')); ?>" class="nav-link"><?php esc_html_e('صفحه اصلی', 'sedrazavi'); ?></a>
-        <a href="#services" class="nav-link"><?php esc_html_e('خدمات تخصصی', 'sedrazavi'); ?></a>
-        <a href="#articles" class="nav-link"><?php esc_html_e('آرشیو مقالات و ویدیوها', 'sedrazavi'); ?></a>
-        <a href="#about" class="nav-link"><?php esc_html_e('درباره وکیل', 'sedrazavi'); ?></a>
-        <a href="#tracking" class="nav-link text-[#D4AF37] font-bold"><?php esc_html_e('پیگیری پرونده', 'sedrazavi'); ?></a>
-        <a href="#faq" class="nav-link"><?php esc_html_e('سوالات متداول', 'sedrazavi'); ?></a>
-        <a href="#contact" class="nav-link"><?php esc_html_e('تماس با ما', 'sedrazavi'); ?></a>
-    </nav>
-    <?php
-}
-}
-
-
-/**
- * 3. Safe Module Inclusions (Protected against Missing Files)
- */
-$required_modules = array(
-    'inc/setup.php',
+$sedrazavi_essential_includes = [
+    'register-react-shortcodes.php', // Universal [react_component name="..."] shortcodes
+    'inc/wp-rest-auth.php',          // Secure REST API authentication & nonces
+    'inc/api-handlers.php',          // Dedicated REST API endpoint for saving profile settings
+    'inc/react-shortcodes.php',      // Extended shortcodes package & auto-enqueuing
+    'inc/rest-api.php',              // Full REST API suite (cases, otp, bookings)
     'inc/theme-options.php',
     'inc/security.php',
-    'inc/ux-improvements.php',
     'inc/case-management.php',
     'inc/booking.php',
-    'inc/dashboard.php',
     'inc/elementor-widgets.php',
-    'inc/class-sedrazavi-updater.php',
-    'inc/advanced-backup.php',
-    'inc/analytics-reports.php',
-    'inc/user-roles.php',
-    'inc/educational-tour.php',
-    'inc/integrations.php',
-    'inc/arbitration-cpt.php',
-    'inc/precedents-cpt.php',
-    'inc/legal-vault-deadlines.php',
-    'inc/corporate-international.php',
-    'inc/class-sedrazavi-dashboard.php',
-    'inc/class-sedrazavi-client-portal.php',
-    'inc/class-sedrazavi-calculators.php',
-    'inc/class-sedrazavi-elementor.php',
-    'inc/class-sedrazavi-security.php',
-    'inc/react-shortcodes.php',
-    'inc/manifest-bridge.php',
-    'inc/meta-boxes.php',
-    'inc/rest-api.php',
-    'inc/customizer-seo.php',
-    'inc/seo-bridge.php',
-    'includes/class-sedrazavi-auth-dual-mode.php',
-    'includes/class-sedrazavi-dual-panel-unified.php',
-    'includes/class-sedrazavi-admin-protection.php',
-    'includes/class-sedrazavi-design-tokens.php',
-    'includes/class-sedrazavi-elementor-widgets.php',
-    'includes/class-sedrazavi-payment-adapter.php',
-);
+];
 
-foreach ($required_modules as $mod) {
-    $file_path = SEDRAZAVI_THEME_DIR . '/' . $mod;
-    if (file_exists($file_path)) {
-        require_once $file_path;
+foreach ($sedrazavi_essential_includes as $file_rel) {
+    $full_path = SEDRAZAVI_THEME_DIR . '/' . $file_rel;
+    if (file_exists($full_path)) {
+        require_once $full_path;
     }
 }

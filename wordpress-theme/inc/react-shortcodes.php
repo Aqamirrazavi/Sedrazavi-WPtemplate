@@ -634,17 +634,55 @@ add_shortcode('sedrazavi_admin_portal', 'sedrazavi_shortcode_admin_portal');
 // ۲۰. داشبورد کامل پیشخوان وکیل و موکل (Lawyer Dashboard)
 function sedrazavi_shortcode_dashboard_wrapper($atts, $content = null) {
     sedrazavi_enqueue_react_runtime();
-    $unique_id = 'sedrazavi-react-dash-' . wp_unique_id();
+    $current_user = wp_get_current_user();
+    $is_admin = current_user_can('manage_options');
+    $is_lawyer = current_user_can('edit_posts') || (is_user_logged_in() && in_array('lawyer', (array)$current_user->roles, true));
+
+    $a = shortcode_atts(array(
+        'role'                      => $is_admin ? 'admin' : ($is_lawyer ? 'lawyer' : 'client'),
+        'is_admin_acting_as_lawyer' => $is_admin ? 'true' : 'false',
+        'class'                     => '',
+        'id'                        => '',
+    ), $atts, 'sedrazavi_react_dashboard');
+
+    $final_role = sanitize_text_field($a['role']);
+    $acting_as_lawyer = ($a['is_admin_acting_as_lawyer'] === 'true') || $is_admin;
+
+    $props = array(
+        'userRole'              => $final_role,
+        'isAdminActingAsLawyer' => $acting_as_lawyer,
+        'userName'              => $current_user->exists() ? $current_user->display_name : ($is_admin ? 'مدیر ارشد سامانه (ادمین)' : 'دکتر سیده مریم رضوی'),
+        'userPhoneNumber'       => $current_user->exists() ? (get_user_meta($current_user->ID, 'phone', true) ?: '') : '',
+    );
+
+    $unique_id = !empty($a['id']) ? sanitize_html_class($a['id']) : 'sedrazavi-react-dash-' . wp_unique_id();
+    $css_class = trim('sedrazavi-ui-wrapper ' . sanitize_text_field($a['class']));
+
     ob_start();
     ?>
-    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="LawyerDashboard" dir="rtl">
-        <?php echo sedrazavi_render_react_skeleton('LawyerDashboard', 'میز کار و داشبورد مدیریت وکالت'); ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root <?php echo esc_attr($css_class); ?>" data-component="LawyerDashboard" data-props="<?php echo esc_attr(wp_json_encode($props)); ?>" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('LawyerDashboard', 'میز کار و داشبورد مدیریت وکالت و جانشینی ادمین'); ?>
     </div>
     <?php
     return ob_get_clean();
 }
 add_shortcode('sedrazavi_react_dashboard', 'sedrazavi_shortcode_dashboard_wrapper');
 add_shortcode('sedrazavi_lawyer_dashboard', 'sedrazavi_shortcode_dashboard_wrapper');
+
+// ۲۱. سامانه جامع ورشکستگی، تصفیه دیون و قرارداد ارفاقی (Corporate Insolvency Suite - فاز ۳۷)
+function sedrazavi_shortcode_insolvency_suite($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-insolvency-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="CorporateInsolvencySuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('CorporateInsolvencySuite', 'سامانه حقوقی ورشکستگی، تصفیه دیون و قرارداد ارفاقی (فاز ۳۷)'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_react_insolvency_suite', 'sedrazavi_shortcode_insolvency_suite');
+add_shortcode('sedrazavi_insolvency_suite', 'sedrazavi_shortcode_insolvency_suite');
 
 /**
  * ==============================================================================

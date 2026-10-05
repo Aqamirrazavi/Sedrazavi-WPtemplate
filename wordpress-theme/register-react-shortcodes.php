@@ -1,0 +1,168 @@
+<?php
+/**
+ * SedRazavi React Components Universal Shortcode Bridge
+ *
+ * Registers the universal '[react_component name="ComponentName" props="{}"]' shortcode,
+ * allowing WordPress content editors to embed any modern React component into any page,
+ * post, or widget using the '.sedrazavi-react-root' container pattern.
+ *
+ * @package SedRazavi
+ * @version 3.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit; // Direct access denied
+}
+
+class SedRazavi_React_Shortcode_Registrar {
+
+    /**
+     * Map of supported React components and their descriptive titles
+     */
+    const SUPPORTED_COMPONENTS = [
+        'LawyerDashboard'               => 'پیشخوان جامع مدیریت پرونده‌ها و وکالت (Lawyer Dashboard)',
+        'ClientPortalView'              => 'کارتابل محرمانه موکلین و مراجعین (Client Portal)',
+        'CaseInteractiveTimeline'       => 'تایم‌لاین تعاملی و اوقات نظارت پرونده (Case Interactive Timeline)',
+        'FirmMilestone'                 => 'سفر رشد و نقاط عطف راهبردی مؤسسه حقوقی (Firm Milestones)',
+        'KeyPracticeAreasRadarChart'    => 'نمودار راداری صلاحیت‌های تخصصی وکیل (Key Practice Areas Radar Chart)',
+        'LawyerPrintBioCard'            => 'شناسنامه رسمی و کارت بیوگرافی قابل پرینت (Lawyer Print Bio Card)',
+        'EmailOtpAuthComponent'         => 'سامانه ورود بدون پسورد با رمز یکبار مصرف ایمیلی (Email OTP Login)',
+        'EmailOtpMagicLogin'            => 'فرم لاگین هوشمند با ایمیل (Email OTP Magic Login)',
+        'LawyerRealtimeToastNotifier'   => 'مرکز اعلان‌های بلادرنگ مواعد دادگاه و پیام‌های موکلین (Real-time Notifier)',
+        'CaseProgressTracker'           => 'استپر و پیگیری وضعیت پرونده دادگستری (Case Progress Tracker)',
+        'CourtFeeCalculator'            => 'میز محاسبات قضایی و تمبر دادرسی (Court Fee Calculator)',
+        'ComprehensiveAdminPortal'      => 'پنل جامع ادمین و راهبری وکالت (Comprehensive Admin Portal)',
+        'AdminHelpAndDocsSystem'        => 'مرکز مستندات و راهنمای تصویری مدیریت (Admin Help & Docs)',
+        'CorporateInsolvencySuite'      => 'سامانه ورشکستگی، تصفیه دیون و قرارداد ارفاقی (Corporate Insolvency Suite)',
+        'ClientPortalQuickAccessWidget' => 'ابزارک دسترسی سریع کارتابل موکل (Client Quick Access)',
+        'LawyerHeroSlider'              => 'هیرو اسلایدر صفحه اصلی (Lawyer Hero Slider)',
+        'TextBannerSlider'              => 'نوار متحرک شعارهای حقوقی (Text Banner Slider)',
+        'StoryBar'                      => 'نوار هایلایت‌ها و استوری‌های آموزشی (Story Bar)',
+        'ServicesSection'               => 'گرید خدمات حقوقی (Services Section)',
+        'AboutSection'                  => 'بخش درباره وکیل و سوگندنامه (About Section)',
+        'FaqSection'                    => 'پرسش و پاسخ‌های متداول حقوقی (FAQ Section)',
+        'TestimonialsSlider'            => 'اسلایدر نظرات و رضایت‌نامه موکلین (Testimonials Slider)',
+        'ContactAndBookingSection'      => 'فرم نوبت‌دهی مشاوره و تماس (Contact & Booking Section)',
+        'ArticlesSection'               => 'آرشیو مقالات و یادداشت‌های تحلیلی (Articles Section)',
+    ];
+
+    /**
+     * Initialize shortcode registration
+     */
+    public static function init() {
+        // Universal Shortcode: [react_component name="ComponentName" props="{}"]
+        add_shortcode('react_component', [__CLASS__, 'render_universal_react_component']);
+
+        // Dedicated shortcut shortcodes
+        add_shortcode('sedrazavi_dashboard', [__CLASS__, 'render_dashboard_shortcut']);
+        add_shortcode('sedrazavi_timeline', [__CLASS__, 'render_timeline_shortcut']);
+        add_shortcode('sedrazavi_firm_milestones', [__CLASS__, 'render_milestones_shortcut']);
+        add_shortcode('sedrazavi_radar_chart', [__CLASS__, 'render_radar_shortcut']);
+        add_shortcode('sedrazavi_email_otp', [__CLASS__, 'render_email_otp_shortcut']);
+        add_shortcode('sedrazavi_bio_card', [__CLASS__, 'render_bio_card_shortcut']);
+        add_shortcode('sedrazavi_insolvency', [__CLASS__, 'render_insolvency_shortcut']);
+    }
+
+    /**
+     * Universal shortcode callback: [react_component name="ComponentName" props='{"key":"value"}']
+     */
+    public static function render_universal_react_component($atts, $content = null) {
+        $a = shortcode_atts([
+            'name'  => 'LawyerDashboard',
+            'props' => '{}',
+            'class' => '',
+            'id'    => '',
+            'title' => '',
+        ], $atts, 'react_component');
+
+        $component_name = sanitize_text_field($a['name']);
+        
+        // Decode and validate props JSON
+        $props = [];
+        if (!empty($a['props'])) {
+            $decoded = json_decode(html_entity_decode($a['props']), true);
+            if (is_array($decoded)) {
+                $props = $decoded;
+            }
+        }
+
+        // Fetch display title
+        $fallback_title = !empty($a['title']) 
+            ? sanitize_text_field($a['title']) 
+            : (self::SUPPORTED_COMPONENTS[$component_name] ?? "مؤلفه حقوقی {$component_name}");
+
+        return self::render_bridge_markup($component_name, $props, $a['class'], $a['id'], $fallback_title);
+    }
+
+    /**
+     * Helper to render the .sedrazavi-react-root container with skeleton preloader
+     */
+    public static function render_bridge_markup($component_name, $props = [], $custom_class = '', $custom_id = '', $fallback_title = '') {
+        $unique_id = !empty($custom_id) 
+            ? sanitize_html_class($custom_id) 
+            : 'sedrazavi-react-' . strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $component_name)) . '-' . wp_unique_id();
+
+        $classes = trim('sedrazavi-react-root sedrazavi-ui-wrapper ' . sanitize_text_field($custom_class));
+        $props_json = esc_attr(wp_json_encode($props));
+        $title = !empty($fallback_title) ? $fallback_title : "سامانه حقوقی {$component_name}";
+
+        ob_start();
+        ?>
+        <div 
+            id="<?php echo esc_attr($unique_id); ?>" 
+            class="<?php echo esc_attr($classes); ?>" 
+            data-component="<?php echo esc_attr($component_name); ?>" 
+            data-props="<?php echo $props_json; ?>" 
+            dir="rtl"
+        >
+            <div class="sedrazavi-skeleton-container" style="min-height: 180px; background: linear-gradient(135deg, rgba(11,19,43,0.03) 0%, rgba(212,175,55,0.06) 100%); border: 1px dashed rgba(212,175,55,0.35); border-radius: 1.25rem; padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; font-family: inherit; direction: rtl; margin: 0.75rem 0;">
+                <div style="width: 36px; height: 36px; border: 3px solid rgba(212,175,55,0.25); border-top-color: #D4AF37; border-radius: 50%; animation: sedrazaviSpin 1.1s cubic-bezier(0.5, 0, 0.5, 1) infinite; margin-bottom: 0.75rem;"></div>
+                <h4 style="font-size: 0.875rem; font-weight: 800; color: #D4AF37; margin: 0 0 0.25rem 0;">
+                    <?php echo esc_html($title); ?>
+                </h4>
+                <span style="font-size: 0.75rem; color: #94A3B8;">
+                    در حال راه‌اندازی و اجرای مؤلفه React در وردپرس...
+                </span>
+                <style>
+                    @keyframes sedrazaviSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                </style>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Shortcuts for popular components
+     */
+    public static function render_dashboard_shortcut($atts) {
+        return self::render_universal_react_component(array_merge((array)$atts, ['name' => 'LawyerDashboard']));
+    }
+
+    public static function render_timeline_shortcut($atts) {
+        return self::render_universal_react_component(array_merge((array)$atts, ['name' => 'CaseInteractiveTimeline']));
+    }
+
+    public static function render_milestones_shortcut($atts) {
+        return self::render_universal_react_component(array_merge((array)$atts, ['name' => 'FirmMilestone']));
+    }
+
+    public static function render_radar_shortcut($atts) {
+        return self::render_universal_react_component(array_merge((array)$atts, ['name' => 'KeyPracticeAreasRadarChart']));
+    }
+
+    public static function render_email_otp_shortcut($atts) {
+        return self::render_universal_react_component(array_merge((array)$atts, ['name' => 'EmailOtpAuthComponent']));
+    }
+
+    public static function render_bio_card_shortcut($atts) {
+        return self::render_universal_react_component(array_merge((array)$atts, ['name' => 'LawyerPrintBioCard']));
+    }
+
+    public static function render_insolvency_shortcut($atts) {
+        return self::render_universal_react_component(array_merge((array)$atts, ['name' => 'CorporateInsolvencySuite']));
+    }
+}
+
+// Bootstrap Universal Shortcodes
+SedRazavi_React_Shortcode_Registrar::init();

@@ -52,6 +52,7 @@ export interface ComprehensiveAdminPortalProps {
   onBackToHome?: () => void;
   lawyerProfile?: LawyerSiteProfile;
   onUpdateLawyerProfile?: (profile: LawyerSiteProfile) => void;
+  onSwitchToLawyerDashboard?: () => void;
 }
 
 interface ClientEntry {
@@ -180,6 +181,7 @@ export const ComprehensiveAdminPortal: React.FC<ComprehensiveAdminPortalProps> =
   onBackToHome,
   lawyerProfile: externalProfile,
   onUpdateLawyerProfile,
+  onSwitchToLawyerDashboard,
 }) => {
   const [activeTab, setActiveTab] = useState<'cases' | 'clients' | 'bookings' | 'settings' | 'help'>('cases');
 
@@ -359,6 +361,17 @@ export const ComprehensiveAdminPortal: React.FC<ComprehensiveAdminPortalProps> =
               <UserCheck className="w-4 h-4" />
               <span>اکانت بدون پیامک</span>
             </button>
+
+            {onSwitchToLawyerDashboard && (
+              <button
+                onClick={onSwitchToLawyerDashboard}
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] hover:brightness-110 text-xs font-black flex items-center gap-1.5 transition-all shadow-md shadow-[#D4AF37]/20 cursor-pointer"
+                title="ورود به میز کار و پیشخوان اختصاصی وکیل جهت جانشینی وکیل غایب، ارجاع پرونده به وکلای شریک و ثبت مستقیم پرونده‌ها"
+              >
+                <Scale className="w-4 h-4" />
+                <span>⚖️ میز کار و داشبورد وکیل (جانشینی)</span>
+              </button>
+            )}
 
             {onBackToHome && (
               <button
