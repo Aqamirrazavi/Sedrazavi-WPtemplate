@@ -460,11 +460,23 @@ $sedrazavi_essential_includes = [
     'inc/api-handlers.php',          // Dedicated REST API endpoint for saving profile settings
     'inc/react-shortcodes.php',      // Extended shortcodes package & auto-enqueuing
     'inc/rest-api.php',              // Full REST API suite (cases, otp, bookings)
-    'inc/theme-options.php',
-    'inc/security.php',
-    'inc/case-management.php',
-    'inc/booking.php',
-    'inc/elementor-widgets.php',
+    'inc/setup.php',                 // Plugin dependency checker & core setup
+    'inc/seo-bridge.php',            // Dynamic SEO tags, OpenGraph, and Schema.org
+    'inc/customizer-seo.php',        // Customizer SEO & Branding controls
+    'inc/user-roles.php',            // Custom legal roles (client, secretary, intern)
+    'inc/manifest-bridge.php',       // PWA & Idempotent Page Setup
+    'inc/meta-boxes.php',            // Native Page Meta Boxes
+    'inc/theme-options.php',         // Theme options & customizer styles
+    'inc/security.php',              // Security headers, rate limiting, and sanitization
+    'inc/case-management.php',       // Case management CPT & taxonomy
+    'inc/booking.php',               // Consultation booking subsystem
+    'inc/elementor-widgets.php',      // Custom Elementor widgets bridge
+    'inc/class-sedrazavi-calculators.php',   // Judicial tariffs & calculation suite
+    'inc/class-sedrazavi-client-portal.php', // Client portal subsystem
+    'inc/class-sedrazavi-dashboard.php',     // Admin dashboard helpers
+    'inc/arbitration-cpt.php',               // Arbitration cases CPT
+    'inc/corporate-international.php',       // Corporate quorum & incoterms 2020
+    'inc/legal-vault-deadlines.php',         // Judicial deadlines & vault
 ];
 
 foreach ($sedrazavi_essential_includes as $file_rel) {
