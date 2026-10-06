@@ -881,3 +881,405 @@ img {
 .flex {
     display: flex !important;
 }
+
+/* --------------------------------------------------------------------------
+   ۱۲. استایل‌های تکمیلی قالب، ابزارک‌ها و کامپوننت‌های تعاملی
+   -------------------------------------------------------------------------- */
+
+/* نوار شناور و نشانگر پیشرفت مطالعه و اسکرول (Floating Gold Scroll Badge) */
+.sedrazavi-floating-gold-sidebar {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 40;
+    pointer-events: auto;
+}
+.gold-sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+.gold-scroll-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #0B132B 0%, #1C2541 100%);
+    border: 1.5px solid var(--sr-gold-400);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 15px rgba(212, 175, 55, 0.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+.gold-scroll-badge:hover {
+    transform: translateY(-3px) scale(1.05);
+    border-color: #F3E5AB;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55), 0 0 20px rgba(212, 175, 55, 0.45);
+}
+.gold-percent-num {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    color: var(--sr-gold-400);
+    line-height: 1;
+    font-family: inherit;
+}
+.gold-scroll-v-track {
+    width: 4px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 0.25rem;
+}
+.gold-scroll-v-fill {
+    width: 100%;
+    height: 0%;
+    background: linear-gradient(180deg, #F3E5AB 0%, #D4AF37 50%, #AA820A 100%);
+    border-radius: 9999px;
+    transition: height 0.1s linear;
+}
+.gold-btn-top {
+    font-size: 0.75rem;
+    color: var(--sr-gold-400);
+    margin-top: -2px;
+}
+
+/* سوالات متداول (FAQ Accordion) */
+.faq-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--sr-gold-400);
+    font-size: 1.125rem;
+    font-weight: 700;
+    transition: transform 0.25s ease, background-color 0.25s ease;
+}
+.faq-item.active .faq-icon {
+    transform: rotate(45deg);
+    background: rgba(212, 175, 55, 0.25);
+}
+.faq-answer {
+    padding: 1.25rem;
+    padding-top: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.85;
+    color: var(--sr-text-secondary);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* بنر سربرگ آرشیو و صفحات برگه (Archive & Page Headers) */
+.archive-header-banner,
+.page-header,
+.category-header,
+.tag-header {
+    background: linear-gradient(135deg, #060B18 0%, #0B132B 60%, #1C2541 100%);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+    padding: 3.5rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+.archive-header-banner::before,
+.page-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+}
+.archive-description {
+    max-width: 48rem;
+    margin: 1rem auto 0;
+    font-size: 0.9375rem;
+    line-height: 1.8;
+    color: var(--sr-text-secondary);
+}
+.archive-posts-section,
+.content-area,
+.site-main {
+    width: 100%;
+    min-height: 60vh;
+}
+
+/* محتوای مقالات و سربرگ ورودی (Entry Header & Content) */
+.entry-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.entry-content {
+    font-size: 1rem;
+    line-height: 2;
+    color: var(--sr-text-secondary);
+}
+.entry-content h1,
+.entry-content h2,
+.entry-content h3,
+.entry-content h4 {
+    color: var(--sr-text-primary);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 800;
+}
+.entry-content p {
+    margin-bottom: 1.5rem;
+}
+.entry-content blockquote {
+    border-right: 4px solid var(--sr-gold-400);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    background: rgba(212, 175, 55, 0.05);
+    border-radius: 0 0.75rem 0.75rem 0;
+    font-style: italic;
+    color: #F3E5AB;
+}
+.entry-content img {
+    border-radius: 1rem;
+    margin: 2rem auto;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+/* دیدگاه‌ها (Comments Area) */
+.comments-area {
+    margin-top: 3.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+.comments-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--sr-text-primary);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.comments-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 1.25rem;
+    background: var(--sr-gold-400);
+    border-radius: 2px;
+}
+.comment-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+.comment-form-wrapper {
+    background: #0B132B;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 1.25rem;
+    padding: 2rem;
+}
+.no-comments {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--sr-text-muted);
+    font-size: 0.875rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0.75rem;
+}
+
+/* میزبان‌های کامپوننت‌های ری‌اکت و اسکلتون (React Roots & Skeletons) */
+.sedrazavi-react-root {
+    width: 100%;
+    position: relative;
+    min-height: 200px;
+    isolation: isolate;
+}
+.sedrazavi-ui-wrapper {
+    width: 100%;
+}
+.sedrazavi-skeleton-container {
+    width: 100%;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, rgba(11, 19, 43, 0.4) 0%, rgba(28, 37, 65, 0.4) 100%);
+    border: 1px dashed rgba(212, 175, 55, 0.3);
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    animation: sedrazaviSkeletonPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes sedrazaviSkeletonPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.65; }
+}
+
+/* درگاه‌ها و ماژول‌های تخصصی حقوقی (Portals & Wrappers) */
+.odr-portal-wrapper,
+.legal-strategy-suite-wrapper,
+.legal-intelligence-portal-wrapper,
+.contract-auditor-container,
+.petition-generator-container,
+.sedrazavi-calc-container,
+.sedrazavi-strategy-container,
+.sedrazavi-portal-wrapper,
+.virtual-court-room-container,
+.sedrazavi-app-mount {
+    width: 100%;
+    border-radius: 1.5rem;
+    overflow: hidden;
+}
+
+/* کارت‌های صفحات داخلی (Dashboard & Internal Cards) */
+.sedrazavi-insolvency-page-card,
+.sedrazavi-milestones-page-card,
+.sedrazavi-timeline-page-card,
+.sedrazavi-otp-login-card {
+    background: #0B132B;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* بنر خدمت و پانوشت سایت */
+.service-banner {
+    position: relative;
+    border-radius: 1.25rem;
+    overflow: hidden;
+}
+.site-footer {
+    width: 100%;
+    position: relative;
+    z-index: 10;
+}
+.widget-area {
+    margin-top: 3rem;
+}
+.posts-pagination {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+.posts-pagination a,
+.posts-pagination span {
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(11, 19, 43, 0.8);
+    color: var(--sr-text-secondary);
+}
+.posts-pagination .current {
+    background: linear-gradient(135deg, #D4AF37 0%, #AA820A 100%);
+    color: #0B132B;
+    font-weight: 700;
+    border-color: transparent;
+}
+
+/* دسترس‌پذیری و عناصر وردپرس (Accessibility & WordPress Core Helpers) */
+.skip-link {
+    position: absolute;
+    top: -9999px;
+    right: 50%;
+    transform: translateX(50%);
+    background: var(--sr-gold-400);
+    color: #0B132B;
+    padding: 0.75rem 1.5rem;
+    font-weight: 700;
+    border-radius: 0 0 0.75rem 0.75rem;
+    z-index: 9999;
+}
+.skip-link:focus {
+    top: 0;
+}
+.screen-reader-text {
+    border: 0;
+    clip: rect(1px, 1px, 1px, 1px);
+    clip-path: inset(50%);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute !important;
+    width: 1px;
+    word-wrap: normal !important;
+}
+.button-primary {
+    background: linear-gradient(135deg, #D4AF37 0%, #AA820A 100%) !important;
+    border-color: #8A6908 !important;
+    color: #0B132B !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+}
+.nav-dropdown-trigger {
+    cursor: pointer;
+}
+.theme-toggle-moon,
+.theme-toggle-sun {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.sedrazavi-admin-wrap,
+.sedrazavi-options-wrap,
+.sedrazavi-meta-box-wrapper {
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, Tahoma, sans-serif;
+    direction: rtl;
+}
+.notice,
+.notice-warning {
+    border-right: 4px solid var(--sr-gold-400) !important;
+    background: #FFFFFF;
+    color: #0B132B;
+}
+.is-dismissible {
+    position: relative;
+}
+.regular-text {
+    width: 100%;
+    max-width: 25em;
+}
+
+/* تایپوگرافی پروژه‌ای (Prose Helpers) */
+.prose-lg {
+    font-size: 1.125rem;
+    line-height: 2;
+}
+.dark\:prose-invert {
+    color: var(--sr-text-secondary);
+}
+
+/* کلاس‌های مقداری تکمیلی (Tailwind Utility Backfill) */
+.gap-1\.5 { gap: 0.375rem !important; }
+.gap-2\.5 { gap: 0.625rem !important; }
+.h-3\.5 { height: 0.875rem !important; }
+.w-2\.5 { width: 0.625rem !important; }
+.w-3\.5 { width: 0.875rem !important; }
+.p-2\.5 { padding: 0.625rem !important; }
+.px-2\.5 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
+.px-3\.5 { padding-left: 0.875rem !important; padding-right: 0.875rem !important; }
+.py-0\.5 { padding-top: 0.125rem !important; padding-bottom: 0.125rem !important; }
+.py-1\.5 { padding-top: 0.375rem !important; padding-bottom: 0.375rem !important; }
+.py-2\.5 { padding-top: 0.625rem !important; padding-bottom: 0.625rem !important; }
+.py-3\.5 { padding-top: 0.875rem !important; padding-bottom: 0.875rem !important; }
+.mb-0\.5 { margin-bottom: 0.125rem !important; }
+.mb-1\.5 { margin-bottom: 0.375rem !important; }
+.mt-0\.5 { margin-top: 0.125rem !important; }
+.mt-16 { margin-top: 4rem !important; }
+.pt-12 { padding-top: 3rem !important; }
+.space-y-2\.5 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0.625rem !important;
+}
+@media (min-width: 768px) {
+    .md\:flex-initial { flex: 0 1 auto !important; }
+}

@@ -477,6 +477,16 @@ $sedrazavi_essential_includes = [
     'inc/arbitration-cpt.php',               // Arbitration cases CPT
     'inc/corporate-international.php',       // Corporate quorum & incoterms 2020
     'inc/legal-vault-deadlines.php',         // Judicial deadlines & vault
+    'inc/advanced-backup.php',               // Version control & snapshot backup manager
+    'inc/analytics-reports.php',             // Legal analytics & KPI reporting
+    'inc/class-sedrazavi-elementor.php',     // Elementor category & widget hooks
+    'inc/class-sedrazavi-security.php',      // Security hardening & MIME filtering
+    'inc/class-sedrazavi-updater.php',       // GitHub auto-updater engine
+    'inc/dashboard.php',                     // Admin top-level dashboard menu & stats
+    'inc/educational-tour.php',              // Admin onboarding interactive tours
+    'inc/integrations.php',                  // WooCommerce, SEO breadcrumbs & cache hooks
+    'inc/precedents-cpt.php',                // Supreme court precedents CPT & taxonomy
+    'inc/ux-improvements.php',               // Client experience & skeleton loaders
 ];
 
 foreach ($sedrazavi_essential_includes as $file_rel) {

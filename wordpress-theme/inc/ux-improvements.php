@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!function_exists('sedrazavi_skeleton_placeholder')) {
 function sedrazavi_skeleton_placeholder($type = 'card') {
     return '<div class="animate-pulse bg-gray-200 dark:bg-gray-800 rounded-2xl h-48 w-full"></div>';
+}
 }

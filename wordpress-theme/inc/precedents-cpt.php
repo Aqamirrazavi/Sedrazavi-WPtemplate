@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!function_exists('sedrazavi_register_precedents_cpt')) {
 function sedrazavi_register_precedents_cpt() {
     $labels = array(
         'name'                  => 'آرای وحدت رویه و نظرات مشورتی',
@@ -46,3 +47,4 @@ function sedrazavi_register_precedents_cpt() {
     ));
 }
 add_action('init', 'sedrazavi_register_precedents_cpt');
+}

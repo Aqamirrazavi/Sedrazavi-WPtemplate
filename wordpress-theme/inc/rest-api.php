@@ -46,6 +46,7 @@ class SedRazavi_REST_API {
     public static function register_routes() {
 
         // 1. Book Appointment: wp-json/sedrazavi/v1/book-appointment
+        // Decision: PUBLIC - Prospective clients booking legal consultations (Rate limited)
         register_rest_route(self::NAMESPACE, '/book-appointment', array(
             'methods'             => array('POST', 'GET'),
             'callback'            => array(__CLASS__, 'handle_book_appointment'),
@@ -53,6 +54,7 @@ class SedRazavi_REST_API {
         ));
 
         // 2. Track Case: wp-json/sedrazavi/v1/track-case
+        // Decision: PUBLIC - Public inquiry with valid case tracking number (Rate limited)
         register_rest_route(self::NAMESPACE, '/track-case', array(
             'methods'             => array('POST', 'GET'),
             'callback'            => array(__CLASS__, 'handle_track_case'),
@@ -60,11 +62,12 @@ class SedRazavi_REST_API {
         ));
 
         // 3. Cases Management: wp-json/sedrazavi/v1/cases
+        // Decision: RESTRICTED - Case dockets contain confidential litigation data
         register_rest_route(self::NAMESPACE, '/cases', array(
             array(
                 'methods'             => 'GET',
                 'callback'            => array(__CLASS__, 'handle_get_cases'),
-                'permission_callback' => '__return_true',
+                'permission_callback' => array(__CLASS__, 'check_lawyer_or_admin_permission'),
             ),
             array(
                 'methods'             => 'POST',
@@ -74,13 +77,15 @@ class SedRazavi_REST_API {
         ));
 
         // 4. Live Sync Stream: wp-json/sedrazavi/v1/sync/stream
+        // Decision: RESTRICTED - Active user session real-time synchronization
         register_rest_route(self::NAMESPACE, '/sync/stream', array(
             'methods'             => 'GET',
             'callback'            => array(__CLASS__, 'handle_sync_stream'),
-            'permission_callback' => '__return_true',
+            'permission_callback' => array(__CLASS__, 'check_logged_in_permission'),
         ));
 
         // 5. Auth Login: wp-json/sedrazavi/v1/auth/login
+        // Decision: PUBLIC - Authentication entry point
         register_rest_route('sedrazavi/v1/auth', '/login', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_auth_login'),
@@ -88,6 +93,7 @@ class SedRazavi_REST_API {
         ));
 
         // 6. Auth Verify 2FA: wp-json/sedrazavi/v1/auth/verify-2fa
+        // Decision: PUBLIC - Two-factor challenge response
         register_rest_route('sedrazavi/v1/auth', '/verify-2fa', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_auth_verify_2fa'),
@@ -95,20 +101,23 @@ class SedRazavi_REST_API {
         ));
 
         // 7. Auth Logout: wp-json/sedrazavi/v1/auth/logout
+        // Decision: RESTRICTED - Terminating active authenticated session
         register_rest_route('sedrazavi/v1/auth', '/logout', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_auth_logout'),
-            'permission_callback' => '__return_true',
+            'permission_callback' => array(__CLASS__, 'check_logged_in_permission'),
         ));
 
         // 8. Design Tokens All: wp-json/sedrazavi/v1/tokens/all
+        // Decision: RESTRICTED - Palette & design tokens management
         register_rest_route('sedrazavi/v1/tokens', '/all', array(
             'methods'             => 'GET',
             'callback'            => array(__CLASS__, 'handle_get_tokens'),
-            'permission_callback' => '__return_true',
+            'permission_callback' => array(__CLASS__, 'check_admin_permission'),
         ));
 
         // 9. Design Tokens Update: wp-json/sedrazavi/v1/tokens/update
+        // Decision: RESTRICTED - Administrative theme customization
         register_rest_route('sedrazavi/v1/tokens', '/update', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_update_tokens'),
@@ -116,13 +125,15 @@ class SedRazavi_REST_API {
         ));
 
         // 10. Payment Checkout: wp-json/sedrazavi/v1/payment/checkout
+        // Decision: RESTRICTED - Valid session or validated nonce required for invoice generation
         register_rest_route('sedrazavi/v1/payment', '/checkout', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_payment_checkout'),
-            'permission_callback' => '__return_true',
+            'permission_callback' => array(__CLASS__, 'check_payment_checkout_permission'),
         ));
 
         // 11. Quick Callback: wp-json/sedrazavi/v1/quick-callback
+        // Decision: PUBLIC - Prospective client callback request (Rate limited)
         register_rest_route(self::NAMESPACE, '/quick-callback', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_quick_callback'),
@@ -130,6 +141,7 @@ class SedRazavi_REST_API {
         ));
 
         // 12. OTP Send: wp-json/sedrazavi/v1/otp/send
+        // Decision: PUBLIC - Initial SMS OTP dispatch (Rate limited)
         register_rest_route(self::NAMESPACE, '/otp/send', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_otp_send'),
@@ -137,6 +149,7 @@ class SedRazavi_REST_API {
         ));
 
         // 13. OTP Verify: wp-json/sedrazavi/v1/otp/verify
+        // Decision: PUBLIC - SMS OTP verification (Rate limited)
         register_rest_route(self::NAMESPACE, '/otp/verify', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_otp_verify'),
@@ -144,13 +157,15 @@ class SedRazavi_REST_API {
         ));
 
         // 14. Dashboard Stats: wp-json/sedrazavi/v1/dashboard-stats
+        // Decision: RESTRICTED - Confidential law firm caseload KPI metrics
         register_rest_route(self::NAMESPACE, '/dashboard-stats', array(
             'methods'             => 'GET',
             'callback'            => array(__CLASS__, 'handle_dashboard_stats'),
-            'permission_callback' => '__return_true',
+            'permission_callback' => array(__CLASS__, 'check_lawyer_or_admin_permission'),
         ));
 
         // 15. Verify Document Hash: wp-json/sedrazavi/v1/verify-hash
+        // Decision: PUBLIC - Document authenticity verification service
         register_rest_route(self::NAMESPACE, '/verify-hash', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_verify_hash'),
@@ -158,13 +173,15 @@ class SedRazavi_REST_API {
         ));
 
         // 16. Corporate Quorum: wp-json/sedrazavi/v1/corporate-quorum
+        // Decision: RESTRICTED - Commercial corporate legal analysis suite
         register_rest_route(self::NAMESPACE, '/corporate-quorum', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_corporate_quorum'),
-            'permission_callback' => '__return_true',
+            'permission_callback' => array(__CLASS__, 'check_logged_in_or_lawyer_admin_permission'),
         ));
 
         // 17. Email OTP Send: wp-json/sedrazavi/v1/auth/email-otp-send
+        // Decision: PUBLIC - Email OTP dispatch (Rate limited)
         register_rest_route(self::NAMESPACE, '/auth/email-otp-send', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_email_otp_send'),
@@ -172,6 +189,7 @@ class SedRazavi_REST_API {
         ));
 
         // 18. Email OTP Verify: wp-json/sedrazavi/v1/auth/email-otp-verify
+        // Decision: PUBLIC - Email OTP verification (Rate limited)
         register_rest_route(self::NAMESPACE, '/auth/email-otp-verify', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_email_otp_verify'),
@@ -179,42 +197,77 @@ class SedRazavi_REST_API {
         ));
 
         // 19. Case Interactive Timeline: wp-json/sedrazavi/v1/cases/timeline
+        // Decision: RESTRICTED - Confidential procedural timeline and court dates
         register_rest_route(self::NAMESPACE, '/cases/timeline', array(
             'methods'             => array('GET', 'POST'),
             'callback'            => array(__CLASS__, 'handle_cases_timeline'),
-            'permission_callback' => '__return_true',
+            'permission_callback' => array(__CLASS__, 'check_lawyer_or_admin_permission'),
         ));
 
         // 20. Lawyer Realtime Notifications: wp-json/sedrazavi/v1/lawyer/notifications
+        // Decision: RESTRICTED - Attorney internal notifications and judicial deadlines
         register_rest_route(self::NAMESPACE, '/lawyer/notifications', array(
             'methods'             => 'GET',
             'callback'            => array(__CLASS__, 'handle_lawyer_notifications'),
-            'permission_callback' => '__return_true',
+            'permission_callback' => array(__CLASS__, 'check_lawyer_or_admin_permission'),
         ));
 
         // 21. Lawyer Caseload CSV Export: wp-json/sedrazavi/v1/lawyer/export-csv
+        // Decision: RESTRICTED - Export confidential client & court records
         register_rest_route(self::NAMESPACE, '/lawyer/export-csv', array(
             'methods'             => array('GET', 'POST'),
             'callback'            => array(__CLASS__, 'handle_lawyer_export_csv'),
-            'permission_callback' => '__return_true',
+            'permission_callback' => array(__CLASS__, 'check_lawyer_or_admin_permission'),
         ));
     }
 
     /**
      * Security & Permission Callbacks
+     *
+     * Note: Mock header bypass is strictly disallowed in production and is ONLY enabled
+     * if the explicit constant SEDRAZAVI_ALLOW_MOCK_HEADERS is defined as boolean TRUE.
+     * WP_DEBUG alone NEVER permits authentication bypass.
      */
     public static function check_lawyer_or_admin_permission($request = null) {
-        if (defined('WP_DEBUG') && WP_DEBUG && !is_user_logged_in() && $request && $request->get_header('x-sedrazavi-mock')) {
+        if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && !is_user_logged_in() && $request && $request->get_header('x-sedrazavi-mock')) {
             return true;
         }
         return current_user_can('edit_posts') || current_user_can('manage_options');
     }
 
     public static function check_admin_permission($request = null) {
-        if (defined('WP_DEBUG') && WP_DEBUG && !is_user_logged_in() && $request && $request->get_header('x-sedrazavi-mock')) {
+        if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && !is_user_logged_in() && $request && $request->get_header('x-sedrazavi-mock')) {
             return true;
         }
         return current_user_can('edit_theme_options') || current_user_can('manage_options');
+    }
+
+    public static function check_logged_in_permission($request = null) {
+        if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && !is_user_logged_in() && $request && $request->get_header('x-sedrazavi-mock')) {
+            return true;
+        }
+        return is_user_logged_in();
+    }
+
+    public static function check_logged_in_or_lawyer_admin_permission($request = null) {
+        if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && !is_user_logged_in() && $request && $request->get_header('x-sedrazavi-mock')) {
+            return true;
+        }
+        return is_user_logged_in() || current_user_can('edit_posts') || current_user_can('manage_options');
+    }
+
+    public static function check_payment_checkout_permission($request = null) {
+        if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && $request && $request->get_header('x-sedrazavi-mock')) {
+            return true;
+        }
+        if (is_user_logged_in()) {
+            return true;
+        }
+        $nonce = $request ? ($request->get_header('x-wp-nonce') ?: $request->get_param('_wpnonce')) : null;
+        if (!empty($nonce) && (wp_verify_nonce($nonce, 'wp_rest') || wp_verify_nonce($nonce, 'sedrazavi_security_nonce'))) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -747,7 +800,7 @@ class SedRazavi_REST_API {
      * 19. Handle Cases Timeline
      */
     public static function handle_cases_timeline($request) {
-        $case_id = $request->get_param('case_id') ?: 'c-01';
+        $case_id = sanitize_text_field($request->get_param('case_id') ?: 'c-01');
 
         $timeline_data = array(
             'case_id'     => $case_id,

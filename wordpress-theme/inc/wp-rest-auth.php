@@ -88,8 +88,8 @@ class SedRazavi_WP_REST_Auth {
             return true;
         }
 
-        // Allow demo mock headers in local development / preview environment
-        if ($request && $request->get_header('x-sedrazavi-mock')) {
+        // Allow demo mock headers only if explicitly enabled in environment
+        if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && $request && $request->get_header('x-sedrazavi-mock')) {
             return true;
         }
 
@@ -107,8 +107,8 @@ class SedRazavi_WP_REST_Auth {
      */
     public static function check_case_access_permission($request = null) {
         if (!is_user_logged_in()) {
-            // Check for valid preview mock header or return unauthorized
-            if ($request && ($request->get_header('x-sedrazavi-mock') || (defined('WP_DEBUG') && WP_DEBUG))) {
+            // Check for valid preview mock header if explicitly allowed
+            if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && $request && $request->get_header('x-sedrazavi-mock')) {
                 return true;
             }
             return new WP_Error(

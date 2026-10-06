@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!class_exists('SedRazavi_Elementor_Widgets_Manager')) {
 class SedRazavi_Elementor_Widgets_Manager {
 
     public static function init() {
@@ -38,3 +39,4 @@ class SedRazavi_Elementor_Widgets_Manager {
 }
 
 SedRazavi_Elementor_Widgets_Manager::init();
+}

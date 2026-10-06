@@ -73,13 +73,15 @@ class SedRazavi_API_Handlers {
             return true;
         }
 
-        // Allow demo updates if flagged in query / headers for live front-end customizer
-        $mock_header = $request->get_header('x-sedrazavi-mock');
-        if ($mock_header || (defined('WP_DEBUG') && WP_DEBUG)) {
-            return true;
+        // Allow demo updates only if explicitly enabled via SEDRAZAVI_ALLOW_MOCK_HEADERS
+        if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true) {
+            $mock_header = $request->get_header('x-sedrazavi-mock');
+            if ($mock_header) {
+                return true;
+            }
         }
 
-        return true; // Graceful open for front-end customizer preview
+        return false;
     }
 
     /**

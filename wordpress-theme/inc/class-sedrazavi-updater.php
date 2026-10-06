@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!class_exists('SedRazavi_Theme_GitHub_Updater')) {
 class SedRazavi_Theme_GitHub_Updater {
     private $theme_slug = 'sedrazavi-law-theme';
     private $github_username = 'sedrazavi-studio';
@@ -81,3 +82,4 @@ class SedRazavi_Theme_GitHub_Updater {
 }
 
 new SedRazavi_Theme_GitHub_Updater();
+}

@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!function_exists('sedrazavi_get_kpi_metrics')) {
 function sedrazavi_get_kpi_metrics() {
     return array(
         'active_cases'      => wp_count_posts('sedrazavi_case')->publish ?? 48,
@@ -17,4 +18,5 @@ function sedrazavi_get_kpi_metrics() {
         'court_success_rate' => '۹۲.۸٪',
         'consultation_conversion' => '۷۴٪',
     );
+}
 }

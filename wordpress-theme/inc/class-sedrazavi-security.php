@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!class_exists('SedRazavi_Security')) {
 class SedRazavi_Security {
 
     public static function init() {
@@ -45,3 +46,4 @@ class SedRazavi_Security {
 }
 
 SedRazavi_Security::init();
+}

@@ -3,7 +3,7 @@ import path from 'path';
 import JSZip from 'jszip';
 
 const themeDir = path.resolve('wordpress-theme');
-const addonsDir = path.resolve('sedrazavi-addons');
+const addonsDir = path.resolve('elementor-addon-suite');
 const outputThemeZip = path.resolve('sedrazavi-theme.zip');
 const outputAddonsZip = path.resolve('sedrazavi-addons.zip');
 const outputCompleteZip = path.resolve('sedrazavi-complete-suite.zip');
