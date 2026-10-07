@@ -8,4 +8,4 @@ public/*.zip
 *.log
 .env*
 !.env.example
-!wordpress-theme/assets/dist/**
+!wordpress-theme/app-dist/**

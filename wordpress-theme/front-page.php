@@ -822,7 +822,7 @@ get_header();
         <div class="relative z-10 flex items-center justify-between p-4 pt-7 bg-gradient-to-b from-black/80 to-transparent">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-full border border-[#D4AF37] overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200" class="w-full h-full object-cover" />
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200" alt="دکتر سیده مریم رضوی - استوری نکات حقوقی" class="w-full h-full object-cover" />
                 </div>
                 <div>
                     <h5 id="story-modal-title" class="text-xs font-bold text-white"></h5>
@@ -832,7 +832,7 @@ get_header();
             <button onclick="closeStoryModal()" class="p-1 rounded-full bg-black/40 hover:bg-black/80 text-white cursor-pointer">&times;</button>
         </div>
         <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
-            <img id="story-modal-img" src="" class="w-full h-full object-cover opacity-85" />
+            <img id="story-modal-img" src="" alt="تصویر اسلاید استوری حقوقی وکیل" class="w-full h-full object-cover opacity-85" />
             <div class="absolute inset-0 bg-gradient-to-t from-[#0B132B] via-transparent to-transparent"></div>
             <div class="absolute bottom-6 left-5 right-5 z-10 text-right space-y-2">
                 <h4 id="story-slide-title" class="text-base font-bold text-white"></h4>

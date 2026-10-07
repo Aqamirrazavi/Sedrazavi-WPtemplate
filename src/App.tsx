@@ -10,50 +10,60 @@ import { ArticlesSection } from './components/ArticlesSection';
 import { FaqSection } from './components/FaqSection';
 import { ContactAndBookingSection } from './components/ContactAndBookingSection';
 import { Footer } from './components/Footer';
-import { LawyerDashboard } from './components/LawyerDashboard';
-import { ElementorBuilder } from './components/ElementorBuilder';
-import { ShortcodesHub } from './components/ShortcodesHub';
-import { SystemArchitectureHub } from './components/SystemArchitectureHub';
-import { WordPressCodeViewer } from './components/WordPressCodeViewer';
-import { LegalFinancialSuite } from './components/legal-finance/LegalFinancialSuite';
-import { LegalOdrSuite } from './components/legal-odr/LegalOdrSuite';
-import { LegalIntelligenceSuite } from './components/legal-ai/LegalIntelligenceSuite';
-import { LegalStrategySuite } from './components/legal-strategy/LegalStrategySuite';
-import { CorporateInternationalSuite } from './components/corporate-international/CorporateInternationalSuite';
-import { IntellectualPropertySuite } from './components/intellectual-property/IntellectualPropertySuite';
-import { CyberForensicsSuite } from './components/cyber-forensics/CyberForensicsSuite';
-import { FinancialComplianceSuite } from './components/compliance-financial/FinancialComplianceSuite';
-import { RealEstateConstructionSuite } from './components/real-estate-construction/RealEstateConstructionSuite';
-import { FamilyInheritanceSuite } from './components/family-inheritance/FamilyInheritanceSuite';
-import { LegalAutomationLibrary } from './components/automation/LegalAutomationLibrary';
-import { AdministrativeJusticeSuite } from './components/administrative-justice/AdministrativeJusticeSuite';
-import { DualModeLawyerAuth } from './components/auth-dual-mode/DualModeLawyerAuth';
-import { UnifiedDualPanelSuite } from './components/dual-panel-unified/UnifiedDualPanelSuite';
-import { AdminPagesProtectionSuite } from './components/admin-protection/AdminPagesProtectionSuite';
-import { DesignTokensManagerSuite } from './components/design-tokens/DesignTokensManagerSuite';
-import { AdvancedAjaxSearchSuite } from './components/search-filter/AdvancedAjaxSearchSuite';
-import { CasePredictionRiskSuite } from './components/case-prediction/CasePredictionRiskSuite';
-import { EngineeringProcurementSuite } from './components/epc-procurement/EngineeringProcurementSuite';
-import { InternationalArbitrationSuite } from './components/international-arbitration/InternationalArbitrationSuite';
-import { ComprehensiveCodexSuite } from './components/legal-codex/ComprehensiveCodexSuite';
-import { MasterDraftingVaultSuite } from './components/drafting-vault/MasterDraftingVaultSuite';
-import { TaxDisputesMoadianSuite } from './components/tax-moadian/TaxDisputesMoadianSuite';
-import { LaborSocialSecuritySuite } from './components/labor-social-security/LaborSocialSecuritySuite';
-import { EconomicCrimesDefenseSuite } from './components/economic-crimes/EconomicCrimesDefenseSuite';
-import { CustomsTransitDisputesSuite } from './components/customs-transit/CustomsTransitDisputesSuite';
-import { LegalCrmSmartNotifierSuite } from './components/legal-crm-notifier/LegalCrmSmartNotifierSuite';
-import { FullElementorIntegrationSuite } from './components/elementor-integration/FullElementorIntegrationSuite';
-import { PaymentAdapterSystemSuite } from './components/payment-adapter/PaymentAdapterSystemSuite';
-import { LegalAssociateReferralSuite } from './components/associate-referral/LegalAssociateReferralSuite';
-import { SupremeCourtAppealsSuite } from './components/supreme-court-appeals/SupremeCourtAppealsSuite';
-import { CommercialArbitrationSuite } from './components/commercial-arbitration/CommercialArbitrationSuite';
-import { GovernmentTendersGuaranteesSuite } from './components/government-tenders/GovernmentTendersGuaranteesSuite';
-import { CorporateInsolvencySuite } from './components/corporate-insolvency/CorporateInsolvencySuite';
-import { ArchiveView } from './components/ArchiveView';
-import { SingleContentView } from './components/SingleContentView';
-import { SingleServiceView } from './components/SingleServiceView';
-import { NotFoundPageView } from './components/NotFoundPageView';
-import { InstagramGalleryPageView } from './components/InstagramGalleryPageView';
+
+// Code-split dynamic suites & pages (Loaded only on-demand)
+const LawyerDashboard = React.lazy(() => import('./components/LawyerDashboard').then(m => ({ default: m.LawyerDashboard })));
+const ElementorBuilder = React.lazy(() => import('./components/ElementorBuilder').then(m => ({ default: m.ElementorBuilder })));
+const ShortcodesHub = React.lazy(() => import('./components/ShortcodesHub').then(m => ({ default: m.ShortcodesHub })));
+const SystemArchitectureHub = React.lazy(() => import('./components/SystemArchitectureHub').then(m => ({ default: m.SystemArchitectureHub })));
+const WordPressCodeViewer = React.lazy(() => import('./components/WordPressCodeViewer').then(m => ({ default: m.WordPressCodeViewer })));
+const LegalFinancialSuite = React.lazy(() => import('./components/legal-finance/LegalFinancialSuite').then(m => ({ default: m.LegalFinancialSuite })));
+const LegalOdrSuite = React.lazy(() => import('./components/legal-odr/LegalOdrSuite').then(m => ({ default: m.LegalOdrSuite })));
+const LegalIntelligenceSuite = React.lazy(() => import('./components/legal-ai/LegalIntelligenceSuite').then(m => ({ default: m.LegalIntelligenceSuite })));
+const LegalStrategySuite = React.lazy(() => import('./components/legal-strategy/LegalStrategySuite').then(m => ({ default: m.LegalStrategySuite })));
+const CorporateInternationalSuite = React.lazy(() => import('./components/corporate-international/CorporateInternationalSuite').then(m => ({ default: m.CorporateInternationalSuite })));
+const IntellectualPropertySuite = React.lazy(() => import('./components/intellectual-property/IntellectualPropertySuite').then(m => ({ default: m.IntellectualPropertySuite })));
+const CyberForensicsSuite = React.lazy(() => import('./components/cyber-forensics/CyberForensicsSuite').then(m => ({ default: m.CyberForensicsSuite })));
+const FinancialComplianceSuite = React.lazy(() => import('./components/compliance-financial/FinancialComplianceSuite').then(m => ({ default: m.FinancialComplianceSuite })));
+const RealEstateConstructionSuite = React.lazy(() => import('./components/real-estate-construction/RealEstateConstructionSuite').then(m => ({ default: m.RealEstateConstructionSuite })));
+const FamilyInheritanceSuite = React.lazy(() => import('./components/family-inheritance/FamilyInheritanceSuite').then(m => ({ default: m.FamilyInheritanceSuite })));
+const LegalAutomationLibrary = React.lazy(() => import('./components/automation/LegalAutomationLibrary').then(m => ({ default: m.LegalAutomationLibrary })));
+const AdministrativeJusticeSuite = React.lazy(() => import('./components/administrative-justice/AdministrativeJusticeSuite').then(m => ({ default: m.AdministrativeJusticeSuite })));
+const DualModeLawyerAuth = React.lazy(() => import('./components/auth-dual-mode/DualModeLawyerAuth').then(m => ({ default: m.DualModeLawyerAuth })));
+const UnifiedDualPanelSuite = React.lazy(() => import('./components/dual-panel-unified/UnifiedDualPanelSuite').then(m => ({ default: m.UnifiedDualPanelSuite })));
+const AdminPagesProtectionSuite = React.lazy(() => import('./components/admin-protection/AdminPagesProtectionSuite').then(m => ({ default: m.AdminPagesProtectionSuite })));
+const DesignTokensManagerSuite = React.lazy(() => import('./components/design-tokens/DesignTokensManagerSuite').then(m => ({ default: m.DesignTokensManagerSuite })));
+const AdvancedAjaxSearchSuite = React.lazy(() => import('./components/search-filter/AdvancedAjaxSearchSuite').then(m => ({ default: m.AdvancedAjaxSearchSuite })));
+const CasePredictionRiskSuite = React.lazy(() => import('./components/case-prediction/CasePredictionRiskSuite').then(m => ({ default: m.CasePredictionRiskSuite })));
+const EngineeringProcurementSuite = React.lazy(() => import('./components/epc-procurement/EngineeringProcurementSuite').then(m => ({ default: m.EngineeringProcurementSuite })));
+const InternationalArbitrationSuite = React.lazy(() => import('./components/international-arbitration/InternationalArbitrationSuite').then(m => ({ default: m.InternationalArbitrationSuite })));
+const ComprehensiveCodexSuite = React.lazy(() => import('./components/legal-codex/ComprehensiveCodexSuite').then(m => ({ default: m.ComprehensiveCodexSuite })));
+const MasterDraftingVaultSuite = React.lazy(() => import('./components/drafting-vault/MasterDraftingVaultSuite').then(m => ({ default: m.MasterDraftingVaultSuite })));
+const TaxDisputesMoadianSuite = React.lazy(() => import('./components/tax-moadian/TaxDisputesMoadianSuite').then(m => ({ default: m.TaxDisputesMoadianSuite })));
+const LaborSocialSecuritySuite = React.lazy(() => import('./components/labor-social-security/LaborSocialSecuritySuite').then(m => ({ default: m.LaborSocialSecuritySuite })));
+const EconomicCrimesDefenseSuite = React.lazy(() => import('./components/economic-crimes/EconomicCrimesDefenseSuite').then(m => ({ default: m.EconomicCrimesDefenseSuite })));
+const CustomsTransitDisputesSuite = React.lazy(() => import('./components/customs-transit/CustomsTransitDisputesSuite').then(m => ({ default: m.CustomsTransitDisputesSuite })));
+const LegalCrmSmartNotifierSuite = React.lazy(() => import('./components/legal-crm-notifier/LegalCrmSmartNotifierSuite').then(m => ({ default: m.LegalCrmSmartNotifierSuite })));
+const FullElementorIntegrationSuite = React.lazy(() => import('./components/elementor-integration/FullElementorIntegrationSuite').then(m => ({ default: m.FullElementorIntegrationSuite })));
+const PaymentAdapterSystemSuite = React.lazy(() => import('./components/payment-adapter/PaymentAdapterSystemSuite').then(m => ({ default: m.PaymentAdapterSystemSuite })));
+const LegalAssociateReferralSuite = React.lazy(() => import('./components/associate-referral/LegalAssociateReferralSuite').then(m => ({ default: m.LegalAssociateReferralSuite })));
+const SupremeCourtAppealsSuite = React.lazy(() => import('./components/supreme-court-appeals/SupremeCourtAppealsSuite').then(m => ({ default: m.SupremeCourtAppealsSuite })));
+const CommercialArbitrationSuite = React.lazy(() => import('./components/commercial-arbitration/CommercialArbitrationSuite').then(m => ({ default: m.CommercialArbitrationSuite })));
+const GovernmentTendersGuaranteesSuite = React.lazy(() => import('./components/government-tenders/GovernmentTendersGuaranteesSuite').then(m => ({ default: m.GovernmentTendersGuaranteesSuite })));
+const CorporateInsolvencySuite = React.lazy(() => import('./components/corporate-insolvency/CorporateInsolvencySuite').then(m => ({ default: m.CorporateInsolvencySuite })));
+const ArchiveView = React.lazy(() => import('./components/ArchiveView').then(m => ({ default: m.ArchiveView })));
+const SingleContentView = React.lazy(() => import('./components/SingleContentView').then(m => ({ default: m.SingleContentView })));
+const SingleServiceView = React.lazy(() => import('./components/SingleServiceView').then(m => ({ default: m.SingleServiceView })));
+const NotFoundPageView = React.lazy(() => import('./components/NotFoundPageView').then(m => ({ default: m.NotFoundPageView })));
+const InstagramGalleryPageView = React.lazy(() => import('./components/InstagramGalleryPageView').then(m => ({ default: m.InstagramGalleryPageView })));
+const AboutPageView = React.lazy(() => import('./components/AboutPageView').then(m => ({ default: m.AboutPageView })));
+const ServicesPageView = React.lazy(() => import('./components/ServicesPageView').then(m => ({ default: m.ServicesPageView })));
+const ContactPageView = React.lazy(() => import('./components/ContactPageView').then(m => ({ default: m.ContactPageView })));
+const CaseTrackingPageView = React.lazy(() => import('./components/CaseTrackingPageView').then(m => ({ default: m.CaseTrackingPageView })));
+const ClientPortalView = React.lazy(() => import('./components/ClientPortalView').then(m => ({ default: m.ClientPortalView })));
+const ComprehensiveAdminPortal = React.lazy(() => import('./components/admin/ComprehensiveAdminPortal').then(m => ({ default: m.ComprehensiveAdminPortal })));
+const AdminHelpAndDocsSystem = React.lazy(() => import('./components/admin/AdminHelpAndDocsSystem').then(m => ({ default: m.AdminHelpAndDocsSystem })));
+
 import { OnboardingTour } from './components/OnboardingTour';
 import { HelpAndDocsModal } from './components/HelpAndDocsModal';
 import { SurveyWidgetModal } from './components/SurveyWidgetModal';
@@ -63,20 +73,13 @@ import { TeamHierarchySection } from './components/TeamHierarchySection';
 import { DynamicSeoHead } from './components/DynamicSeoHead';
 import { QuickCaseTrackerModal } from './components/QuickCaseTrackerModal';
 import { HtmlCssExportModal } from './components/HtmlCssExportModal';
-import { AboutPageView } from './components/AboutPageView';
-import { ServicesPageView } from './components/ServicesPageView';
-import { ContactPageView } from './components/ContactPageView';
-import { CaseTrackingPageView } from './components/CaseTrackingPageView';
 import { LiveConsultationDrawer } from './components/LiveConsultationDrawer';
 import { OtpAuthModal } from './components/OtpAuthModal';
 import { QuickCallbackModal } from './components/QuickCallbackModal';
 import { LawyerHeroSlider } from './components/LawyerHeroSlider';
 import { TextBannerSlider } from './components/TextBannerSlider';
-import { ClientPortalView } from './components/ClientPortalView';
 import { VectorBackgroundRenderer } from './components/VectorBackgroundRenderer';
 import { EmailOtpAuthComponent } from './components/auth/EmailOtpAuthComponent';
-import { ComprehensiveAdminPortal } from './components/admin/ComprehensiveAdminPortal';
-import { AdminHelpAndDocsSystem } from './components/admin/AdminHelpAndDocsSystem';
 import { Scale, User, Briefcase, Lock, X } from 'lucide-react';
 import {
   LawyerSiteProfile,
@@ -395,23 +398,32 @@ export default function App() {
           </div>
         )}
 
-        {/* Dedicated Standalone Pages (کل برگه‌ها) */}
-        {activeView === 'about-page' && (
-          <div>
-            <AboutPageView
-              onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
-              onBackToHome={() => setActiveView('preview')}
-            />
-            <Footer
-              profile={lawyerProfile}
-              onOpenFinance={() => setActiveView('finance')}
-              onOpenPhase5={() => setActiveView('odr-suite')}
-              onOpenPhase6={() => setActiveView('legal-ai')}
-              onOpenPhase7={() => setActiveView('strategy-suite')}
-              onOpenPhase8={() => setActiveView('corporate-suite')}
-            />
-          </div>
-        )}
+        {/* Dedicated Standalone Pages & Suites (Code-split with Suspense) */}
+        {activeView !== 'preview' && (
+          <React.Suspense
+            fallback={
+              <div className="min-h-[70vh] flex flex-col items-center justify-center p-12 text-center">
+                <div className="w-12 h-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
+                <p className="text-[#0B132B] dark:text-[#F3E5AB] font-bold text-base">در حال بارگذاری بخش انتخابی...</p>
+              </div>
+            }
+          >
+            {activeView === 'about-page' && (
+              <div>
+                <AboutPageView
+                  onBookConsultation={() => handleBookService(SERVICES_DATA[0].title)}
+                  onBackToHome={() => setActiveView('preview')}
+                />
+                <Footer
+                  profile={lawyerProfile}
+                  onOpenFinance={() => setActiveView('finance')}
+                  onOpenPhase5={() => setActiveView('odr-suite')}
+                  onOpenPhase6={() => setActiveView('legal-ai')}
+                  onOpenPhase7={() => setActiveView('strategy-suite')}
+                  onOpenPhase8={() => setActiveView('corporate-suite')}
+                />
+              </div>
+            )}
 
         {activeView === 'services-page' && (
           <div>
@@ -1447,6 +1459,8 @@ export default function App() {
         )}
 
         {activeView === 'code' && <WordPressCodeViewer />}
+          </React.Suspense>
+        )}
       </main>
 
       {/* OTP Login & Client Registration Modal */}

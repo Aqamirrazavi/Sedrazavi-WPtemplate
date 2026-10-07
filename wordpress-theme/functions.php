@@ -342,12 +342,9 @@ if (!function_exists('enqueue_react_assets')) {
             SEDRAZAVI_THEME_VERSION
         );
 
-        // 6.3. Production Build Path Detection for Minified CSS
+        // 6.3. Production Build Path Detection for Minified CSS (Single official target: app-dist)
         $candidate_css_dirs = [
             'app-dist/index.css',
-            'assets/dist/index.css',
-            'assets/index.css',
-            'dist/index.css',
         ];
 
         $enqueued_css_uri = '';
@@ -365,12 +362,9 @@ if (!function_exists('enqueue_react_assets')) {
             }
         }
 
-        // 6.4. Production Build Path Detection for Minified JS
+        // 6.4. Production Build Path Detection for Minified JS (Single official target: app-dist)
         $candidate_js_dirs = [
             'app-dist/index.js',
-            'assets/dist/index.js',
-            'assets/index.js',
-            'dist/index.js',
         ];
 
         $enqueued_js_handle = '';
@@ -459,6 +453,14 @@ if (!function_exists('enqueue_react_assets')) {
         }
     }
     add_action('wp_enqueue_scripts', 'enqueue_react_assets', 10);
+
+    // 6.8. Support ES Module type for code-split chunks in modern browsers
+    add_filter('script_loader_tag', function($tag, $handle, $src) {
+        if ($handle === 'sedrazavi-react-bundle-js') {
+            return '<script type="module" src="' . esc_url($src) . '"></script>' . "\n";
+        }
+        return $tag;
+    }, 10, 3);
 }
 
 /**

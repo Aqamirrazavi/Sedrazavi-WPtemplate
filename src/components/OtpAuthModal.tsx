@@ -71,7 +71,7 @@ export const OtpAuthModal: React.FC<OtpAuthModalProps> = ({
   const [timer, setTimer] = useState(60);
   const [isSending, setIsSending] = useState(false);
   const [otpErrorMsg, setOtpErrorMsg] = useState('');
-  const [generatedDemoCode, setGeneratedDemoCode] = useState('۵۴۸۲۱');
+  const [generatedDemoCode, setGeneratedDemoCode] = useState('');
 
   // Lawyer / Admin Login State (Matching WordPress Admin Credentials)
   const [adminUsername, setAdminUsername] = useState('admin');

@@ -615,10 +615,22 @@ class SedRazavi_REST_API {
         $params = $request->get_params();
         $phone  = isset($params['phone']) ? sanitize_text_field(wp_unslash($params['phone'])) : '';
 
+        if (empty($phone)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'لطفاً شماره تلفن همراه را وارد فرمایید.',
+            ), 400);
+        }
+
+        // تولید کد ۵ رقمی پیامکی و ذخیره در ترنزینت
+        $otp_code = strval(wp_rand(10000, 99999));
+        $transient_key = 'sedrazavi_sms_otp_' . md5($phone);
+        set_transient($transient_key, $otp_code, 120);
+
         return new WP_REST_Response(array(
             'success' => true,
             'phone'   => $phone,
-            'message' => 'کد تایید ۶ رقمی به شماره همراه شما ارسال گردید.',
+            'message' => 'کد تایید به شماره همراه شما ارسال گردید.',
         ), 200);
     }
 
@@ -637,6 +649,32 @@ class SedRazavi_REST_API {
         $params = $request->get_params();
         $phone  = isset($params['phone']) ? sanitize_text_field(wp_unslash($params['phone'])) : '';
         $code   = isset($params['code']) ? sanitize_text_field(wp_unslash($params['code'])) : '';
+
+        if (empty($phone) || empty($code)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'شماره همراه و کد تایید الزامی است.',
+            ), 400);
+        }
+
+        $transient_key = 'sedrazavi_sms_otp_' . md5($phone);
+        $stored_code   = get_transient($transient_key);
+
+        $is_valid = ($stored_code && $stored_code === $code);
+
+        // هدر شبیه‌سازی صرفاً در صورت فعال‌سازی صریح SEDRAZAVI_ALLOW_MOCK_HEADERS در محیط تست
+        if (!$is_valid && defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && $request && $request->get_header('x-sedrazavi-mock')) {
+            $is_valid = true;
+        }
+
+        if (!$is_valid) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'کد تایید وارد شده نادرست است یا منقضی گردیده است.',
+            ), 401);
+        }
+
+        delete_transient($transient_key);
 
         return new WP_REST_Response(array(
             'success' => true,
@@ -729,7 +767,6 @@ class SedRazavi_REST_API {
             'message'     => 'کد تایید ۶ رقمی به آدرس ایمیل شما ارسال شد.',
             'email'       => $email,
             'timer'       => 120,
-            'demo_code'   => (defined('WP_DEBUG') && WP_DEBUG) ? $otp_code : null,
         ), 200);
     }
 
@@ -751,8 +788,13 @@ class SedRazavi_REST_API {
         $transient_key = 'sedrazavi_email_otp_' . md5(strtolower(trim($email)));
         $stored_code   = get_transient($transient_key);
 
-        // اجازه تست دمو در محیط توسعه در صورت عدم وجود ترنزینت
-        $is_valid = ($stored_code && $stored_code === $code) || $code === '849201' || $code === '۵۴۸۲۱' || (defined('WP_DEBUG') && WP_DEBUG);
+        // اعتبارسنجی صرفاً با کد ذخیره‌شده واقعی در ترنزینت
+        $is_valid = ($stored_code && $stored_code === $code);
+
+        // پشتیبانی از تست محلی/توسعه صرفاً در صورت فعال بودن صریح هدر شبیه‌سازی
+        if (!$is_valid && defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && $request && $request->get_header('x-sedrazavi-mock')) {
+            $is_valid = true;
+        }
 
         if (!$is_valid) {
             return new WP_REST_Response(array(

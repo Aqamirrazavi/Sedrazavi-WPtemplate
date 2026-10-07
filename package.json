@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build && mkdir -p public/app-dist wordpress-theme/assets/dist wordpress-theme/app-dist && cp dist/assets/index-*.css public/app-dist/index.css && cp dist/assets/index-*.js public/app-dist/index.js && cp dist/assets/index-*.css wordpress-theme/assets/dist/index.css && cp dist/assets/index-*.js wordpress-theme/assets/dist/index.js && cp dist/assets/index-*.css wordpress-theme/assets/index.css && cp dist/assets/index-*.js wordpress-theme/assets/index.js && cp dist/assets/index-*.css wordpress-theme/app-dist/index.css && cp dist/assets/index-*.js wordpress-theme/app-dist/index.js",
+    "build": "vite build && rm -rf public/app-dist wordpress-theme/app-dist wordpress-theme/assets/dist wordpress-theme/assets/index.js wordpress-theme/assets/index.css && mkdir -p public/app-dist wordpress-theme/app-dist && cp -r dist/assets/* public/app-dist/ && cp -r dist/assets/* wordpress-theme/app-dist/",
     "preview": "vite preview",
     "package:theme": "node scripts/package-theme.js",
     "test:inc": "node scripts/test-inc-completeness.cjs",
     "test:css": "node scripts/test-css-coverage.cjs",
     "test:all": "node scripts/test-inc-completeness.cjs && node scripts/test-css-coverage.cjs",
-    "clean": "rm -rf dist server.js",
+    "clean": "rm -rf dist public/app-dist wordpress-theme/app-dist server.js",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

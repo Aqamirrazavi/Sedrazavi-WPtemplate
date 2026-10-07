@@ -5,14 +5,14 @@ const themeDir = path.resolve('wordpress-theme');
 const tsOutputFile = path.resolve('src/data/wordPressThemeFiles.ts');
 
 function getCategory(filePath) {
-  if (filePath.startsWith('inc/')) return 'توابع و هسته (inc)';
-  if (filePath.startsWith('includes/')) return 'کلاس‌های معماری و امنیت (includes)';
-  if (filePath.startsWith('assets/')) return 'ابزارک‌ها و استایل‌ها';
-  if (filePath.startsWith('languages/') || filePath.endsWith('.md') || filePath.endsWith('.txt') || filePath.endsWith('.json')) return 'مستندات و پیکربندی';
+  if (filePath.startsWith('inc/')) return 'بخش‌های داخلی (Inc)';
+  if (filePath.startsWith('includes/')) return 'امنیت و احراز هویت (Security & Auth)';
+  if (filePath.startsWith('assets/')) return 'استایل و دارایی‌ها (Assets)';
+  if (filePath.startsWith('languages/') || filePath.endsWith('.md') || filePath.endsWith('.txt') || filePath.endsWith('.json')) return 'مستندات و زبان';
   if (filePath.startsWith('page-') || filePath.startsWith('archive') || filePath.startsWith('single') || filePath === 'category.php' || filePath === 'tag.php' || filePath === 'search.php' || filePath === 'page.php' || filePath === 'home.php' || filePath.startsWith('template-')) {
     return 'برگه‌ها و آرشیوها';
   }
-  return 'پوسته اصلی و هدرها';
+  return 'قالب اصلی (Templates)';
 }
 
 function getDescription(filePath) {

@@ -22,6 +22,16 @@ function sedrazavi_render_dynamic_seo_tags() {
     // 1. Dynamic Title
     if (is_front_page() || is_home()) {
         $page_title = $site_name . ' | ' . $site_desc;
+    } elseif (is_page('contact') || is_page_template('page-contact.php')) {
+        $page_title = 'تماس با ما و مشاوره حقوقی فوری | ' . $site_name;
+    } elseif (is_page('services') || is_page_template('page-services.php') || is_post_type_archive('sedrazavi_service')) {
+        $page_title = 'خدمات و حوزه‌های تخصصی وکالت | ' . $site_name;
+    } elseif (is_page('calculators') || is_page_template('page-calculators.php')) {
+        $page_title = 'محاسبه‌گر آنلاین هزینه دادرسی و حق‌الوکاله | ' . $site_name;
+    } elseif (is_page('about') || is_page_template('page-about.php')) {
+        $page_title = 'درباره وکیل دکتر سیده مریم رضوی و سوابق قضایی | ' . $site_name;
+    } elseif (is_singular('sedrazavi_service')) {
+        $page_title = 'وکالت تخصصی ' . single_post_title('', false) . ' | ' . $site_name;
     } elseif (is_singular()) {
         $page_title = single_post_title('', false) . ' | ' . $site_name;
     } elseif (is_archive()) {
@@ -47,7 +57,13 @@ function sedrazavi_render_dynamic_seo_tags() {
     $canonical_url = esc_url($canonical_url);
 
     // 3. Dynamic Meta Description
-    if (is_singular() && has_excerpt()) {
+    if (is_page('contact') || is_page_template('page-contact.php')) {
+        $meta_desc = 'نشانی دفتر تهران ونک، شماره تماس مستقیم وکیل، ساعات پذیرش حضوری و فرم رزرو نوبت مشاوره آنلاین با دکتر سیده مریم رضوی.';
+    } elseif (is_page('services') || is_page_template('page-services.php')) {
+        $meta_desc = 'فهرست خدمات وکالتی تخصصی شامل دعاوی ملکی، داوری تجاری بین‌المللی، پرونده‌های مالیاتی مودیان، تنظیم قراردادها و مشاوره شرکتی.';
+    } elseif (is_page('calculators') || is_page_template('page-calculators.php')) {
+        $meta_desc = 'محاسبه فوری هزینه دادرسی مراحل بدوی و تجدیدنظر، دیوان عالی، تعرفه قانونی دستمزد کارشناسی و حق‌الوکاله مصوب قوه قضاییه.';
+    } elseif (is_singular() && has_excerpt()) {
         $meta_desc = get_the_excerpt();
     } elseif (is_singular() && !empty(get_post()->post_content)) {
         $meta_desc = wp_trim_words(wp_strip_all_tags(get_post()->post_content), 30, '...');

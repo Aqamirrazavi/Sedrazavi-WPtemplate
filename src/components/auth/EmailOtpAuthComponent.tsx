@@ -39,7 +39,7 @@ export const EmailOtpAuthComponent: React.FC<EmailOtpAuthComponentProps> = ({
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
-  const [generatedOtp, setGeneratedOtp] = useState('849201');
+  const [generatedOtp, setGeneratedOtp] = useState('');
   const [timer, setTimer] = useState(120);
   const [isSending, setIsSending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -149,8 +149,8 @@ export const EmailOtpAuthComponent: React.FC<EmailOtpAuthComponentProps> = ({
 
     setTimeout(() => {
       setIsVerifying(false);
-      // Valid if matches generated code or default demo 849201 or any 6 digit test
-      if (codeToCheck === generatedOtp || codeToCheck === '849201' || codeToCheck.length === 6) {
+      // Valid strictly if matches dynamically generated OTP
+      if (generatedOtp && codeToCheck === generatedOtp) {
         setStep('success');
 
         let determinedRole: 'lawyer' | 'admin' | 'client' = 'client';

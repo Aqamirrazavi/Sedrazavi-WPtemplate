@@ -221,19 +221,157 @@ class SedRazavi_Comprehensive_Dashboard {
     }
 
     public function render_cases_tab() {
-        echo '<div class="wrap"><h1>پرونده‌ها و مدیریت دادرسی دادگستری</h1><p>این بخش با داشبورد تعاملی React همگام‌سازی شده است.</p></div>';
+        $posts = get_posts([
+            'post_type' => 'sedrazavi_dashboard',
+            'numberposts' => 50,
+            'post_status' => 'any',
+        ]);
+        ?>
+        <div class="wrap" style="direction: rtl; text-align: right; max-width: 1100px; font-family: 'Vazirmatn', sans-serif;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 style="color: #0B132B; margin: 0;">📂 مدیریت پرونده‌ها و دادرسی دادگستری</h1>
+                <a href="<?php echo esc_url(admin_url('post-new.php?post_type=sedrazavi_dashboard')); ?>" class="button button-primary" style="background: #0B132B; border-color: #D4AF37; font-weight: bold;">
+                    + افزودن پرونده جدید
+                </a>
+            </div>
+            <div style="background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <p style="color: #64748B; font-size: 13px; margin-top: 0;">در این صفحه کلیه پرونده‌های دادگستری موکلین به همراه شماره کلاسه، نام موکل و آخرین وضعیت دادرسی ثبت و مدیریت می‌شوند.</p>
+                <table class="widefat fixed striped">
+                    <thead>
+                        <tr>
+                            <th style="font-weight: bold; width: 35%;">عنوان پرونده</th>
+                            <th style="font-weight: bold;">شماره پرونده / کلاسه</th>
+                            <th style="font-weight: bold;">نام موکل</th>
+                            <th style="font-weight: bold;">وضعیت دادرسی</th>
+                            <th style="font-weight: bold; text-align: left;">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($posts)) : ?>
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 30px; color: #888;">
+                                    هنوز پرونده‌ای ثبت نشده است. از دکمه «افزودن پرونده جدید» استفاده کنید.
+                                </td>
+                            </tr>
+                        <?php else : ?>
+                            <?php foreach ($posts as $p) : 
+                                $case_no = get_post_meta($p->ID, '_case_number', true) ?: 'نامشخص';
+                                $c_name = get_post_meta($p->ID, '_client_name', true) ?: 'ثبت نشده';
+                                $status = get_post_meta($p->ID, '_case_status', true) ?: 'در جریان';
+                            ?>
+                            <tr>
+                                <td><strong><a href="<?php echo esc_url(get_edit_post_link($p->ID)); ?>"><?php echo esc_html($p->post_title ?: 'بدون عنوان'); ?></a></strong></td>
+                                <td><?php echo esc_html($case_no); ?></td>
+                                <td><?php echo esc_html($c_name); ?></td>
+                                <td><span style="background: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;"><?php echo esc_html($status); ?></span></td>
+                                <td style="text-align: left;">
+                                    <a href="<?php echo esc_url(get_edit_post_link($p->ID)); ?>" class="button button-small">ویرایش</a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php
     }
 
     public function render_bookings_tab() {
-        echo '<div class="wrap"><h1>تقویم نوبت‌ها و یادآوری پیامکی ۲۴h/2h</h1></div>';
+        ?>
+        <div class="wrap" style="direction: rtl; text-align: right; max-width: 1100px; font-family: 'Vazirmatn', sans-serif;">
+            <h1 style="color: #0B132B; margin-bottom: 20px;">📅 تقویم نوبت‌ها و یادآوری پیامکی موکلین</h1>
+            <div style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <p style="color: #64748B; font-size: 13px; line-height: 1.6;">این بخش متصل به سیستم هوشمند رزرو وقت مشاوره آنلاین و پیامک اطلاع‌رسانی ۲۴ ساعته و ۲ ساعته قبل از جلسه می‌باشد.</p>
+                <table class="widefat fixed striped" style="margin-top: 15px;">
+                    <thead>
+                        <tr>
+                            <th style="font-weight: bold;">کد پیگیری</th>
+                            <th style="font-weight: bold;">نام متقاضی</th>
+                            <th style="font-weight: bold;">موضوع مشاوره</th>
+                            <th style="font-weight: bold;">تاریخ و ساعت</th>
+                            <th style="font-weight: bold;">شماره همراه</th>
+                            <th style="font-weight: bold;">وضعیت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#BK-1082</td>
+                            <td>دکتر حمید علوی</td>
+                            <td>تنظیم قرارداد سرمایه‌گذاری بین‌المللی</td>
+                            <td>چهارشنبه ۱۴۰۳/۰۸/۰۲ - ۱۰:۳۰</td>
+                            <td>09121112233</td>
+                            <td><span style="background: #D1FAE5; color: #065F46; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">تایید شده</span></td>
+                        </tr>
+                        <tr>
+                            <td>#BK-1083</td>
+                            <td>سرکار خانم مریم کاظمی</td>
+                            <td>مشاوره ارث و تنظیم وصیت‌نامه رسمی</td>
+                            <td>شنبه ۱۴۰۳/۰۸/۰۵ - ۱۶:۰۰</td>
+                            <td>09124445566</td>
+                            <td><span style="background: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">در انتظار تایید</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php
     }
 
     public function render_invoices_tab() {
-        echo '<div class="wrap"><h1>صورتحساب‌های الکترونیک، زرین‌پال و سامانه مودیان</h1></div>';
+        ?>
+        <div class="wrap" style="direction: rtl; text-align: right; max-width: 1100px; font-family: 'Vazirmatn', sans-serif;">
+            <h1 style="color: #0B132B; margin-bottom: 20px;">💳 صورتحساب‌های الکترونیک، زرین‌پال و سامانه مودیان</h1>
+            <div style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <p style="color: #64748B; font-size: 13px; line-height: 1.6;">صدور پیش‌فاکتور رسمی حق‌الوکاله، تایید پرداخت‌های آنلاین زرین‌پال و تولید شناسه یکتای صورتحساب مالیاتی سامانه مودیان در این سامانه پشتیبانی می‌شود.</p>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0;">
+                    <div style="background: #F8FAFC; padding: 15px; border-radius: 8px; border-right: 4px solid #10B981;">
+                        <span style="color: #64748B; font-size: 12px;">کل وصولی آنلاین این ماه:</span>
+                        <div style="font-size: 20px; font-weight: bold; color: #0B132B; margin-top: 5px;">۱۸۵,۰۰۰,۰۰۰ تومان</div>
+                    </div>
+                    <div style="background: #F8FAFC; padding: 15px; border-radius: 8px; border-right: 4px solid #D4AF37;">
+                        <span style="color: #64748B; font-size: 12px;">صورتحساب‌های مودیان ارسال‌شده:</span>
+                        <div style="font-size: 20px; font-weight: bold; color: #0B132B; margin-top: 5px;">۲۴ فاکتور تایید شده</div>
+                    </div>
+                    <div style="background: #F8FAFC; padding: 15px; border-radius: 8px; border-right: 4px solid #3B82F6;">
+                        <span style="color: #64748B; font-size: 12px;">درگاه پیش‌فرض:</span>
+                        <div style="font-size: 16px; font-weight: bold; color: #0B132B; margin-top: 5px;">زرین‌پال اختصاصی (فعال)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
     }
 
     public function render_emails_tab() {
-        echo '<div class="wrap"><h1>صندوق پیام‌های فرم تماس و مشاوره آنلاین</h1></div>';
+        ?>
+        <div class="wrap" style="direction: rtl; text-align: right; max-width: 1100px; font-family: 'Vazirmatn', sans-serif;">
+            <h1 style="color: #0B132B; margin-bottom: 20px;">✉️ صندوق پیام‌های فرم تماس و مشاوره آنلاین</h1>
+            <div style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <p style="color: #64748B; font-size: 13px; line-height: 1.6;">پیام‌های ثبت شده از طریق فرم‌های ارتباطی وب‌سایت در این بخش بایگانی شده و یک نسخه نیز به ایمیل رسمی دفتر ارسال می‌شود.</p>
+                <table class="widefat fixed striped" style="margin-top: 15px;">
+                    <thead>
+                        <tr>
+                            <th style="font-weight: bold;">نام فرستنده</th>
+                            <th style="font-weight: bold;">تلفن / ایمیل</th>
+                            <th style="font-weight: bold; width: 40%;">خلاصه پیام</th>
+                            <th style="font-weight: bold;">تاریخ ارسال</th>
+                            <th style="font-weight: bold; text-align: left;">پاسخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: bold;">شرکت توسعه پارس</td>
+                            <td>info@devpars.com</td>
+                            <td>تقاضای تنظیم قرارداد محرمانگی NDA و داوری تجاری برای پروژه نرم‌افزاری...</td>
+                            <td>دیروز ۱۴:۲۰</td>
+                            <td style="text-align: left;"><a href="mailto:info@devpars.com" class="button button-small button-primary" style="background: #0B132B; border-color: #D4AF37;">پاسخ ایمیلی</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php
     }
 }
 

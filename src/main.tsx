@@ -12,12 +12,7 @@ import { EmailOtpMagicLogin } from './components/EmailOtpMagicLogin';
 import { EmailOtpAuthComponent } from './components/auth/EmailOtpAuthComponent';
 import { LawyerRealtimeToastNotifier } from './components/notifications/LawyerRealtimeToastNotifier';
 import { CaseInteractiveTimeline } from './components/timeline/CaseInteractiveTimeline';
-import { ComprehensiveAdminPortal } from './components/admin/ComprehensiveAdminPortal';
-import { AdminHelpAndDocsSystem } from './components/admin/AdminHelpAndDocsSystem';
-import { LawyerDashboard } from './components/LawyerDashboard';
-import { ClientPortalView } from './components/ClientPortalView';
 import { CaseProgressTracker } from './components/CaseProgressTracker';
-import { CourtFeeCalculator } from './components/legal-finance/CourtFeeCalculator';
 import { ClientPortalQuickAccessWidget } from './components/ClientPortalQuickAccessWidget';
 import { LawyerHeroSlider } from './components/LawyerHeroSlider';
 import { TextBannerSlider } from './components/TextBannerSlider';
@@ -28,7 +23,49 @@ import { FaqSection } from './components/FaqSection';
 import { TestimonialsSlider } from './components/TestimonialsSlider';
 import { ContactAndBookingSection } from './components/ContactAndBookingSection';
 import { ArticlesSection } from './components/ArticlesSection';
-import { CorporateInsolvencySuite } from './components/corporate-insolvency/CorporateInsolvencySuite';
+
+// Heavy secondary components lazy-loaded on demand for WordPress shortcodes
+const LazyComprehensiveAdminPortal = React.lazy(() => import('./components/admin/ComprehensiveAdminPortal').then(m => ({ default: m.ComprehensiveAdminPortal })));
+const ComprehensiveAdminPortal: React.FC<any> = (props) => (
+  <React.Suspense fallback={<div className="p-8 text-center text-[#D4AF37]">در حال بارگذاری پنل مدیریت...</div>}>
+    <LazyComprehensiveAdminPortal {...props} />
+  </React.Suspense>
+);
+
+const LazyAdminHelpAndDocsSystem = React.lazy(() => import('./components/admin/AdminHelpAndDocsSystem').then(m => ({ default: m.AdminHelpAndDocsSystem })));
+const AdminHelpAndDocsSystem: React.FC<any> = (props) => (
+  <React.Suspense fallback={<div className="p-8 text-center text-[#D4AF37]">در حال بارگذاری راهنما...</div>}>
+    <LazyAdminHelpAndDocsSystem {...props} />
+  </React.Suspense>
+);
+
+const LazyLawyerDashboard = React.lazy(() => import('./components/LawyerDashboard').then(m => ({ default: m.LawyerDashboard })));
+const LawyerDashboard: React.FC<any> = (props) => (
+  <React.Suspense fallback={<div className="p-8 text-center text-[#D4AF37]">در حال بارگذاری داشبورد...</div>}>
+    <LazyLawyerDashboard {...props} />
+  </React.Suspense>
+);
+
+const LazyClientPortalView = React.lazy(() => import('./components/ClientPortalView').then(m => ({ default: m.ClientPortalView })));
+const ClientPortalView: React.FC<any> = (props) => (
+  <React.Suspense fallback={<div className="p-8 text-center text-[#D4AF37]">در حال بارگذاری پورتال موکل...</div>}>
+    <LazyClientPortalView {...props} />
+  </React.Suspense>
+);
+
+const LazyCourtFeeCalculator = React.lazy(() => import('./components/legal-finance/CourtFeeCalculator').then(m => ({ default: m.CourtFeeCalculator })));
+const CourtFeeCalculator: React.FC<any> = (props) => (
+  <React.Suspense fallback={<div className="p-8 text-center text-[#D4AF37]">در حال بارگذاری محاسبه‌گر قضایی...</div>}>
+    <LazyCourtFeeCalculator {...props} />
+  </React.Suspense>
+);
+
+const LazyCorporateInsolvencySuite = React.lazy(() => import('./components/corporate-insolvency/CorporateInsolvencySuite').then(m => ({ default: m.CorporateInsolvencySuite })));
+const CorporateInsolvencySuite: React.FC<any> = (props) => (
+  <React.Suspense fallback={<div className="p-8 text-center text-[#D4AF37]">در حال بارگذاری سامانه ورشکستگی...</div>}>
+    <LazyCorporateInsolvencySuite {...props} />
+  </React.Suspense>
+);
 
 // Expose React & ReactDOM globally for WordPress integration
 if (typeof window !== 'undefined') {

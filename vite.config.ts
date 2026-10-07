@@ -11,6 +11,29 @@ export default defineConfig(() => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      outDir: 'dist',
+      rollupOptions: {
+        output: {
+          entryFileNames: 'assets/[name].js',
+          chunkFileNames: 'assets/chunks/[name]-[hash].js',
+          assetFileNames: 'assets/[name].[ext]',
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('lucide-react')) return 'vendor-lucide';
+              if (id.includes('recharts')) return 'vendor-recharts';
+              if (id.includes('motion')) return 'vendor-motion';
+              if (id.includes('jszip')) return 'vendor-jszip';
+              return 'vendor';
+            }
+            if (id.includes('wordPressThemeFiles')) {
+              return 'wordpress-files-data';
+            }
+          },
+        },
+      },
+      chunkSizeWarningLimit: 1000,
+    },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.

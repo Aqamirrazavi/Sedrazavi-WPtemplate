@@ -36,8 +36,8 @@ export const EmailOtpMagicLogin: React.FC<EmailOtpMagicLoginProps> = ({
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [otpDigits, setOtpDigits] = useState<string[]>(['', '', '', '', '', '']);
-  const [generatedOtp, setGeneratedOtp] = useState<string>('۸۴۹۲۰۱');
-  const [rawOtpCode, setRawOtpCode] = useState<string>('849201');
+  const [generatedOtp, setGeneratedOtp] = useState<string>('');
+  const [rawOtpCode, setRawOtpCode] = useState<string>('');
   const [timer, setTimer] = useState<number>(120); // 2 minutes countdown
   const [isSending, setIsSending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -161,8 +161,8 @@ export const EmailOtpMagicLogin: React.FC<EmailOtpMagicLoginProps> = ({
 
     setTimeout(() => {
       setIsVerifying(false);
-      // Verify against generated code
-      if (codeToVerify === rawOtpCode || codeToVerify === '849201' || codeToVerify.length === 6) {
+      // Verify against dynamically generated code
+      if (rawOtpCode && codeToVerify === rawOtpCode) {
         setStep('success');
 
         // Determine role and name based on email

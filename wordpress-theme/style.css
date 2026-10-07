@@ -1290,3 +1290,18 @@ img {
 @media (min-width: 768px) {
     .md\:flex-initial { flex: 0 1 auto !important; }
 }
+
+/* کلاس‌های پیشخوان و جداول ادمین وردپرس */
+.widefat { width: 100%; border-collapse: collapse; }
+.striped tbody tr:nth-child(odd) { background-color: #fbfcfd; }
+.button-small { font-size: 11px !important; padding: 3px 8px !important; }
+
+/* کلاس‌های تور آموزشی مدیر */
+.sedrazavi-tour-footer { display: flex; justify-content: space-between; align-items: center; }
+.sedrazavi-tour-step-badge { font-size: 12px; color: #CBD5E1; }
+.sedrazavi-tour-actions { display: flex; gap: 8px; }
+.sedrazavi-tour-btn { cursor: pointer; border-radius: 8px; font-weight: bold; }
+.sedrazavi-tour-btn-next { background: #D4AF37; color: #0B132B; }
+.sedrazavi-tour-btn-prev { background: rgba(255,255,255,0.15); color: #fff; }
+.sedrazavi-tour-btn-close { cursor: pointer; color: #94A3B8; }
+
