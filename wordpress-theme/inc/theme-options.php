@@ -26,8 +26,11 @@ function sedrazavi_register_theme_settings() {
     register_setting('sedrazavi_options_group', 'sedrazavi_primary_gold');
     register_setting('sedrazavi_options_group', 'sedrazavi_secondary_navy');
 
-    // Tab 4: Typography
+    // Tab 4: Typography & Custom Fonts
     register_setting('sedrazavi_options_group', 'sedrazavi_font_family');
+    register_setting('sedrazavi_options_group', 'sedrazavi_custom_font_css');
+    register_setting('sedrazavi_options_group', 'sedrazavi_vector_bg_mode');
+    register_setting('sedrazavi_options_group', 'sedrazavi_vector_bg_preset');
 
     // Tab 5: Advanced & CDN
     register_setting('sedrazavi_options_group', 'sedrazavi_enable_webp');
@@ -84,6 +87,21 @@ function sedrazavi_render_options_page() {
                 <div>
                     <label style="font-weight: bold; display: block; margin-bottom: 5px;">🎨 کد رنگ سرمه‌ای شب:</label>
                     <input type="text" name="sedrazavi_secondary_navy" value="<?php echo esc_attr(get_option('sedrazavi_secondary_navy', '#0B132B')); ?>" class="regular-text" style="width: 100%;">
+                </div>
+                <div>
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">🖋️ قلم پیش‌فرض سایت (Font Family):</label>
+                    <input type="text" name="sedrazavi_font_family" value="<?php echo esc_attr(get_option('sedrazavi_font_family', 'Vazirmatn')); ?>" class="regular-text" style="width: 100%;" placeholder="Vazirmatn یا نام فونت سفارشی">
+                </div>
+                <div>
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">🌊 حالت وکتور لاین‌های پس‌زمینه:</label>
+                    <select name="sedrazavi_vector_bg_mode" style="width: 100%; padding: 6px; border-radius: 8px;">
+                        <option value="animated" <?php selected(get_option('sedrazavi_vector_bg_mode', 'animated'), 'animated'); ?>>متحرک و انیمیشنی (Animated Wave Mesh)</option>
+                        <option value="static" <?php selected(get_option('sedrazavi_vector_bg_mode', 'animated'), 'static'); ?>>ثابت و لوکس (Luxury Static Vectors)</option>
+                    </select>
+                </div>
+                <div style="grid-column: span 2;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">🔤 کدهای سفارشی @font-face برای فونت‌های اختصاصی (woff2, ttf):</label>
+                    <textarea name="sedrazavi_custom_font_css" rows="4" class="large-text code" style="width: 100%; font-family: monospace; font-size: 11px;" placeholder="@font-face { font-family: 'MyFont'; src: url('...') format('woff2'); }"><?php echo esc_textarea(get_option('sedrazavi_custom_font_css', '')); ?></textarea>
                 </div>
             </div>
 

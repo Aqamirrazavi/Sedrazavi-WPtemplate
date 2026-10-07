@@ -96,6 +96,13 @@ if (!function_exists('sedrazavi_restrict_legal_upload_mimes')) {
         $mimes['png']  = 'image/png';
         $mimes['webp'] = 'image/webp';
 
+        // Explicitly allow safe font formats for typography customization
+        $mimes['woff2'] = 'font/woff2';
+        $mimes['woff']  = 'font/woff';
+        $mimes['ttf']   = 'font/ttf';
+        $mimes['otf']   = 'font/otf';
+        $mimes['eot']   = 'application/vnd.ms-fontobject';
+
         return $mimes;
     }
     add_filter('upload_mimes', 'sedrazavi_restrict_legal_upload_mimes');

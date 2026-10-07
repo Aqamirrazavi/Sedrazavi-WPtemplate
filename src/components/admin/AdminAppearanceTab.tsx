@@ -29,6 +29,10 @@ import {
   Building2,
   GitBranch,
   Search,
+  Upload,
+  FolderUp,
+  Trash2,
+  FileCode,
 } from 'lucide-react';
 import { THEME_PALETTES, ThemePalettePreset } from '../../data/themePalettes';
 import { VECTOR_BACKGROUND_PRESETS, VectorBackgroundPreset } from '../../data/vectorBackgroundPresets';
@@ -86,6 +90,149 @@ export const AdminAppearanceTab: React.FC<AdminAppearanceTabProps> = ({
   const { updateToken } = useDesignTokens();
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [copiedCss, setCopiedCss] = useState(false);
+
+  // Custom Fonts Drag & Drop State
+  interface CustomFontItem {
+    id: string;
+    family: string;
+    files: {
+      name: string;
+      extension: string;
+      format: string;
+      weight: string;
+      dataUrl?: string;
+    }[];
+    detectedWeights: string[];
+    detectedFormats: string[];
+    cssSnippet: string;
+    date: string;
+  }
+
+  const [customFonts, setCustomFonts] = useState<CustomFontItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('sedrazavi_custom_fonts_registry');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [isDraggingFont, setIsDraggingFont] = useState(false);
+  const [fontUploadMessage, setFontUploadMessage] = useState<string | null>(null);
+  const [copiedFontSnippetId, setCopiedFontSnippetId] = useState<string | null>(null);
+
+  const handleProcessFontFiles = async (fileList: FileList | File[]) => {
+    const filesArray = Array.from(fileList);
+    const validExts = ['woff2', 'woff', 'ttf', 'otf', 'eot'];
+    const fontFiles = filesArray.filter((f) => {
+      const ext = f.name.split('.').pop()?.toLowerCase();
+      return ext && validExts.includes(ext);
+    });
+
+    if (fontFiles.length === 0) {
+      setFontUploadMessage('هیچ فایل فونت معتبری (.woff2, .woff, .ttf, .otf, .eot) در فایل‌های انتخابی یافت نشد.');
+      setTimeout(() => setFontUploadMessage(null), 4000);
+      return;
+    }
+
+    const grouped: { [family: string]: { file: File; ext: string; format: string; weight: string }[] } = {};
+
+    fontFiles.forEach((f) => {
+      const ext = f.name.split('.').pop()?.toLowerCase() || 'woff2';
+      let format = 'woff2';
+      if (ext === 'woff') format = 'woff';
+      else if (ext === 'ttf') format = 'truetype';
+      else if (ext === 'otf') format = 'opentype';
+      else if (ext === 'eot') format = 'embedded-opentype';
+
+      let weight = '400';
+      const lower = f.name.toLowerCase();
+      if (lower.includes('thin') || lower.includes('100')) weight = '100';
+      else if (lower.includes('light') || lower.includes('300')) weight = '300';
+      else if (lower.includes('medium') || lower.includes('500')) weight = '500';
+      else if (lower.includes('semibold') || lower.includes('600')) weight = '600';
+      else if (lower.includes('bold') || lower.includes('700')) weight = '700';
+      else if (lower.includes('extrabold') || lower.includes('800')) weight = '800';
+      else if (lower.includes('black') || lower.includes('heavy') || lower.includes('900')) weight = '900';
+
+      let baseName = f.name.replace(/\.[^/.]+$/, '');
+      baseName = baseName
+        .replace(/[-_]?(thin|light|regular|medium|semibold|bold|extrabold|black|heavy|[1-9]00)/gi, '')
+        .trim();
+      if (!baseName) baseName = f.name.replace(/\.[^/.]+$/, '');
+
+      if (!grouped[baseName]) grouped[baseName] = [];
+      grouped[baseName].push({ file: f, ext, format, weight });
+    });
+
+    const newCustomFonts: CustomFontItem[] = [...customFonts];
+    let cssRules = '';
+
+    for (const [family, items] of Object.entries(grouped)) {
+      const fileDataPromises = items.map(
+        (it) =>
+          new Promise<{ name: string; extension: string; format: string; weight: string; dataUrl: string }>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const dataUrl = reader.result as string;
+              resolve({
+                name: it.file.name,
+                extension: it.ext,
+                format: it.format,
+                weight: it.weight,
+                dataUrl,
+              });
+            };
+            reader.readAsDataURL(it.file);
+          })
+      );
+
+      const processedFiles = await Promise.all(fileDataPromises);
+      const detectedWeights = Array.from(new Set(processedFiles.map((pf) => pf.weight))).sort();
+      const detectedFormats = Array.from(new Set(processedFiles.map((pf) => pf.extension.toUpperCase()))).sort();
+
+      let familyCss = '';
+      processedFiles.forEach((pf) => {
+        familyCss += `@font-face {\n  font-family: '${family}';\n  src: url('${pf.dataUrl}') format('${pf.format}');\n  font-weight: ${pf.weight};\n  font-style: normal;\n  font-display: swap;\n}\n`;
+      });
+      cssRules += familyCss;
+
+      const existingIndex = newCustomFonts.findIndex((cf) => cf.family.toLowerCase() === family.toLowerCase());
+      const newEntry: CustomFontItem = {
+        id: 'font-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
+        family,
+        files: processedFiles,
+        detectedWeights,
+        detectedFormats,
+        cssSnippet: `@font-face {\n  font-family: '${family}';\n  src: url('wp-content/themes/sedrazavi-theme/assets/fonts/${processedFiles[0]?.name || family + '.woff2'}') format('${processedFiles[0]?.format || 'woff2'}');\n  font-display: swap;\n}`,
+        date: new Date().toLocaleDateString('fa-IR'),
+      };
+
+      if (existingIndex >= 0) {
+        newCustomFonts[existingIndex] = newEntry;
+      } else {
+        newCustomFonts.unshift(newEntry);
+      }
+    }
+
+    let styleTag = document.getElementById('sedrazavi-custom-injected-fonts');
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      styleTag.id = 'sedrazavi-custom-injected-fonts';
+      document.head.appendChild(styleTag);
+    }
+    styleTag.innerHTML += '\n' + cssRules;
+
+    setCustomFonts(newCustomFonts);
+    try {
+      localStorage.setItem('sedrazavi_custom_fonts_registry', JSON.stringify(newCustomFonts));
+    } catch {
+      console.warn('Storage limit reached for local font cache');
+    }
+
+    setFontUploadMessage(`مجموعه فونت با موفقیت تفکیک و بارگذاری شد! می‌توانید آن را به عنوان قلم سایت انتخاب فرمایید.`);
+    setTimeout(() => setFontUploadMessage(null), 5000);
+  };
 
   const handleSave = () => {
     const updated: LawyerSiteProfile = {
@@ -1691,11 +1838,22 @@ add_action('sedrazavi_after_palette_update', function($palette_id) {
                 }
                 className="w-full px-3 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs font-medium"
               >
-                <option value="Vazirmatn">وزیرمتن (Vazirmatn - پیش‌فرض استاندارد حقوقی)</option>
-                <option value="IRANYekan">ایران‌یکان (IRANYekan)</option>
-                <option value="Samim">صمیم (Samim)</option>
-                <option value="Shabnam">شبنم (Shabnam)</option>
-                <option value="Nastaliq">ایران نستعلیق (برای اشعار و احادیث)</option>
+                <optgroup label="فونت‌های استاندارد حقوقی">
+                  <option value="Vazirmatn">وزیرمتن (Vazirmatn - پیش‌فرض استاندارد حقوقی)</option>
+                  <option value="IRANYekan">ایران‌یکان (IRANYekan)</option>
+                  <option value="Samim">صمیم (Samim)</option>
+                  <option value="Shabnam">شبنم (Shabnam)</option>
+                  <option value="Nastaliq">ایران نستعلیق (برای اشعار و احادیث)</option>
+                </optgroup>
+                {customFonts.length > 0 && (
+                  <optgroup label="فونت‌های اختصاصی آپلود شده">
+                    {customFonts.map((cf) => (
+                      <option key={cf.id} value={cf.family}>
+                        ✨ {cf.family} (سفارشی - {cf.detectedFormats.join('/')})
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
               </select>
             </div>
 
@@ -1713,9 +1871,20 @@ add_action('sedrazavi_after_palette_update', function($palette_id) {
                 }
                 className="w-full px-3 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs font-medium"
               >
-                <option value="Vazirmatn">وزیرمتن (Vazirmatn)</option>
-                <option value="IRANSans">ایران‌سنس (IRANSans)</option>
-                <option value="YekanBakh">یکان‌بخش (YekanBakh)</option>
+                <optgroup label="فونت‌های استاندارد حقوقی">
+                  <option value="Vazirmatn">وزیرمتن (Vazirmatn)</option>
+                  <option value="IRANSans">ایران‌سنس (IRANSans)</option>
+                  <option value="YekanBakh">یکان‌بخش (YekanBakh)</option>
+                </optgroup>
+                {customFonts.length > 0 && (
+                  <optgroup label="فونت‌های اختصاصی آپلود شده">
+                    {customFonts.map((cf) => (
+                      <option key={cf.id} value={cf.family}>
+                        ✨ {cf.family} (سفارشی - {cf.detectedFormats.join('/')})
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
               </select>
             </div>
 
@@ -1774,6 +1943,221 @@ add_action('sedrazavi_after_palette_update', function($palette_id) {
                 className="w-full accent-[#D4AF37]"
               />
             </div>
+          </div>
+
+          {/* Drag & Drop Custom Font Importer Section */}
+          <div className="pt-6 border-t border-gray-200 dark:border-gray-800 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-[#0B132B] dark:text-white flex items-center gap-2">
+                  <FolderUp className="w-4 h-4 text-[#D4AF37]" />
+                  <span>سامانه هوشمند ورود فونت با درگ‌واند‌دراپ (Drag & Drop Font Parser)</span>
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  فایل‌های فونت را به صورت تکی یا دسته‌ای بکشید و رها کنید؛ پسوندها (woff2، woff، ttf، otf، eot)، وزن‌ها و نام خانواده فونت خودکار تشخیص داده و رتق‌وفتق می‌شوند.
+                </p>
+              </div>
+              <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-700 dark:text-[#F3E5AB] text-[11px] font-bold border border-amber-500/20">
+                تشخیص خودکار ۵ پسوند وب
+              </span>
+            </div>
+
+            {fontUploadMessage && (
+              <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold animate-pulse">
+                {fontUploadMessage}
+              </div>
+            )}
+
+            {/* Drop Zone */}
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDraggingFont(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                setIsDraggingFont(false);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDraggingFont(false);
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                  handleProcessFontFiles(e.dataTransfer.files);
+                }
+              }}
+              className={`relative p-8 rounded-2xl border-2 border-dashed transition-all text-center flex flex-col items-center justify-center gap-3 ${
+                isDraggingFont
+                  ? 'border-[#D4AF37] bg-amber-500/10 scale-[1.01]'
+                  : 'border-gray-300 dark:border-gray-700 hover:border-[#D4AF37]/60 bg-gray-50/50 dark:bg-gray-800/40'
+              }`}
+            >
+              <input
+                type="file"
+                multiple
+                accept=".woff2,.woff,.ttf,.otf,.eot"
+                id="sedrazavi-font-file-input"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    handleProcessFontFiles(e.target.files);
+                  }
+                }}
+              />
+              <label
+                htmlFor="sedrazavi-font-file-input"
+                className="cursor-pointer flex flex-col items-center gap-2"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#0B132B] to-[#1C2541] border border-[#D4AF37]/50 flex items-center justify-center text-[#D4AF37] shadow-lg shadow-black/20 group-hover:scale-105 transition-transform">
+                  <Upload className="w-6 h-6 animate-bounce" />
+                </div>
+                <div className="font-bold text-xs text-gray-800 dark:text-gray-200">
+                  فایل‌های فونت را به این کادر بکشید و رها کنید (Drag & Drop) یا برای انتخاب کلیک کنید
+                </div>
+                <p className="text-[11px] text-gray-400">
+                  پشتیبانی کامل از فرمت‌های مدرن: <code className="text-[#D4AF37] font-bold">.woff2</code>، <code className="text-[#D4AF37] font-bold">.woff</code>، <code className="text-[#D4AF37] font-bold">.ttf</code>، <code className="text-[#D4AF37] font-bold">.otf</code> و <code className="text-[#D4AF37] font-bold">.eot</code>
+                </p>
+              </label>
+
+              <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2">
+                <span className="px-2 py-0.5 rounded-md bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[10px] font-mono border border-gray-200 dark:border-gray-600">
+                  WOFF2 (بهینه‌ترین برای وب)
+                </span>
+                <span className="px-2 py-0.5 rounded-md bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[10px] font-mono border border-gray-200 dark:border-gray-600">
+                  WOFF (سازگار با مرورگرها)
+                </span>
+                <span className="px-2 py-0.5 rounded-md bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[10px] font-mono border border-gray-200 dark:border-gray-600">
+                  TTF / OTF (قلم دسکتاپ و طراحان)
+                </span>
+              </div>
+            </div>
+
+            {/* Uploaded Custom Fonts Registry */}
+            {customFonts.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center justify-between">
+                  <span>فهرست فونت‌های تفکیک و ثبت‌شده در پوسته ({customFonts.length} خانواده):</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('آیا از پاک‌سازی تمامی فونت‌های سفارشی ذخیره‌شده اطمینان دارید؟')) {
+                        setCustomFonts([]);
+                        localStorage.removeItem('sedrazavi_custom_fonts_registry');
+                        const el = document.getElementById('sedrazavi-custom-injected-fonts');
+                        if (el) el.remove();
+                      }
+                    }}
+                    className="text-[11px] text-rose-500 hover:text-rose-600 flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    پاک‌سازی همه فونت‌ها
+                  </button>
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {customFonts.map((cf) => (
+                    <div
+                      key={cf.id}
+                      className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-bold text-sm text-[#0B132B] dark:text-white flex items-center gap-2">
+                            <span>{cf.family}</span>
+                            <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-[#D4AF37] text-[10px] font-black border border-amber-500/20">
+                              فعال
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-gray-400 mt-0.5 flex items-center gap-2">
+                            <span>فرمت‌ها: {cf.detectedFormats.join('، ')}</span>
+                            <span>•</span>
+                            <span>وزن‌ها: {cf.detectedWeights.join('، ')}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(cf.cssSnippet);
+                              setCopiedFontSnippetId(cf.id);
+                              setTimeout(() => setCopiedFontSnippetId(null), 2500);
+                            }}
+                            title="کپی اسنیپت @font-face برای وردپرس"
+                            className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-[#D4AF37] transition-colors"
+                          >
+                            {copiedFontSnippetId === cf.id ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-500" />
+                            ) : (
+                              <FileCode className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = customFonts.filter((f) => f.id !== cf.id);
+                              setCustomFonts(updated);
+                              localStorage.setItem('sedrazavi_custom_fonts_registry', JSON.stringify(updated));
+                            }}
+                            title="حذف این فونت"
+                            className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-400 hover:text-rose-500 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Live Text Preview in this font */}
+                      <div
+                        style={{ fontFamily: cf.family }}
+                        className="p-3 rounded-xl bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 text-sm text-[#0B132B] dark:text-gray-200 leading-relaxed text-right"
+                      >
+                        دفتر وکالت و مشاوره حقوقی دکتر سیده مریم رضوی - ۱۲۳۴۵۶۷۸۹۰
+                      </div>
+
+                      {/* Quick Apply Buttons */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAppearance({
+                              ...appearance,
+                              typography: { ...appearance.typography, headingFont: cf.family },
+                            });
+                            setFontUploadMessage(`قلم «${cf.family}» به عنوان فونت اصلی عناوین انتخاب شد.`);
+                            setTimeout(() => setFontUploadMessage(null), 3000);
+                          }}
+                          className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all ${
+                            appearance.typography.headingFont === cf.family
+                              ? 'bg-[#D4AF37] text-[#0B132B] font-black'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-[#D4AF37]/20 hover:text-[#D4AF37]'
+                          }`}
+                        >
+                          {appearance.typography.headingFont === cf.family ? '✓ قلم عناوین فعال' : 'تنظیم برای عناوین'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAppearance({
+                              ...appearance,
+                              typography: { ...appearance.typography, bodyFont: cf.family },
+                            });
+                            setFontUploadMessage(`قلم «${cf.family}» به عنوان فونت اصلی متن‌ها انتخاب شد.`);
+                            setTimeout(() => setFontUploadMessage(null), 3000);
+                          }}
+                          className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all ${
+                            appearance.typography.bodyFont === cf.family
+                              ? 'bg-[#0B132B] dark:bg-white text-white dark:text-[#0B132B] font-black'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          {appearance.typography.bodyFont === cf.family ? '✓ قلم بدنه فعال' : 'تنظیم برای بدنه'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

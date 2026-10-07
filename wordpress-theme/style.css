@@ -1249,6 +1249,13 @@ img {
     width: 100%;
     max-width: 25em;
 }
+.large-text {
+    width: 100%;
+}
+.code {
+    font-family: Consolas, Monaco, monospace;
+    direction: ltr;
+}
 
 /* تایپوگرافی پروژه‌ای (Prose Helpers) */
 .prose-lg {

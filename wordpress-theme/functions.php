@@ -290,6 +290,8 @@ if (!function_exists('sedrazavi_customizer_dynamic_css')) {
         $gold_light    = get_option('sedrazavi_gold_light', '#F3E5AB');
         $emerald_color = get_option('sedrazavi_emerald_accent', '#2A9D8F');
         $navy_sec      = get_option('sedrazavi_secondary_navy', '#1C2541');
+        $font_family   = get_option('sedrazavi_font_family', 'Vazirmatn');
+        $custom_font   = get_option('sedrazavi_custom_font_css', '');
         ?>
         <style id="sedrazavi-customizer-dynamic-css">
             :root {
@@ -305,6 +307,14 @@ if (!function_exists('sedrazavi_customizer_dynamic_css')) {
             .bg-gold-accent, .bg-\[\#D4AF37\] { background-color: var(--color-gold) !important; }
             .border-gold-accent, .border-\[\#D4AF37\] { border-color: var(--color-gold) !important; }
             .bg-navy-base, .bg-\[\#0B132B\] { background-color: var(--color-navy) !important; }
+            <?php if (!empty($custom_font)) : ?>
+            <?php echo wp_strip_all_tags($custom_font); ?>
+            <?php endif; ?>
+            <?php if (!empty($font_family) && $font_family !== 'Vazirmatn') : ?>
+            body, button, input, select, textarea {
+                font-family: '<?php echo esc_attr($font_family); ?>', Vazirmatn, sans-serif !important;
+            }
+            <?php endif; ?>
         </style>
         <?php
     }
