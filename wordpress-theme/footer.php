@@ -13,6 +13,15 @@ if (!defined('ABSPATH')) {
 ?>
 </main><!-- #main-content -->
 
+<?php
+// Elementor Theme Builder Footer Location support
+if ( function_exists('elementor_theme_do_location') && elementor_theme_do_location('footer') ) {
+    wp_footer();
+    echo '</body></html>';
+    return;
+}
+?>
+
 <footer id="colophon" class="site-footer bg-[#060B18] text-white pt-16 pb-8 border-t border-[#D4AF37]/20 relative overflow-hidden">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-gray-800">

@@ -40,6 +40,20 @@ get_header();
                     <?php the_content(); ?>
                 </div>
 
+                <!-- Contract & Legal Service CTA Shortcode -->
+                <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#0B132B] to-[#12213D] border border-[#D4AF37]/30 text-white space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-[#D4AF37]">خدمات تخصصی قراردادها و وکالت</span>
+                            <h3 class="text-lg font-bold font-serif">نیاز به بررسی قرارداد یا مشاوره حقوقی دارید؟</h3>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <a href="<?php echo esc_url(home_url('/contract-audit/')); ?>" class="btn-gold py-2.5 px-4 text-xs font-bold rounded-xl">ممیزی فوری قرارداد</a>
+                            <a href="<?php echo esc_url(home_url('/#booking')); ?>" class="py-2.5 px-4 text-xs font-bold rounded-xl border border-slate-700 hover:border-[#D4AF37]">رزرو وقت مشاوره</a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tags -->
                 <?php if (has_tag()) : ?>
                     <div class="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-2">

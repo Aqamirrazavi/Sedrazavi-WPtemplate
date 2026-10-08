@@ -267,7 +267,7 @@ if (!file_exists($theme_zip_path)) {
             if ($name === 'sedrazavi-theme/style.css') {
                 $has_style_css = true;
                 $style_content = $zip->getFromIndex($i);
-                if (strpos($style_content, 'Theme Name: SedRazavi') === false || strpos($style_content, 'Version: 2.6.0') === false) {
+                if (strpos($style_content, 'Theme Name: SedRazavi') === false || (strpos($style_content, 'Version: 3.0.0') === false && strpos($style_content, 'Version: 2.6.0') === false)) {
                     echo "  ✗ style.css is missing required WordPress theme header metadata!\n";
                     $has_style_css = false;
                 }

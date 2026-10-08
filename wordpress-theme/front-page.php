@@ -384,6 +384,37 @@ get_header();
     </div>
 </section>
 
+<!-- بخش ۴.۵: سامانه هوشمند ممیزی قراردادها و خزانه‌گاه اسناد تجاری (Contract Audit & Drafting Suite) -->
+<section id="contract-auditor-section" class="py-16 bg-[#060B18] relative border-t border-gray-800">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto space-y-4 mb-10">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/30">
+                <span>📝</span>
+                <span>سامانه هوشمند ممیزی قراردادها و شرط داوری</span>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-bold font-serif text-white">
+                ممیزی حقوقی شروط قرارداد پیش از امضا
+            </h2>
+            <p class="text-xs sm:text-sm text-gray-400">
+                شروط خسارت، تعهدات مالی، سلب مسئولیت و شرط داوری قرارداد خود را با هوش مصنوعی وکلای پایه یک ارزیابی و اصلاح کنید.
+            </p>
+        </div>
+
+        <div class="max-w-5xl mx-auto">
+            <?php echo do_shortcode('[sedrazavi_contract_auditor]'); ?>
+        </div>
+
+        <div class="mt-8 text-center flex flex-wrap justify-center gap-4">
+            <a href="<?php echo esc_url(home_url('/contract-audit/')); ?>" class="btn-gold py-2.5 px-6 rounded-xl text-xs font-bold shadow-lg">
+                <span>ورود به پرتال کامل ممیزی قراردادها</span>
+            </a>
+            <a href="<?php echo esc_url(home_url('/drafting-vault/')); ?>" class="py-2.5 px-6 rounded-xl text-xs font-bold text-white border border-slate-700 hover:border-[#D4AF37] bg-white/5 transition-colors">
+                <span>دانلود نمونه قراردادهای استاندارد دوزبانه</span>
+            </a>
+        </div>
+    </div>
+</section>
+
 <!-- بخش ۵: درباره وکیل و منشور اخلاق حرفه‌ای (AboutSection) -->
 <section id="about" class="py-20 bg-[#0B132B] relative overflow-hidden border-t border-gray-800">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">

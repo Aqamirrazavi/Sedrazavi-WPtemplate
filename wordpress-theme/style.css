@@ -1305,3 +1305,47 @@ img {
 .sedrazavi-tour-btn-prev { background: rgba(255,255,255,0.15); color: #fff; }
 .sedrazavi-tour-btn-close { cursor: pointer; color: #94A3B8; }
 
+/* کلاس‌های اختصاصی قالب‌های حقوقی فازهای جدید */
+@media (min-width: 768px) {
+    .md\:text-3xl { font-size: 1.875rem !important; line-height: 2.25rem !important; }
+    .md\:col-span-3 { grid-column: span 3 / span 3 !important; }
+}
+.to-\[\#AA7C11\] { --tw-gradient-to: #AA7C11 var(--tw-gradient-to-position); }
+.via-\[\#1E2545\] { --tw-gradient-via: #1E2545 var(--tw-gradient-via-position); }
+.via-\[\#0E1E38\] { --tw-gradient-via: #0E1E38 var(--tw-gradient-via-position); }
+.via-\[\#211A38\] { --tw-gradient-via: #211A38 var(--tw-gradient-via-position); }
+.via-\[\#1B2836\] { --tw-gradient-via: #1B2836 var(--tw-gradient-via-position); }
+.via-\[\#151D36\] { --tw-gradient-via: #151D36 var(--tw-gradient-via-position); }
+.bg-cyan-500\/20 { background-color: rgba(6, 182, 212, 0.2) !important; }
+.border-cyan-500\/40 { border-color: rgba(6, 182, 212, 0.4) !important; }
+.dark .dark\:bg-\[\#0B132B\]\/80 { background-color: rgba(11, 19, 43, 0.8) !important; }
+
+.admin-justice-container,
+.commercial-arbitration-container,
+.cyber-suite-container,
+.family-suite-container,
+.ip-suite-container,
+.tax-suite-container {
+    width: 100%;
+    position: relative;
+}
+
+/* کلاس‌های پشتیبانی المنتور و قالب‌های جدید */
+.sedrazavi-elementor-suite-container { width: 100%; position: relative; }
+.elementor-canvas-wrapper { width: 100%; min-height: 100vh; }
+.elementor-full-width-wrapper { width: 100%; position: relative; }
+.bg-black\/20 { background-color: rgba(0, 0, 0, 0.2) !important; }
+.mb-10 { margin-bottom: 2.5rem !important; }
+.to-\[\#12243A\] { --tw-gradient-to: #12243A var(--tw-gradient-to-position); }
+.to-\[\#122A3B\] { --tw-gradient-to: #122A3B var(--tw-gradient-to-position); }
+.to-\[\#142347\] { --tw-gradient-to: #142347 var(--tw-gradient-to-position); }
+.to-\[\#1F2438\] { --tw-gradient-to: #1F2438 var(--tw-gradient-to-position); }
+.to-\[\#1F1836\] { --tw-gradient-to: #1F1836 var(--tw-gradient-to-position); }
+.to-\[\#12213D\] { --tw-gradient-to: #12213D var(--tw-gradient-to-position); }
+.to-\[\#17223D\] { --tw-gradient-to: #17223D var(--tw-gradient-to-position); }
+.to-\[\#122A26\] { --tw-gradient-to: #122A26 var(--tw-gradient-to-position); }
+.to-\[\#251A38\] { --tw-gradient-to: #251A38 var(--tw-gradient-to-position); }
+.pt-10 { padding-top: 2.5rem !important; }
+
+
+

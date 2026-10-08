@@ -684,6 +684,385 @@ function sedrazavi_shortcode_insolvency_suite($atts, $content = null) {
 add_shortcode('sedrazavi_react_insolvency_suite', 'sedrazavi_shortcode_insolvency_suite');
 add_shortcode('sedrazavi_insolvency_suite', 'sedrazavi_shortcode_insolvency_suite');
 
+// ۲۲. ممیزی هوشمند قراردادها (Contract Audit Analyzer)
+function sedrazavi_shortcode_contract_auditor($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-auditor-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="ContractAuditAnalyzer" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('ContractAuditAnalyzer', 'سامانه هوشمند ممیزی قراردادها و ارزیابی ریسک شروط'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_contract_auditor', 'sedrazavi_shortcode_contract_auditor');
+add_shortcode('sedrazavi_react_contract_auditor', 'sedrazavi_shortcode_contract_auditor');
+
+// ۲۳. فرم‌ساز دادخواست عدل‌ایران (Petition Generator)
+function sedrazavi_shortcode_petition_builder($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-petition-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="PetitionGeneratorModal" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('PetitionGeneratorModal', 'سامانه تنظیم دادخواست و اوراق قضایی'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_petition_builder', 'sedrazavi_shortcode_petition_builder');
+add_shortcode('sedrazavi_react_petition_builder', 'sedrazavi_shortcode_petition_builder');
+
+// ۲۴. تالار دادگاه مجازی (Virtual Hearing Room)
+function sedrazavi_shortcode_virtual_courtroom($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-courtroom-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="VirtualHearingRoom" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('VirtualHearingRoom', 'اتاق دادرسی الکترونیک و استماع مجازی لایحه'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_virtual_courtroom', 'sedrazavi_shortcode_virtual_courtroom');
+add_shortcode('sedrazavi_react_virtual_courtroom', 'sedrazavi_shortcode_virtual_courtroom');
+
+// ۲۵. سامانه مالی و محاسبات قضایی (Legal Financial Suite)
+function sedrazavi_shortcode_legal_finance($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-finance-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="LegalFinancialSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('LegalFinancialSuite', 'سامانه امور مالی حقوقی و محاسبه تعرفه‌های قضایی'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_legal_finance', 'sedrazavi_shortcode_legal_finance');
+add_shortcode('sedrazavi_judicial_calculators', 'sedrazavi_shortcode_legal_finance');
+
+// ۲۶. سامانه داوری و حل اختلاف آنلاین (Legal ODR Suite)
+function sedrazavi_shortcode_odr_suite($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-odr-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="LegalOdrSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('LegalOdrSuite', 'سامانه حل اختلاف آنلاین و داوری هوشمند'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_odr_suite', 'sedrazavi_shortcode_odr_suite');
+add_shortcode('sedrazavi_odr_portal', 'sedrazavi_shortcode_odr_suite');
+add_shortcode('sedrazavi_react_odr_suite', 'sedrazavi_shortcode_odr_suite');
+
+// ۲۷. هوش مصنوعی و رویه‌های قضایی (Legal Intelligence Suite)
+function sedrazavi_shortcode_legal_intelligence($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-intel-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="LegalIntelligenceSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('LegalIntelligenceSuite', 'موتور هوش مصنوعی حقوقی و آرای وحدت رویه'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_legal_intelligence', 'sedrazavi_shortcode_legal_intelligence');
+add_shortcode('sedrazavi_legal_intelligence_portal', 'sedrazavi_shortcode_legal_intelligence');
+add_shortcode('sedrazavi_react_legal_intelligence', 'sedrazavi_shortcode_legal_intelligence');
+
+// ۲۸. حقوق تجارت و شرکت‌های بین‌المللی (Corporate International Suite)
+function sedrazavi_shortcode_corporate_international($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-corp-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="CorporateInternationalSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('CorporateInternationalSuite', 'سامانه حقوق تجارت، قراردادهای بین‌المللی و اینکوترمز'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_corporate_international', 'sedrazavi_shortcode_corporate_international');
+add_shortcode('sedrazavi_react_corporate_international', 'sedrazavi_shortcode_corporate_international');
+
+// ۲۹. مالکیت فکری و علامت تجاری (IP Suite)
+function sedrazavi_shortcode_ip_suite($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-ip-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="IntellectualPropertySuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('IntellectualPropertySuite', 'سامانه مالکیت فکری، برند و اسکرو نرم‌افزار'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_ip_suite', 'sedrazavi_shortcode_ip_suite');
+add_shortcode('sedrazavi_react_ip_suite', 'sedrazavi_shortcode_ip_suite');
+
+// ۳۰. فارنزیک سایبری و ادله دیجیتال (Cyber Forensics Suite)
+function sedrazavi_shortcode_cyber_suite($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-cyber-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="CyberForensicsSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('CyberForensicsSuite', 'سامانه کشف ادله دیجیتال و جرایم سایبری'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_cyber_suite', 'sedrazavi_shortcode_cyber_suite');
+add_shortcode('sedrazavi_react_cyber_suite', 'sedrazavi_shortcode_cyber_suite');
+
+// ۳۱. حقوق خانواده و انحصار وراثت (Family & Inheritance Suite)
+function sedrazavi_shortcode_family_inheritance($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-family-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="FamilyInheritanceSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('FamilyInheritanceSuite', 'سامانه حقوق خانواده، مهریه و تقسیم ماترک'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_family_inheritance', 'sedrazavi_shortcode_family_inheritance');
+add_shortcode('sedrazavi_react_family_inheritance', 'sedrazavi_shortcode_family_inheritance');
+
+// ۳۲. ترانزیت و گمرک (Customs & Transit Suite)
+function sedrazavi_shortcode_customs_transit($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-customs-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="CustomsTransitDisputesSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('CustomsTransitDisputesSuite', 'سامانه ترانزیت، قاچاق و اختلافات گمرکی'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_customs_transit', 'sedrazavi_shortcode_customs_transit');
+
+// ۳۳. قراردادهای پیمانکاری و مهندسی (EPC Suite)
+function sedrazavi_shortcode_epc_procurement($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-epc-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="EngineeringProcurementSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('EngineeringProcurementSuite', 'سامانه تاخیرات پیمانکاری بخشنامه ۵۰۹۰ و EPC'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_epc_procurement', 'sedrazavi_shortcode_epc_procurement');
+
+// ۳۴. مناقصات دولتی و ضمانت‌نامه‌ها (Government Tenders Suite)
+function sedrazavi_shortcode_government_tenders($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-tenders-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="GovernmentTendersGuaranteesSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('GovernmentTendersGuaranteesSuite', 'سامانه مناقصات دولتی و توقف ضبط ضمانت‌نامه'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_government_tenders', 'sedrazavi_shortcode_government_tenders');
+
+// ۳۵. جرایم اقتصادی و دادگاه انقلاب (Economic Crimes Suite)
+function sedrazavi_shortcode_economic_crimes($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-econ-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="EconomicCrimesDefenseSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('EconomicCrimesDefenseSuite', 'سامانه دفاع جرایم اقتصادی، بورس و ارز'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_economic_crimes', 'sedrazavi_shortcode_economic_crimes');
+
+// ۳۶. حقوق کار و تامین اجتماعی (Labor & Social Security Suite)
+function sedrazavi_shortcode_labor_security($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-labor-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="LaborSocialSecuritySuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('LaborSocialSecuritySuite', 'سامانه دعاوی کار، مطالبات سنوات و ماده ۱۴۸ تامین اجتماعی'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_labor_security', 'sedrazavi_shortcode_labor_security');
+
+// ۳۷. دیوان عالی کشور و اعاده دادرسی (Supreme Court Suite)
+function sedrazavi_shortcode_supreme_court($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-supreme-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="SupremeCourtAppealsSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('SupremeCourtAppealsSuite', 'سامانه فرجام‌خواهی، اعاده دادرسی و اعمال ماده ۴۷۷'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_supreme_court', 'sedrazavi_shortcode_supreme_court');
+
+// ۳۸. کدکس قوانین و آرای وحدت رویه (Codex Suite)
+function sedrazavi_shortcode_codex($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-codex-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="ComprehensiveCodexSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('ComprehensiveCodexSuite', 'سامانه دانشنامه قوانین و آرای وحدت رویه'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_codex', 'sedrazavi_shortcode_codex');
+
+// ۳۹. خزانه‌گاه هوشمند قراردادها (Drafting Vault Suite)
+function sedrazavi_shortcode_drafting_vault($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-vault-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="MasterDraftingVaultSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('MasterDraftingVaultSuite', 'خزانه‌گاه نمونه قراردادها و اسناد تجاری'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_drafting_vault', 'sedrazavi_shortcode_drafting_vault');
+
+// ۴۰. سامانه هوشمند پیامکی و مواعد دادرسی (Legal CRM Notifier Suite)
+function sedrazavi_shortcode_crm_notifier($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-crm-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="LegalCrmSmartNotifierSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('LegalCrmSmartNotifierSuite', 'سامانه CRM حقوقی و دستیار مواعد قانونی'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_crm_notifier', 'sedrazavi_shortcode_crm_notifier');
+
+// ۴۱. درگاه پرداخت الکترونیک حق‌الوکاله (Payment Adapter Suite)
+function sedrazavi_shortcode_payment_adapter($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-pay-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="PaymentAdapterSystemSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('PaymentAdapterSystemSuite', 'درگاه امن پرداخت حق‌الوکاله و بیعانه شاپرک'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_payment_adapter', 'sedrazavi_shortcode_payment_adapter');
+
+// ۴۲. داوری بازرگانی (Commercial Arbitration Suite)
+function sedrazavi_shortcode_commercial_arbitration($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-comm-arb-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="CommercialArbitrationSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('CommercialArbitrationSuite', 'سامانه داوری اختلافات بازرگانی و تجاری'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_commercial_arbitration', 'sedrazavi_shortcode_commercial_arbitration');
+
+// ۴۳. دعاوی مالیاتی و مودیان (Tax Disputes Moadian Suite)
+function sedrazavi_shortcode_tax_disputes($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-tax-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="TaxDisputesMoadianSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('TaxDisputesMoadianSuite', 'سامانه ممیزی و دفاع در هیئت‌های حل اختلاف مالیاتی'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_tax_disputes', 'sedrazavi_shortcode_tax_disputes');
+
+// ۴۴. دیوان عدالت اداری (Administrative Justice Suite)
+function sedrazavi_shortcode_administrative_justice($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-admin-just-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="AdministrativeJusticeSuite" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('AdministrativeJusticeSuite', 'سامانه وکالت تخصصی در دیوان عدالت اداری'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_administrative_justice', 'sedrazavi_shortcode_administrative_justice');
+
+// ۴۵. رزرو وقت مشاوره (Booking Shortcut)
+function sedrazavi_shortcode_booking_bridge($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-book-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="ContactAndBookingSection" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('ContactAndBookingSection', 'فرم ثبت نوبت و درخواست مشاوره حقوقی'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_booking', 'sedrazavi_shortcode_booking_bridge');
+add_shortcode('sedrazavi_react_booking', 'sedrazavi_shortcode_booking_bridge');
+
+// ۴۶. شبکه‌های اجتماعی و پیام‌رسان‌ها (Social Icons Bridge)
+function sedrazavi_shortcode_social_bridge($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-social-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="AttorneySocialAccounts" dir="rtl">
+        <?php echo sedrazavi_render_react_skeleton('AttorneySocialAccounts', 'شبکه‌های اجتماعی و راه‌های ارتباطی وکیل'); ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_social_icons', 'sedrazavi_shortcode_social_bridge');
+
+// ۴۷. نوار کناری پیمایش طلایی (Gold Scroll Bridge)
+function sedrazavi_shortcode_gold_scroll_bridge($atts, $content = null) {
+    sedrazavi_enqueue_react_runtime();
+    $unique_id = 'sedrazavi-react-scroll-' . wp_unique_id();
+    ob_start();
+    ?>
+    <div id="<?php echo esc_attr($unique_id); ?>" class="sedrazavi-react-root sedrazavi-ui-wrapper" data-component="GoldScrollSidebar" dir="rtl"></div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('sedrazavi_gold_scroll', 'sedrazavi_shortcode_gold_scroll_bridge');
+
+// ۴۸. پرتال امور شرکت‌ها و داوری (Corporate Suite Alias)
+add_shortcode('sedrazavi_corporate_suite', 'sedrazavi_shortcode_corporate_international');
+
+
 /**
  * ==============================================================================
  * ۶. اسکریپت خودکار مانت کلاینت در فوتر (Auto Mount Loader in wp_footer)

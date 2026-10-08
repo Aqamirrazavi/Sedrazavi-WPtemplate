@@ -42,6 +42,31 @@ get_header();
             endif;
             ?>
         </div>
+
+        <!-- Contract & Consultation Shortcode Integration -->
+        <div class="pt-10 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="p-8 rounded-3xl bg-[#0B132B] text-white space-y-4 text-right border border-[#D4AF37]/30">
+                <span class="text-xs font-bold text-[#D4AF37]">📝 سامانه آنلاین قراردادها</span>
+                <h3 class="text-xl font-bold font-serif">ممیزی فوری قرارداد و شروط تعهدآور</h3>
+                <p class="text-xs text-gray-300 leading-relaxed">
+                    پیش از امضا، ریسک‌های حقوقی و شروط ضمانتی قرارداد خود را در سامانه ممیزی هوشمند ارزیابی کنید.
+                </p>
+                <a href="<?php echo esc_url(home_url('/contract-audit/')); ?>" class="btn-gold py-2.5 px-6 rounded-xl text-xs font-bold inline-block">
+                    ورود به ممیزی قرارداد
+                </a>
+            </div>
+
+            <div class="p-8 rounded-3xl bg-white border border-gray-200 shadow-lg space-y-4 text-right">
+                <span class="text-xs font-bold text-[#AA820A]">📅 مشاوره حضوری یا تلفنی</span>
+                <h3 class="text-xl font-bold font-serif text-[#0B132B]">رزرو وقت مشاوره با وکیل پایه یک</h3>
+                <p class="text-xs text-gray-500 leading-relaxed">
+                    نوبت مشاوره با سرکار خانم دکتر سیده مریم رضوی در دفتر ونک، تهران یا به‌صورت آنلاین.
+                </p>
+                <a href="<?php echo esc_url(home_url('/contact/')); ?>" class="btn-gold py-2.5 px-6 rounded-xl text-xs font-bold inline-block">
+                    درخواست نوبت مشاوره
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 

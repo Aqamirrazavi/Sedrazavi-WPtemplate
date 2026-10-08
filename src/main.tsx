@@ -67,6 +67,53 @@ const CorporateInsolvencySuite: React.FC<any> = (props) => (
   </React.Suspense>
 );
 
+// Specialized Legal Suites Lazy Loaded for WordPress Shortcodes
+const createLazySuite = (loader: () => Promise<{ default: React.ComponentType<any> }>, title: string): React.FC<any> => {
+  const LazyComponent = React.lazy(loader);
+  return (props: any) => (
+    <React.Suspense fallback={<div className="p-8 text-center text-[#D4AF37]">در حال بارگذاری {title}...</div>}>
+      <LazyComponent {...props} />
+    </React.Suspense>
+  );
+};
+
+const LegalFinancialSuite = createLazySuite(() => import('./components/legal-finance/LegalFinancialSuite').then(m => ({ default: m.LegalFinancialSuite })), 'سامانه محاسبات و امور مالی حقوقی');
+const LegalOdrSuite = createLazySuite(() => import('./components/legal-odr/LegalOdrSuite').then(m => ({ default: m.LegalOdrSuite })), 'سامانه داوری و حل اختلاف آنلاین');
+const LegalIntelligenceSuite = createLazySuite(() => import('./components/legal-ai/LegalIntelligenceSuite').then(m => ({ default: m.LegalIntelligenceSuite })), 'هوش مصنوعی و رویه‌های قضایی');
+const LegalStrategySuite = createLazySuite(() => import('./components/legal-strategy/LegalStrategySuite').then(m => ({ default: m.LegalStrategySuite })), 'اتاق استراتژی دفاع و لوایح');
+const CorporateInternationalSuite = createLazySuite(() => import('./components/corporate-international/CorporateInternationalSuite').then(m => ({ default: m.CorporateInternationalSuite })), 'سامانه حقوق تجارت و بین‌الملل');
+const IntellectualPropertySuite = createLazySuite(() => import('./components/intellectual-property/IntellectualPropertySuite').then(m => ({ default: m.IntellectualPropertySuite })), 'مالکیت فکری و برندها');
+const CyberForensicsSuite = createLazySuite(() => import('./components/cyber-forensics/CyberForensicsSuite').then(m => ({ default: m.CyberForensicsSuite })), 'فارنزیک سایبری و ادله دیجیتال');
+const FinancialComplianceSuite = createLazySuite(() => import('./components/compliance-financial/FinancialComplianceSuite').then(m => ({ default: m.FinancialComplianceSuite })), 'تطبیق و مبارزه با پولشویی');
+const RealEstateConstructionSuite = createLazySuite(() => import('./components/real-estate-construction/RealEstateConstructionSuite').then(m => ({ default: m.RealEstateConstructionSuite })), 'دعاوی ملکی و سرقفلی');
+const FamilyInheritanceSuite = createLazySuite(() => import('./components/family-inheritance/FamilyInheritanceSuite').then(m => ({ default: m.FamilyInheritanceSuite })), 'حقوق خانواده و انحصار وراثت');
+const LegalAutomationLibrary = createLazySuite(() => import('./components/automation/LegalAutomationLibrary').then(m => ({ default: m.LegalAutomationLibrary })), 'کتابخانه اتوماسیون دادخواست');
+const AdministrativeJusticeSuite = createLazySuite(() => import('./components/administrative-justice/AdministrativeJusticeSuite').then(m => ({ default: m.AdministrativeJusticeSuite })), 'دیوان عدالت اداری');
+const DualModeLawyerAuth = createLazySuite(() => import('./components/auth-dual-mode/DualModeLawyerAuth').then(m => ({ default: m.DualModeLawyerAuth })), 'ورود دوحالته موکل و وکیل');
+const UnifiedDualPanelSuite = createLazySuite(() => import('./components/dual-panel-unified/UnifiedDualPanelSuite').then(m => ({ default: m.UnifiedDualPanelSuite })), 'پنل یکپارچه وکیل و موکل');
+const AdminPagesProtectionSuite = createLazySuite(() => import('./components/admin-protection/AdminPagesProtectionSuite').then(m => ({ default: m.AdminPagesProtectionSuite })), 'حفاظت از صفحات ادمین');
+const DesignTokensManagerSuite = createLazySuite(() => import('./components/design-tokens/DesignTokensManagerSuite').then(m => ({ default: m.DesignTokensManagerSuite })), 'مدیریت دیزاین توکن‌ها');
+const AdvancedAjaxSearchSuite = createLazySuite(() => import('./components/search-filter/AdvancedAjaxSearchSuite').then(m => ({ default: m.AdvancedAjaxSearchSuite })), 'جستجوی پیشرفته حقوقی');
+const CasePredictionRiskSuite = createLazySuite(() => import('./components/case-prediction/CasePredictionRiskSuite').then(m => ({ default: m.CasePredictionRiskSuite })), 'پیش‌بینی ریسک دادرسی');
+const EngineeringProcurementSuite = createLazySuite(() => import('./components/epc-procurement/EngineeringProcurementSuite').then(m => ({ default: m.EngineeringProcurementSuite })), 'قراردادهای پیمانکاری و EPC');
+const InternationalArbitrationSuite = createLazySuite(() => import('./components/international-arbitration/InternationalArbitrationSuite').then(m => ({ default: m.InternationalArbitrationSuite })), 'داوری تجاری بین‌المللی');
+const ComprehensiveCodexSuite = createLazySuite(() => import('./components/legal-codex/ComprehensiveCodexSuite').then(m => ({ default: m.ComprehensiveCodexSuite })), 'مجموعه قوانین و کدکس');
+const MasterDraftingVaultSuite = createLazySuite(() => import('./components/drafting-vault/MasterDraftingVaultSuite').then(m => ({ default: m.MasterDraftingVaultSuite })), 'گنجینه نگارش لوایح');
+const TaxDisputesMoadianSuite = createLazySuite(() => import('./components/tax-moadian/TaxDisputesMoadianSuite').then(m => ({ default: m.TaxDisputesMoadianSuite })), 'دعاوی مالیاتی و سامانه مودیان');
+const LaborSocialSecuritySuite = createLazySuite(() => import('./components/labor-social-security/LaborSocialSecuritySuite').then(m => ({ default: m.LaborSocialSecuritySuite })), 'دعاوی کار و تامین اجتماعی');
+const EconomicCrimesDefenseSuite = createLazySuite(() => import('./components/economic-crimes/EconomicCrimesDefenseSuite').then(m => ({ default: m.EconomicCrimesDefenseSuite })), 'دفاع در جرایم اقتصادی');
+const CustomsTransitDisputesSuite = createLazySuite(() => import('./components/customs-transit/CustomsTransitDisputesSuite').then(m => ({ default: m.CustomsTransitDisputesSuite })), 'دعاوی گمرک و ترانزیت');
+const LegalCrmSmartNotifierSuite = createLazySuite(() => import('./components/legal-crm-notifier/LegalCrmSmartNotifierSuite').then(m => ({ default: m.LegalCrmSmartNotifierSuite })), 'سی‌آر‌ام و پیام‌رسان هوشمند');
+const FullElementorIntegrationSuite = createLazySuite(() => import('./components/elementor-integration/FullElementorIntegrationSuite').then(m => ({ default: m.FullElementorIntegrationSuite })), 'یکپارچه‌سازی المنتور');
+const PaymentAdapterSystemSuite = createLazySuite(() => import('./components/payment-adapter/PaymentAdapterSystemSuite').then(m => ({ default: m.PaymentAdapterSystemSuite })), 'درگاه پرداخت و حق‌الوکاله');
+const LegalAssociateReferralSuite = createLazySuite(() => import('./components/associate-referral/LegalAssociateReferralSuite').then(m => ({ default: m.LegalAssociateReferralSuite })), 'شبکه ارجاع وکلای همکار');
+const SupremeCourtAppealsSuite = createLazySuite(() => import('./components/supreme-court-appeals/SupremeCourtAppealsSuite').then(m => ({ default: m.SupremeCourtAppealsSuite })), 'فرجام‌خواهی دیوان عالی');
+const CommercialArbitrationSuite = createLazySuite(() => import('./components/commercial-arbitration/CommercialArbitrationSuite').then(m => ({ default: m.CommercialArbitrationSuite })), 'داوری تجاری و بازرگانی');
+const GovernmentTendersGuaranteesSuite = createLazySuite(() => import('./components/government-tenders/GovernmentTendersGuaranteesSuite').then(m => ({ default: m.GovernmentTendersGuaranteesSuite })), 'مناقصات دولتی و ضمانت‌نامه‌ها');
+const ContractAuditAnalyzer = createLazySuite(() => import('./components/legal-ai/ContractAuditAnalyzer').then(m => ({ default: m.ContractAuditAnalyzer })), 'ممیزی هوشمند قراردادها');
+const PetitionGeneratorModal = createLazySuite(() => import('./components/legal-odr/PetitionGeneratorModal').then(m => ({ default: m.PetitionGeneratorModal })), 'سامانه تنظیم دادخواست عدل‌ایران');
+const VirtualHearingRoom = createLazySuite(() => import('./components/legal-odr/VirtualHearingRoom').then(m => ({ default: m.VirtualHearingRoom })), 'تالار دادگاه مجازی و استماع');
+
 // Expose React & ReactDOM globally for WordPress integration
 if (typeof window !== 'undefined') {
   (window as any).React = React;
@@ -99,6 +146,42 @@ if (typeof window !== 'undefined') {
     ContactAndBookingSection,
     ArticlesSection,
     CorporateInsolvencySuite,
+    LegalFinancialSuite,
+    LegalOdrSuite,
+    LegalIntelligenceSuite,
+    LegalStrategySuite,
+    CorporateInternationalSuite,
+    IntellectualPropertySuite,
+    CyberForensicsSuite,
+    FinancialComplianceSuite,
+    RealEstateConstructionSuite,
+    FamilyInheritanceSuite,
+    LegalAutomationLibrary,
+    AdministrativeJusticeSuite,
+    DualModeLawyerAuth,
+    UnifiedDualPanelSuite,
+    AdminPagesProtectionSuite,
+    DesignTokensManagerSuite,
+    AdvancedAjaxSearchSuite,
+    CasePredictionRiskSuite,
+    EngineeringProcurementSuite,
+    InternationalArbitrationSuite,
+    ComprehensiveCodexSuite,
+    MasterDraftingVaultSuite,
+    TaxDisputesMoadianSuite,
+    LaborSocialSecuritySuite,
+    EconomicCrimesDefenseSuite,
+    CustomsTransitDisputesSuite,
+    LegalCrmSmartNotifierSuite,
+    FullElementorIntegrationSuite,
+    PaymentAdapterSystemSuite,
+    LegalAssociateReferralSuite,
+    SupremeCourtAppealsSuite,
+    CommercialArbitrationSuite,
+    GovernmentTendersGuaranteesSuite,
+    ContractAuditAnalyzer,
+    PetitionGeneratorModal,
+    VirtualHearingRoom,
   };
 
   /**

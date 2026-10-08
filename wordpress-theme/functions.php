@@ -69,6 +69,14 @@ if (!function_exists('sedrazavi_theme_setup')) {
         // Selective Refresh for Customizer Widgets
         add_theme_support('customize-selective-refresh-widgets');
 
+        // Elementor Support & Page Builder Compatibility
+        add_theme_support('elementor');
+        add_post_type_support('page', 'elementor');
+        add_post_type_support('post', 'elementor');
+        add_post_type_support('service', 'elementor');
+        add_post_type_support('article', 'elementor');
+        add_post_type_support('case', 'elementor');
+
         // Navigation Menus
         register_nav_menus([
             'primary'  => esc_html__('منوی اصلی سربرگ (Primary Header)', 'sedrazavi'),

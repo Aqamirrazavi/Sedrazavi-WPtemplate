@@ -101,6 +101,20 @@ get_header();
                     </p>
                 </div>
 
+                <!-- Contract Audit & Drafting Shortcode Box -->
+                <div class="bg-white dark:bg-[#0B132B] rounded-3xl p-6 border border-gray-200 dark:border-gray-800 shadow-md space-y-4 text-right">
+                    <div class="flex items-center gap-2 text-[#D4AF37] font-bold text-sm">
+                        <span>📝</span>
+                        <span><?php esc_html_e('ممیزی قرارداد و شرط داوری', 'sedrazavi'); ?></span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                        <?php esc_html_e('پیش از امضا، شروط حقوقی، تعهدات مالی و شرط داوری قرارداد خود را با ابزار ممیزی قراردادهای وکلای پایه یک ارزیابی کنید.', 'sedrazavi'); ?>
+                    </p>
+                    <a href="<?php echo esc_url(home_url('/contract-audit/')); ?>" class="btn-gold w-full text-center py-2.5 text-xs font-bold block rounded-xl">
+                        <span>ورود به سامانه ممیزی قراردادها</span>
+                    </a>
+                </div>
+
             </div>
 
         </div>

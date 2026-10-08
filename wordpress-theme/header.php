@@ -29,6 +29,14 @@ if (!defined('ABSPATH')) {
     <?php esc_html_e('پرش به محتوای اصلی', 'sedrazavi'); ?>
 </a>
 
+<?php
+// Elementor Theme Builder Header Location support
+if ( function_exists('elementor_theme_do_location') && elementor_theme_do_location('header') ) {
+    echo '<main id="main-content" class="site-main">';
+    return;
+}
+?>
+
 <!-- نوار اعلان و دسترسی سریع فوقانی (Top Notification Bar) -->
 <div class="top-notification-bar">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-2">

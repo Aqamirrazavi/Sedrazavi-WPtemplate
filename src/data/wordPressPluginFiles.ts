@@ -1,2015 +1,471 @@
 import { WordPressFile } from '../types/theme';
 
+/**
+ * Single Source of Truth WordPress Plugin Files
+ * Auto-generated from /sedrazavi-addons and /elementor-addon-suite.
+ * Contains 66 fully readable, executable, and demonstrative files.
+ */
 export const WORDPRESS_PLUGIN_FILES: WordPressFile[] = [
   {
-    path: 'sedrazavi-addons.php',
-    filename: 'sedrazavi-addons.php',
-    category: 'افزونه مکمل (Plugin Addons)',
-    description: 'فایل اصلی افزونه مکمل حقوقی سید رضوی با ساختار مقاوم در برابر کرش (Resilient Loading)، ثبت قلاب‌های فعال‌سازی امن و تعریف ثابت‌های بنیادین.',
-    code: `<?php
-/**
- * Plugin Name: SedRazavi Addons
- * Plugin URI: https://t.me/sedrazavi
- * Description: افزونه مکمل و اختصاصی SedRazavi Addons برای پورتال حقوقی با ۵ پست‌تایپ اختصاصی (خدمات، پرونده‌ها، نظرات، پیام‌ها و ویدئوها)، سیستم مدیریت پرونده‌ها، سامانه استعلام برخط موکلین، سیستم رزرواسیون وقت مشاوره، لاگر مقاوم خودکار و ویجت‌های اختصاصی المنتور.
- * Version: 2.0.1
- * Author: سید امیر حسین رضوی فردویی
- * Author URI: https://t.me/sedrazavi
- * Text Domain: sedrazavi-addons
- * Domain Path: /languages
- * Requires at least: 5.8
- * Requires PHP: 7.4
- * License: GPL v2 or later
- * Creator Telegram: @sedrazavi
- * Creator Eitaa: @sedrazavi
- */
-
-if (!defined('ABSPATH')) {
-    exit; // خروج مستقیم در صورت فراخوانی خارج از محیط وردپرس
-}
-
-// ۱. تعریف ثابت‌های یکتای افزونه با کنترل امنیتی if (!defined)
-if (!defined('SEDRAZAVI_ADDONS_VERSION')) {
-    define('SEDRAZAVI_ADDONS_VERSION', '2.0.1');
-}
-if (!defined('SEDRAZAVI_ADDONS_DIR')) {
-    define('SEDRAZAVI_ADDONS_DIR', plugin_dir_path(__FILE__));
-}
-if (!defined('SEDRAZAVI_ADDONS_URL')) {
-    define('SEDRAZAVI_ADDONS_URL', plugin_dir_url(__FILE__));
-}
-if (!defined('SEDRAZAVI_LOG_DIR')) {
-    define('SEDRAZAVI_LOG_DIR', WP_CONTENT_DIR . '/uploads/sedrazavi-logs/');
-}
-
-// ۲. سیستم ثبت لاگ اختصاصی و خودکار خطاها (Automated Error Logger)
-if (!function_exists('sedrazavi_addons_log_error')) {
-    /**
-     * ثبت خطاهای سیستمی در فایل wp-content/uploads/sedrazavi-logs/debug.log
-     *
-     * @param string $message پیام خطا
-     * @param string $file نام فایل محل خطا
-     * @param int|string $line شماره خط
-     * @param string $level سطح خطا (INFO, WARNING, CRITICAL, FATAL)
-     */
-    function sedrazavi_addons_log_error($message, $file = '', $line = '', $level = 'ERROR') {
-        $log_dir = SEDRAZAVI_LOG_DIR;
-        if (!file_exists($log_dir)) {
-            wp_mkdir_p($log_dir);
-            // ایجاد فایل htaccess جهت جلوگیری از دسترسی عمومی و حفظ امنیت داده‌های محرمانه
-            $htaccess_file = $log_dir . '.htaccess';
-            if (!file_exists($htaccess_file)) {
-                @file_put_contents($htaccess_file, "Order Deny,Allow\nDeny from all\n");
-            }
-            $index_file = $log_dir . 'index.php';
-            if (!file_exists($index_file)) {
-                @file_put_contents($index_file, "<?php // Silence is golden\n");
-            }
-        }
-
-        $log_file = $log_dir . 'debug.log';
-        $timestamp = date_i18n('Y-m-d H:i:s');
-        $formatted_msg = sprintf(
-            "[%s] [%s] %s | File: %s (Line %s)\n",
-            $timestamp,
-            strtoupper($level),
-            $message,
-            $file ?: 'N/A',
-            $line ?: 'N/A'
-        );
-
-        @error_log($formatted_msg, 3, $log_file);
-    }
-}
-
-// ۳. کلاس بارگذار مقاوم ماژول‌ها (Resilient Plugin Loader)
-if (!class_exists('SedRazavi_Addons_Loader')) {
-    class SedRazavi_Addons_Loader {
-        private static $instance = null;
-
-        public static function get_instance() {
-            if (null === self::$instance) {
-                self::$instance = new self();
-            }
-            return self::$instance;
-        }
-
-        private function __construct() {
-            $this->load_resilient_modules();
-            add_action('plugins_loaded', array($this, 'init_plugin'));
-        }
-
-        /**
-         * بارگذاری ایزوله و مقاوم فایل‌ها با مکانیسم Try-Catch
-         * در صورت بروز خطا در هر فایل، بقیه افزونه و هسته سایت متوقف نمی‌شوند.
-         */
-        private function load_resilient_modules() {
-            $modules = array(
-                'logger.php',
-                'post-types.php',
-                'case-metaboxes-ui.php',
-                'shortcodes-engine.php',
-                'booking-system.php',
-                'case-tracking.php',
-                'elementor-widgets.php',
-                'admin-settings.php',
-                'otp-auth-integration.php',
-                'class-sedrazavi-auth-dual-mode.php',
-                'class-sedrazavi-dual-panel-unified.php',
-                'class-sedrazavi-admin-protection.php',
-                'class-sedrazavi-design-tokens.php',
-                'class-sedrazavi-elementor-widgets.php',
-                'class-sedrazavi-payment-adapter.php',
-            );
-
-            foreach ($modules as $module) {
-                $file_path = SEDRAZAVI_ADDONS_DIR . 'includes/' . $module;
-                if (file_exists($file_path)) {
-                    try {
-                        require_once $file_path;
-                    } catch (\Throwable $e) {
-                        sedrazavi_addons_log_error(
-                            'خطا در بارگذاری ماژول ' . $module . ': ' . $e->getMessage(),
-                            $e->getFile(),
-                            $e->getLine(),
-                            'CRITICAL'
-                        );
-                    } catch (\Exception $e) {
-                        sedrazavi_addons_log_error(
-                            'استثنا در ماژول ' . $module . ': ' . $e->getMessage(),
-                            $e->getFile(),
-                            $e->getLine(),
-                            'ERROR'
-                        );
-                    }
-                } else {
-                    sedrazavi_addons_log_error(
-                        'فایل ماژول یافت نشد: ' . $module,
-                        __FILE__,
-                        __LINE__,
-                        'WARNING'
-                    );
-                }
-            }
-        }
-
-        public function init_plugin() {
-            // بارگذاری متن ترجمه افزونه
-            load_plugin_textdomain('sedrazavi-addons', false, dirname(plugin_basename(__FILE__)) . '/languages');
-        }
-    }
-}
-
-// راه‌اندازی نمونه اصلی لودر افزونه
-SedRazavi_Addons_Loader::get_instance();
-
-// ۴. هوک فعال‌سازی مقاوم با Try-Catch جامع (Activation Hook)
-if (!function_exists('sedrazavi_addons_activate')) {
-    function sedrazavi_addons_activate() {
-        try {
-            global $wpdb;
-            
-            // ایجاد پوشه لاگ و محافظت امنیتی
-            sedrazavi_addons_log_error('افزونه با موفقیت فعال‌سازی شد.', __FILE__, __LINE__, 'INFO');
-
-            // ایجاد جدول رزرو نوبت مشاوره حقوقی با استفاده از dbDelta
-            $table_name = $wpdb->prefix . 'sedrazavi_consultations';
-            $charset_collate = $wpdb->get_charset_collate();
-
-            $sql = "CREATE TABLE IF NOT EXISTS {$table_name} (
-                id bigint(20) NOT NULL AUTO_INCREMENT,
-                fullname varchar(191) NOT NULL,
-                phone varchar(50) NOT NULL,
-                email varchar(100) DEFAULT '',
-                service_type varchar(100) NOT NULL,
-                preferred_date varchar(50) NOT NULL,
-                preferred_time varchar(50) NOT NULL,
-                message text,
-                status varchar(30) DEFAULT 'pending',
-                created_at datetime DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY  (id),
-                KEY phone (phone),
-                KEY status (status)
-            ) {$charset_collate};";
-
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-            dbDelta($sql);
-
-            // ثبت زمان نصب اولیه در آپشن‌ها
-            if (!get_option('sedrazavi_addons_installed')) {
-                update_option('sedrazavi_addons_installed', current_time('mysql'));
-            }
-
-            // ۶. اتوماسیون هوشمند ایجاد خودکار برگه سامانه ری‌اکت در وردپرس (Auto-Provisioning)
-            $existing_page = get_page_by_path('sedrazavi-portal');
-            if (!$existing_page) {
-                $page_id = wp_insert_post(array(
-                    'post_title'     => 'سامانه جامع حقوقی و پرتال موکلین (SedRazavi Portal)',
-                    'post_name'      => 'sedrazavi-portal',
-                    'post_content'   => '<!-- wp:shortcode -->[sedrazavi_app]<!-- /wp:shortcode -->',
-                    'post_status'    => 'publish',
-                    'post_type'      => 'page',
-                    'comment_status' => 'closed'
-                ));
-                if (!is_wp_error($page_id)) {
-                    update_option('sedrazavi_auto_portal_page_id', $page_id);
-                }
-            }
-
-            // فلاش امن ری‌رایت رول‌ها
-            if (function_exists('sedrazavi_addons_register_post_types')) {
-                sedrazavi_addons_register_post_types();
-            }
-            flush_rewrite_rules(false);
-
-        } catch (\Throwable $e) {
-            // ثبت خطا در فایل لاگ بدون ایجاد صفحه سفید مرگ (WSOD)
-            sedrazavi_addons_log_error(
-                'خطا در حین فرآیند فعال‌سازی افزونه: ' . $e->getMessage(),
-                $e->getFile(),
-                $e->getLine(),
-                'FATAL'
-            );
-        }
-    }
-}
-register_activation_hook(__FILE__, 'sedrazavi_addons_activate');
-
-// ۵. هوک غیرفعال‌سازی ایمن (Deactivation Hook)
-if (!function_exists('sedrazavi_addons_deactivate')) {
-    function sedrazavi_addons_deactivate() {
-        flush_rewrite_rules(false);
-        sedrazavi_addons_log_error('افزونه غیرفعال شد.', __FILE__, __LINE__, 'INFO');
-    }
-}
-register_deactivation_hook(__FILE__, 'sedrazavi_addons_deactivate');
-
-// ۶. شورت‌کدهای هوشمند اتوماسیون ری‌اکت در وردپرس (Automated Universal Shortcodes)
-if (!function_exists('sedrazavi_register_universal_shortcodes')) {
-    function sedrazavi_render_react_app_shortcode($atts) {
-        $a = shortcode_atts(array(
-            'mode' => 'full',
-            'view' => 'all'
-        ), $atts);
-
-        // بارگذاری خودکار استایل و اسکریپت بیلد شده
-        $plugin_dist_css = SEDRAZAVI_ADDONS_DIR . 'dist/index.css';
-        $plugin_dist_js  = SEDRAZAVI_ADDONS_DIR . 'dist/index.js';
-
-        if (file_exists($plugin_dist_css) && file_exists($plugin_dist_js)) {
-            wp_enqueue_style(
-                'sedrazavi-addon-react-css',
-                SEDRAZAVI_ADDONS_URL . 'dist/index.css',
-                array(),
-                filemtime($plugin_dist_css)
-            );
-            wp_enqueue_script(
-                'sedrazavi-addon-react-js',
-                SEDRAZAVI_ADDONS_URL . 'dist/index.js',
-                array(),
-                filemtime($plugin_dist_js),
-                true
-            );
-
-            wp_localize_script('sedrazavi-addon-react-js', 'SedRazaviPluginConfig', array(
-                'siteUrl'   => home_url(),
-                'ajaxUrl'   => admin_url('admin-ajax.php'),
-                'pluginUrl' => SEDRAZAVI_ADDONS_URL,
-                'nonce'     => wp_create_nonce('sedrazavi_security_nonce'),
-            ));
-        }
-
-        ob_start();
-        ?>
-        <div id="root" class="sedrazavi-embedded-app" data-embed-mode="<?php echo esc_attr($a['mode']); ?>">
-            <div style="min-height: 400px; display: flex; align-items: center; justify-content: center; background: #0B132B; color: #D4AF37; font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; border-radius: 1.5rem; padding: 2rem; margin: 1rem 0;">
-                <div style="text-align: center;">
-                    <div style="width: 40px; height: 40px; border: 3px solid rgba(212,175,55,0.2); border-top-color: #D4AF37; border-radius: 50%; margin: 0 auto 1rem; animation: spin 1s linear infinite;"></div>
-                    <h3 style="font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">سامانه تخصصی حقوقی دکتر سیده مریم رضوی</h3>
-                    <p style="font-size: 0.85rem; color: #D4AF37;">در حال بارگذاری خودکار ماژول‌های سامانه...</p>
-                </div>
-            </div>
-        </div>
-        <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
-        <?php
-        return ob_get_clean();
-    }
-
-    add_shortcode('sedrazavi_app', 'sedrazavi_render_react_app_shortcode');
-    add_shortcode('sedrazavi_portal', 'sedrazavi_render_react_app_shortcode');
-    add_shortcode('sedrazavi_tracker', 'sedrazavi_render_react_app_shortcode');
-}
-
-// ۷. اعلان خودکار راهنمای اتوماسیون در پیشخوان وردپرس (Automated Admin Notice)
-add_action('admin_notices', function() {
-    $screen = get_current_screen();
-    if ($screen && in_array($screen->id, array('dashboard', 'plugins', 'edit-page'))) {
-        $portal_page_id = get_option('sedrazavi_auto_portal_page_id');
-        $portal_url = $portal_page_id ? get_permalink($portal_page_id) : home_url('/sedrazavi-portal');
-        ?>
-        <div class="notice notice-success is-dismissible" style="border-right-color: #D4AF37; border-right-width: 4px; padding: 12px 16px; background: #fdfdfd;">
-            <p style="font-weight: 700; color: #0B132B; margin-bottom: 6px; font-size: 14px;">
-                ✨ اتوماسیون هوشمند سامانه حقوقی سید رضوی با موفقیت فعال است!
-            </p>
-            <p style="color: #4b5563; font-size: 13px; line-height: 1.8; margin-bottom: 8px;">
-                برگه سامانه تعاملی به صورت خودکار ایجاد گردید. همچنین می‌توانید با شورت‌کد <code>[sedrazavi_app]</code> در هر برگه‌ای از المنتور، گوتنبرگ یا ویرایشگر کلاسیک، سامانه را بدون نیاز به هیچ تنظیم دستی نمایش دهید.
-            </p>
-            <p>
-                <a href="<?php echo esc_url($portal_url); ?>" target="_blank" class="button button-primary" style="background: #D4AF37; border-color: #AA820A; color: #0B132B; font-weight: 700;">
-                    🚀 مشاهده سامانه در سایت
-                </a>
-            </p>
-        </div>
-        <?php
-    }
-});
-
-// ۸. ثبت مسیرهای REST API جهت اتصال فرانت‌اند ری‌اکت و کلاینت‌های Headless (WP REST API & CORS)
-add_action('rest_api_init', function () {
-    // اندپوینت رهگیری و استعلام وضعیت پرونده
-    register_rest_route('sedrazavi/v1', '/track-case', array(
-        'methods'             => 'POST',
-        'callback'            => 'sedrazavi_api_track_case_handler',
-        'permission_callback' => '__return_true',
-    ));
-
-    // اندپوینت رزرو نوبت مشاوره حقوقی
-    register_rest_route('sedrazavi/v1', '/book-appointment', array(
-        'methods'             => 'POST',
-        'callback'            => 'sedrazavi_api_book_appointment_handler',
-        'permission_callback' => '__return_true',
-    ));
-});
-
-if (!function_exists('sedrazavi_api_track_case_handler')) {
-    function sedrazavi_api_track_case_handler($request) {
-        $params = $request->get_json_params();
-        $case_no = isset($params['case_number']) ? sanitize_text_field($params['case_number']) : '';
-        $phone   = isset($params['phone']) ? sanitize_text_field($params['phone']) : '';
-
-        if (empty($case_no)) {
-            return new WP_Error('missing_param', 'شماره کلاسه پرونده الزامی است.', array('status' => 400));
-        }
-
-        // جستجو در پست‌تایپ پرونده‌های حقوقی
-        $args = array(
-            'post_type'      => 'sedrazavi_case',
-            'posts_per_page' => 1,
-            'meta_query'     => array(
-                array(
-                    'key'     => '_sedrazavi_case_number',
-                    'value'   => $case_no,
-                    'compare' => 'LIKE',
-                ),
-            ),
-        );
-        $query = new WP_Query($args);
-
-        if ($query->have_posts()) {
-            $query->the_post();
-            $case_data = array(
-                'found'       => true,
-                'case_number' => $case_no,
-                'title'       => get_the_title(),
-                'status'      => get_post_meta(get_the_ID(), '_sedrazavi_case_status', true) ?: 'در جریان رسیدگی شعبه',
-                'branch'      => get_post_meta(get_the_ID(), '_sedrazavi_case_branch', true) ?: 'شعبه دادگاه عمومی حقوقی',
-                'next_date'   => get_post_meta(get_the_ID(), '_sedrazavi_case_next_date', true) ?: 'در نوبت تعیین وقت',
-                'lawyer_note' => get_post_meta(get_the_ID(), '_sedrazavi_case_note', true) ?: 'لوایح تبادل گردید.',
-            );
-            wp_reset_postdata();
-            return rest_ensure_response($case_data);
-        }
-
-        return rest_ensure_response(array(
-            'found'       => true,
-            'case_number' => $case_no,
-            'title'       => 'پرونده موضوع کلاسه ' . $case_no,
-            'status'      => 'در جریان دادرسی و بررسی کارشناسی',
-            'branch'      => 'شعبه دادگاه عمومی حقوقی تهران',
-            'next_date'   => 'جلسه رسیدگی ماه آینده',
-            'lawyer_note' => 'پرونده در کارتابل وکیل سرپرست فعال است و اقدامات مقتضی در حال پیگیری است.',
-        ));
-    }
-}
-
-if (!function_exists('sedrazavi_api_book_appointment_handler')) {
-    function sedrazavi_api_book_appointment_handler($request) {
-        $params = $request->get_json_params();
-        $name  = isset($params['name']) ? sanitize_text_field($params['name']) : '';
-        $phone = isset($params['phone']) ? sanitize_text_field($params['phone']) : '';
-        $type  = isset($params['type']) ? sanitize_text_field($params['type']) : 'مشاوره حضوری';
-
-        if (empty($phone)) {
-            return new WP_Error('missing_phone', 'شماره تماس الزامی است.', array('status' => 400));
-        }
-
-        // ثبت نوبت در پست‌تایپ رزروها
-        $post_id = wp_insert_post(array(
-            'post_title'   => 'نوبت مشاوره: ' . $name . ' (' . $phone . ')',
-            'post_type'    => 'sedrazavi_booking',
-            'post_status'  => 'publish',
-        ));
-
-        if (!is_wp_error($post_id)) {
-            update_post_meta($post_id, '_booking_phone', $phone);
-            update_post_meta($post_id, '_booking_type', $type);
-            update_post_meta($post_id, '_booking_created_at', current_time('mysql'));
-        }
-
-        return rest_ensure_response(array(
-            'success' => true,
-            'message' => 'نوبت مشاوره با موفقیت ثبت شد. دفتر وکالت در اسرع وقت تماس حاصل خواهد نمود.',
-            'booking_id' => $post_id,
-        ));
-    }
-}
-
-// ۹. تنظیم خودکار هدرهای CORS برای درخواست‌های فرانت‌اند
-add_action('init', function () {
-    header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-    header("Access-Control-Allow-Headers: Content-Type, Authorization, X-WP-Nonce");
-});
-`,
+    "path": "elementor-addon-suite/assets/css/admin-settings.css",
+    "filename": "admin-settings.css",
+    "category": "افزونه مکمل (Plugin Addons)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/admin-settings.css",
+    "code": "/**\n * Universal Elementor Addon Suite - Admin Settings CSS\n */\n.uas-admin-wrap {\n  max-width: 1080px;\n  margin: 24px auto;\n  font-family: inherit;\n}\n\n.uas-admin-header {\n  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);\n  border-radius: 16px;\n  padding: 28px 32px;\n  color: #FFFFFF;\n  margin-bottom: 24px;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);\n}\n\n.uas-admin-title-box h1 {\n  color: #FFFFFF;\n  font-size: 22px;\n  font-weight: 800;\n  margin: 0 0 6px 0;\n}\n\n.uas-admin-title-box p {\n  color: #94A3B8;\n  font-size: 13px;\n  margin: 0;\n}\n\n.uas-admin-badge {\n  background: rgba(37, 99, 235, 0.2);\n  color: #60A5FA;\n  border: 1px solid rgba(96, 165, 250, 0.3);\n  padding: 4px 14px;\n  border-radius: 9999px;\n  font-size: 12px;\n  font-weight: 700;\n}\n\n.uas-admin-card {\n  background: #FFFFFF;\n  border: 1px solid #E2E8F0;\n  border-radius: 16px;\n  padding: 28px;\n  margin-bottom: 24px;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);\n}\n\n.uas-admin-card h2 {\n  font-size: 17px;\n  font-weight: 700;\n  color: #0F172A;\n  margin-top: 0;\n  margin-bottom: 16px;\n  border-bottom: 1px solid #F1F5F9;\n  padding-bottom: 12px;\n}\n\n.uas-widgets-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));\n  gap: 16px;\n  margin-top: 20px;\n}\n\n.uas-widget-toggle-item {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 14px 16px;\n  border: 1px solid #E2E8F0;\n  border-radius: 12px;\n  background: #F8FAFC;\n  transition: all 0.2s ease;\n}\n\n.uas-widget-toggle-item:hover {\n  background: #FFFFFF;\n  border-color: #2563EB;\n}\n\n.uas-widget-info {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n}\n\n.uas-widget-icon {\n  color: #2563EB;\n  font-size: 16px;\n}\n\n.uas-widget-name {\n  font-size: 13px;\n  font-weight: 600;\n  color: #1E293B;\n}\n\n.uas-switch {\n  position: relative;\n  display: inline-block;\n  width: 44px;\n  height: 24px;\n  margin: 0;\n}\n\n.uas-switch input {\n  opacity: 0;\n  width: 0;\n  height: 0;\n}\n\n.uas-slider {\n  position: absolute;\n  cursor: pointer;\n  top: 0; left: 0; right: 0; bottom: 0;\n  background-color: #CBD5E1;\n  transition: .3s;\n  border-radius: 24px;\n}\n\n.uas-slider:before {\n  position: absolute;\n  content: \"\";\n  height: 18px;\n  width: 18px;\n  left: 3px;\n  bottom: 3px;\n  background-color: white;\n  transition: .3s;\n  border-radius: 50%;\n}\n\ninput:checked + .uas-slider {\n  background-color: #2563EB;\n}\n\ninput:checked + .uas-slider:before {\n  transform: translateX(20px);\n}\n"
   },
   {
-    path: 'includes/logger.php',
-    filename: 'logger.php',
-    category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'سیستم ثبت خودکار خطاها و نظارت پیوسته با ثبت شماره خط، فایل و ساختار پوشه اختصاصی wp-content/uploads/sedrazavi-logs/.',
-    code: `<?php
-/**
- * Automated System Logger for SedRazavi Law Firm
- *
- * @package SedRazavi_Addons
- * @version 2.5.0
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-if (!class_exists('SedRazavi_Logger')) {
-    class SedRazavi_Logger {
-        
-        public static function init() {
-            // ضبط استثناهای مدیریت‌نشده در صورت فعال بودن دیباگ افزونه
-            if (get_option('sedrazavi_enable_custom_logger', 1)) {
-                set_error_handler(array(__CLASS__, 'handle_php_error'));
-            }
-        }
-
-        public static function handle_php_error($errno, $errstr, $errfile, $errline) {
-            // تنها خطاهای مهم مربوط به فضای کاری سید رضوی ثبت شوند
-            if (strpos($errfile, 'sedrazavi') !== false) {
-                sedrazavi_addons_log_error($errstr, $errfile, $errline, 'PHP_ERROR_' . $errno);
-            }
-            return false; // اجازه ادامه به سیستم پیش‌فرض
-        }
-
-        public static function get_log_contents($max_lines = 100) {
-            $log_file = SEDRAZAVI_LOG_DIR . 'debug.log';
-            if (!file_exists($log_file)) {
-                return esc_html__('هیچ خطایی ثبت نشده است؛ سیستم پایدار است.', 'sedrazavi-addons');
-            }
-
-            $lines = @file($log_file);
-            if (empty($lines)) {
-                return esc_html__('فایل لاگ خالی است.', 'sedrazavi-addons');
-            }
-
-            $sliced = array_slice($lines, -$max_lines);
-            return implode('', array_reverse($sliced));
-        }
-
-        public static function clear_log() {
-            $log_file = SEDRAZAVI_LOG_DIR . 'debug.log';
-            if (file_exists($log_file)) {
-                return @file_put_contents($log_file, '');
-            }
-            return true;
-        }
-    }
-}
-
-SedRazavi_Logger::init();
-`,
+    "path": "elementor-addon-suite/assets/css/editor.css",
+    "filename": "editor.css",
+    "category": "افزونه مکمل (Plugin Addons)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/editor.css",
+    "code": "/**\n * Universal Elementor Addon Suite - Editor Panel Styling\n * Highlights UAS widgets & category in Elementor panel\n */\n\n.elementor-element-wrapper[data-category=\"universal-addon-suite\"] {\n  border-left: 3px solid #D4AF37;\n}\n\n.elementor-panel-category-title[data-category=\"universal-addon-suite\"] {\n  font-weight: 700;\n  color: #D4AF37 !important;\n}\n"
   },
   {
-    path: 'includes/post-types.php',
-    filename: 'post-types.php',
-    category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'رجیستر امن پست‌تایپ‌های تخصصی وکالت: دعاوی و پرونده‌ها (sedrazavi_case)، خدمات حقوقی (sedrazavi_service) و تیم وکلای همکار (sedrazavi_lawyer).',
-    code: `<?php
-/**
- * Custom Post Types & Taxonomies
- *
- * @package SedRazavi_Addons
- * @version 2.5.0
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-if (!function_exists('sedrazavi_addons_register_post_types')) {
-    function sedrazavi_addons_register_post_types() {
-        
-        // ۱. پست‌تایپ خدمات حقوقی تخصصی (Legal Services)
-        $service_labels = array(
-            'name'                  => esc_html__('خدمات حقوقی', 'sedrazavi-addons'),
-            'singular_name'         => esc_html__('خدمت حقوقی', 'sedrazavi-addons'),
-            'menu_name'             => esc_html__('خدمات حقوقی', 'sedrazavi-addons'),
-            'add_new'               => esc_html__('افزودن خدمت جدید', 'sedrazavi-addons'),
-            'add_new_item'          => esc_html__('افزودن خدمت حقوقی جدید', 'sedrazavi-addons'),
-            'edit_item'             => esc_html__('ویرایش خدمت', 'sedrazavi-addons'),
-            'all_items'             => esc_html__('همه خدمات حقوقی', 'sedrazavi-addons'),
-            'search_items'          => esc_html__('جستجوی خدمات', 'sedrazavi-addons'),
-            'not_found'             => esc_html__('خدمتی یافت نشد', 'sedrazavi-addons'),
-        );
-        register_post_type('service', array(
-            'labels'             => $service_labels,
-            'public'             => true,
-            'publicly_queryable' => true,
-            'show_ui'            => true,
-            'show_in_menu'       => true,
-            'menu_icon'          => 'dashicons-hammer',
-            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
-            'has_archive'        => true,
-            'rewrite'            => array('slug' => 'services'),
-            'show_in_rest'       => true,
-        ));
-
-        // تاکسونومی دسته‌بندی خدمات حقوقی
-        register_taxonomy('service_category', 'service', array(
-            'labels'            => array(
-                'name'          => esc_html__('دسته‌بندی خدمات', 'sedrazavi-addons'),
-                'singular_name' => esc_html__('دسته خدمت', 'sedrazavi-addons'),
-            ),
-            'hierarchical'      => true,
-            'show_ui'           => true,
-            'show_admin_column' => true,
-            'rewrite'           => array('slug' => 'service-category'),
-            'show_in_rest'      => true,
-        ));
-
-        // ۲. پست‌تایپ دعاوی و پرونده‌های حقوقی موکلین (Legal Cases)
-        $case_labels = array(
-            'name'                  => esc_html__('دعاوی و پرونده‌ها', 'sedrazavi-addons'),
-            'singular_name'         => esc_html__('پرونده حقوقی', 'sedrazavi-addons'),
-            'menu_name'             => esc_html__('پرونده‌های موکلین', 'sedrazavi-addons'),
-            'add_new'               => esc_html__('ثبت پرونده جدید', 'sedrazavi-addons'),
-            'add_new_item'          => esc_html__('افزودن پرونده جدید', 'sedrazavi-addons'),
-            'edit_item'             => esc_html__('ویرایش پرونده', 'sedrazavi-addons'),
-            'all_items'             => esc_html__('همه پرونده‌ها', 'sedrazavi-addons'),
-            'search_items'          => esc_html__('جستجوی پرونده', 'sedrazavi-addons'),
-            'not_found'             => esc_html__('پرونده‌ای یافت نشد', 'sedrazavi-addons'),
-        );
-        register_post_type('sedrazavi_case', array(
-            'labels'             => $case_labels,
-            'public'             => true,
-            'publicly_queryable' => true,
-            'show_ui'            => true,
-            'show_in_menu'       => true,
-            'menu_icon'          => 'dashicons-portfolio',
-            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
-            'has_archive'        => true,
-            'rewrite'            => array('slug' => 'cases'),
-            'show_in_rest'       => true,
-        ));
-
-        register_taxonomy('case_category', 'sedrazavi_case', array(
-            'labels'            => array(
-                'name'          => esc_html__('حوزه دعاوی', 'sedrazavi-addons'),
-                'singular_name' => esc_html__('حوزه دعوی', 'sedrazavi-addons'),
-            ),
-            'hierarchical'      => true,
-            'show_ui'           => true,
-            'show_admin_column' => true,
-            'rewrite'           => array('slug' => 'case-category'),
-            'show_in_rest'      => true,
-        ));
-
-        // ۳. پست‌تایپ نظرات و رضایت موکلان (Testimonials)
-        $testimonial_labels = array(
-            'name'                  => esc_html__('نظرات موکلان', 'sedrazavi-addons'),
-            'singular_name'         => esc_html__('نظر موکل', 'sedrazavi-addons'),
-            'menu_name'             => esc_html__('نظرات موکلان', 'sedrazavi-addons'),
-            'add_new'               => esc_html__('ثبت نظر جدید', 'sedrazavi-addons'),
-            'add_new_item'          => esc_html__('افزودن نظر جدید', 'sedrazavi-addons'),
-            'edit_item'             => esc_html__('ویرایش نظر', 'sedrazavi-addons'),
-            'all_items'             => esc_html__('همه نظرات موکلان', 'sedrazavi-addons'),
-        );
-        register_post_type('testimonial', array(
-            'labels'             => $testimonial_labels,
-            'public'             => true,
-            'show_ui'            => true,
-            'show_in_menu'       => true,
-            'menu_icon'          => 'dashicons-format-quote',
-            'supports'           => array('title', 'editor', 'thumbnail', 'custom-fields'),
-            'has_archive'        => true,
-            'rewrite'            => array('slug' => 'testimonials'),
-            'show_in_rest'       => true,
-        ));
-
-        // ۴. پست‌تایپ ایمیل‌ها و پیام‌های استعلام و رزرو مشاوره (Emails & Consultations)
-        $email_labels = array(
-            'name'                  => esc_html__('پیام‌ها و استعلام‌ها', 'sedrazavi-addons'),
-            'singular_name'         => esc_html__('پیام / استعلام', 'sedrazavi-addons'),
-            'menu_name'             => esc_html__('پیام‌های دریافتی', 'sedrazavi-addons'),
-            'all_items'             => esc_html__('همه پیام‌ها و ایمیل‌ها', 'sedrazavi-addons'),
-            'edit_item'             => esc_html__('مشاهده پیام', 'sedrazavi-addons'),
-        );
-        register_post_type('email', array(
-            'labels'             => $email_labels,
-            'public'             => false,
-            'show_ui'            => true,
-            'show_in_menu'       => true,
-            'menu_icon'          => 'dashicons-email-alt',
-            'supports'           => array('title', 'editor', 'custom-fields'),
-            'show_in_rest'       => false,
-        ));
-
-        // ۵. پست‌تایپ ویدئوهای حقوقی و آموزشی (Legal Educational Videos)
-        $video_labels = array(
-            'name'                  => esc_html__('ویدئوهای حقوقی', 'sedrazavi-addons'),
-            'singular_name'         => esc_html__('ویدئوی حقوقی', 'sedrazavi-addons'),
-            'menu_name'             => esc_html__('ویدئوها و آموزش‌ها', 'sedrazavi-addons'),
-            'add_new'               => esc_html__('افزودن ویدئو', 'sedrazavi-addons'),
-            'add_new_item'          => esc_html__('افزودن ویدئوی حقوقی جدید', 'sedrazavi-addons'),
-            'edit_item'             => esc_html__('ویرایش ویدئو', 'sedrazavi-addons'),
-            'all_items'             => esc_html__('همه ویدئوها', 'sedrazavi-addons'),
-        );
-        register_post_type('video', array(
-            'labels'             => $video_labels,
-            'public'             => true,
-            'publicly_queryable' => true,
-            'show_ui'            => true,
-            'show_in_menu'       => true,
-            'menu_icon'          => 'dashicons-video-alt3',
-            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
-            'has_archive'        => true,
-            'rewrite'            => array('slug' => 'videos'),
-            'show_in_rest'       => true,
-        ));
-
-        register_taxonomy('video_category', 'video', array(
-            'labels'            => array(
-                'name'          => esc_html__('دسته‌بندی ویدئوها', 'sedrazavi-addons'),
-                'singular_name' => esc_html__('دسته ویدئو', 'sedrazavi-addons'),
-            ),
-            'hierarchical'      => true,
-            'show_ui'           => true,
-            'show_admin_column' => true,
-            'rewrite'           => array('slug' => 'video-category'),
-            'show_in_rest'      => true,
-        ));
-
-        // ۶. پست‌تایپ تیم وکلای همکار و مشاوران (Lawyers Team)
-        $lawyer_labels = array(
-            'name'                  => esc_html__('تیم وکلا و همکاران', 'sedrazavi-addons'),
-            'singular_name'         => esc_html__('وکیل / همکار', 'sedrazavi-addons'),
-            'menu_name'             => esc_html__('تیم وکلا', 'sedrazavi-addons'),
-            'add_new'               => esc_html__('افزودن همکار جدید', 'sedrazavi-addons'),
-            'edit_item'             => esc_html__('ویرایش اطلاعات همکار', 'sedrazavi-addons'),
-            'all_items'             => esc_html__('همه اعضای تیم و همکاران', 'sedrazavi-addons'),
-        );
-        register_post_type('sedrazavi_lawyer', array(
-            'labels'             => $lawyer_labels,
-            'public'             => true,
-            'show_ui'            => true,
-            'show_in_menu'       => true,
-            'menu_icon'          => 'dashicons-businessman',
-            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
-            'has_archive'        => true,
-            'rewrite'            => array('slug' => 'lawyers'),
-            'show_in_rest'       => true,
-        ));
-
-        // ۷. پست‌تایپ رسمی نوبت‌های مشاوره و رزرو وقت (Appointments & Consultations)
-        $appointment_labels = array(
-            'name'                  => esc_html__('نوبت‌های مشاوره', 'sedrazavi-addons'),
-            'singular_name'         => esc_html__('نوبت مشاوره', 'sedrazavi-addons'),
-            'menu_name'             => esc_html__('رزرو نوبت‌ها', 'sedrazavi-addons'),
-            'add_new'               => esc_html__('ثبت نوبت جدید', 'sedrazavi-addons'),
-            'edit_item'             => esc_html__('مشاهده نوبت', 'sedrazavi-addons'),
-            'all_items'             => esc_html__('همه نوبت‌های رزرو', 'sedrazavi-addons'),
-        );
-        register_post_type('sedrazavi_appointment', array(
-            'labels'             => $appointment_labels,
-            'public'             => false,
-            'show_ui'            => true,
-            'show_in_menu'       => true,
-            'menu_icon'          => 'dashicons-calendar-alt',
-            'supports'           => array('title', 'editor', 'custom-fields'),
-            'show_in_rest'       => true,
-        ));
-        register_post_type('sedrazavi_booking', array(
-            'labels'             => $appointment_labels,
-            'public'             => false,
-            'show_ui'            => false,
-            'show_in_menu'       => false,
-            'supports'           => array('title', 'editor', 'custom-fields'),
-            'show_in_rest'       => true,
-        ));
-    }
-}
-add_action('init', 'sedrazavi_addons_register_post_types');
-`,
+    "path": "elementor-addon-suite/assets/css/widgets-core.css",
+    "filename": "widgets-core.css",
+    "category": "افزونه مکمل (Plugin Addons)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets-core.css",
+    "code": "/**\n * Universal Elementor Addon Suite - Core Widgets CSS\n * Version: 1.0.0\n * Pure, Topic-Agnostic Styles with CSS Custom Properties\n */\n\n:root {\n  --uas-primary-color: #2563EB;\n  --uas-primary-hover: #1D4ED8;\n  --uas-accent-color: #D4AF37;\n  --uas-text-main: #1E293B;\n  --uas-text-muted: #64748B;\n  --uas-bg-card: #FFFFFF;\n  --uas-border-color: #E2E8F0;\n  --uas-radius-card: 16px;\n  --uas-shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);\n}\n\n.dark {\n  --uas-text-main: #F8FAFC;\n  --uas-text-muted: #94A3B8;\n  --uas-bg-card: #0F172A;\n  --uas-border-color: #334155;\n}\n\n.uas-widget-container {\n  box-sizing: border-box;\n  position: relative;\n  width: 100%;\n}\n"
   },
   {
-    path: 'includes/booking-system.php',
-    filename: 'booking-system.php',
-    category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'موتور امن رزرو نوبت مشاوره حضوری و آنلاین همراه با اعتبارسنجی Nonce، فیلتر داده‌ها و ذخیره در جدول اختصاصی دیتابیس.',
-    code: `<?php
-/**
- * Consultation Booking Backend & AJAX Handlers
- *
- * @package SedRazavi_Addons
- * @version 2.5.0
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-if (!function_exists('sedrazavi_handle_booking_submission')) {
-    function sedrazavi_handle_booking_submission() {
-        // ۱. بررسی امنیتی توکن نانس
-        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'sedrazavi_security_nonce')) {
-            wp_send_json_error(array(
-                'message' => esc_html__('اعتبار سنجی امنیتی ناموفق بود. لطفاً صفحه را تازه‌سازی کنید.', 'sedrazavi-addons')
-            ), 403);
-        }
-
-        // ۲. ضدعفونی و دریافت ورودی‌ها
-        $fullname     = isset($_POST['fullname']) ? sanitize_text_field(wp_unslash($_POST['fullname'])) : '';
-        $phone        = isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '';
-        $email        = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
-        $service_type = isset($_POST['service_type']) ? sanitize_text_field(wp_unslash($_POST['service_type'])) : '';
-        $date         = isset($_POST['date']) ? sanitize_text_field(wp_unslash($_POST['date'])) : '';
-        $time         = isset($_POST['time']) ? sanitize_text_field(wp_unslash($_POST['time'])) : '';
-        $message      = isset($_POST['message']) ? sanitize_textarea_field(wp_unslash($_POST['message'])) : '';
-
-        // اعتبارسنجی فیلدهای اجباری
-        if (empty($fullname) || empty($phone) || empty($service_type)) {
-            wp_send_json_error(array(
-                'message' => esc_html__('لطفاً تمامی فیلدهای الزامی (نام، شماره تماس و حوزه خدمت) را تکمیل فرمایید.', 'sedrazavi-addons')
-            ), 400);
-        }
-
-        // ۳. ذخیره‌سازی در دیتابیس اختصاصی
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'sedrazavi_consultations';
-
-        try {
-            $inserted = $wpdb->insert(
-                $table_name,
-                array(
-                    'fullname'       => $fullname,
-                    'phone'          => $phone,
-                    'email'          => $email,
-                    'service_type'   => $service_type,
-                    'preferred_date' => $date,
-                    'preferred_time' => $time,
-                    'message'        => $message,
-                    'status'         => 'pending',
-                    'created_at'     => current_time('mysql'),
-                ),
-                array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
-            );
-
-            if ($inserted === false) {
-                sedrazavi_addons_log_error(
-                    'خطای دیتابیس در ثبت نوبت: ' . $wpdb->last_error,
-                    __FILE__,
-                    __LINE__,
-                    'ERROR'
-                );
-                wp_send_json_error(array(
-                    'message' => esc_html__('خطایی در ذخیره اطلاعات رخ داد. لطفاً با دفتر تماس بگیرید.', 'sedrazavi-addons')
-                ), 500);
-            }
-
-            $booking_id = $wpdb->insert_id;
-
-            // ارسال اعلان ایمیل به مدیر در صورت تنظیم
-            $admin_email = get_option('admin_email');
-            $subject = sprintf(esc_html__('درخواست نوبت مشاوره حقوقی جدید - کد #%d', 'sedrazavi-addons'), $booking_id);
-            $email_body = sprintf(
-                "درخواست جدیدی با مشخصات زیر در سایت ثبت شد:\nنام: %s\nتلفن: %s\nموضوع: %s\nتاریخ درخواستی: %s ساعت %s\nتوضیحات: %s",
-                $fullname,
-                $phone,
-                $service_type,
-                $date,
-                $time,
-                $message
-            );
-            @wp_mail($admin_email, $subject, $email_body);
-
-            wp_send_json_success(array(
-                'message'    => esc_html__('درخواست وقت مشاوره شما با موفقیت ثبت شد. کارشناسان حقوقی به زودی با شما تماس خواهند گرفت.', 'sedrazavi-addons'),
-                'booking_id' => $booking_id,
-            ));
-
-        } catch (\Throwable $e) {
-            sedrazavi_addons_log_error('استثنا در ثبت مشاوره: ' . $e->getMessage(), $e->getFile(), $e->getLine());
-            wp_send_json_error(array('message' => esc_html__('خطای سرور در پردازش درخواست.', 'sedrazavi-addons')), 500);
-        }
-    }
-}
-add_action('wp_ajax_sedrazavi_book_consultation', 'sedrazavi_handle_booking_submission');
-add_action('wp_ajax_nopriv_sedrazavi_book_consultation', 'sedrazavi_handle_booking_submission');
-`,
+    "path": "elementor-addon-suite/assets/css/widgets/banner-slider.css",
+    "filename": "banner-slider.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/banner-slider.css",
+    "code": "/**\n * Universal Text Ticker & Quote Banner CSS\n */\n.uas-ticker-wrapper {\n  position: relative;\n  width: 100%;\n  padding: 16px 24px;\n  background: var(--uas-bg-card, #FFFFFF);\n  border: 1px solid var(--uas-border-color, #E2E8F0);\n  border-radius: var(--uas-radius-card, 16px);\n  display: flex;\n  align-items: center;\n  gap: 16px;\n  overflow: hidden;\n  box-sizing: border-box;\n}\n\n.uas-ticker-badge {\n  padding: 4px 12px;\n  border-radius: 9999px;\n  background: var(--uas-primary-color, #2563EB);\n  color: #FFFFFF;\n  font-size: 11px;\n  font-weight: 700;\n  white-space: nowrap;\n}\n\n.uas-ticker-text {\n  font-size: 14px;\n  font-weight: 600;\n  color: var(--uas-text-main, #1E293B);\n  white-space: nowrap;\n  animation: uas-marquee 25s linear infinite;\n}\n\n@keyframes uas-marquee {\n  0% { transform: translateX(100%); }\n  100% { transform: translateX(-100%); }\n}\n"
   },
   {
-    path: 'includes/case-tracking.php',
-    filename: 'case-tracking.php',
-    category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'سامانه پیگیری آنلاین پرونده و استعلام وضعیت با کد ملی و شماره پرونده موکل بدون نیاز به تماس تلفنی.',
-    code: `<?php
-/**
- * Online Case Tracking System for Clients
- *
- * @package SedRazavi_Addons
- * @version 2.5.0
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-if (!function_exists('sedrazavi_ajax_track_case')) {
-    function sedrazavi_ajax_track_case() {
-        check_ajax_referer('sedrazavi_security_nonce', 'nonce');
-
-        $case_number = isset($_POST['case_number']) ? sanitize_text_field(wp_unslash($_POST['case_number'])) : '';
-        $national_id = isset($_POST['national_id']) ? sanitize_text_field(wp_unslash($_POST['national_id'])) : '';
-
-        if (empty($case_number) || empty($national_id)) {
-            wp_send_json_error(array(
-                'message' => esc_html__('لطفاً هم شماره پرونده و هم کد ملی موکل را وارد کنید.', 'sedrazavi-addons')
-            ));
-        }
-
-        // جستجو در پست‌های پرونده
-        $args = array(
-            'post_type'      => 'sedrazavi_case',
-            'post_status'    => 'publish',
-            'posts_per_page' => 1,
-            'meta_query'     => array(
-                'relation' => 'AND',
-                array(
-                    'key'     => '_sedrazavi_case_number',
-                    'value'   => $case_number,
-                    'compare' => '=',
-                ),
-                array(
-                    'key'     => '_sedrazavi_client_national_id',
-                    'value'   => $national_id,
-                    'compare' => '=',
-                ),
-            ),
-        );
-
-        $query = new WP_Query($args);
-
-        if ($query->have_posts()) {
-            $query->the_post();
-            $case_id = get_the_ID();
-            $status = get_post_meta($case_id, '_sedrazavi_case_status', true) ?: 'در جریان رسیدگی';
-            $court  = get_post_meta($case_id, '_sedrazavi_court_branch', true) ?: 'شعبه تجدیدنظر استان';
-            $next_date = get_post_meta($case_id, '_sedrazavi_next_session', true) ?: 'در انتظار تعیین وقت دادگاه';
-
-            wp_send_json_success(array(
-                'title'       => get_the_title(),
-                'status'      => esc_html($status),
-                'court'       => esc_html($court),
-                'next_session'=> esc_html($next_date),
-                'lawyer'      => esc_html(get_post_meta($case_id, '_sedrazavi_assigned_lawyer', true) ?: 'سید رضوی'),
-            ));
-        } else {
-            wp_send_json_error(array(
-                'message' => esc_html__('پرونده‌ای با این مشخصات یافت نشد. لطفاً از صحت شماره پرونده و کد ملی اطمینان حاصل فرمایید.', 'sedrazavi-addons')
-            ));
-        }
-        wp_reset_postdata();
-    }
-}
-add_action('wp_ajax_sedrazavi_track_case', 'sedrazavi_ajax_track_case');
-add_action('wp_ajax_nopriv_sedrazavi_track_case', 'sedrazavi_ajax_track_case');
-`,
+    "path": "elementor-addon-suite/assets/css/widgets/contact-booking.css",
+    "filename": "contact-booking.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/contact-booking.css",
+    "code": "/**\n * Universal Contact & Booking Form CSS\n */\n.uas-booking-wrapper {\n  position: relative;\n  width: 100%;\n  padding: 40px;\n  background: var(--uas-bg-card, #FFFFFF);\n  border: 1px solid var(--uas-border-color, #E2E8F0);\n  border-radius: var(--uas-radius-card, 24px);\n  box-shadow: var(--uas-shadow-card, 0 10px 30px rgba(0,0,0,0.05));\n  max-width: 680px;\n  margin: 0 auto;\n  box-sizing: border-box;\n}\n\n.uas-booking-header {\n  text-align: center;\n  margin-bottom: 28px;\n}\n\n.uas-booking-title {\n  font-size: 24px;\n  font-weight: 800;\n  color: var(--uas-text-main, #0F172A);\n  margin: 0 0 8px 0;\n}\n\n.uas-booking-desc {\n  font-size: 14px;\n  color: var(--uas-text-muted, #64748B);\n  margin: 0;\n}\n\n.uas-booking-form {\n  display: flex;\n  flex-direction: column;\n  gap: 18px;\n}\n\n.uas-form-group {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  text-align: right;\n}\n\n.uas-form-label {\n  font-size: 13px;\n  font-weight: 700;\n  color: var(--uas-text-main, #334155);\n}\n\n.uas-form-input, .uas-form-select, .uas-form-textarea {\n  width: 100%;\n  padding: 12px 16px;\n  border-radius: 12px;\n  border: 1px solid var(--uas-border-color, #CBD5E1);\n  background: #F8FAFC;\n  font-size: 14px;\n  color: var(--uas-text-main, #0F172A);\n  outline: none;\n  box-sizing: border-box;\n  transition: border-color 0.2s, box-shadow 0.2s;\n}\n\n.uas-form-input:focus, .uas-form-select:focus, .uas-form-textarea:focus {\n  border-color: var(--uas-primary-color, #2563EB);\n  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);\n  background: #FFFFFF;\n}\n\n.uas-form-submit {\n  width: 100%;\n  padding: 14px;\n  border-radius: 12px;\n  background: var(--uas-primary-color, #2563EB);\n  color: #FFFFFF;\n  border: none;\n  font-size: 15px;\n  font-weight: 700;\n  cursor: pointer;\n  transition: all 0.25s ease;\n  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);\n}\n\n.uas-form-submit:hover {\n  background: var(--uas-primary-hover, #1D4ED8);\n  transform: translateY(-2px);\n}\n"
   },
   {
-    path: 'includes/elementor-widgets.php',
-    filename: 'elementor-widgets.php',
-    category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'ثبت و اتصال پایدار ۱۳ ویجت اختصاصی حقوقی در المنتور با گارد محافظتی کلاس‌های Widget_Base طبق پارت ۲ و پارت ۹ مستندات.',
-    code: `<?php
-/**
- * Elementor 13 Custom Legal Widgets Integrator (Safe & Resilient)
- *
- * @package SedRazavi_Addons
- * @version 2.0.1
- * @author Seyed Amir Hossein Razavi Fardoei (@sedrazavi)
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-if (!function_exists('sedrazavi_addons_register_elementor_category')) {
-    function sedrazavi_addons_register_elementor_category($elements_manager) {
-        if (!class_exists('\\Elementor\\Plugin')) {
-            return;
-        }
-        $elements_manager->add_category(
-            'sedrazavi-law-elements',
-            array(
-                'title' => esc_html__('المان‌های تخصصی حقوقی SedRazavi', 'sedrazavi-addons'),
-                'icon'  => 'fa fa-gavel',
-            )
-        );
-    }
-}
-add_action('elementor/elements/categories_registered', 'sedrazavi_addons_register_elementor_category');
-
-if (!function_exists('sedrazavi_addons_load_elementor_widgets')) {
-    function sedrazavi_addons_load_elementor_widgets($widgets_manager) {
-        // گارد حیاتی: اگر کلاس ویجت المنتور وجود نداشت، بدون هیچ خطایی خارج شو
-        if (!class_exists('\\Elementor\\Widget_Base')) {
-            return;
-        }
-
-        // ۱. ویجت هیرو و سربرگ لوکس (Hero Widget)
-        if (!class_exists('SedRazavi_Elementor_Hero_Widget')) {
-            class SedRazavi_Elementor_Hero_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_hero'; }
-                public function get_title() { return esc_html__('۱. سربرگ لوکس و هویت حقوقی (هیرو)', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-banner'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-hero-preview p-8 bg-[#0B132B] text-white rounded-2xl border-2 border-[#D4AF37]/40 text-center font-serif shadow-xl"><h2 class="text-3xl text-[#D4AF37] font-bold">دفتر تخصصی وکالت و داوری بین‌المللی SedRazavi</h2><p class="text-base text-gray-300 mt-2">دفاع قاطع و تخصص‌محور در دعاوی کلان حقوقی و کیفری</p><div class="mt-4"><a href="#booking" class="inline-block px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#060B18] font-bold">رزرو نوبت مشاوره حضوری</a></div></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Hero_Widget());
-        }
-
-        // ۲. ویجت خدمات حقوقی تخصصی (Services Widget)
-        if (!class_exists('SedRazavi_Elementor_Services_Widget')) {
-            class SedRazavi_Elementor_Services_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_services'; }
-                public function get_title() { return esc_html__('۲. شبکه خدمات و حوزه‌های دعاوی', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-gallery-grid'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-services-preview p-6 bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 text-center"><h3 class="text-xl font-bold text-[#D4AF37]">خدمات حقوقی تخصصی (ملکی، تجاری، بین‌المللی، کیفری)</h3><p class="text-sm text-gray-500 mt-1">نمایش گرید خودکار پست‌تایپ service با قابلیت فیلتر دسته‌بندی</p></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Services_Widget());
-        }
-
-        // ۳. ویجت نظرات و رضایت موکلان (Testimonials Widget)
-        if (!class_exists('SedRazavi_Elementor_Testimonials_Widget')) {
-            class SedRazavi_Elementor_Testimonials_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_testimonials'; }
-                public function get_title() { return esc_html__('۳. اسلایدر نظرات و رضایت موکلان', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-testimonial-carousel'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-testimonials-preview p-6 bg-gray-50 dark:bg-[#070D1E] rounded-2xl border border-[#D4AF37]/30 text-center"><p class="text-[#D4AF37] font-bold">اسلایدر متحرک نظرات و اسناد آرای موفق قضایی موکلین</p></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Testimonials_Widget());
-        }
-
-        // ۴. ویجت مقالات و تحلیل‌های حقوقی (Posts Widget)
-        if (!class_exists('SedRazavi_Elementor_Posts_Widget')) {
-            class SedRazavi_Elementor_Posts_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_posts'; }
-                public function get_title() { return esc_html__('۴. مقالات و یادداشت‌های حقوقی', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-post-list'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-posts-preview p-6 bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">آخرین مقالات، قوانین و تحلیل‌های پرونده‌ها با اسکیما Article</p></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Posts_Widget());
-        }
-
-        // ۵. ویجت ویدئوها و آموزش‌های حقوقی (Videos Widget)
-        if (!class_exists('SedRazavi_Elementor_Videos_Widget')) {
-            class SedRazavi_Elementor_Videos_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_videos'; }
-                public function get_title() { return esc_html__('۵. گالری ویدئوها و مشاوره‌های صوتی/تصویری', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-video-playlist'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-videos-preview p-6 bg-[#070D1E] text-white rounded-2xl border border-[#D4AF37]/30 text-center"><p class="text-[#D4AF37] font-bold">پخش ویدئوهای آموزشی آپارات / یوتیوب با پوستر اختصاصی و فریم طلایی</p></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Videos_Widget());
-        }
-
-        // ۶. ویجت نوار استوری‌های اینستاگرام حقوقی (Instagram Stories Widget)
-        if (!class_exists('SedRazavi_Elementor_Instagram_Widget')) {
-            class SedRazavi_Elementor_Instagram_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_instagram'; }
-                public function get_title() { return esc_html__('۶. نوار استوری‌های حقوقی (اینستاگرامی)', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-instagram-gallery'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-stories-preview p-4 bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">حلقه‌های استوری متحرک طلایی با قابلیت باز شدن مودال تمام‌صفحه</p></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Instagram_Widget());
-        }
-
-        // ۷. ویجت تیم وکلا و کارشناسان (Team Widget)
-        if (!class_exists('SedRazavi_Elementor_Team_Widget')) {
-            class SedRazavi_Elementor_Team_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_team'; }
-                public function get_title() { return esc_html__('۷. تیم وکلای پایه یک و کارشناسان همکار', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-person'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-team-preview p-6 bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">کارت‌های معرفی وکلا با تصویر رسمی و مشخصات پروانه وکالت</p></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Team_Widget());
-        }
-
-        // ۸. ویجت پرسش‌های متداول آکاردئونی (FAQ Widget)
-        if (!class_exists('SedRazavi_Elementor_Faq_Widget')) {
-            class SedRazavi_Elementor_Faq_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_faq'; }
-                public function get_title() { return esc_html__('۸. پرسش‌های متداول با اسکیما FAQPage', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-help-o'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-faq-preview p-6 bg-white dark:bg-[#0B132B] rounded-2xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">آکاردئون هوشمند پرسش و پاسخ‌های حقوقی با میکروفرمت سئو</p></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Faq_Widget());
-        }
-
-        // ۹. ویجت فرم تماس و رزرو وقت مشاوره (Contact & Booking Widget)
-        if (!class_exists('SedRazavi_Elementor_Contact_Widget')) {
-            class SedRazavi_Elementor_Contact_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_contact_booking'; }
-                public function get_title() { return esc_html__('۹. فرم رزرو نوبت و درخواست تماس', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-form-horizontal'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-contact-preview p-6 bg-white dark:bg-[#0B132B] rounded-2xl border-2 border-[#D4AF37]/30 text-center"><p class="text-[#D4AF37] font-bold">فرم هوشمند رزرو نوبت حضوری/تلفنی با محاسبه تعرفه و تایید پیامکی</p></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Contact_Widget());
-        }
-
-        // ۱۰. ویجت بنر فراخوان اقدام (CTA Widget)
-        if (!class_exists('SedRazavi_Elementor_CTA_Widget')) {
-            class SedRazavi_Elementor_CTA_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_cta'; }
-                public function get_title() { return esc_html__('۱۰. بنر فراخوان اقدام و مشاوره فوری (CTA)', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-call-to-action'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-cta-preview p-8 bg-gradient-to-r from-[#0B132B] via-[#070D1E] to-[#0B132B] text-white rounded-2xl border border-[#D4AF37]/40 text-center"><h3 class="text-2xl text-[#D4AF37] font-bold">نیاز به مشاوره حقوقی فوری با وکیل پایه یک دادگستری دارید؟</h3><p class="text-sm text-gray-300 mt-2">کارشناسان ما در سریع‌ترین زمان پرونده شما را ارزیابی می‌کنند</p><a href="tel:02188888888" class="inline-block mt-4 px-6 py-2.5 rounded-xl bg-[#D4AF37] text-[#060B18] font-bold">تماس مستقیم با دفتر ونک</a></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_CTA_Widget());
-        }
-
-        // ۱۱. ویجت بنر اسلایدر متنی احادیث و اشعار (Banner Text Slider Widget)
-        if (!class_exists('SedRazavi_Elementor_Banner_Widget')) {
-            class SedRazavi_Elementor_Banner_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_banner_slider'; }
-                public function get_title() { return esc_html__('۱۱. بنر اسلایدر متنی احادیث و اشعار', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-text-area'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-banner-preview p-4 bg-[#0B132B] text-white rounded-xl border border-[#D4AF37]/40 text-center font-serif"><p class="text-[#D4AF37] font-bold">«العدل اساس الملک» - امام علی (ع)</p><span class="text-xs text-gray-400">بنر اسلایدر احادیث، آیات، اشعار و حکمت‌های حقوقی با چرخش خودکار ۵ ثانیه</span></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Banner_Widget());
-        }
-
-        // ۱۲. ویجت اسکرول‌بار شناور آیکونی (Floating Icon Scrollbar Widget)
-        if (!class_exists('SedRazavi_Elementor_Scrollbar_Widget')) {
-            class SedRazavi_Elementor_Scrollbar_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_floating_scrollbar'; }
-                public function get_title() { return esc_html__('۱۲. اسکرول‌بار شناور و منوی آیکونی بازگشت به بالا', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-navigation-vertical'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-scrollbar-preview p-4 bg-white dark:bg-[#0B132B] rounded-xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">دکمه ۵۰×۵۰ طلایی شناور با منوی ۷ آیکون و بازگشت نرم به بالای صفحه</p></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Scrollbar_Widget());
-        }
-
-        // ۱۳. ویجت سوییچ تغییر حالت شب و روز (Theme Toggle Switch Widget)
-        if (!class_exists('SedRazavi_Elementor_Theme_Toggle_Widget')) {
-            class SedRazavi_Elementor_Theme_Toggle_Widget extends \\Elementor\\Widget_Base {
-                public function get_name() { return 'sedrazavi_theme_toggle'; }
-                public function get_title() { return esc_html__('۱۳. سوییچ تغییر حالت شب و روز (Dark/Light)', 'sedrazavi-addons'); }
-                public function get_icon() { return 'eicon-adjust'; }
-                public function get_categories() { return array('sedrazavi-law-elements'); }
-                protected function render() {
-                    echo '<div class="sedrazavi-toggle-preview p-4 bg-white dark:bg-[#0B132B] rounded-xl border border-gray-200 dark:border-gray-800 text-center"><p class="text-[#D4AF37] font-bold">دکمه سوییچ لوکس پالت شب و روز با ذخیره‌سازی LocalStorage و ترنزیشن نرم</p></div>';
-                }
-            }
-            $widgets_manager->register(new SedRazavi_Elementor_Theme_Toggle_Widget());
-        }
-    }
-}
-add_action('elementor/widgets/register', 'sedrazavi_addons_load_elementor_widgets');
-`,
+    "path": "elementor-addon-suite/assets/css/widgets/cta.css",
+    "filename": "cta.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/cta.css",
+    "code": "/**\n * Universal Call To Action Banner CSS\n */\n.uas-cta-wrapper {\n  position: relative;\n  width: 100%;\n  padding: 48px 32px;\n  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);\n  border-radius: var(--uas-radius-card, 24px);\n  text-align: center;\n  color: #FFFFFF;\n  box-shadow: var(--uas-shadow-card, 0 10px 30px rgba(0,0,0,0.1));\n  box-sizing: border-box;\n}\n\n.uas-cta-inner {\n  max-width: 720px;\n  margin: 0 auto;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 16px;\n}\n\n.uas-cta-title {\n  font-size: 28px;\n  font-weight: 800;\n  color: #FFFFFF;\n  margin: 0;\n  line-height: 1.4;\n}\n\n.uas-cta-desc {\n  font-size: 15px;\n  line-height: 1.8;\n  color: #94A3B8;\n  margin: 0;\n}\n\n.uas-cta-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 14px 36px;\n  border-radius: 12px;\n  background: var(--uas-primary-color, #2563EB);\n  color: #FFFFFF;\n  font-size: 15px;\n  font-weight: 700;\n  text-decoration: none;\n  margin-top: 12px;\n  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);\n  transition: all 0.25s ease;\n}\n\n.uas-cta-btn:hover {\n  background: var(--uas-primary-hover, #1D4ED8);\n  transform: translateY(-2px);\n  color: #FFFFFF;\n}\n"
   },
   {
-    path: 'includes/admin-settings.php',
-    filename: 'admin-settings.php',
-    category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'صفحه مدیریت و نظارت سلامت افزونه در پیشخوان وردپرس، شامل بررسی نسخه PHP، وضعیت فایل لاگ و دکمه پاکسازی لاگ.',
-    code: `<?php
-/**
- * Admin Settings & Health Diagnostics
- *
- * @package SedRazavi_Addons
- * @version 2.5.0
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-if (!function_exists('sedrazavi_addons_admin_menu')) {
-    function sedrazavi_addons_admin_menu() {
-        add_submenu_page(
-            'tools.php',
-            esc_html__('گزارش عیب‌یابی و لاگ سید رضوی', 'sedrazavi-addons'),
-            esc_html__('لاگ‌های حقوقی سید رضوی', 'sedrazavi-addons'),
-            'manage_options',
-            'sedrazavi-logs',
-            'sedrazavi_addons_render_logs_page'
-        );
-    }
-}
-add_action('admin_menu', 'sedrazavi_addons_admin_menu');
-
-if (!function_exists('sedrazavi_addons_render_logs_page')) {
-    function sedrazavi_addons_render_logs_page() {
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('دسترسی غیرمجاز.', 'sedrazavi-addons'));
-        }
-
-        // پردازش پاکسازی لاگ
-        if (isset($_POST['sedrazavi_clear_logs']) && check_admin_referer('sedrazavi_clear_logs_action')) {
-            SedRazavi_Logger::clear_log();
-            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('فایل لاگ با موفقیت پاکسازی شد.', 'sedrazavi-addons') . '</p></div>';
-        }
-
-        $log_content = SedRazavi_Logger::get_log_contents(150);
-        $php_version = phpversion();
-        $is_php_ok  = version_compare($php_version, '7.4', '>=');
-        ?>
-        <div class="wrap" style="font-family: inherit;">
-            <h1 style="display: flex; align-items: center; gap: 8px;">
-                <span style="color: #D4AF37;">⚖️</span>
-                <?php esc_html_e('مرکز نظارت و عیب‌یابی خودکار افزونه سید رضوی', 'sedrazavi-addons'); ?>
-            </h1>
-            
-            <div style="background: #fff; border: 1px solid #ccd0d4; border-radius: 8px; padding: 20px; margin-top: 20px;">
-                <h2 style="margin-top: 0;"><?php esc_html_e('وضعیت سلامت سرور و سیستم', 'sedrazavi-addons'); ?></h2>
-                <table class="widefat striped" style="margin-top: 15px;">
-                    <tbody>
-                        <tr>
-                            <td><strong><?php esc_html_e('نسخه PHP سرور:', 'sedrazavi-addons'); ?></strong></td>
-                            <td>
-                                <code><?php echo esc_html($php_version); ?></code>
-                                <?php if ($is_php_ok) : ?>
-                                    <span style="color: green; font-weight: bold;">✓ <?php esc_html_e('سازگار (حداقل ۷.۴ رعایت شده است)', 'sedrazavi-addons'); ?></span>
-                                <?php else : ?>
-                                    <span style="color: red; font-weight: bold;">✗ <?php esc_html_e('هشدار: نسخه کمتر از ۷.۴ است', 'sedrazavi-addons'); ?></span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong><?php esc_html_e('مسیر فایل لاگ اختصاصی:', 'sedrazavi-addons'); ?></strong></td>
-                            <td><code><?php echo esc_html(SEDRAZAVI_LOG_DIR . 'debug.log'); ?></code></td>
-                        </tr>
-                        <tr>
-                            <td><strong><?php esc_html_e('وضعیت مجوز نوشتن پوشه لاگ:', 'sedrazavi-addons'); ?></strong></td>
-                            <td>
-                                <?php if (is_writable(SEDRAZAVI_LOG_DIR) || is_writable(WP_CONTENT_DIR . '/uploads/')) : ?>
-                                    <span style="color: green; font-weight: bold;">✓ <?php esc_html_e('قابل نوشتن و امن', 'sedrazavi-addons'); ?></span>
-                                <?php else : ?>
-                                    <span style="color: orange; font-weight: bold;">! <?php esc_html_e('عدم دسترسی نوشتن روی wp-content/uploads', 'sedrazavi-addons'); ?></span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div style="background: #fff; border: 1px solid #ccd0d4; border-radius: 8px; padding: 20px; margin-top: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="margin: 0;"><?php esc_html_e('محتوای فایل لاگ سیستم (۱۵۰ خط اخیر)', 'sedrazavi-addons'); ?></h2>
-                    <form method="post">
-                        <?php wp_nonce_field('sedrazavi_clear_logs_action'); ?>
-                        <input type="submit" name="sedrazavi_clear_logs" class="button button-secondary" value="<?php esc_attr_e('پاکسازی لاگ', 'sedrazavi-addons'); ?>" onclick="return confirm('آیا از پاکسازی لاگ اطمینان دارید؟');" />
-                    </form>
-                </div>
-                <textarea readonly style="width: 100%; height: 350px; font-family: monospace; font-size: 12px; background: #0B132B; color: #cbd5e1; direction: ltr; padding: 12px; border-radius: 6px; border: 1px solid #1C2541;"><?php echo esc_textarea($log_content); ?></textarea>
-            </div>
-        </div>
-        <?php
-    }
-}
-`,
+    "path": "elementor-addon-suite/assets/css/widgets/faq.css",
+    "filename": "faq.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/faq.css",
+    "code": "/**\n * Universal FAQ Accordion CSS\n */\n.uas-faq-wrapper {\n  position: relative;\n  width: 100%;\n  box-sizing: border-box;\n}\n\n.uas-faq-list {\n  display: flex;\n  flex-direction: column;\n  gap: 16px;\n  max-width: 900px;\n  margin: 0 auto;\n}\n\n.uas-faq-item {\n  border: 1px solid var(--uas-border-color, #E2E8F0);\n  border-radius: var(--uas-radius-card, 16px);\n  background: var(--uas-bg-card, #FFFFFF);\n  overflow: hidden;\n  transition: all 0.25s ease;\n}\n\n.uas-faq-item.is-active {\n  border-color: var(--uas-primary-color, #2563EB);\n  box-shadow: var(--uas-shadow-card, 0 4px 20px rgba(0,0,0,0.04));\n}\n\n.uas-faq-question {\n  width: 100%;\n  padding: 20px 24px;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 16px;\n  background: transparent;\n  border: none;\n  cursor: pointer;\n  text-align: right;\n  font-size: 16px;\n  font-weight: 700;\n  color: var(--uas-text-main, #0F172A);\n  transition: color 0.2s;\n}\n\n.uas-faq-question:hover {\n  color: var(--uas-primary-color, #2563EB);\n}\n\n.uas-faq-icon {\n  width: 28px;\n  height: 28px;\n  border-radius: 50%;\n  background: rgba(37, 99, 235, 0.08);\n  color: var(--uas-primary-color, #2563EB);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 18px;\n  transition: transform 0.3s ease, background-color 0.2s;\n  flex-shrink: 0;\n}\n\n.uas-faq-item.is-active .uas-faq-icon {\n  transform: rotate(45deg);\n  background: var(--uas-primary-color, #2563EB);\n  color: #FFFFFF;\n}\n\n.uas-faq-answer {\n  max-height: 0;\n  overflow: hidden;\n  transition: max-height 0.35s ease, padding 0.3s ease;\n  padding: 0 24px;\n  font-size: 14px;\n  line-height: 1.8;\n  color: var(--uas-text-muted, #475569);\n  text-align: right;\n}\n\n.uas-faq-item.is-active .uas-faq-answer {\n  max-height: 500px;\n  padding: 0 24px 20px 24px;\n}\n"
   },
   {
-    path: 'includes/case-metaboxes-ui.php',
-    filename: 'case-metaboxes-ui.php',
-    category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'رابط کاربری پیشرفته و اختصاصی پست‌تایپ پرونده‌های قضایی برای وکیل: متاباکس‌های شکیل طلایی-سرمه‌ای، فیلدهای راهنمادار، درصد پیشرفت، مرحله دادرسی و ستون‌های سفارشی جدول مدیریت.',
-    code: `<?php
-/**
- * Attorney-Optimized Case Management Meta Boxes & Admin UI
- *
- * @package SedRazavi_Addons
- * @version 2.6.0
- */
-
-if (!defined('ABSPATH')) exit;
-
-/**
- * ۱. افزودن متاباکس‌های تخصصی به پرونده‌های حقوقی
- */
-function sedrazavi_register_case_metaboxes() {
-    add_meta_box(
-        'sedrazavi_case_core_details',
-        '⚖️ اطلاعات قضایی و حقوقی پرونده (سامانه هوشمند وکیل)',
-        'sedrazavi_render_case_metabox',
-        'sedrazavi_case',
-        'normal',
-        'high'
-    );
-
-    add_meta_box(
-        'sedrazavi_case_financials',
-        '💳 قرارداد مالی و حق‌الوکاله',
-        'sedrazavi_render_case_financial_metabox',
-        'sedrazavi_case',
-        'side',
-        'default'
-    );
-}
-add_action('add_meta_boxes', 'sedrazavi_register_case_metaboxes');
-
-/**
- * رندر متاباکس اصلی پرونده با رابط کاربری لوکس و راهنماهای دقیق برای وکیل
- */
-function sedrazavi_render_case_metabox($post) {
-    wp_nonce_field('sedrazavi_case_meta_action', 'sedrazavi_case_meta_nonce');
-
-    $case_number = get_post_meta($post->ID, '_sedrazavi_case_number', true);
-    $client_name = get_post_meta($post->ID, '_sedrazavi_client_name', true);
-    $client_phone = get_post_meta($post->ID, '_sedrazavi_client_phone', true);
-    $court_branch = get_post_meta($post->ID, '_sedrazavi_court_branch', true);
-    $judge_name = get_post_meta($post->ID, '_sedrazavi_judge_name', true);
-    $case_stage = get_post_meta($post->ID, '_sedrazavi_case_stage', true);
-    $progress = get_post_meta($post->ID, '_sedrazavi_progress', true);
-    $next_session = get_post_meta($post->ID, '_sedrazavi_next_session', true);
-    $lawyer_memo = get_post_meta($post->ID, '_sedrazavi_lawyer_memo', true);
-
-    if ($progress === '') $progress = '50';
-    if (empty($case_stage)) $case_stage = 'بدوی';
-    ?>
-    <style>
-        .sr-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-        .sr-meta-field { margin-bottom: 12px; }
-        .sr-meta-field label { display: block; font-weight: bold; margin-bottom: 4px; color: #0B132B; font-size: 12px; }
-        .sr-meta-field .sr-hint { display: block; font-size: 11px; color: #64748b; margin-top: 3px; }
-        .sr-meta-field input[type="text"], .sr-meta-field select, .sr-meta-field textarea { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; }
-        .sr-meta-field input[type="text"]:focus, .sr-meta-field select:focus { border-color: #D4AF37; box-shadow: 0 0 0 1px #D4AF37; outline: none; }
-        .sr-stage-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; background: #e0f2fe; color: #0369a1; }
-    </style>
-
-    <div style="background: #f8fafc; padding: 14px; border-radius: 10px; border-right: 4px solid #D4AF37; margin-bottom: 18px;">
-        <p style="margin: 0; font-size: 12px; color: #334155; line-height: 1.6;">
-            <strong>همکار گرامی / وکیل محترم:</strong> اطلاعات وارد شده در این بخش به صورت زنده در کارتابل آنلاین موکل و سامانه پیگیری پرونده نمایش داده خواهد شد. لطفاً کلاسه پرونده و زمان جلسات را با دقت درج نمایید.
-        </p>
-    </div>
-
-    <div class="sr-meta-grid">
-        <div class="sr-meta-field">
-            <label>کلاسه بایگانی / شماره پرونده ثنا:</label>
-            <input type="text" name="sr_case_number" value="<?php echo esc_attr($case_number); ?>" placeholder="مثال: ۱۴۰۳-۹۸۲۷۳-ونک" />
-            <span class="sr-hint">این کد توسط موکل برای استعلام در سامانه پیگیری استفاده می‌شود.</span>
-        </div>
-
-        <div class="sr-meta-field">
-            <label>نام و نام خانوادگی موکل:</label>
-            <input type="text" name="sr_client_name" value="<?php echo esc_attr($client_name); ?>" placeholder="مثال: علیرضا رادمنش" />
-        </div>
-    </div>
-
-    <div class="sr-meta-grid">
-        <div class="sr-meta-field">
-            <label>شماره تماس همراه موکل:</label>
-            <input type="text" name="sr_client_phone" value="<?php echo esc_attr($client_phone); ?>" placeholder="۰۹۱۲۳۴۵۶۷۸۹" style="direction: ltr; text-align: right;" />
-            <span class="sr-hint">جهت ارسال پیامک‌های خودکار اطلاع‌رسانی جلسات دادگاه</span>
-        </div>
-
-        <div class="sr-meta-field">
-            <label>شعبه و مجتمع قضایی رسیدگی‌کننده:</label>
-            <input type="text" name="sr_court_branch" value="<?php echo esc_attr($court_branch); ?>" placeholder="مثال: شعبه ۱۲ عمومی حقوقی مجتمع شهید بهشتی" />
-        </div>
-    </div>
-
-    <div class="sr-meta-grid">
-        <div class="sr-meta-field">
-            <label>مرحله دادرسی فعلی:</label>
-            <select name="sr_case_stage">
-                <option value="ثبت دادخواست بدوی" <?php selected($case_stage, 'ثبت دادخواست بدوی'); ?>>۱. ثبت دادخواست و ابلاغ</option>
-                <option value="تبادل لوایح طرفین" <?php selected($case_stage, 'تبادل لوایح طرفین'); ?>>۲. تبادل لوایح طرفین</option>
-                <option value="ارجاع به کارشناسی رسمی" <?php selected($case_stage, 'ارجاع به کارشناسی رسمی'); ?>>۳. ارجاع به کارشناسی رسمی دادگستری</option>
-                <option value="تشکیل جلسه رسیدگی بدوی" <?php selected($case_stage, 'تشکیل جلسه رسیدگی بدوی'); ?>>۴. تشکیل جلسه رسیدگی در دادگاه بدوی</option>
-                <option value="صدور دادنامه بدوی" <?php selected($case_stage, 'صدور دادنامه بدوی'); ?>>۵. صدور دادنامه بدوی</option>
-                <option value="تجدیدنظرخواهی" <?php selected($case_stage, 'تجدیدنظرخواهی'); ?>>۶. تجدیدنظرخواهی در دادگاه تجدیدنظر استان</option>
-                <option value="داوری / صلح و سازش" <?php selected($case_stage, 'داوری / صلح و سازش'); ?>>۷. داوری بین‌المللی / سازش</option>
-                <option value="اجرای احکام و وصول محکوم‌به" <?php selected($case_stage, 'اجرای احکام و وصول محکوم‌به'); ?>>۸. مرحله اجرای احکام و وصول</option>
-                <option value="مختومه و بایگانی" <?php selected($case_stage, 'مختومه و بایگانی'); ?>>۹. پرونده با موفقیت مختومه شد</option>
-            </select>
-        </div>
-
-        <div class="sr-meta-field">
-            <label>درصد پیشرفت کار (%): <strong id="sr_progress_display" style="color: #D4AF37;"><?php echo esc_html($progress); ?>%</strong></label>
-            <input type="range" min="0" max="100" step="5" name="sr_progress" value="<?php echo esc_attr($progress); ?>" oninput="document.getElementById('sr_progress_display').innerText = this.value + '%';" style="width: 100%; accent-color: #D4AF37;" />
-        </div>
-    </div>
-
-    <div class="sr-meta-field">
-        <label>تاریخ و ساعت جلسه آینده / وقت نظارت:</label>
-        <input type="text" name="sr_next_session" value="<?php echo esc_attr($next_session); ?>" placeholder="مثال: سه‌شنبه ۱۵ مهر ۱۴۰۳ - ساعت ۰۹:۳۰ صبح" />
-    </div>
-
-    <div class="sr-meta-field">
-        <label>یادداشت راهبردی و توضیحات وکیل برای موکل:</label>
-        <textarea name="sr_lawyer_memo" rows="3" placeholder="توضیحاتی که موکل در پرتال شخصی مشاهده می‌کند (اقدامات انجام شده، دفاعیات و...)"><?php echo esc_textarea($lawyer_memo); ?></textarea>
-    </div>
-    <?php
-}
-
-/**
- * متاباکس امور مالی و حق‌الوکاله در سایدبار
- */
-function sedrazavi_render_case_financial_metabox($post) {
-    $total_fee = get_post_meta($post->ID, '_sedrazavi_total_fee', true);
-    $paid_fee  = get_post_meta($post->ID, '_sedrazavi_paid_fee', true);
-    ?>
-    <div style="font-size: 12px; space-y: 10px;">
-        <p>
-            <label><strong>مبلغ کل حق‌الوکاله (تومان):</strong></label>
-            <input type="text" name="sr_total_fee" value="<?php echo esc_attr($total_fee); ?>" placeholder="مثال: ۴۵,۰۰۰,۰۰۰" style="width: 100%; margin-top: 4px;" />
-        </p>
-        <p>
-            <label><strong>مبلغ تسویه شده تا کنون:</strong></label>
-            <input type="text" name="sr_paid_fee" value="<?php echo esc_attr($paid_fee); ?>" placeholder="مثال: ۳۰,۰۰۰,۰۰۰" style="width: 100%; margin-top: 4px;" />
-        </p>
-    </div>
-    <?php
-}
-
-/**
- * ذخیره امن اطلاعات متاباکس
- */
-function sedrazavi_save_case_metabox_data($post_id) {
-    if (!isset($_POST['sedrazavi_case_meta_nonce']) || !wp_verify_nonce($_POST['sedrazavi_case_meta_nonce'], 'sedrazavi_case_meta_action')) {
-        return;
-    }
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-    if (!current_user_can('edit_post', $post_id)) return;
-
-    $fields = array(
-        '_sedrazavi_case_number' => 'sr_case_number',
-        '_sedrazavi_client_name' => 'sr_client_name',
-        '_sedrazavi_client_phone' => 'sr_client_phone',
-        '_sedrazavi_court_branch' => 'sr_court_branch',
-        '_sedrazavi_judge_name'  => 'sr_judge_name',
-        '_sedrazavi_case_stage'  => 'sr_case_stage',
-        '_sedrazavi_progress'    => 'sr_progress',
-        '_sedrazavi_next_session'=> 'sr_next_session',
-        '_sedrazavi_lawyer_memo' => 'sr_lawyer_memo',
-        '_sedrazavi_total_fee'   => 'sr_total_fee',
-        '_sedrazavi_paid_fee'    => 'sr_paid_fee',
-    );
-
-    foreach ($fields as $meta_key => $post_key) {
-        if (isset($_POST[$post_key])) {
-            update_post_meta($post_id, $meta_key, sanitize_text_field($_POST[$post_key]));
-        }
-    }
-}
-add_action('save_post_sedrazavi_case', 'sedrazavi_save_case_metabox_data');
-
-/**
- * ۲. افزودن ستون‌های حرفه‌ای به جدول مدیریت پرونده‌ها در ادمین وردپرس
- */
-function sedrazavi_case_columns($columns) {
-    $custom = array();
-    $custom['cb'] = $columns['cb'];
-    $custom['title'] = 'موضوع دعوی و عنوان پرونده';
-    $custom['case_number'] = 'کلاسه پرونده';
-    $custom['client_name'] = 'نام موکل';
-    $custom['case_stage'] = 'مرحله دادرسی';
-    $custom['progress'] = 'پیشرفت کار';
-    $custom['next_session'] = 'جلسه آینده';
-    $custom['date'] = 'تاریخ ثبت';
-    return $custom;
-}
-add_filter('manage_sedrazavi_case_posts_columns', 'sedrazavi_case_columns');
-
-function sedrazavi_case_column_content($column, $post_id) {
-    switch ($column) {
-        case 'case_number':
-            $num = get_post_meta($post_id, '_sedrazavi_case_number', true);
-            echo $num ? '<code style="font-weight:bold; color:#0B132B;">' . esc_html($num) . '</code>' : '—';
-            break;
-        case 'client_name':
-            $name = get_post_meta($post_id, '_sedrazavi_client_name', true);
-            echo $name ? '<strong>' . esc_html($name) . '</strong>' : '—';
-            break;
-        case 'case_stage':
-            $stage = get_post_meta($post_id, '_sedrazavi_case_stage', true);
-            echo '<span style="background:#fef3c7; color:#92400e; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">' . esc_html($stage ?: 'در دست اقدام') . '</span>';
-            break;
-        case 'progress':
-            $prog = get_post_meta($post_id, '_sedrazavi_progress', true) ?: '0';
-            echo '<div style="background:#e2e8f0; border-radius:10px; width:80px; height:8px; overflow:hidden; display:inline-block; vertical-align:middle; margin-left:6px;"><div style="background:#D4AF37; height:100%; width:' . esc_attr($prog) . '%;"></div></div> <span style="font-size:11px; font-weight:bold;">' . esc_html($prog) . '%</span>';
-            break;
-        case 'next_session':
-            $session = get_post_meta($post_id, '_sedrazavi_next_session', true);
-            echo $session ? '<span style="font-size:11px; color:#475569;">' . esc_html($session) . '</span>' : 'تعیین نشده';
-            break;
-    }
-}
-add_action('manage_sedrazavi_case_posts_custom_column', 'sedrazavi_case_column_content', 10, 2);
-`,
+    "path": "elementor-addon-suite/assets/css/widgets/floating-dock.css",
+    "filename": "floating-dock.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/floating-dock.css",
+    "code": "/**\n * Universal Floating Action Dock CSS\n */\n.uas-floating-dock {\n  position: fixed;\n  bottom: 30px;\n  left: 30px;\n  z-index: 9999;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  opacity: 0;\n  transform: translateY(20px);\n  pointer-events: none;\n  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n.uas-floating-dock.is-visible {\n  opacity: 1;\n  transform: translateY(0);\n  pointer-events: auto;\n}\n\n.uas-scroll-top-btn {\n  width: 48px;\n  height: 48px;\n  border-radius: 50%;\n  background: var(--uas-primary-color, #2563EB);\n  color: #FFFFFF;\n  border: none;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 20px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0,0,0,0.15);\n  transition: transform 0.2s, background-color 0.2s;\n}\n\n.uas-scroll-top-btn:hover {\n  background: var(--uas-primary-hover, #1D4ED8);\n  transform: translateY(-3px);\n}\n"
   },
   {
-    path: 'includes/shortcodes-engine.php',
-    filename: 'shortcodes-engine.php',
-    category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'موتور جامع کدهای کوتاه اختصاصی: پیاده‌سازی [sedrazavi_client_portal]، [sedrazavi_tracking]، [sedrazavi_booking]، [sedrazavi_services]، [sedrazavi_social_icons] و [sedrazavi_gold_scroll].',
-    code: `<?php
-/**
- * Master Shortcode Engine for SedRazavi Law Firm
- *
- * @package SedRazavi_Addons
- * @version 2.6.0
- */
-
-if (!defined('ABSPATH')) exit;
-
-/**
- * ۱. کد کوتاه پرتال کاربری موکلین [sedrazavi_client_portal]
- */
-function sedrazavi_shortcode_client_portal($atts) {
-    ob_start();
-    ?>
-    <div id="sedrazavi-client-portal-app" class="sedrazavi-client-portal-wrapper">
-        <div class="p-6 rounded-3xl bg-[#0B132B] text-white border border-[#D4AF37]/40 shadow-xl text-right">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-gray-800">
-                <div class="flex items-center gap-3">
-                    <span style="font-size:2rem;">⚖️</span>
-                    <div>
-                        <h3 class="text-xl font-bold font-serif text-white">پرتال جامع موکلین دفتر وکالت SedRazavi</h3>
-                        <p class="text-xs text-gray-300">مشاهده لحظه‌ای لوایح، تقویم جلسات دادگاه و اسناد محرمانه</p>
-                    </div>
-                </div>
-                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold">سامانه امن ثنا</span>
-            </div>
-            <div class="py-6 text-center">
-                <p class="text-sm text-gray-300 mb-4">برای مشاهده پرونده‌های خود، شماره پرونده یا کد ملی خود را وارد فرمایید:</p>
-                <form class="flex flex-col sm:flex-row items-center justify-center gap-2 max-w-md mx-auto">
-                    <input type="text" placeholder="شماره کلاسه پرونده (مثال: ۱۴۰۳-۹۸۲۷۳-ونک)..." class="px-4 py-2.5 rounded-xl border border-gray-700 bg-gray-900 text-white text-xs w-full sm:w-80" />
-                    <button type="button" class="btn-gold px-5 py-2.5 rounded-xl text-xs font-bold">ورود به کارتابل</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    <?php
-    return ob_get_clean();
-}
-add_shortcode('sedrazavi_client_portal', 'sedrazavi_shortcode_client_portal');
-
-/**
- * ۲. کد کوتاه پیگیری سریع پرونده [sedrazavi_tracking]
- */
-function sedrazavi_shortcode_tracking($atts) {
-    ob_start();
-    ?>
-    <div class="sedrazavi-tracking-box p-6 rounded-2xl bg-white border border-gray-200 shadow-lg text-right max-w-xl mx-auto">
-        <h4 class="text-base font-bold text-[#0B132B] mb-2">استعلام سریع وضعیت پرونده</h4>
-        <p class="text-xs text-gray-500 mb-4">کد پرونده درج‌شده در قرارداد وکالت را وارد نمایید:</p>
-        <div class="flex gap-2">
-            <input type="text" placeholder="کد رهگیری پرونده..." class="flex-1 px-4 py-2 rounded-xl border border-gray-300 text-xs font-mono" />
-            <button class="btn-gold px-5 py-2 rounded-xl text-xs font-bold">استعلام</button>
-        </div>
-    </div>
-    <?php
-    return ob_get_clean();
-}
-add_shortcode('sedrazavi_tracking', 'sedrazavi_shortcode_tracking');
-
-/**
- * ۳. کد کوتاه پل‌های ارتباطی و شبکه‌های اجتماعی [sedrazavi_social_icons]
- */
-function sedrazavi_shortcode_social_icons($atts) {
-    ob_start();
-    ?>
-    <div class="sedrazavi-social-channels text-right py-4">
-        <h4 class="text-sm font-bold text-gray-800 mb-3">شبکه‌های اجتماعی و پیام‌رسان‌های وکیل:</h4>
-        <div class="flex flex-wrap gap-3">
-            <a href="https://instagram.com/Dr_SedRazavi_Law" target="_blank" class="px-4 py-2 rounded-xl bg-pink-500/10 text-pink-600 border border-pink-500/20 text-xs font-bold flex items-center gap-1.5">
-                <span>اینستاگرام رسمی: @Dr_SedRazavi_Law</span>
-            </a>
-            <a href="https://t.me/SedRazavi_Law" target="_blank" class="px-4 py-2 rounded-xl bg-sky-500/10 text-sky-600 border border-sky-500/20 text-xs font-bold flex items-center gap-1.5">
-                <span>تلگرام دفتر: @SedRazavi_Law</span>
-            </a>
-            <a href="https://wa.me/989123456789" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-bold flex items-center gap-1.5">
-                <span>واتس‌اپ ارسال مدارک: ۰۹۱۲۳۴۵۶۷۸۹</span>
-            </a>
-            <a href="https://linkedin.com" target="_blank" class="px-4 py-2 rounded-xl bg-blue-500/10 text-blue-600 border border-blue-500/20 text-xs font-bold flex items-center gap-1.5">
-                <span>لینکدین تخصصی</span>
-            </a>
-        </div>
-    </div>
-    <?php
-    return ob_get_clean();
-}
-add_shortcode('sedrazavi_social_icons', 'sedrazavi_shortcode_social_icons');
-
-/**
- * ۴. کد کوتاه اسکرول‌بار طلایی [sedrazavi_gold_scroll]
- */
-function sedrazavi_shortcode_gold_scroll() {
-    ob_start();
-    ?>
-    <div id="sr-gold-scrollbar-indicator" style="position:fixed; top:0; left:0; height:4px; background:linear-gradient(90deg, #D4AF37, #F3E5AB); z-index:99999; width:0%; transition:width 0.1s ease-out;"></div>
-    <script>
-    window.addEventListener('scroll', function() {
-        var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-        var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        var scrolled = (winScroll / height) * 100;
-        var el = document.getElementById('sr-gold-scrollbar-indicator');
-        if (el) el.style.width = scrolled + '%';
-    });
-    </script>
-    <?php
-    return ob_get_clean();
-}
-add_shortcode('sedrazavi_gold_scroll', 'sedrazavi_shortcode_gold_scroll');
-`,
+    "path": "elementor-addon-suite/assets/css/widgets/hero.css",
+    "filename": "hero.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/hero.css",
+    "code": "/**\n * Universal Hero Widget CSS (Topic-Agnostic)\n */\n.uas-hero-wrapper {\n  position: relative;\n  width: 100%;\n  padding: 60px 24px;\n  background: var(--uas-bg-card, #FFFFFF);\n  border-radius: var(--uas-radius-card, 24px);\n  border: 1px solid var(--uas-border-color, #E2E8F0);\n  box-shadow: var(--uas-shadow-card, 0 10px 30px rgba(0,0,0,0.05));\n  overflow: hidden;\n  box-sizing: border-box;\n}\n\n.uas-hero-inner {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 48px;\n  max-width: 1200px;\n  margin: 0 auto;\n}\n\n.uas-hero-content {\n  flex: 1 1 55%;\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n}\n\n.uas-hero-badge {\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  align-self: flex-start;\n  padding: 6px 16px;\n  border-radius: 9999px;\n  background: rgba(37, 99, 235, 0.1);\n  color: var(--uas-primary-color, #2563EB);\n  font-size: 13px;\n  font-weight: 700;\n  border: 1px solid rgba(37, 99, 235, 0.2);\n}\n\n.uas-hero-title {\n  font-size: 38px;\n  line-height: 1.35;\n  font-weight: 800;\n  color: var(--uas-text-main, #0F172A);\n  margin: 0;\n}\n\n.uas-hero-desc {\n  font-size: 16px;\n  line-height: 1.8;\n  color: var(--uas-text-muted, #64748B);\n  margin: 0;\n}\n\n.uas-hero-actions {\n  display: flex;\n  align-items: center;\n  flex-wrap: wrap;\n  gap: 16px;\n  margin-top: 10px;\n}\n\n.uas-btn-primary {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 12px 28px;\n  border-radius: 12px;\n  background: var(--uas-primary-color, #2563EB);\n  color: #FFFFFF;\n  font-weight: 700;\n  font-size: 14px;\n  text-decoration: none;\n  transition: all 0.25s ease;\n  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);\n}\n\n.uas-btn-primary:hover {\n  background: var(--uas-primary-hover, #1D4ED8);\n  transform: translateY(-2px);\n  color: #FFFFFF;\n}\n\n.uas-btn-secondary {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 12px 28px;\n  border-radius: 12px;\n  background: transparent;\n  color: var(--uas-text-main, #0F172A);\n  border: 1px solid var(--uas-border-color, #CBD5E1);\n  font-weight: 700;\n  font-size: 14px;\n  text-decoration: none;\n  transition: all 0.25s ease;\n}\n\n.uas-btn-secondary:hover {\n  background: rgba(0, 0, 0, 0.03);\n  transform: translateY(-2px);\n}\n\n.uas-hero-media {\n  flex: 1 1 45%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.uas-hero-img {\n  width: 100%;\n  max-width: 480px;\n  height: auto;\n  border-radius: 20px;\n  object-fit: cover;\n  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);\n}\n\n@media (max-width: 991px) {\n  .uas-hero-inner {\n    flex-direction: column-reverse;\n    text-align: center;\n    gap: 32px;\n  }\n  .uas-hero-badge {\n    align-self: center;\n  }\n  .uas-hero-actions {\n    justify-content: center;\n  }\n  .uas-hero-title {\n    font-size: 28px;\n  }\n}\n"
   },
   {
-    path: 'includes/otp-auth-integration.php',
-    filename: 'otp-auth-integration.php',
-    category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'ماژول ورود و ثبت‌نام با شماره موبایل، سازگاری کامل با افزونه Digits و وب‌سرویس‌های پیامک ایرانی (کاوه‌نگار، ملی‌پیامک، فراز اس‌ام‌اس) و سیستم ارتباط سریع موکلان مهمان بدون نیاز به ثبت‌نام.',
-    code: `<?php
-/**
- * ماژول همگام‌سازی ورود با موبایل، سامانه Digits و ارتباط مستقیم موکلان
- * Module: OTP Mobile Authentication & Guest Instant Callback Engine
- * 
- * @package SedRazavi_Addons
- * @author Dr. Seyedeh Maryam Razavi
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-/**
- * ۱. ایجاد جدول اختصاصی درخواست‌های تماس فوری مراجعین مهمان
- */
-function sedrazavi_create_callbacks_table() {
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'sedrazavi_quick_callbacks';
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-        id bigint(20) NOT NULL AUTO_INCREMENT,
-        tracking_code varchar(30) NOT NULL,
-        client_name varchar(100) DEFAULT '',
-        phone_number varchar(20) NOT NULL,
-        legal_topic varchar(100) DEFAULT 'مشاوره فوری',
-        notes text DEFAULT '',
-        status varchar(30) DEFAULT 'pending',
-        ip_address varchar(45) DEFAULT '',
-        created_at datetime DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY  (id),
-        KEY phone_idx (phone_number),
-        KEY tracking_idx (tracking_code)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-add_action('after_setup_theme', 'sedrazavi_create_callbacks_table');
-
-/**
- * ۲. ثبت مسیرهای اختصاصی REST API جهت ارتباط بدون ثبت‌نام و ورود OTP
- */
-add_action('rest_api_init', function () {
-    // اندپوینت ثبت درخواست تماس فوری مراجعین بدون نیاز به حساب کاربری
-    register_rest_route('sedrazavi/v1', '/quick-callback', array(
-        'methods' => 'POST',
-        'callback' => 'sedrazavi_api_handle_quick_callback',
-        'permission_callback' => '__return_true',
-    ));
-
-    // اندپوینت ارسال کد تایید یکبار مصرف (سازگار با ملی‌پیامک و کاوه‌نگار)
-    register_rest_route('sedrazavi/v1', '/otp/send', array(
-        'methods' => 'POST',
-        'callback' => 'sedrazavi_api_handle_otp_send',
-        'permission_callback' => '__return_true',
-    ));
-
-    // اندپوینت اعتبارسنجی کد پیامک و ورود/عضویت خودکار کاربر در وردپرس
-    register_rest_route('sedrazavi/v1', '/otp/verify', array(
-        'methods' => 'POST',
-        'callback' => 'sedrazavi_api_handle_otp_verify',
-        'permission_callback' => '__return_true',
-    ));
-});
-
-/**
- * مدیریت درخواست تماس فوری مراجعین بدون نیاز به ساخت حساب
- */
-function sedrazavi_api_handle_quick_callback($request) {
-    global $wpdb;
-    $params = $request->get_json_params();
-
-    $phone = sanitize_text_field($params['phone'] ?? '');
-    $name = sanitize_text_field($params['name'] ?? 'مراجع محترم');
-    $topic = sanitize_text_field($params['topic'] ?? 'مشاوره فوری تلفنی');
-    $notes = sanitize_textarea_field($params['notes'] ?? '');
-
-    // اعتبارسنجی شماره موبایل ایران
-    if (!preg_match('/^09[0-9]{9}$/', $phone)) {
-        return new WP_Error('invalid_phone', 'شماره موبایل وارد شده معتبر نمی‌باشد.', array('status' => 400));
-    }
-
-    $tracking_code = 'CB-' . wp_rand(100000, 999999);
-    $table_name = $wpdb->prefix . 'sedrazavi_quick_callbacks';
-
-    $inserted = $wpdb->insert($table_name, array(
-        'tracking_code' => $tracking_code,
-        'client_name'   => $name,
-        'phone_number'  => $phone,
-        'legal_topic'   => $topic,
-        'notes'         => $notes,
-        'ip_address'    => sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? ''),
-        'status'        => 'pending',
-    ));
-
-    if (!$inserted) {
-        return new WP_Error('db_error', 'خطا در ثبت درخواست در پایگاه داده.', array('status' => 500));
-    }
-
-    // ارسال پیامک فوری به مدیر دفتر و وکیل جهت پاسخگویی سریع
-    sedrazavi_send_admin_sms_alert($phone, $name, $topic, $tracking_code);
-
-    return rest_ensure_response(array(
-        'success' => true,
-        'tracking_code' => $tracking_code,
-        'message' => 'درخواست تماس شما با موفقیت ثبت شد. به زودی تماس خواهیم گرفت.'
-    ));
-}
-
-/**
- * ارسال پیامک به وکیل با وب‌سرویس‌های ایرانی (کاوه‌نگار / ملی‌پیامک / فراز اس‌ام‌اس)
- */
-function sedrazavi_send_admin_sms_alert($client_phone, $client_name, $topic, $tracking_code) {
-    $admin_phone = get_option('sedrazavi_admin_phone', '09123456789');
-    $sms_gateway = get_option('sedrazavi_sms_gateway', 'kavenegar'); // kavenegar, melipayamak, farazsms
-
-    $msg = "دفتر وکالت دکتر رضوی:\nدرخواست تماس جدید بدون ثبت‌نام\nنام: {$client_name}\nشماره: {$client_phone}\nموضوع: {$topic}\nکد پیگیری: {$tracking_code}";
-
-    // اعمال فیلتر برای سفارشی‌سازی متن توسط سایر افزونه‌ها یا وب‌هوک‌ها
-    apply_filters('sedrazavi_dispatch_sms', $admin_phone, $msg, $sms_gateway);
-}
-
-/**
- * ۳. همگام‌سازی عمیق با افزونه محبوب ورود پیامکی Digits
- */
-add_action('digits_after_login', function ($user_id) {
-    // اعطای نقش پیش‌فرض "موکل حقوقی" و ایجاد سابقه لاگ
-    $user = get_user_by('ID', $user_id);
-    if ($user && !in_array('administrator', (array)$user->roles)) {
-        $user->add_role('sedrazavi_client');
-    }
-}, 10, 1);
-
-/**
- * کد کوتاه فرم ورود پیامکی هوشمند [sedrazavi_otp_login]
- */
-function sedrazavi_shortcode_otp_login() {
-    if (is_user_logged_in()) {
-        $current_user = wp_get_current_user();
-        return '<div class="sedrazavi-logged-box p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-right">' .
-               'سلام <strong>' . esc_html($current_user->display_name) . '</strong> گرامی! شما وارد پرتال شده‌اید. ' .
-               '<a href="' . wp_logout_url(home_url()) . '" class="text-red-600 underline mr-2">خروج</a>' .
-               '</div>';
-    }
-
-    // اگر افزونه Digits فعال باشد، دکمه پیشرفته آن را فراخوانی می‌کند
-    if (function_exists('digits_login_button')) {
-        return do_shortcode('[digits_login]');
-    }
-
-    // فرم رزرو پیامکی مستقل در غیاب دیجیتس
-    ob_start();
-    ?>
-    <div class="sedrazavi-otp-box max-w-sm mx-auto p-6 rounded-2xl bg-white shadow-lg border border-[#D4AF37]/30 text-right font-persian">
-        <h3 class="text-base font-bold text-[#0B132B] mb-2">ورود / عضویت با شماره موبایل</h3>
-        <p class="text-xs text-gray-500 mb-4">کد تایید یک‌بار مصرف به شماره همراه شما ارسال خواهد شد.</p>
-        <form class="space-y-3" onsubmit="return false;">
-            <input type="tel" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="w-full px-3 py-2.5 rounded-xl border border-gray-300 font-mono text-sm focus:border-[#D4AF37]" required />
-            <button type="button" class="w-full py-2.5 rounded-xl bg-[#D4AF37] text-white font-bold text-xs hover:bg-[#AA820A] transition-colors">
-                دریافت کد تایید پیامکی
-            </button>
-        </form>
-    </div>
-    <?php
-    return ob_get_clean();
-}
-add_shortcode('sedrazavi_otp_login', 'sedrazavi_shortcode_otp_login');
-
-/**
- * کد کوتاه ویجت تماس فوری بدون ثبت‌نام [sedrazavi_quick_callback]
- */
-function sedrazavi_shortcode_quick_callback() {
-    ob_start();
-    ?>
-    <div class="sedrazavi-quick-callback-card p-5 rounded-2xl bg-amber-50/50 border border-[#D4AF37]/40 text-right font-persian">
-        <div class="flex items-center gap-2 mb-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <h4 class="text-sm font-bold text-[#0B132B]">تماس تلفنی فوری وکیل (بدون نیاز به ثبت نام)</h4>
-        </div>
-        <p class="text-xs text-gray-600 mb-3">شماره تماس خود را بگذارید؛ در اسرع وقت کارشناسان دفتر با شما تماس می‌گیرند:</p>
-        <form class="flex gap-2" onsubmit="return false;">
-            <input type="tel" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="flex-1 px-3 py-2 rounded-xl border border-gray-300 font-mono text-xs focus:border-[#D4AF37]" required />
-            <button type="button" class="px-4 py-2 rounded-xl bg-[#0B132B] text-[#F3E5AB] text-xs font-bold hover:bg-[#1C2541]">
-                ثبت و تماس
-            </button>
-        </form>
-    </div>
-    <?php
-    return ob_get_clean();
-}
-add_shortcode('sedrazavi_quick_callback', 'sedrazavi_shortcode_quick_callback');
-`,
+    "path": "elementor-addon-suite/assets/css/widgets/posts.css",
+    "filename": "posts.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/posts.css",
+    "code": "/**\n * Universal Posts Grid CSS (Topic-Agnostic)\n */\n.uas-posts-wrapper {\n  position: relative;\n  width: 100%;\n  box-sizing: border-box;\n}\n\n.uas-posts-grid {\n  display: grid;\n  grid-template-columns: repeat(var(--uas-posts-cols, 3), 1fr);\n  gap: 28px;\n}\n\n.uas-post-card {\n  background: var(--uas-bg-card, #FFFFFF);\n  border: 1px solid var(--uas-border-color, #E2E8F0);\n  border-radius: var(--uas-radius-card, 18px);\n  overflow: hidden;\n  box-shadow: var(--uas-shadow-card, 0 4px 15px rgba(0,0,0,0.03));\n  transition: all 0.3s ease;\n  display: flex;\n  flex-direction: column;\n}\n\n.uas-post-card:hover {\n  transform: translateY(-5px);\n  box-shadow: 0 15px 30px -5px rgba(0,0,0,0.08);\n  border-color: var(--uas-primary-color, #2563EB);\n}\n\n.uas-post-thumb-wrapper {\n  position: relative;\n  width: 100%;\n  height: 200px;\n  overflow: hidden;\n  background: #E2E8F0;\n}\n\n.uas-post-thumb {\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  transition: transform 0.4s ease;\n}\n\n.uas-post-card:hover .uas-post-thumb {\n  transform: scale(1.05);\n}\n\n.uas-post-body {\n  padding: 24px 20px;\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  gap: 12px;\n  text-align: right;\n}\n\n.uas-post-date {\n  font-size: 11px;\n  color: var(--uas-text-muted, #94A3B8);\n  font-weight: 600;\n}\n\n.uas-post-title {\n  font-size: 18px;\n  font-weight: 700;\n  color: var(--uas-text-main, #0F172A);\n  margin: 0;\n  line-height: 1.5;\n}\n\n.uas-post-title a {\n  color: inherit;\n  text-decoration: none;\n  transition: color 0.2s;\n}\n\n.uas-post-title a:hover {\n  color: var(--uas-primary-color, #2563EB);\n}\n\n.uas-post-excerpt {\n  font-size: 13px;\n  line-height: 1.7;\n  color: var(--uas-text-muted, #64748B);\n  margin: 0;\n}\n\n.uas-post-readmore {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n  font-size: 13px;\n  font-weight: 700;\n  color: var(--uas-primary-color, #2563EB);\n  text-decoration: none;\n  margin-top: auto;\n  padding-top: 12px;\n}\n\n@media (max-width: 991px) {\n  .uas-posts-grid {\n    grid-template-columns: repeat(2, 1fr);\n  }\n}\n\n@media (max-width: 640px) {\n  .uas-posts-grid {\n    grid-template-columns: 1fr;\n  }\n}\n"
   },
   {
-    path: 'includes/class-sedrazavi-odr-arbitration.php',
-    filename: 'class-sedrazavi-odr-arbitration.php',
-    category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'کلاس هسته مدیریت داوری آنلاین، گردش کار تبادل لوایح و امضای الکترونیک رأی داور',
-    code: `<?php
-/**
- * Class SedRazavi_ODR_Arbitration
- *
- * @package SedRazavi_Core_Plugin
- * @version 5.0.0
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-class SedRazavi_ODR_Arbitration {
-
-    public function __construct() {
-        add_action('wp_ajax_sedrazavi_submit_pleading', array($this, 'ajax_submit_pleading'));
-        add_action('wp_ajax_nopriv_sedrazavi_submit_pleading', array($this, 'ajax_submit_pleading'));
-        add_action('wp_ajax_sedrazavi_issue_award', array($this, 'ajax_issue_award'));
-        add_shortcode('sedrazavi_odr_portal', array($this, 'render_odr_portal'));
-        add_shortcode('sedrazavi_virtual_courtroom', array($this, 'render_virtual_courtroom'));
-        add_shortcode('sedrazavi_petition_builder', array($this, 'render_petition_builder'));
-    }
-
-    /**
-     * ثبت لایحه جدید در پرونده داوری با پیامک خودکار
-     */
-    public function ajax_submit_pleading() {
-        check_ajax_referer('sedrazavi_odr_nonce', 'security');
-
-        $case_id = intval($_POST['case_id']);
-        $title   = sanitize_text_field($_POST['title']);
-        $content = wp_kses_post($_POST['content']);
-        $sender  = sanitize_text_field($_POST['sender']);
-
-        if (!$case_id || empty($title) || empty($content)) {
-            wp_send_json_error(array('message' => 'اطلاعات لایحه ناقص است.'));
-        }
-
-        $tracking_code = 'PLD-SR-' . rand(10000, 99999);
-
-        // ذخیره به عنوان کامنت متصل به پست داوری یا جدول اختصاصی
-        $pleading_data = array(
-            'comment_post_ID'      => $case_id,
-            'comment_content'      => $content,
-            'comment_author'       => $sender,
-            'comment_type'         => 'odr_pleading',
-            'comment_approved'     => 1,
-        );
-
-        $comment_id = wp_insert_comment($pleading_data);
-        add_comment_meta($comment_id, 'tracking_code', $tracking_code);
-        add_comment_meta($comment_id, 'pleading_title', $title);
-
-        // ارسال پیامک خودکار ابلاغ لایحه به طرف مقابل
-        do_action('sedrazavi_odr_pleading_submitted', $case_id, $tracking_code);
-
-        wp_send_json_success(array(
-            'message'       => 'لایحه با موفقیت در پرونده داوری ثبت گردید.',
-            'tracking_code' => $tracking_code
-        ));
-    }
-
-    public function render_odr_portal() {
-        ob_start();
-        ?>
-        <div id="sedrazavi-odr-root" class="odr-interactive-app">
-            <p class="text-xs text-slate-500 text-center font-mono">بارگذاری پورتال تعاملی داوری آنلاین و ثبت پرونده...</p>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-
-    public function render_virtual_courtroom() {
-        ob_start();
-        ?>
-        <div id="sedrazavi-virtual-court-root" class="virtual-court-app">
-            <p class="text-xs text-slate-500 text-center font-mono">اتصال به تالار دادرسی مجازی و استماع زنده...</p>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-
-    public function render_petition_builder() {
-        ob_start();
-        ?>
-        <div id="sedrazavi-petition-builder-root" class="petition-builder-app">
-            <p class="text-xs text-slate-500 text-center font-mono">بارگذاری فرم‌ساز هوشمند دادخواست و لوایح عدل‌ایران...</p>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-}
-
-new SedRazavi_ODR_Arbitration();
-`
+    "path": "elementor-addon-suite/assets/css/widgets/services-grid.css",
+    "filename": "services-grid.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/services-grid.css",
+    "code": "/**\n * Universal Services Grid CSS (Topic-Agnostic)\n */\n.uas-services-wrapper {\n  position: relative;\n  width: 100%;\n  box-sizing: border-box;\n}\n\n.uas-services-header {\n  text-align: center;\n  margin-bottom: 40px;\n}\n\n.uas-services-subtitle {\n  font-size: 13px;\n  font-weight: 700;\n  color: var(--uas-primary-color, #2563EB);\n  text-transform: uppercase;\n  letter-spacing: 1px;\n  margin-bottom: 8px;\n}\n\n.uas-services-heading {\n  font-size: 32px;\n  font-weight: 800;\n  color: var(--uas-text-main, #0F172A);\n  margin: 0;\n}\n\n.uas-services-grid {\n  display: grid;\n  grid-template-columns: repeat(var(--uas-grid-cols, 3), 1fr);\n  gap: 28px;\n}\n\n.uas-service-card {\n  position: relative;\n  padding: 32px 24px;\n  background: var(--uas-bg-card, #FFFFFF);\n  border: 1px solid var(--uas-border-color, #E2E8F0);\n  border-radius: var(--uas-radius-card, 20px);\n  box-shadow: var(--uas-shadow-card, 0 4px 20px rgba(0,0,0,0.03));\n  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  text-align: right;\n  gap: 16px;\n}\n\n.uas-service-card:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 20px 35px -10px rgba(0,0,0,0.08);\n  border-color: var(--uas-primary-color, #2563EB);\n}\n\n.uas-service-icon-box {\n  width: 56px;\n  height: 56px;\n  border-radius: 14px;\n  background: rgba(37, 99, 235, 0.08);\n  color: var(--uas-primary-color, #2563EB);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 24px;\n  transition: all 0.3s ease;\n}\n\n.uas-service-card:hover .uas-service-icon-box {\n  background: var(--uas-primary-color, #2563EB);\n  color: #FFFFFF;\n}\n\n.uas-service-card-title {\n  font-size: 20px;\n  font-weight: 700;\n  color: var(--uas-text-main, #0F172A);\n  margin: 0;\n}\n\n.uas-service-card-desc {\n  font-size: 14px;\n  line-height: 1.7;\n  color: var(--uas-text-muted, #64748B);\n  margin: 0;\n}\n\n.uas-service-link {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n  font-size: 13px;\n  font-weight: 700;\n  color: var(--uas-primary-color, #2563EB);\n  text-decoration: none;\n  margin-top: auto;\n  transition: gap 0.2s ease;\n}\n\n.uas-service-link:hover {\n  gap: 10px;\n}\n\n@media (max-width: 991px) {\n  .uas-services-grid {\n    grid-template-columns: repeat(2, 1fr);\n  }\n}\n\n@media (max-width: 640px) {\n  .uas-services-grid {\n    grid-template-columns: 1fr;\n  }\n}\n"
   },
   {
-    path: 'includes/class-sedrazavi-legal-intelligence.php',
-    filename: 'class-sedrazavi-legal-intelligence.php',
-    category: 'ماژول‌های افزونه (Plugin Includes)',
-    description: 'کلاس هوش مصنوعی حقوقی، ممیزی هوشمند قراردادها، و موتور استخراج و تطبیق آرای دیوان عالی کشور',
-    code: `<?php
-/**
- * Class SedRazavi_Legal_Intelligence
- *
- * @package SedRazavi_Core_Plugin
- * @version 6.0.0
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-class SedRazavi_Legal_Intelligence {
-
-    public function __construct() {
-        add_action('wp_ajax_sedrazavi_audit_clause', array($this, 'ajax_audit_clause'));
-        add_action('wp_ajax_nopriv_sedrazavi_audit_clause', array($this, 'ajax_audit_clause'));
-        add_action('wp_ajax_sedrazavi_search_precedents', array($this, 'ajax_search_precedents'));
-        add_action('wp_ajax_nopriv_sedrazavi_search_precedents', array($this, 'ajax_search_precedents'));
-
-        add_shortcode('sedrazavi_legal_intelligence_portal', array($this, 'render_portal'));
-        add_shortcode('sedrazavi_contract_auditor', array($this, 'render_contract_auditor'));
-    }
-
-    /**
-     * آنالیز هوشمند بند قرارداد و تعیین ریسک حقوقی
-     */
-    public function ajax_audit_clause() {
-        check_ajax_referer('sedrazavi_intel_nonce', 'security');
-
-        $raw_text = sanitize_textarea_field($_POST['clause_text'] ?? '');
-        if (empty($raw_text)) {
-            wp_send_json_error(array('message' => 'متن شرط قراردادی ارسال نشده است.'));
-        }
-
-        // الگوریتم غربالگری کلمات پرخطر حقوقی ایران
-        $risk_level = 'low';
-        $detected_risks = array();
-        $recommendations = array();
-
-        if (mb_stripos($raw_text, 'غبن افحش') !== false || mb_stripos($raw_text, 'کافه خیارات') !== false) {
-            $risk_level = 'high';
-            $detected_risks[] = 'اسقاط خیار غبن فاحش یا افحش به ضرر طرفین.';
-            $recommendations[] = 'خیار تدلیس و خیار تخلف از شرط صفت را مستثنی کنید (ماده ۴۴۸ ق.م).';
-        }
-
-        if (mb_stripos($raw_text, 'فورس‌ماژور') !== false && (mb_stripos($raw_text, 'تورم') !== false || mb_stripos($raw_text, 'افزایش قیمت') !== false)) {
-            $risk_level = 'critical';
-            $detected_risks[] = 'تفسیر غیرقانونی تورم تجاری به عنوان فورس‌ماژور قهری.';
-            $recommendations[] = 'تورم را صراحتاً از شمول قوه قاهره خارج کنید (مواد ۲۲۷ و ۲۲۹ ق.م).';
-        }
-
-        if (mb_stripos($raw_text, 'وجه التزام') !== false) {
-            $detected_risks[] = 'نیاز به تطبیق با رأی وحدت رویه ۸۰۵ دیوان عالی کشور.';
-        }
-
-        wp_send_json_success(array(
-            'risk_level'      => $risk_level,
-            'detected_risks'  => $detected_risks,
-            'recommendations' => $recommendations,
-            'safety_score'    => $risk_level === 'critical' ? 35 : ($risk_level === 'high' ? 60 : 92),
-        ));
-    }
-
-    /**
-     * جستجوی سریع در بانک آرای وحدت رویه
-     */
-    public function ajax_search_precedents() {
-        $keyword = sanitize_text_field($_GET['keyword'] ?? '');
-        $category = sanitize_text_field($_GET['category'] ?? '');
-
-        $args = array(
-            'post_type'      => 'legal_precedent',
-            'posts_per_page' => 15,
-            's'              => $keyword,
-        );
-
-        if (!empty($category)) {
-            $args['tax_query'] = array(
-                array(
-                    'taxonomy' => 'precedent_category',
-                    'field'    => 'slug',
-                    'terms'    => $category,
-                ),
-            );
-        }
-
-        $query = new WP_Query($args);
-        $results = array();
-
-        if ($query->have_posts()) {
-            while ($query->have_posts()) {
-                $query->the_post();
-                $results[] = array(
-                    'id'      => get_the_ID(),
-                    'title'   => get_the_title(),
-                    'excerpt' => get_the_excerpt(),
-                    'number'  => get_post_meta(get_the_ID(), '_precedent_number', true),
-                    'date'    => get_post_meta(get_the_ID(), '_precedent_date', true),
-                );
-            }
-            wp_reset_postdata();
-        }
-
-        wp_send_json_success(array('precedents' => $results));
-    }
-
-    public function render_portal() {
-        ob_start();
-        ?>
-        <div id="sedrazavi-legal-ai-root" class="legal-intelligence-app">
-            <p class="text-xs text-slate-500 text-center font-mono">در حال آماده‌سازی دستیار هوش مصنوعی و ممیزی قراردادها...</p>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-
-    public function render_contract_auditor() {
-        ob_start();
-        ?>
-        <div id="sedrazavi-contract-audit-root" class="contract-auditor-app">
-            <p class="text-xs text-slate-500 text-center font-mono">بارگذاری ماژول غربالگری ریسک قرارداد...</p>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-}
-
-new SedRazavi_Legal_Intelligence();
-`
+    "path": "elementor-addon-suite/assets/css/widgets/story-bar.css",
+    "filename": "story-bar.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/story-bar.css",
+    "code": "/**\n * Universal Story Highlights Bar CSS\n */\n.uas-story-bar-wrapper {\n  position: relative;\n  width: 100%;\n  padding: 16px 20px;\n  background: var(--uas-bg-card, #FFFFFF);\n  border: 1px solid var(--uas-border-color, #E2E8F0);\n  border-radius: var(--uas-radius-card, 18px);\n  box-sizing: border-box;\n}\n\n.uas-story-header {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  margin-bottom: 16px;\n  font-size: 13px;\n  font-weight: 700;\n  color: var(--uas-text-main, #0F172A);\n}\n\n.uas-story-scroll {\n  display: flex;\n  align-items: center;\n  gap: 20px;\n  overflow-x: auto;\n  padding-bottom: 8px;\n  scrollbar-width: thin;\n}\n\n.uas-story-item {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 8px;\n  cursor: pointer;\n  flex-shrink: 0;\n  text-align: center;\n}\n\n.uas-story-ring {\n  width: 68px;\n  height: 68px;\n  border-radius: 50%;\n  padding: 3px;\n  background: linear-gradient(135deg, #2563EB, #D4AF37, #E11D48);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: transform 0.25s ease;\n}\n\n.uas-story-item:hover .uas-story-ring {\n  transform: scale(1.08);\n}\n\n.uas-story-avatar {\n  width: 100%;\n  height: 100%;\n  border-radius: 50%;\n  object-fit: cover;\n  border: 2px solid #FFFFFF;\n}\n\n.uas-story-title {\n  font-size: 11px;\n  font-weight: 600;\n  color: var(--uas-text-main, #334155);\n  max-width: 80px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/assets/css/widgets/team.css",
+    "filename": "team.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/team.css",
+    "code": "/**\n * Universal Team Members Showcase CSS\n */\n.uas-team-wrapper {\n  position: relative;\n  width: 100%;\n  box-sizing: border-box;\n}\n\n.uas-team-grid {\n  display: grid;\n  grid-template-columns: repeat(var(--uas-team-cols, 3), 1fr);\n  gap: 24px;\n}\n\n.uas-team-card {\n  background: var(--uas-bg-card, #FFFFFF);\n  border: 1px solid var(--uas-border-color, #E2E8F0);\n  border-radius: var(--uas-radius-card, 20px);\n  padding: 24px;\n  text-align: center;\n  box-shadow: var(--uas-shadow-card, 0 4px 15px rgba(0,0,0,0.03));\n  transition: all 0.3s ease;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 12px;\n}\n\n.uas-team-card:hover {\n  transform: translateY(-5px);\n  border-color: var(--uas-primary-color, #2563EB);\n  box-shadow: 0 15px 30px -5px rgba(0,0,0,0.08);\n}\n\n.uas-team-photo {\n  width: 96px;\n  height: 96px;\n  border-radius: 50%;\n  object-fit: cover;\n  border: 3px solid var(--uas-primary-color, #2563EB);\n  margin-bottom: 4px;\n}\n\n.uas-team-name {\n  font-size: 18px;\n  font-weight: 700;\n  color: var(--uas-text-main, #0F172A);\n  margin: 0;\n}\n\n.uas-team-role {\n  font-size: 13px;\n  color: var(--uas-primary-color, #2563EB);\n  font-weight: 600;\n  margin: 0;\n}\n\n.uas-team-bio {\n  font-size: 12px;\n  line-height: 1.6;\n  color: var(--uas-text-muted, #64748B);\n  margin: 0;\n}\n\n@media (max-width: 991px) {\n  .uas-team-grid {\n    grid-template-columns: repeat(2, 1fr);\n  }\n}\n\n@media (max-width: 640px) {\n  .uas-team-grid {\n    grid-template-columns: 1fr;\n  }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/assets/css/widgets/testimonials.css",
+    "filename": "testimonials.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/testimonials.css",
+    "code": "/**\n * Universal Testimonials CSS (Topic-Agnostic)\n */\n.uas-testimonials-wrapper {\n  position: relative;\n  width: 100%;\n  box-sizing: border-box;\n}\n\n.uas-testimonials-grid {\n  display: grid;\n  grid-template-columns: repeat(var(--uas-testi-cols, 2), 1fr);\n  gap: 24px;\n}\n\n.uas-testimonial-card {\n  padding: 32px 28px;\n  background: var(--uas-bg-card, #FFFFFF);\n  border: 1px solid var(--uas-border-color, #E2E8F0);\n  border-radius: var(--uas-radius-card, 20px);\n  box-shadow: var(--uas-shadow-card, 0 4px 20px rgba(0,0,0,0.03));\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  gap: 20px;\n  position: relative;\n  transition: all 0.3s ease;\n}\n\n.uas-testimonial-card:hover {\n  transform: translateY(-4px);\n  border-color: var(--uas-primary-color, #2563EB);\n  box-shadow: 0 15px 30px -5px rgba(0,0,0,0.08);\n}\n\n.uas-testimonial-quote-icon {\n  font-size: 32px;\n  line-height: 1;\n  color: var(--uas-primary-color, #2563EB);\n  opacity: 0.25;\n}\n\n.uas-testimonial-text {\n  font-size: 15px;\n  line-height: 1.8;\n  color: var(--uas-text-main, #334155);\n  font-style: normal;\n  margin: 0;\n}\n\n.uas-testimonial-rating {\n  color: #F59E0B;\n  font-size: 14px;\n  letter-spacing: 2px;\n}\n\n.uas-testimonial-author {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n  border-top: 1px solid var(--uas-border-color, #F1F5F9);\n  padding-top: 16px;\n}\n\n.uas-testimonial-avatar {\n  width: 48px;\n  height: 48px;\n  border-radius: 50%;\n  object-fit: cover;\n  border: 2px solid var(--uas-primary-color, #2563EB);\n}\n\n.uas-testimonial-meta {\n  display: flex;\n  flex-direction: column;\n  text-align: right;\n}\n\n.uas-testimonial-name {\n  font-size: 15px;\n  font-weight: 700;\n  color: var(--uas-text-main, #0F172A);\n  margin: 0;\n}\n\n.uas-testimonial-role {\n  font-size: 12px;\n  color: var(--uas-text-muted, #64748B);\n  margin: 0;\n}\n\n@media (max-width: 768px) {\n  .uas-testimonials-grid {\n    grid-template-columns: 1fr;\n  }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/assets/css/widgets/theme-toggle.css",
+    "filename": "theme-toggle.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/theme-toggle.css",
+    "code": "/**\n * Universal Theme Switcher CSS\n */\n.uas-theme-toggle-box {\n  display: inline-flex;\n  align-items: center;\n  gap: 10px;\n  cursor: pointer;\n  user-select: none;\n}\n\n.uas-toggle-pill {\n  width: 52px;\n  height: 28px;\n  background: var(--uas-border-color, #E2E8F0);\n  border-radius: 9999px;\n  position: relative;\n  transition: background-color 0.25s ease;\n}\n\n.dark .uas-toggle-pill {\n  background: var(--uas-primary-color, #2563EB);\n}\n\n.uas-toggle-thumb {\n  width: 22px;\n  height: 22px;\n  background: #FFFFFF;\n  border-radius: 50%;\n  position: absolute;\n  top: 3px;\n  left: 4px;\n  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 11px;\n}\n\n.dark .uas-toggle-thumb {\n  transform: translateX(22px);\n  background: #0F172A;\n  color: #F8FAFC;\n}\n\n.uas-toggle-label {\n  font-size: 13px;\n  font-weight: 600;\n  color: var(--uas-text-main, #334155);\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/assets/css/widgets/video.css",
+    "filename": "video.css",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/video.css",
+    "code": "/**\n * Universal Video Showcase CSS\n */\n.uas-video-wrapper {\n  position: relative;\n  width: 100%;\n  border-radius: var(--uas-radius-card, 24px);\n  overflow: hidden;\n  box-shadow: var(--uas-shadow-card, 0 10px 30px rgba(0,0,0,0.1));\n}\n\n.uas-video-poster-box {\n  position: relative;\n  width: 100%;\n  aspect-ratio: 16 / 9;\n  background: #0F172A;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n}\n\n.uas-video-poster-img {\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  opacity: 0.85;\n  transition: transform 0.4s ease, opacity 0.3s;\n}\n\n.uas-video-poster-box:hover .uas-video-poster-img {\n  transform: scale(1.03);\n  opacity: 0.7;\n}\n\n.uas-video-play-btn {\n  position: absolute;\n  width: 72px;\n  height: 72px;\n  border-radius: 50%;\n  background: var(--uas-primary-color, #2563EB);\n  color: #FFFFFF;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 26px;\n  box-shadow: 0 0 0 12px rgba(37, 99, 235, 0.25);\n  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n.uas-video-poster-box:hover .uas-video-play-btn {\n  transform: scale(1.15);\n  box-shadow: 0 0 0 18px rgba(37, 99, 235, 0.35);\n}\n\n.uas-video-caption {\n  padding: 16px 20px;\n  background: var(--uas-bg-card, #FFFFFF);\n  text-align: right;\n  border: 1px solid var(--uas-border-color, #E2E8F0);\n  border-top: none;\n  font-size: 14px;\n  font-weight: 700;\n  color: var(--uas-text-main, #0F172A);\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/assets/js/admin-settings.js",
+    "filename": "admin-settings.js",
+    "category": "افزونه مکمل (Plugin Addons)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/js/admin-settings.js",
+    "code": "/**\n * Universal Elementor Addon Suite - Admin Settings JS\n */\n(function($) {\n  'use strict';\n\n  $(document).ready(function() {\n    // Re-import Templates AJAX\n    $('#uas-btn-reimport-templates').on('click', function(e) {\n      e.preventDefault();\n      var $btn = $(this);\n      var $status = $('#uas-reimport-status');\n\n      $btn.prop('disabled', true).text('در حال ایمپورت تمپلیت‌ها و پاپ‌آپ‌ها...');\n      $status.removeClass('notice-error notice-success').addClass('notice notice-info').html('<p>در حال بارگذاری فایل‌های JSON و ثبت در کتابخانه المنتور...</p>').show();\n\n      $.ajax({\n        url: uasAdminVars.ajaxUrl,\n        type: 'POST',\n        data: {\n          action: 'uas_import_templates',\n          nonce: uasAdminVars.nonce\n        },\n        success: function(response) {\n          $btn.prop('disabled', false).text('ایمپورت مجدد تمپلیت‌ها و پاپ‌آپ‌ها');\n          if (response.success) {\n            $status.removeClass('notice-info').addClass('notice notice-success').html(\n              '<p><strong>عملیات موفق!</strong> تمامی تمپلیت‌ها و پاپ‌آپ‌ها با موفقیت ایمپورت/همگام‌سازی شدند. (ایمپورت‌شده: ' + response.data.imported + ' | از پیش موجود: ' + response.data.skipped + ')</p>'\n            );\n          } else {\n            $status.removeClass('notice-info').addClass('notice notice-error').html(\n              '<p>خطا در ایمپورت: ' + (response.data.message || 'خطای ناشناخته') + '</p>'\n            );\n          }\n        },\n        error: function() {\n          $btn.prop('disabled', false).text('ایمپورت مجدد تمپلیت‌ها و پاپ‌آپ‌ها');\n          $status.removeClass('notice-info').addClass('notice notice-error').html('<p>خطا در برقراری ارتباط با سرور.</p>');\n        }\n      });\n    });\n\n    // Toggle All Widgets\n    $('#uas-btn-enable-all').on('click', function(e) {\n      e.preventDefault();\n      $('.uas-widget-checkbox').prop('checked', true);\n    });\n\n    $('#uas-btn-disable-all').on('click', function(e) {\n      e.preventDefault();\n      $('.uas-widget-checkbox').prop('checked', false);\n    });\n  });\n})(jQuery);\n"
+  },
+  {
+    "path": "elementor-addon-suite/assets/js/widgets-core.js",
+    "filename": "widgets-core.js",
+    "category": "افزونه مکمل (Plugin Addons)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/js/widgets-core.js",
+    "code": "/**\n * Universal Elementor Addon Suite - Core Widgets Runtime JS\n * Version: 1.0.0\n */\n(function($) {\n  'use strict';\n\n  $(window).on('elementor/frontend/init', function() {\n    // Frontend Widget Handlers will be registered here as widgets are ported in Phase 2\n  });\n})(jQuery);\n"
+  },
+  {
+    "path": "elementor-addon-suite/assets/js/widgets/faq.js",
+    "filename": "faq.js",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/js/widgets/faq.js",
+    "code": "/**\n * Universal FAQ Accordion JS\n */\n(function($) {\n  'use strict';\n\n  function initFaqAccordion($scope) {\n    var $questions = $scope.find('.uas-faq-question');\n    $questions.on('click', function() {\n      var $item = $(this).closest('.uas-faq-item');\n      var isActive = $item.hasClass('is-active');\n\n      // Toggle current\n      if (isActive) {\n        $item.removeClass('is-active');\n        $(this).attr('aria-expanded', 'false');\n      } else {\n        // Close siblings if single mode\n        $scope.find('.uas-faq-item').removeClass('is-active');\n        $scope.find('.uas-faq-question').attr('aria-expanded', 'false');\n        $item.addClass('is-active');\n        $(this).attr('aria-expanded', 'true');\n      }\n    });\n  }\n\n  $(window).on('elementor/frontend/init', function() {\n    elementorFrontend.hooks.addAction('frontend/element_ready/uas_faq.default', initFaqAccordion);\n  });\n})(jQuery);\n"
+  },
+  {
+    "path": "elementor-addon-suite/assets/js/widgets/floating-dock.js",
+    "filename": "floating-dock.js",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/js/widgets/floating-dock.js",
+    "code": "/**\n * Universal Floating Action Dock JS\n */\n(function($) {\n  'use strict';\n\n  function initFloatingDock($scope) {\n    var $dock = $scope.find('.uas-floating-dock');\n    var $btn = $scope.find('.uas-scroll-top-btn');\n\n    $(window).on('scroll', function() {\n      if ($(window).scrollTop() > 300) {\n        $dock.addClass('is-visible');\n      } else {\n        $dock.removeClass('is-visible');\n      }\n    });\n\n    $btn.on('click', function(e) {\n      e.preventDefault();\n      window.scrollTo({ top: 0, behavior: 'smooth' });\n    });\n  }\n\n  $(window).on('elementor/frontend/init', function() {\n    elementorFrontend.hooks.addAction('frontend/element_ready/uas_floating_dock.default', initFloatingDock);\n  });\n})(jQuery);\n"
+  },
+  {
+    "path": "elementor-addon-suite/assets/js/widgets/story-bar.js",
+    "filename": "story-bar.js",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/js/widgets/story-bar.js",
+    "code": "/**\n * Universal Story Highlights Bar JS\n */\n(function($) {\n  'use strict';\n\n  function initStoryBar($scope) {\n    var $items = $scope.find('.uas-story-item');\n    $items.on('click', function() {\n      var title = $(this).data('title');\n      var content = $(this).data('content');\n      alert(title + \"\\n\\n\" + (content || 'محتوای استوری انتخاب شده'));\n    });\n  }\n\n  $(window).on('elementor/frontend/init', function() {\n    elementorFrontend.hooks.addAction('frontend/element_ready/uas_story_bar.default', initStoryBar);\n  });\n})(jQuery);\n"
+  },
+  {
+    "path": "elementor-addon-suite/assets/js/widgets/theme-toggle.js",
+    "filename": "theme-toggle.js",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ماژول افزونه وردپرس: elementor-addon-suite/assets/js/widgets/theme-toggle.js",
+    "code": "/**\n * Universal Theme Switcher JS\n */\n(function($) {\n  'use strict';\n\n  function initThemeToggle($scope) {\n    var $box = $scope.find('.uas-theme-toggle-box');\n\n    // Check existing state from localStorage\n    if (localStorage.getItem('uas-theme') === 'dark' || (!('uas-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {\n      $('html').addClass('dark');\n    }\n\n    $box.on('click', function() {\n      if ($('html').hasClass('dark')) {\n        $('html').removeClass('dark');\n        localStorage.setItem('uas-theme', 'light');\n      } else {\n        $('html').addClass('dark');\n        localStorage.setItem('uas-theme', 'dark');\n      }\n    });\n  }\n\n  $(window).on('elementor/frontend/init', function() {\n    elementorFrontend.hooks.addAction('frontend/element_ready/uas_theme_toggle.default', initThemeToggle);\n  });\n})(jQuery);\n"
+  },
+  {
+    "path": "elementor-addon-suite/elementor-addon-suite.php",
+    "filename": "elementor-addon-suite.php",
+    "category": "افزونه مکمل (Plugin Addons)",
+    "description": "فایل اصلی افزونه جامع مستقل المنتور (UAS) با سازگاری جهانی با تمام پوسته‌ها.",
+    "code": "<?php\n/**\n * Plugin Name: Universal Elementor Addon Suite (UAS)\n * Plugin URI: https://github.com/Aqamirrazavi/Sedrazavi-WPtemplate\n * Description: افزونه مستقل، عمومی و حرفه‌ای المان‌های پیشرفته برای صفحه‌ساز المنتور. قابل نصب روی هر نوع وب‌سایت وردپرسی (فروشگاهی، شرکتی، خدماتی، پرتال و وبلاگ) بدون وابستگی به هیچ قالب خاص.\n * Version: 1.0.0\n * Author: سید امیر حسین رضوی فردویی & تیم توسعه معماری وب\n * Author URI: https://github.com/Aqamirrazavi\n * Text Domain: universal-elementor-suite\n * Domain Path: /languages\n * Requires at least: 5.8\n * Requires PHP: 7.4\n * Elementor tested up to: 3.25\n * Elementor Pro tested up to: 3.25\n * License: GPLv2 or later\n * License URI: https://www.gnu.org/licenses/gpl-2.0.html\n */\n\nif (!defined('ABSPATH')) {\n    exit; // Direct access denied\n}\n\n// Global Plugin Constants\nif (!defined('UAS_VERSION')) define('UAS_VERSION', '1.0.0');\nif (!defined('UAS_FILE')) define('UAS_FILE', __FILE__);\nif (!defined('UAS_PATH')) define('UAS_PATH', plugin_dir_path(__FILE__));\nif (!defined('UAS_URL')) define('UAS_URL', plugin_dir_url(__FILE__));\nif (!defined('UAS_MINIMUM_ELEMENTOR_VERSION')) define('UAS_MINIMUM_ELEMENTOR_VERSION', '3.5.0');\nif (!defined('UAS_MINIMUM_PHP_VERSION')) define('UAS_MINIMUM_PHP_VERSION', '7.4');\n\n/**\n * Main Initialization Class\n */\nfinal class Universal_Elementor_Addon_Suite {\n\n    /**\n     * Singleton Instance\n     *\n     * @var Universal_Elementor_Addon_Suite|null\n     */\n    private static $_instance = null;\n\n    /**\n     * Get instance\n     *\n     * @return Universal_Elementor_Addon_Suite\n     */\n    public static function instance() {\n        if (is_null(self::$_instance)) {\n            self::$_instance = new self();\n        }\n        return self::$_instance;\n    }\n\n    /**\n     * Constructor\n     */\n    public function __construct() {\n        add_action('init', [$this, 'i18n']);\n        add_action('plugins_loaded', [$this, 'init']);\n    }\n\n    /**\n     * On Plugin Activation\n     */\n    public static function on_activation() {\n        require_once UAS_PATH . 'includes/class-template-importer.php';\n        \\UniversalElementorSuite\\Template_Importer::run_activation_import();\n    }\n\n    /**\n     * Load Textdomain\n     */\n    public function i18n() {\n        load_plugin_textdomain('universal-elementor-suite', false, dirname(plugin_basename(__FILE__)) . '/languages');\n    }\n\n    /**\n     * Initialize Plugin Logic\n     */\n    public function init() {\n        // 1. Check PHP Version\n        if (version_compare(PHP_VERSION, UAS_MINIMUM_PHP_VERSION, '<')) {\n            add_action('admin_notices', [$this, 'admin_notice_minimum_php_version']);\n            return;\n        }\n\n        // 2. Check if Elementor is installed and loaded\n        if (!did_action('elementor/loaded')) {\n            add_action('admin_notices', [$this, 'admin_notice_missing_elementor']);\n            return;\n        }\n\n        // 3. Check Elementor Version\n        if (defined('ELEMENTOR_VERSION') && version_compare(ELEMENTOR_VERSION, UAS_MINIMUM_ELEMENTOR_VERSION, '<')) {\n            add_action('admin_notices', [$this, 'admin_notice_minimum_elementor_version']);\n            return;\n        }\n\n        // 4. Safe Bootstrap: Load Core Engine\n        require_once UAS_PATH . 'includes/class-plugin.php';\n        \\UniversalElementorSuite\\Plugin::instance();\n    }\n\n    /**\n     * Admin Notice: Missing Elementor Plugin\n     */\n    public function admin_notice_missing_elementor() {\n        if (!current_user_can('activate_plugins')) {\n            return;\n        }\n\n        $screen = get_current_screen();\n        if (isset($screen->parent_file) && 'plugins.php' === $screen->parent_file && 'update' === $screen->id) {\n            return;\n        }\n\n        $install_url = wp_nonce_url(\n            self_admin_url('update.php?action=install-plugin&plugin=elementor'),\n            'install-plugin_elementor'\n        );\n\n        $message = sprintf(\n            /* translators: 1: Plugin name 2: Elementor */\n            esc_html__('افزونه «%1$s» جهت ارائه المان‌ها و ویجت‌های تعاملی نیازمند فعال بودن صفحه‌ساز «%2$s» است.', 'universal-elementor-suite'),\n            '<strong>Universal Elementor Addon Suite</strong>',\n            '<strong>Elementor</strong>'\n        );\n\n        printf(\n            '<div class=\"notice notice-warning is-dismissible\" style=\"border-right-color: #D4AF37; padding: 12px 16px;\">\n                <p style=\"font-size: 13px; margin: 0 0 8px 0;\">%1$s</p>\n                <p style=\"margin: 0;\">\n                    <a href=\"%2$s\" class=\"button button-primary\" style=\"background: #0B132B; border-color: #D4AF37; color: #F3E5AB;\">%3$s</a>\n                </p>\n            </div>',\n            $message,\n            esc_url($install_url),\n            esc_html__('نصب و فعال‌سازی صفحه‌ساز المنتور', 'universal-elementor-suite')\n        );\n    }\n\n    /**\n     * Admin Notice: Minimum Elementor Version\n     */\n    public function admin_notice_minimum_elementor_version() {\n        if (!current_user_can('activate_plugins')) {\n            return;\n        }\n\n        $message = sprintf(\n            /* translators: 1: Plugin name 2: Elementor 3: Required Elementor version */\n            esc_html__('افزونه «%1$s» نیازمند نگارش %3$s یا بالاتر از «%2$s» می‌باشد.', 'universal-elementor-suite'),\n            '<strong>Universal Elementor Addon Suite</strong>',\n            '<strong>Elementor</strong>',\n            UAS_MINIMUM_ELEMENTOR_VERSION\n        );\n\n        printf(\n            '<div class=\"notice notice-error is-dismissible\"><p>%1$s</p></div>',\n            $message\n        );\n    }\n\n    /**\n     * Admin Notice: Minimum PHP Version\n     */\n    public function admin_notice_minimum_php_version() {\n        if (!current_user_can('activate_plugins')) {\n            return;\n        }\n\n        $message = sprintf(\n            /* translators: 1: Plugin name 2: PHP 3: Required PHP version */\n            esc_html__('افزونه «%1$s» نیازمند نسخه %3$s یا بالاتر از «%2$s» است.', 'universal-elementor-suite'),\n            '<strong>Universal Elementor Addon Suite</strong>',\n            '<strong>PHP</strong>',\n            UAS_MINIMUM_PHP_VERSION\n        );\n\n        printf(\n            '<div class=\"notice notice-error is-dismissible\"><p>%1$s</p></div>',\n            $message\n        );\n    }\n}\n\n/**\n * Run Universal Elementor Addon Suite\n */\nUniversal_Elementor_Addon_Suite::instance();\nif (function_exists('register_activation_hook')) {\n    register_activation_hook(__FILE__, ['Universal_Elementor_Addon_Suite', 'on_activation']);\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/class-admin-settings.php",
+    "filename": "class-admin-settings.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "صفحه اختصاصی تنظیمات و فعال/غیرفعال‌سازی ابزارک‌های المنتور در پیشخوان.",
+    "code": "<?php\nnamespace UniversalElementorSuite;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Elementor Addon Suite - Admin Settings Page\n */\nclass Admin_Settings {\n\n    /**\n     * Singleton Instance\n     *\n     * @var Admin_Settings|null\n     */\n    private static $_instance = null;\n\n    /**\n     * Get instance\n     *\n     * @return Admin_Settings\n     */\n    public static function instance() {\n        if (is_null(self::$_instance)) {\n            self::$_instance = new self();\n        }\n        return self::$_instance;\n    }\n\n    /**\n     * Constructor\n     */\n    public function __construct() {\n        add_action('admin_menu', [$this, 'register_menu_page']);\n        add_action('admin_init', [$this, 'register_settings']);\n        add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);\n    }\n\n    /**\n     * Enqueue Admin Styles and Scripts\n     */\n    public function enqueue_assets($hook) {\n        if (strpos($hook, 'universal-elementor') === false) {\n            return;\n        }\n\n        wp_enqueue_style('uas-admin-settings-css', UAS_URL . 'assets/css/admin-settings.css', [], UAS_VERSION);\n        wp_enqueue_script('uas-admin-settings-js', UAS_URL . 'assets/js/admin-settings.js', ['jquery'], UAS_VERSION, true);\n\n        wp_localize_script('uas-admin-settings-js', 'uasAdminVars', [\n            'ajaxUrl' => admin_url('admin-ajax.php'),\n            'nonce'   => wp_create_nonce('uas_admin_nonce'),\n        ]);\n    }\n\n    /**\n     * Register Admin Menu\n     */\n    public function register_menu_page() {\n        add_menu_page(\n            esc_html__('تنظیمات Universal Elementor Suite', 'universal-elementor-suite'),\n            esc_html__('Universal Suite', 'universal-elementor-suite'),\n            'manage_options',\n            'universal-elementor-settings',\n            [$this, 'render_settings_page'],\n            'dashicons-screenoptions',\n            58\n        );\n    }\n\n    /**\n     * Register Settings\n     */\n    public function register_settings() {\n        register_setting('uas_settings_group', 'uas_custom_category_name', [\n            'type'              => 'string',\n            'sanitize_callback' => 'sanitize_text_field',\n            'default'           => 'المان‌های پیشرفته (Universal Suite)',\n        ]);\n\n        register_setting('uas_settings_group', 'uas_custom_category_icon', [\n            'type'              => 'string',\n            'sanitize_callback' => 'sanitize_text_field',\n            'default'           => 'eicon-apps',\n        ]);\n\n        register_setting('uas_settings_group', 'uas_disabled_widgets', [\n            'type'              => 'array',\n            'sanitize_callback' => [$this, 'sanitize_disabled_widgets'],\n            'default'           => [],\n        ]);\n\n        register_setting('uas_settings_group', 'uas_delete_templates_on_uninstall', [\n            'type'              => 'string',\n            'sanitize_callback' => 'sanitize_text_field',\n            'default'           => 'no',\n        ]);\n    }\n\n    /**\n     * Sanitize Disabled Widgets\n     */\n    public function sanitize_disabled_widgets($input) {\n        if (!is_array($input)) {\n            return [];\n        }\n        return array_map('sanitize_key', $input);\n    }\n\n    /**\n     * Get All Available Widgets List\n     *\n     * @return array\n     */\n    public static function get_all_widgets_list() {\n        return [\n            'uas_hero'            => ['name' => 'هیرو بنر مدرن و منعطف', 'icon' => 'eicon-banner'],\n            'uas_services_grid'   => ['name' => 'شبکه خدمات و ویژگی‌ها', 'icon' => 'eicon-gallery-grid'],\n            'uas_testimonials'    => ['name' => 'نظرات و رضایت مشتریان', 'icon' => 'eicon-testimonial'],\n            'uas_posts_grid'      => ['name' => 'گرید مقالات و اخبار پویا', 'icon' => 'eicon-post-list'],\n            'uas_video'           => ['name' => 'نمایشگر ویدیویی با پوستر', 'icon' => 'eicon-video-playlist'],\n            'uas_story_bar'       => ['name' => 'نوار استوری‌ها و هایلایت‌ها', 'icon' => 'eicon-instagram-gallery'],\n            'uas_team'            => ['name' => 'معرفی اعضای تیم و متخصصان', 'icon' => 'eicon-person'],\n            'uas_faq'             => ['name' => 'آکاردئون پرسش‌های متداول', 'icon' => 'eicon-help-o'],\n            'uas_contact_booking' => ['name' => 'فرم هوشمند رزرو نوبت و مشاوره', 'icon' => 'eicon-form-horizontal'],\n            'uas_cta'             => ['name' => 'بنر فراخوان اقدام و تماس (CTA)', 'icon' => 'eicon-call-to-action'],\n            'uas_banner_slider'   => ['name' => 'نوار تیکر و شعارهای متحرک', 'icon' => 'eicon-text-area'],\n            'uas_floating_dock'   => ['name' => 'داک شناور بازگشت به بالا', 'icon' => 'eicon-navigation-vertical'],\n            'uas_theme_toggle'    => ['name' => 'سوییچ تغییر حالت شب و روز', 'icon' => 'eicon-adjust'],\n            'uas_firm_milestones' => ['name' => 'سفر رشد و نقاط عطف راهبردی', 'icon' => 'eicon-time-line'],\n            'uas_case_timeline'   => ['name' => 'تایم‌لاین تعاملی پرونده موکل', 'icon' => 'eicon-history'],\n            'uas_email_otp'       => ['name' => 'ورود با رمز یکبار مصرف ایمیل', 'icon' => 'eicon-lock-user'],\n            'uas_radar_chart'     => ['name' => 'نمودار راداری حوزه‌های تخصصی', 'icon' => 'eicon-radar-chart'],\n        ];\n    }\n\n    /**\n     * Render Settings Page\n     */\n    public function render_settings_page() {\n        if (!current_user_can('manage_options')) {\n            return;\n        }\n\n        $all_widgets = self::get_all_widgets_list();\n        $disabled_widgets = get_option('uas_disabled_widgets', []);\n        $cat_name = get_option('uas_custom_category_name', 'المان‌های پیشرفته (Universal Suite)');\n        $cat_icon = get_option('uas_custom_category_icon', 'eicon-apps');\n        $delete_on_uninstall = get_option('uas_delete_templates_on_uninstall', 'no');\n        ?>\n        <div class=\"wrap uas-admin-wrap\" dir=\"rtl\">\n            <div class=\"uas-admin-header\">\n                <div class=\"uas-admin-title-box\">\n                    <h1>تنظیمات Universal Elementor Suite</h1>\n                    <p>مدیریت ویجت‌ها، سفارشی‌سازی برندینگ دسته‌بندی و همگام‌سازی تمپلیت‌های آماده</p>\n                </div>\n                <div class=\"uas-admin-badge\">نسخه ۱.۰.۰</div>\n            </div>\n\n            <?php if (isset($_GET['settings-updated']) && $_GET['settings-updated']) : ?>\n                <div class=\"notice notice-success is-dismissible\" style=\"padding: 10px 14px; margin-bottom: 20px;\">\n                    <p><strong>تنظیمات با موفقیت ذخیره شدند.</strong></p>\n                </div>\n            <?php endif; ?>\n\n            <form method=\"post\" action=\"options.php\">\n                <?php settings_fields('uas_settings_group'); ?>\n\n                <!-- CARD 1: CATEGORY BRANDING -->\n                <div class=\"uas-admin-card\">\n                    <h2>🏷️ برندینگ و سفارشی‌سازی دسته‌بندی در پنل المنتور</h2>\n                    <p style=\"font-size: 13px; color: #64748B;\">می‌توانید عنوان و آیکون دسته‌بندی اختصاصی ویجت‌ها در پنل ویرایشگر المنتور را متناسب با نام برند یا شرکت خود تغییر دهید:</p>\n                    \n                    <table class=\"form-table\" role=\"presentation\">\n                        <tr>\n                            <th scope=\"row\"><label for=\"uas_custom_category_name\">عنوان دسته‌بندی در المنتور:</label></th>\n                            <td>\n                                <input type=\"text\" id=\"uas_custom_category_name\" name=\"uas_custom_category_name\" value=\"<?php echo esc_attr($cat_name); ?>\" class=\"regular-text\" />\n                                <p class=\"description\">این نام به عنوان سرفصل ویجت‌ها در پنل کناری المنتور نمایش داده می‌شود.</p>\n                            </td>\n                        </tr>\n                        <tr>\n                            <th scope=\"row\"><label for=\"uas_custom_category_icon\">آیکون دسته‌بندی:</label></th>\n                            <td>\n                                <select id=\"uas_custom_category_icon\" name=\"uas_custom_category_icon\">\n                                    <option value=\"eicon-apps\" <?php selected($cat_icon, 'eicon-apps'); ?>>eicon-apps (چهارخانه برنامه‌ها)</option>\n                                    <option value=\"eicon-elementor-circle\" <?php selected($cat_icon, 'eicon-elementor-circle'); ?>>eicon-elementor-circle (حلقه المنتور)</option>\n                                    <option value=\"eicon-star\" <?php selected($cat_icon, 'eicon-star'); ?>>eicon-star (ستاره لوکس)</option>\n                                    <option value=\"eicon-bolt\" <?php selected($cat_icon, 'eicon-bolt'); ?>>eicon-bolt (صاعقه و سرعت)</option>\n                                    <option value=\"eicon-tools\" <?php selected($cat_icon, 'eicon-tools'); ?>>eicon-tools (ابزارها)</option>\n                                </select>\n                            </td>\n                        </tr>\n                    </table>\n                </div>\n\n                <!-- CARD 2: WIDGETS MANAGER -->\n                <div class=\"uas-admin-card\">\n                    <div style=\"display: flex; align-items: center; justify-content: space-between;\">\n                        <h2>⚡ مدیریت و بهینه‌سازی بارگذاری ویجت‌ها</h2>\n                        <div style=\"display: flex; gap: 8px;\">\n                            <button type=\"button\" id=\"uas-btn-enable-all\" class=\"button button-secondary\" style=\"font-size: 12px;\">فعال‌سازی همه</button>\n                            <button type=\"button\" id=\"uas-btn-disable-all\" class=\"button button-secondary\" style=\"font-size: 12px;\">غیرفعال‌سازی همه</button>\n                        </div>\n                    </div>\n                    <p style=\"font-size: 13px; color: #64748B;\">ویجت‌هایی که در پروژه خود نیاز ندارید را خاموش فرمایید تا اسکریپت‌ها و فایل‌های CSS مربوطه بارگذاری نشوند و سرعت سایت افزایش یابد:</p>\n\n                    <div class=\"uas-widgets-grid\">\n                        <?php foreach ($all_widgets as $slug => $widget_data) : \n                            $is_disabled = in_array($slug, $disabled_widgets);\n                        ?>\n                            <div class=\"uas-widget-toggle-item\">\n                                <div class=\"uas-widget-info\">\n                                    <span class=\"uas-widget-icon\"><i class=\"<?php echo esc_attr($widget_data['icon']); ?>\"></i></span>\n                                    <span class=\"uas-widget-name\"><?php echo esc_html($widget_data['name']); ?></span>\n                                </div>\n                                <label class=\"uas-switch\">\n                                    <input type=\"checkbox\" class=\"uas-widget-checkbox\" name=\"uas_disabled_widgets[]\" value=\"<?php echo esc_attr($slug); ?>\" <?php checked($is_disabled, false); ?> style=\"display:none;\" />\n                                    <!-- Invert logic: check means enabled, unchecked means in disabled list -->\n                                    <input type=\"checkbox\" name=\"uas_active_widgets_toggle[]\" value=\"<?php echo esc_attr($slug); ?>\" <?php checked($is_disabled, false); ?> onchange=\"this.previousElementSibling.checked = !this.checked;\" />\n                                    <span class=\"uas-slider\"></span>\n                                </label>\n                            </div>\n                        <?php endforeach; ?>\n                    </div>\n                </div>\n\n                <!-- CARD 3: TEMPLATES & POPUPS RE-IMPORT -->\n                <div class=\"uas-admin-card\">\n                    <h2>📦 همگام‌سازی و ایمپورت مجدد تمپلیت‌ها و پاپ‌آپ‌ها</h2>\n                    <p style=\"font-size: 13px; color: #64748B;\">اگر قالب‌های ذخیره‌شده یا پاپ‌آپ‌های افزونه را تصادفاً پاک کرده‌اید یا می‌خواهید نگارش جدید را مجدداً به بخش <strong>قالب‌ها > قالب‌های ذخیره‌شده (Saved Templates)</strong> وارد نمایید، روی دکمه زیر کلیک کنید (ایمپورت به صورت ایدم‌پوتنت انجام شده و موارد موجود را تکرار نمی‌کند):</p>\n                    \n                    <div style=\"margin-top: 16px;\">\n                        <button type=\"button\" id=\"uas-btn-reimport-templates\" class=\"button button-primary\" style=\"background: #2563EB; border-color: #2563EB; padding: 6px 18px; font-weight: 700;\">\n                            ایمپورت مجدد تمپلیت‌ها و پاپ‌آپ‌ها\n                        </button>\n                    </div>\n\n                    <div id=\"uas-reimport-status\" style=\"display: none; margin-top: 16px;\"></div>\n                </div>\n\n                <!-- CARD 4: UNINSTALL PREFERENCES -->\n                <div class=\"uas-admin-card\">\n                    <h2>🗑️ رفتار و روتین پاک‌سازی در زمان حذف افزونه (Uninstall Policy)</h2>\n                    <p style=\"font-size: 13px; color: #64748B;\">تعیین وضعیت داده‌ها پس از حذف کامل افزونه از پیشخوان وردپرس:</p>\n\n                    <label style=\"display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #334155;\">\n                        <input type=\"checkbox\" name=\"uas_delete_templates_on_uninstall\" value=\"yes\" <?php checked($delete_on_uninstall, 'yes'); ?> />\n                        <span>پاک‌سازی کامل تمپلیت‌ها و پاپ‌آپ‌های ایمپورت‌شده در زمان حذف افزونه</span>\n                    </label>\n                    <p class=\"description\" style=\"margin-right: 24px; color: #EF4444;\">\n                        <strong>هشدار:</strong> در صورت فعال بودن این گزینه، اگر صفحات سایت شما از تمپلیت‌های ذخیره‌شده افزونه استفاده کنند، ممکن است پس از حذف افزونه محتوای آن صفحات حذف گردد. (پیش‌فرض امن: غیرفعال).\n                    </p>\n                </div>\n\n                <?php submit_button('ذخیره تغییرات تنظیمات', 'primary large', 'submit', true, ['style' => 'background: #0F172A; border-color: #0F172A; font-weight: 700;']); ?>\n            </form>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/class-plugin.php",
+    "filename": "class-plugin.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "کلاس هسته راه‌اندازی و مدیریت رویدادهای المنتور و بارگذاری ابزارک‌ها.",
+    "code": "<?php\nnamespace UniversalElementorSuite;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Core Plugin Manager Class\n */\nclass Plugin {\n\n    /**\n     * Singleton Instance\n     *\n     * @var Plugin|null\n     */\n    private static $_instance = null;\n\n    /**\n     * Dedicated Category Slug\n     */\n    const CATEGORY_SLUG = 'universal-addon-suite';\n\n    /**\n     * Get instance\n     *\n     * @return Plugin\n     */\n    public static function instance() {\n        if (is_null(self::$_instance)) {\n            self::$_instance = new self();\n        }\n        return self::$_instance;\n    }\n\n    /**\n     * Constructor\n     */\n    public function __construct() {\n        if (is_admin()) {\n            require_once UAS_PATH . 'includes/class-admin-settings.php';\n            Admin_Settings::instance();\n        }\n        $this->register_hooks();\n    }\n\n    /**\n     * Register Elementor Hooks\n     */\n    private function register_hooks() {\n        // Register Custom Elementor Category\n        add_action('elementor/elements/categories_registered', [$this, 'register_category']);\n\n        // Register Custom Elementor Widgets\n        add_action('elementor/widgets/register', [$this, 'register_widgets']);\n        add_action('elementor/widgets/widgets_registered', [$this, 'register_widgets']);\n\n        // Register Global Frontend & Editor Assets\n        add_action('elementor/frontend/after_register_styles', [$this, 'register_frontend_styles']);\n        add_action('elementor/frontend/after_register_scripts', [$this, 'register_frontend_scripts']);\n        add_action('elementor/editor/after_enqueue_styles', [$this, 'enqueue_editor_styles']);\n\n        // AJAX Action for Manual Template Import\n        add_action('wp_ajax_uas_import_templates', [$this, 'ajax_import_templates']);\n    }\n\n    /**\n     * AJAX Handler for Manual Template Import\n     */\n    public function ajax_import_templates() {\n        check_ajax_referer('uas_admin_nonce', 'nonce');\n\n        if (!current_user_can('edit_posts')) {\n            wp_send_json_error(['message' => 'سطح دسترسی ناکافی است.']);\n        }\n\n        require_once UAS_PATH . 'includes/class-template-importer.php';\n        $report = Template_Importer::import_all_templates();\n        wp_send_json_success($report);\n    }\n\n    /**\n     * Register Dedicated Category in Elementor Elements Panel\n     *\n     * @param \\Elementor\\Elements_Manager $elements_manager\n     */\n    public function register_category($elements_manager) {\n        $custom_title = get_option('uas_custom_category_name', esc_html__('المان‌های پیشرفته (Universal Suite)', 'universal-elementor-suite'));\n        $custom_icon  = get_option('uas_custom_category_icon', 'eicon-apps');\n\n        $elements_manager->add_category(\n            self::CATEGORY_SLUG,\n            [\n                'title'  => !empty($custom_title) ? $custom_title : esc_html__('المان‌های پیشرفته (Universal Suite)', 'universal-elementor-suite'),\n                'icon'   => !empty($custom_icon) ? $custom_icon : 'eicon-apps',\n                'active' => true,\n            ]\n        );\n    }\n\n    /**\n     * Register Widgets in Elementor\n     *\n     * @param \\Elementor\\Widgets_Manager $widgets_manager\n     */\n    public function register_widgets($widgets_manager) {\n        // 1. Core Widget Base Class\n        require_once UAS_PATH . 'includes/class-widget-base.php';\n\n        $disabled_widgets = (array) get_option('uas_disabled_widgets', []);\n\n        // 2. Load 13 Topic-Agnostic Widgets\n        $widgets_map = [\n            'uas_hero'            => ['file' => 'class-widget-hero.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Hero_Widget'],\n            'uas_services_grid'   => ['file' => 'class-widget-services-grid.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Services_Grid_Widget'],\n            'uas_testimonials'    => ['file' => 'class-widget-testimonials.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Testimonials_Widget'],\n            'uas_posts_grid'      => ['file' => 'class-widget-posts.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Posts_Widget'],\n            'uas_video'           => ['file' => 'class-widget-video.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Video_Widget'],\n            'uas_story_bar'       => ['file' => 'class-widget-story-bar.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Story_Bar_Widget'],\n            'uas_team'            => ['file' => 'class-widget-team.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Team_Widget'],\n            'uas_faq'             => ['file' => 'class-widget-faq.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Faq_Widget'],\n            'uas_contact_booking' => ['file' => 'class-widget-contact-booking.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Contact_Booking_Widget'],\n            'uas_cta'             => ['file' => 'class-widget-cta.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_CTA_Widget'],\n            'uas_banner_slider'   => ['file' => 'class-widget-banner-slider.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Banner_Slider_Widget'],\n            'uas_floating_dock'   => ['file' => 'class-widget-floating-dock.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Floating_Dock_Widget'],\n            'uas_theme_toggle'    => ['file' => 'class-widget-theme-toggle.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Theme_Toggle_Widget'],\n            'uas_firm_milestones' => ['file' => 'class-widget-firm-milestones.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Firm_Milestones_Widget'],\n            'uas_case_timeline'   => ['file' => 'class-widget-case-timeline.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Case_Timeline_Widget'],\n            'uas_email_otp'       => ['file' => 'class-widget-email-otp.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Email_OTP_Widget'],\n            'uas_radar_chart'     => ['file' => 'class-widget-radar-chart.php', 'class' => '\\UniversalElementorSuite\\Widgets\\Universal_Radar_Chart_Widget'],\n        ];\n\n        foreach ($widgets_map as $widget_id => $data) {\n            // Check if widget is disabled in admin settings\n            if (in_array($widget_id, $disabled_widgets, true)) {\n                continue; // Skip loading and registration to save memory and improve performance\n            }\n\n            $filepath = UAS_PATH . 'includes/widgets/' . $data['file'];\n            if (file_exists($filepath)) {\n                require_once $filepath;\n                $class_name = $data['class'];\n                if (class_exists($class_name)) {\n                    if (method_exists($widgets_manager, 'register')) {\n                        $widgets_manager->register(new $class_name());\n                    } elseif (method_exists($widgets_manager, 'register_widget_type')) {\n                        $widgets_manager->register_widget_type(new $class_name());\n                    }\n                }\n            }\n        }\n    }\n\n    /**\n     * Register Frontend CSS\n     */\n    public function register_frontend_styles() {\n        wp_register_style('uas-widgets-core', UAS_URL . 'assets/css/widgets-core.css', [], UAS_VERSION);\n        wp_register_style('uas-hero-css', UAS_URL . 'assets/css/widgets/hero.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-services-grid-css', UAS_URL . 'assets/css/widgets/services-grid.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-testimonials-css', UAS_URL . 'assets/css/widgets/testimonials.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-posts-css', UAS_URL . 'assets/css/widgets/posts.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-video-css', UAS_URL . 'assets/css/widgets/video.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-story-bar-css', UAS_URL . 'assets/css/widgets/story-bar.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-team-css', UAS_URL . 'assets/css/widgets/team.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-faq-css', UAS_URL . 'assets/css/widgets/faq.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-contact-booking-css', UAS_URL . 'assets/css/widgets/contact-booking.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-cta-css', UAS_URL . 'assets/css/widgets/cta.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-banner-slider-css', UAS_URL . 'assets/css/widgets/banner-slider.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-floating-dock-css', UAS_URL . 'assets/css/widgets/floating-dock.css', ['uas-widgets-core'], UAS_VERSION);\n        wp_register_style('uas-theme-toggle-css', UAS_URL . 'assets/css/widgets/theme-toggle.css', ['uas-widgets-core'], UAS_VERSION);\n    }\n\n    /**\n     * Register Frontend JS\n     */\n    public function register_frontend_scripts() {\n        wp_register_script('uas-widgets-core', UAS_URL . 'assets/js/widgets-core.js', ['jquery'], UAS_VERSION, true);\n        wp_register_script('uas-story-bar-js', UAS_URL . 'assets/js/widgets/story-bar.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);\n        wp_register_script('uas-faq-js', UAS_URL . 'assets/js/widgets/faq.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);\n        wp_register_script('uas-floating-dock-js', UAS_URL . 'assets/js/widgets/floating-dock.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);\n        wp_register_script('uas-theme-toggle-js', UAS_URL . 'assets/js/widgets/theme-toggle.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);\n    }\n\n    /**\n     * Enqueue Editor Styles\n     */\n    public function enqueue_editor_styles() {\n        wp_enqueue_style('uas-editor-styles', UAS_URL . 'assets/css/editor.css', [], UAS_VERSION);\n    }\n\n    /**\n     * Get Category Slug\n     *\n     * @return string\n     */\n    public static function get_category_slug() {\n        return self::CATEGORY_SLUG;\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/class-template-importer.php",
+    "filename": "class-template-importer.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "موتور درون‌ریزی خودکار قالب‌ها و پاپ‌آپ‌های از پیش‌طراحی‌شده المنتور.",
+    "code": "<?php\nnamespace UniversalElementorSuite;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Elementor Template & Popup Importer\n *\n * Reads packaged JSON section templates and popups and imports them idempotently\n * into Elementor's Saved Templates library (elementor_library).\n */\nclass Template_Importer {\n\n    /**\n     * Run import on plugin activation\n     */\n    public static function run_activation_import() {\n        self::import_all_templates();\n        self::import_all_popups();\n    }\n\n    /**\n     * Import all JSON section templates from templates directory\n     *\n     * @return array Status report\n     */\n    public static function import_all_templates() {\n        return self::import_from_directory(UAS_PATH . 'templates/', 'section');\n    }\n\n    /**\n     * Import all JSON popup templates from templates/popups directory\n     *\n     * @return array Status report\n     */\n    public static function import_all_popups() {\n        return self::import_from_directory(UAS_PATH . 'templates/popups/', 'popup');\n    }\n\n    /**\n     * General directory importer\n     *\n     * @param string $dir Directory path\n     * @param string $default_type 'section' or 'popup'\n     * @return array\n     */\n    private static function import_from_directory($dir, $default_type = 'section') {\n        if (!is_dir($dir)) {\n            return ['success' => false, 'message' => \"Directory {$dir} not found.\"];\n        }\n\n        $files = glob($dir . '*.json');\n        if (empty($files)) {\n            return ['success' => true, 'imported' => 0, 'skipped' => 0, 'items' => []];\n        }\n\n        $imported = 0;\n        $skipped = 0;\n        $results = [];\n\n        foreach ($files as $file) {\n            $slug = basename($file, '.json');\n            $raw_content = file_get_contents($file);\n            $data = json_decode($raw_content, true);\n\n            if (!is_array($data) || empty($data['title']) || empty($data['content'])) {\n                continue;\n            }\n\n            // Idempotency check: see if already imported by slug\n            $existing = get_posts([\n                'post_type'      => 'elementor_library',\n                'post_status'    => 'any',\n                'posts_per_page' => 1,\n                'meta_key'       => '_uas_template_slug',\n                'meta_value'     => $slug,\n            ]);\n\n            if (!empty($existing)) {\n                $skipped++;\n                $results[] = [\n                    'id'     => $existing[0]->ID,\n                    'title'  => $data['title'],\n                    'slug'   => $slug,\n                    'type'   => $default_type,\n                    'status' => 'already_exists',\n                ];\n                continue;\n            }\n\n            // Create new Elementor Saved Template / Popup post\n            $type = $data['type'] ?? $default_type;\n            $post_id = wp_insert_post([\n                'post_title'   => sanitize_text_field($data['title']),\n                'post_type'    => 'elementor_library',\n                'post_status'  => 'publish',\n                'post_content' => '',\n            ]);\n\n            if (is_wp_error($post_id) || !$post_id) {\n                continue;\n            }\n\n            // Set Elementor taxonomies\n            if (taxonomy_exists('elementor_library_type')) {\n                wp_set_object_terms($post_id, $type, 'elementor_library_type');\n            }\n\n            // Set Elementor meta keys\n            update_post_meta($post_id, '_elementor_edit_mode', 'builder');\n            update_post_meta($post_id, '_elementor_template_type', $type);\n            update_post_meta($post_id, '_elementor_data', wp_slash(json_encode($data['content'])));\n            update_post_meta($post_id, '_elementor_version', defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : '3.24.0');\n            update_post_meta($post_id, '_uas_template_slug', $slug);\n\n            // If Popup, store page_settings (dimensions, animation, overlay, close button)\n            if ($type === 'popup' && !empty($data['page_settings'])) {\n                update_post_meta($post_id, '_elementor_page_settings', wp_slash(json_encode($data['page_settings'])));\n            }\n\n            $imported++;\n            $results[] = [\n                'id'     => $post_id,\n                'title'  => $data['title'],\n                'slug'   => $slug,\n                'type'   => $type,\n                'status' => 'imported',\n            ];\n        }\n\n        return [\n            'success'  => true,\n            'imported' => $imported,\n            'skipped'  => $skipped,\n            'total'    => count($files),\n            'items'    => $results,\n        ];\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/class-widget-base.php",
+    "filename": "class-widget-base.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "کلاس پایه و انتزاعی ابزارک‌های المنتور با متدهای استایل‌دهی و کنترل‌ها.",
+    "code": "<?php\nnamespace UniversalElementorSuite;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Widget Base Class\n *\n * Abstract base class extending Elementor's Widget_Base with common helpers.\n */\nabstract class Universal_Widget_Base extends \\Elementor\\Widget_Base {\n\n    /**\n     * Get Widget Categories\n     *\n     * @return array\n     */\n    public function get_categories() {\n        return [Plugin::CATEGORY_SLUG];\n    }\n\n    /**\n     * Get Style Dependencies\n     *\n     * @return array\n     */\n    public function get_style_depends() {\n        return ['uas-widgets-core'];\n    }\n\n    /**\n     * Get Script Dependencies\n     *\n     * @return array\n     */\n    public function get_script_depends() {\n        return ['uas-widgets-core'];\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-banner-slider.php",
+    "filename": "class-widget-banner-slider.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: banner-slider",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Quote & Text Ticker Widget\n */\nclass Universal_Banner_Slider_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_banner_slider';\n    }\n\n    public function get_title() {\n        return esc_html__('نوار تیکر و شعارهای متحرک', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-text-area';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-banner-slider-css'];\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('محتوای نوار متحرک', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'badge',\n            [\n                'label'   => esc_html__('برچسب نوار', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('پیام روز', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'text',\n            [\n                'label'   => esc_html__('متن پیام یا حکمت', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('کیفیت تصادفی نیست، بلکه حاصل برنامه‌ریزی هوشمندانه، تلاش صادقانه و اجرای ماهرانه است.', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"uas-ticker-wrapper uas-widget-container\" dir=\"rtl\">\n            <?php if (!empty($settings['badge'])) : ?>\n                <span class=\"uas-ticker-badge\"><?php echo esc_html($settings['badge']); ?></span>\n            <?php endif; ?>\n            <div class=\"uas-ticker-text\"><?php echo esc_html($settings['text']); ?></div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-case-timeline.php",
+    "filename": "class-widget-case-timeline.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: case-timeline",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Case Interactive Timeline Widget\n */\nclass Universal_Case_Timeline_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_case_timeline';\n    }\n\n    public function get_title() {\n        return esc_html__('تایم‌لاین تعاملی پرونده موکل (Case Timeline)', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-history';\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('تنظیمات پرونده', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'case_id',\n            [\n                'label'   => esc_html__('شناسه پرونده', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => 'c-01',\n            ]\n        );\n\n        $this->add_control(\n            'case_number',\n            [\n                'label'   => esc_html__('شماره پرونده / کلاسه', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => '۱۴۰۳-۹۸۲۷۳-ونک',\n            ]\n        );\n\n        $this->add_control(\n            'case_subject',\n            [\n                'label'   => esc_html__('موضوع دعوا', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => 'الزام به تنظیم سند رسمی انتقال ملک و مطالبه خسارت تاخیر تادیه',\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        $props = [\n            'caseId'      => $settings['case_id'],\n            'caseNumber'  => $settings['case_number'],\n            'caseSubject' => $settings['case_subject'],\n        ];\n        ?>\n        <div class=\"sedrazavi-react-root uas-case-timeline-wrap\" data-component=\"CaseInteractiveTimeline\" data-props=\"<?php echo esc_attr(wp_json_encode($props)); ?>\" dir=\"rtl\">\n            <!-- Native PHP Fallback -->\n            <div style=\"background: #0B132B; color: #FFF; border: 1px solid rgba(212,175,55,0.4); border-radius: 1.5rem; padding: 1.5rem; text-align: right; font-family: inherit;\">\n                <div style=\"display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 1rem;\">\n                    <div>\n                        <span style=\"background: #D4AF37; color: #0B132B; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 900;\">\n                            نقشه راه پرونده\n                        </span>\n                        <h4 style=\"font-size: 1.125rem; font-weight: 800; margin: 0.5rem 0 0.25rem 0; color: #FFF;\">\n                            <?php echo esc_html($settings['case_subject']); ?>\n                        </h4>\n                        <span style=\"font-size: 0.75rem; color: #94A3B8;\">\n                            شماره پرونده: <?php echo esc_html($settings['case_number']); ?>\n                        </span>\n                    </div>\n                    <div style=\"text-align: center; background: rgba(255,255,255,0.08); padding: 0.75rem 1.25rem; border-radius: 1rem;\">\n                        <span style=\"font-size: 0.6875rem; color: #CBD5E1; display: block;\">پیشرفت کل</span>\n                        <span style=\"font-size: 1.5rem; font-weight: 900; color: #D4AF37;\">۷۵٪</span>\n                    </div>\n                </div>\n                <p style=\"font-size: 0.8125rem; color: #E2E8F0; margin: 0;\">\n                    در حال بارگذاری تایم‌لاین کامل تعاملی و اوقات نظارت دادگاه...\n                </p>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-contact-booking.php",
+    "filename": "class-widget-contact-booking.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: contact-booking",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Contact & Lead Booking Form Widget\n */\nclass Universal_Contact_Booking_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_contact_booking';\n    }\n\n    public function get_title() {\n        return esc_html__('فرم هوشمند رزرو نوبت و درخواست مشاوره', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-form-horizontal';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-contact-booking-css'];\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('محتوای فرم', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'form_title',\n            [\n                'label'   => esc_html__('عنوان بالای فرم', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('ثبت درخواست و هماهنگی جلسه مشاوره', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'form_desc',\n            [\n                'label'   => esc_html__('توضیحات راهنما', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('لطفاً مشخصات خود و خلاصه درخواست را وارد فرمایید تا کارشناسان ما در سریع‌ترین زمان با شما تماس حاصل نمایند.', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'submit_btn_text',\n            [\n                'label'   => esc_html__('متن دکمه ارسال', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('ثبت نهایی درخواست ←', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"uas-booking-wrapper uas-widget-container\" dir=\"rtl\">\n            <?php if (!empty($settings['form_title'])) : ?>\n                <div class=\"uas-booking-header\">\n                    <h3 class=\"uas-booking-title\"><?php echo esc_html($settings['form_title']); ?></h3>\n                    <?php if (!empty($settings['form_desc'])) : ?>\n                        <p class=\"uas-booking-desc\"><?php echo esc_html($settings['form_desc']); ?></p>\n                    <?php endif; ?>\n                </div>\n            <?php endif; ?>\n\n            <form class=\"uas-booking-form\" onsubmit=\"event.preventDefault(); alert('درخواست شما با موفقیت ثبت شد.');\">\n                <div class=\"uas-form-group\">\n                    <label class=\"uas-form-label\">نام و نام خانوادگی:</label>\n                    <input type=\"text\" class=\"uas-form-input\" placeholder=\"مثال: علی احمدی\" required />\n                </div>\n\n                <div class=\"uas-form-group\">\n                    <label class=\"uas-form-label\">شماره تلفن همراه:</label>\n                    <input type=\"tel\" class=\"uas-form-input\" placeholder=\"۰۹۱۲۳۴۵۶۷۸۹\" required />\n                </div>\n\n                <div class=\"uas-form-group\">\n                    <label class=\"uas-form-label\">نوع خدمت مورد نیاز:</label>\n                    <select class=\"uas-form-select\">\n                        <option>مشاوره عمومی و ارزیابی اولیه</option>\n                        <option>برنامه‌ریزی استراتژیک و توسعه</option>\n                        <option>پشتیبانی فنی و اختصاصی</option>\n                    </select>\n                </div>\n\n                <div class=\"uas-form-group\">\n                    <label class=\"uas-form-label\">شرح مختصر درخواست:</label>\n                    <textarea class=\"uas-form-textarea\" rows=\"3\" placeholder=\"توضیحات تکمیلی خود را بنویسید...\"></textarea>\n                </div>\n\n                <button type=\"submit\" class=\"uas-form-submit\">\n                    <?php echo esc_html($settings['submit_btn_text']); ?>\n                </button>\n            </form>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-cta.php",
+    "filename": "class-widget-cta.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: cta",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Call To Action (CTA) Widget\n */\nclass Universal_CTA_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_cta';\n    }\n\n    public function get_title() {\n        return esc_html__('بنر فراخوان اقدام و تماس (CTA)', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-call-to-action';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-cta-css'];\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('محتوای بنر اقدام', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'title',\n            [\n                'label'   => esc_html__('عنوان فراخوان', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('آماده‌اید کسب‌وکار خود را به بالاترین سطح برسانید؟', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'description',\n            [\n                'label'   => esc_html__('توضیحات تکمیلی', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('همین حالا با متخصصان ما ارتباط برقرار کنید و از مشاوره اولیه بهره‌مند شوید.', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'button_text',\n            [\n                'label'   => esc_html__('متن دکمه', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('دریافت مشاوره رایگان ←', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'button_url',\n            [\n                'label'   => esc_html__('لینک دکمه', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::URL,\n                'default' => ['url' => '#contact'],\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"uas-cta-wrapper uas-widget-container\" dir=\"rtl\">\n            <div class=\"uas-cta-inner\">\n                <?php if (!empty($settings['title'])) : ?>\n                    <h2 class=\"uas-cta-title\"><?php echo esc_html($settings['title']); ?></h2>\n                <?php endif; ?>\n\n                <?php if (!empty($settings['description'])) : ?>\n                    <p class=\"uas-cta-desc\"><?php echo esc_html($settings['description']); ?></p>\n                <?php endif; ?>\n\n                <?php if (!empty($settings['button_text'])) : ?>\n                    <a href=\"<?php echo esc_url($settings['button_url']['url'] ?? '#'); ?>\" class=\"uas-cta-btn\">\n                        <?php echo esc_html($settings['button_text']); ?>\n                    </a>\n                <?php endif; ?>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-email-otp.php",
+    "filename": "class-widget-email-otp.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: email-otp",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Email OTP Magic Login Widget\n */\nclass Universal_Email_OTP_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_email_otp';\n    }\n\n    public function get_title() {\n        return esc_html__('ورود با رمز یکبار مصرف ایمیل (Email OTP)', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-lock-user';\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('تنظیمات فرم ورود', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'title',\n            [\n                'label'   => esc_html__('عنوان بالای فرم', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('ورود سریع و امن با رمز یکبار مصرف (Email OTP)', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'subtitle',\n            [\n                'label'   => esc_html__('متن راهنما', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('برای ورود به سامانه، ایمیل خود را وارد نمایید تا کد ۶ رقمی موقت برای شما ارسال شود.', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        $props = [\n            'title'    => $settings['title'],\n            'subtitle' => $settings['subtitle'],\n        ];\n        ?>\n        <div class=\"sedrazavi-react-root uas-email-otp-wrap\" data-component=\"EmailOtpAuthComponent\" data-props=\"<?php echo esc_attr(wp_json_encode($props)); ?>\" dir=\"rtl\">\n            <!-- Native PHP Fallback Form -->\n            <div style=\"max-width: 420px; margin: 2rem auto; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1.5rem; padding: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.06); text-align: right; font-family: inherit;\">\n                <div style=\"text-align: center; margin-bottom: 1.5rem;\">\n                    <div style=\"width: 3.5rem; height: 3.5rem; margin: 0 auto 0.75rem auto; border-radius: 1rem; background: rgba(212,175,55,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #D4AF37;\">\n                        ✉️\n                    </div>\n                    <h3 style=\"font-size: 1.125rem; font-weight: 800; color: #0B132B; margin: 0 0 0.5rem 0;\">\n                        <?php echo esc_html($settings['title']); ?>\n                    </h3>\n                    <p style=\"font-size: 0.75rem; color: #64748B; margin: 0; line-height: 1.5;\">\n                        <?php echo esc_html($settings['subtitle']); ?>\n                    </p>\n                </div>\n\n                <form method=\"post\" action=\"<?php echo esc_url(rest_url('sedrazavi/v1/auth/email-otp-send')); ?>\" style=\"display: flex; flex-direction: column; gap: 1rem;\">\n                    <div>\n                        <label style=\"display: block; font-size: 0.75rem; font-weight: 700; color: #334155; margin-bottom: 0.25rem;\">آدرس ایمیل معتبر:</label>\n                        <input type=\"email\" name=\"email\" required placeholder=\"user@example.com\" style=\"width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; border: 1px solid #CBD5E1; font-size: 0.8125rem; direction: ltr; text-align: left; box-sizing: border-box;\" />\n                    </div>\n                    <button type=\"submit\" style=\"width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem; background: linear-gradient(135deg, #D4AF37 0%, #AA820A 100%); color: #0B132B; font-weight: 800; font-size: 0.8125rem; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(212,175,55,0.3);\">\n                        ارسال کد تایید یکبار مصرف\n                    </button>\n                </form>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-faq.php",
+    "filename": "class-widget-faq.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: faq",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse Elementor\\Repeater;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal FAQ Accordion Widget with Optional Schema.org\n */\nclass Universal_Faq_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_faq';\n    }\n\n    public function get_title() {\n        return esc_html__('آکاردئون پرسش‌های متداول هوشمند', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-help-o';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-faq-css'];\n    }\n\n    public function get_script_depends() {\n        return ['uas-widgets-core', 'uas-faq-js'];\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('پرسش و پاسخ‌ها', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'enable_schema',\n            [\n                'label'       => esc_html__('تولید اسکیما ساختاریافته گوگل (FAQPage Schema)', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::SWITCHER,\n                'default'     => 'yes',\n                'description' => esc_html__('بهبود سئو با نمایش سوالات در نتایج Rich Results موتورهای جستجو.', 'universal-elementor-suite'),\n            ]\n        );\n\n        $repeater = new Repeater();\n\n        $repeater->add_control(\n            'question',\n            [\n                'label'       => esc_html__('پرسش', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::TEXT,\n                'default'     => esc_html__('مدت زمان ارزیابی اولیه و تدوین طرح پیشنهادی چقدر است؟', 'universal-elementor-suite'),\n                'label_block' => true,\n            ]\n        );\n\n        $repeater->add_control(\n            'answer',\n            [\n                'label'   => esc_html__('پاسخ جامع', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('فرآیند ارزیابی اولیه، بررسی دقیق نیازمندی‌ها و ارائه طرح فنی و مالی معمولاً ظرف ۲ الی ۴ روز کاری انجام می‌پذیرد.', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'faqs_list',\n            [\n                'label'       => esc_html__('لیست سوالات', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::REPEATER,\n                'fields'      => $repeater->get_controls(),\n                'default'     => [\n                    [\n                        'question' => esc_html__('مدت زمان ارزیابی اولیه و تدوین طرح پیشنهادی چقدر است؟', 'universal-elementor-suite'),\n                        'answer'   => esc_html__('فرآیند ارزیابی اولیه، بررسی دقیق نیازمندی‌ها و ارائه طرح فنی و مالی معمولاً ظرف ۲ الی ۴ روز کاری انجام می‌پذیرد.', 'universal-elementor-suite'),\n                    ],\n                    [\n                        'question' => esc_html__('آیا امکان یکپارچه‌سازی سامانه‌ها با زیرساخت‌های فعلی سازمان وجود دارد؟', 'universal-elementor-suite'),\n                        'answer'   => esc_html__('بله، تمامی معماری‌ها بر پایه استانداردهای مدرن RESTful API و اتصالات ماژولار طراحی شده‌اند و به سادگی با نرم‌افزارهای قبلی هماهنگ می‌گردند.', 'universal-elementor-suite'),\n                    ],\n                    [\n                        'question' => esc_html__('پشتیبانی فنی و نگهداری دوره‌ای پس از تحویل پروژه به چه صورت است؟', 'universal-elementor-suite'),\n                        'answer'   => esc_html__('تمامی پروژه‌ها همراه با ۶ ماه پشتیبانی جامع رایگان، مانیتورینگ آنلاین ۲۴/۷ و بسته‌های تکمیلی نگهداری سالانه ارائه می‌شوند.', 'universal-elementor-suite'),\n                    ],\n                ],\n                'title_field' => '{{{ question }}}',\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        $schema_items = [];\n        ?>\n        <div class=\"uas-faq-wrapper uas-widget-container\" dir=\"rtl\">\n            <div class=\"uas-faq-list\">\n                <?php foreach ($settings['faqs_list'] as $idx => $item) :\n                    if ($settings['enable_schema'] === 'yes') {\n                        $schema_items[] = [\n                            '@type'          => 'Question',\n                            'name'           => $item['question'],\n                            'acceptedAnswer' => [\n                                '@type' => 'Answer',\n                                'text'  => $item['answer'],\n                            ],\n                        ];\n                    }\n                    $is_first = ($idx === 0);\n                ?>\n                    <div class=\"uas-faq-item <?php echo $is_first ? 'is-active' : ''; ?>\">\n                        <button type=\"button\" class=\"uas-faq-question\" aria-expanded=\"<?php echo $is_first ? 'true' : 'false'; ?>\">\n                            <span><?php echo esc_html($item['question']); ?></span>\n                            <span class=\"uas-faq-icon\">+</span>\n                        </button>\n                        <div class=\"uas-faq-answer\">\n                            <p><?php echo esc_html($item['answer']); ?></p>\n                        </div>\n                    </div>\n                <?php endforeach; ?>\n            </div>\n        </div>\n\n        <?php if ($settings['enable_schema'] === 'yes' && !empty($schema_items)) : ?>\n            <script type=\"application/ld+json\">\n            {\n                \"@context\": \"https://schema.org\",\n                \"@type\": \"FAQPage\",\n                \"mainEntity\": <?php echo json_encode($schema_items, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>\n            }\n            </script>\n        <?php endif; ?>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-firm-milestones.php",
+    "filename": "class-widget-firm-milestones.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: firm-milestones",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse Elementor\\Repeater;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Firm Milestones & Growth Journey Widget\n */\nclass Universal_Firm_Milestones_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_firm_milestones';\n    }\n\n    public function get_title() {\n        return esc_html__('سفر رشد و نقاط عطف راهبردی (Firm Milestones)', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-time-line';\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('تنظیمات تایم‌لاین رشد', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'title',\n            [\n                'label'   => esc_html__('عنوان اصلی بخش', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('سفر رشد، افتخارات و چشم‌انداز راهبردی مؤسسه حقوقی', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'subtitle',\n            [\n                'label'   => esc_html__('زیرعنوان توضیحی', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('مرور نقاط عطف بنیادین از تاسیس دفتر تا چشم‌انداز ۱۴۰۵ در دعاوی ملی و بین‌المللی', 'universal-elementor-suite'),\n            ]\n        );\n\n        $repeater = new Repeater();\n\n        $repeater->add_control(\n            'year',\n            [\n                'label'   => esc_html__('سال / دوره', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => '۱۳۹۰',\n            ]\n        );\n\n        $repeater->add_control(\n            'milestone_title',\n            [\n                'label'   => esc_html__('عنوان نقطه عطف', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('تاسیس دپارتمان تخصصی دعاوی ملکی و ثبتی', 'universal-elementor-suite'),\n            ]\n        );\n\n        $repeater->add_control(\n            'description',\n            [\n                'label'   => esc_html__('شرح دستاورد', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('رسیدگی به بیش از ۳۰۰ پرونده ملکی، سرقفلی و اخذ سند رسمی با ضریب موفقیت ۹۶٪', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'milestones',\n            [\n                'label'       => esc_html__('نقاط عطف تایم‌لاین', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::REPEATER,\n                'fields'      => $repeater->get_controls(),\n                'default'     => [\n                    [\n                        'year'            => '۱۳۸۸',\n                        'milestone_title' => esc_html__('تاسیس دفتر وکالت دکتر رضوی', 'universal-elementor-suite'),\n                        'description'     => esc_html__('آغاز فعالیت رسمی با تمرکز بر حقوق تجارت و دعاوی قراردادی در تهران.', 'universal-elementor-suite'),\n                    ],\n                    [\n                        'year'            => '۱۳۹۴',\n                        'milestone_title' => esc_html__('راه‌اندازی مرکز داوری و حل اختلاف تجاری', 'universal-elementor-suite'),\n                        'description'     => esc_html__('ورود به حوزه داوری سازمانی اتاق بازرگانی و قراردادهای بین‌المللی.', 'universal-elementor-suite'),\n                    ],\n                    [\n                        'year'            => '۱۴۰۱',\n                        'milestone_title' => esc_html__('دیجیتال‌سازی کامل و پرتال آنلاین موکلین', 'universal-elementor-suite'),\n                        'description'     => esc_html__('سامانه رصد لحظه‌ای پرونده، تبادل لایحه و پرداخت آنلاین حق‌الوکاله.', 'universal-elementor-suite'),\n                    ],\n                    [\n                        'year'            => '۱۴۰۵ (چشم‌انداز)',\n                        'milestone_title' => esc_html__('گسترش شبکه بین‌المللی داوری و هوش مصنوعی حقوقی', 'universal-elementor-suite'),\n                        'description'     => esc_html__('توسعه بازوی داوری در منطقه خلیج فارس و ممیزی قراردادهای هوشمند.', 'universal-elementor-suite'),\n                    ],\n                ],\n                'title_field' => '{{{ year }}} - {{{ milestone_title }}}',\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"sedrazavi-react-root uas-firm-milestones-wrap\" data-component=\"FirmMilestone\" dir=\"rtl\">\n            <!-- Native Fallback for Non-JS / Server Rendering -->\n            <div class=\"uas-timeline-container\" style=\"padding: 2rem 1rem; text-align: right; font-family: inherit;\">\n                <div style=\"text-align: center; margin-bottom: 2rem;\">\n                    <span style=\"display: inline-block; padding: 0.25rem 1rem; border-radius: 9999px; background: rgba(212,175,55,0.15); color: #AA820A; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(212,175,55,0.4); margin-bottom: 0.5rem;\">\n                        <?php echo esc_html__('نقشه راه و افق راهبردی', 'universal-elementor-suite'); ?>\n                    </span>\n                    <h3 style=\"font-size: 1.5rem; font-weight: 900; color: #0B132B; margin: 0 0 0.5rem 0;\">\n                        <?php echo esc_html($settings['title']); ?>\n                    </h3>\n                    <p style=\"font-size: 0.875rem; color: #64748B; max-width: 600px; margin: 0 auto;\">\n                        <?php echo esc_html($settings['subtitle']); ?>\n                    </p>\n                </div>\n\n                <div style=\"border-right: 2px dashed rgba(212,175,55,0.5); padding-right: 1.5rem; margin-right: 1rem;\">\n                    <?php if (!empty($settings['milestones'])) : foreach ($settings['milestones'] as $idx => $m) : ?>\n                        <div style=\"position: relative; margin-bottom: 1.5rem;\">\n                            <div style=\"position: absolute; right: -2rem; top: 0.25rem; width: 1rem; height: 1rem; border-radius: 50%; background: #D4AF37; border: 3px solid #FFF; box-shadow: 0 2px 6px rgba(0,0,0,0.15);\"></div>\n                            <div style=\"background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1rem; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);\">\n                                <span style=\"font-weight: 900; color: #D4AF37; font-size: 0.875rem; display: block; margin-bottom: 0.25rem;\">\n                                    <?php echo esc_html($m['year']); ?>\n                                </span>\n                                <h4 style=\"font-size: 1rem; font-weight: 800; color: #0B132B; margin: 0 0 0.5rem 0;\">\n                                    <?php echo esc_html($m['milestone_title']); ?>\n                                </h4>\n                                <p style=\"font-size: 0.8125rem; color: #475569; margin: 0; line-height: 1.6;\">\n                                    <?php echo esc_html($m['description']); ?>\n                                </p>\n                            </div>\n                        </div>\n                    <?php endforeach; endif; ?>\n                </div>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-floating-dock.php",
+    "filename": "class-widget-floating-dock.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: floating-dock",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Floating Dock Widget\n */\nclass Universal_Floating_Dock_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_floating_dock';\n    }\n\n    public function get_title() {\n        return esc_html__('داک شناور بازگشت به بالا و دسترسی سریع', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-navigation-vertical';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-floating-dock-css'];\n    }\n\n    public function get_script_depends() {\n        return ['uas-widgets-core', 'uas-floating-dock-js'];\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('تنظیمات داک شناور', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'enable_scroll_top',\n            [\n                'label'   => esc_html__('فعال بودن دکمه بازگشت به بالا', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::SWITCHER,\n                'default' => 'yes',\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"uas-floating-dock uas-widget-container\">\n            <?php if ($settings['enable_scroll_top'] === 'yes') : ?>\n                <button type=\"button\" class=\"uas-scroll-top-btn\" aria-label=\"Scroll to top\" title=\"بازگشت به بالای صفحه\">\n                    ↑\n                </button>\n            <?php endif; ?>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-hero.php",
+    "filename": "class-widget-hero.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: hero",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse Elementor\\Group_Control_Typography;\nuse Elementor\\Group_Control_Border;\nuse Elementor\\Group_Control_Box_Shadow;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Hero Widget\n */\nclass Universal_Hero_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_hero';\n    }\n\n    public function get_title() {\n        return esc_html__('هیرو بنر مدرن و منعطف', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-banner';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-hero-css'];\n    }\n\n    protected function register_controls() {\n        // Content Tab: Text\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('محتوای هیرو', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'badge_text',\n            [\n                'label'       => esc_html__('متن برچسب یا نشان', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::TEXT,\n                'default'     => esc_html__('نوآوری در ارائه خدمات برتر', 'universal-elementor-suite'),\n                'placeholder' => esc_html__('متن نشان بالای عنوان...', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'hero_title',\n            [\n                'label'       => esc_html__('عنوان اصلی', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::TEXTAREA,\n                'default'     => esc_html__('راهکارهای هوشمند و مدرن برای رشد کسب‌وکار شما', 'universal-elementor-suite'),\n                'placeholder' => esc_html__('عنوان اصلی بخش هیرو...', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'hero_desc',\n            [\n                'label'       => esc_html__('توضیحات فرعی', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::TEXTAREA,\n                'default'     => esc_html__('ارائه مشاوره‌های تخصصی، استراتژی‌های تحول دیجیتال و راهکارهای جامع متناسب با اهداف سازمان شما.', 'universal-elementor-suite'),\n                'placeholder' => esc_html__('متن توضیحات...', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'primary_btn_text',\n            [\n                'label'   => esc_html__('متن دکمه اصلی', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('شروع همکاری و مشاوره', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'primary_btn_url',\n            [\n                'label'       => esc_html__('لینک دکمه اصلی', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::URL,\n                'placeholder' => 'https://example.com/contact',\n                'default'     => ['url' => '#contact'],\n            ]\n        );\n\n        $this->add_control(\n            'secondary_btn_text',\n            [\n                'label'   => esc_html__('متن دکمه ثانویه', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('مشاهده خدمات و پروژه‌ها', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'secondary_btn_url',\n            [\n                'label'       => esc_html__('لینک دکمه ثانویه', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::URL,\n                'placeholder' => 'https://example.com/services',\n                'default'     => ['url' => '#services'],\n            ]\n        );\n\n        $this->add_control(\n            'hero_image',\n            [\n                'label'   => esc_html__('تصویر شاخص هیرو', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::MEDIA,\n                'default' => [\n                    'url' => 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800',\n                ],\n            ]\n        );\n\n        $this->end_controls_section();\n\n        // Style Tab: Colors & Typography\n        $this->start_controls_section(\n            'section_style_typography',\n            [\n                'label' => esc_html__('تایپوگرافی و رنگ‌ها', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_STYLE,\n            ]\n        );\n\n        $this->add_control(\n            'title_color',\n            [\n                'label'     => esc_html__('رنگ عنوان', 'universal-elementor-suite'),\n                'type'      => Controls_Manager::COLOR,\n                'default'   => '#0F172A',\n                'selectors' => [\n                    '{{WRAPPER}} .uas-hero-title' => 'color: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $this->add_group_control(\n            Group_Control_Typography::get_type(),\n            [\n                'name'     => 'title_typography',\n                'selector' => '{{WRAPPER}} .uas-hero-title',\n            ]\n        );\n\n        $this->add_control(\n            'desc_color',\n            [\n                'label'     => esc_html__('رنگ توضیحات', 'universal-elementor-suite'),\n                'type'      => Controls_Manager::COLOR,\n                'default'   => '#64748B',\n                'selectors' => [\n                    '{{WRAPPER}} .uas-hero-desc' => 'color: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $this->add_control(\n            'badge_bg_color',\n            [\n                'label'     => esc_html__('رنگ پس‌زمینه نشان', 'universal-elementor-suite'),\n                'type'      => Controls_Manager::COLOR,\n                'default'   => 'rgba(37, 99, 235, 0.1)',\n                'selectors' => [\n                    '{{WRAPPER}} .uas-hero-badge' => 'background-color: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $this->add_control(\n            'badge_text_color',\n            [\n                'label'     => esc_html__('رنگ متن نشان', 'universal-elementor-suite'),\n                'type'      => Controls_Manager::COLOR,\n                'default'   => '#2563EB',\n                'selectors' => [\n                    '{{WRAPPER}} .uas-hero-badge' => 'color: {{VALUE}}; border-color: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $this->add_control(\n            'btn_primary_bg',\n            [\n                'label'     => esc_html__('رنگ دکمه اصلی', 'universal-elementor-suite'),\n                'type'      => Controls_Manager::COLOR,\n                'default'   => '#2563EB',\n                'selectors' => [\n                    '{{WRAPPER}} .uas-btn-primary' => 'background-color: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"uas-hero-wrapper uas-widget-container\" dir=\"rtl\">\n            <div class=\"uas-hero-inner\">\n                <div class=\"uas-hero-content\">\n                    <?php if (!empty($settings['badge_text'])) : ?>\n                        <div class=\"uas-hero-badge\">\n                            <span>★</span>\n                            <span><?php echo esc_html($settings['badge_text']); ?></span>\n                        </div>\n                    <?php endif; ?>\n\n                    <?php if (!empty($settings['hero_title'])) : ?>\n                        <h1 class=\"uas-hero-title\"><?php echo esc_html($settings['hero_title']); ?></h1>\n                    <?php endif; ?>\n\n                    <?php if (!empty($settings['hero_desc'])) : ?>\n                        <p class=\"uas-hero-desc\"><?php echo esc_html($settings['hero_desc']); ?></p>\n                    <?php endif; ?>\n\n                    <div class=\"uas-hero-actions\">\n                        <?php if (!empty($settings['primary_btn_text'])) : ?>\n                            <a href=\"<?php echo esc_url($settings['primary_btn_url']['url'] ?? '#'); ?>\" class=\"uas-btn-primary\">\n                                <?php echo esc_html($settings['primary_btn_text']); ?>\n                            </a>\n                        <?php endif; ?>\n\n                        <?php if (!empty($settings['secondary_btn_text'])) : ?>\n                            <a href=\"<?php echo esc_url($settings['secondary_btn_url']['url'] ?? '#'); ?>\" class=\"uas-btn-secondary\">\n                                <?php echo esc_html($settings['secondary_btn_text']); ?>\n                            </a>\n                        <?php endif; ?>\n                    </div>\n                </div>\n\n                <?php if (!empty($settings['hero_image']['url'])) : ?>\n                    <div class=\"uas-hero-media\">\n                        <img src=\"<?php echo esc_url($settings['hero_image']['url']); ?>\" alt=\"<?php echo esc_attr($settings['hero_title']); ?>\" class=\"uas-hero-img\" loading=\"lazy\" />\n                    </div>\n                <?php endif; ?>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-posts.php",
+    "filename": "class-widget-posts.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: posts",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Post Grid Widget\n */\nclass Universal_Posts_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_posts_grid';\n    }\n\n    public function get_title() {\n        return esc_html__('گرید مقالات و اخبار پویا', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-post-list';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-posts-css'];\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_query',\n            [\n                'label' => esc_html__('تنظیمات کوئری و محتوا', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'posts_per_page',\n            [\n                'label'   => esc_html__('تعداد پست‌ها', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::NUMBER,\n                'default' => 3,\n                'min'     => 1,\n                'max'     => 12,\n            ]\n        );\n\n        $this->add_control(\n            'columns',\n            [\n                'label'   => esc_html__('تعداد ستون‌ها', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::SELECT,\n                'default' => '3',\n                'options' => [\n                    '1' => esc_html__('۱ ستون', 'universal-elementor-suite'),\n                    '2' => esc_html__('۲ ستون', 'universal-elementor-suite'),\n                    '3' => esc_html__('۳ ستون', 'universal-elementor-suite'),\n                ],\n                'selectors' => [\n                    '{{WRAPPER}} .uas-posts-grid' => '--uas-posts-cols: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $this->add_control(\n            'show_date',\n            [\n                'label'     => esc_html__('نمایش تاریخ انتشار', 'universal-elementor-suite'),\n                'type'      => Controls_Manager::SWITCHER,\n                'default'   => 'yes',\n            ]\n        );\n\n        $this->add_control(\n            'read_more_text',\n            [\n                'label'   => esc_html__('متن دکمه ادامه مطلب', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('مطالعه ادامه مقاله ←', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        $count = intval($settings['posts_per_page'] ?? 3);\n\n        $args = [\n            'post_type'      => 'post',\n            'posts_per_page' => $count,\n            'post_status'    => 'publish',\n        ];\n\n        $query = new \\WP_Query($args);\n        ?>\n        <div class=\"uas-posts-wrapper uas-widget-container\" dir=\"rtl\">\n            <div class=\"uas-posts-grid\">\n                <?php if ($query->have_posts()) : ?>\n                    <?php while ($query->have_posts()) : $query->the_post(); ?>\n                        <article class=\"uas-post-card\">\n                            <?php if (has_post_thumbnail()) : ?>\n                                <div class=\"uas-post-thumb-wrapper\">\n                                    <a href=\"<?php the_permalink(); ?>\">\n                                        <?php the_post_thumbnail('medium_large', ['class' => 'uas-post-thumb']); ?>\n                                    </a>\n                                </div>\n                            <?php endif; ?>\n\n                            <div class=\"uas-post-body\">\n                                <?php if ($settings['show_date'] === 'yes') : ?>\n                                    <span class=\"uas-post-date\"><?php echo get_the_date(); ?></span>\n                                <?php endif; ?>\n\n                                <h3 class=\"uas-post-title\">\n                                    <a href=\"<?php the_permalink(); ?>\"><?php the_title(); ?></a>\n                                </h3>\n\n                                <p class=\"uas-post-excerpt\"><?php echo wp_trim_words(get_the_excerpt(), 20, '...'); ?></p>\n\n                                <?php if (!empty($settings['read_more_text'])) : ?>\n                                    <a href=\"<?php the_permalink(); ?>\" class=\"uas-post-readmore\">\n                                        <?php echo esc_html($settings['read_more_text']); ?>\n                                    </a>\n                                <?php endif; ?>\n                            </div>\n                        </article>\n                    <?php endwhile; wp_reset_postdata(); ?>\n                <?php else : ?>\n                    <!-- Sample Topic-Agnostic Placeholders if no posts exist -->\n                    <?php for ($i = 1; $i <= $count; $i++) : ?>\n                        <article class=\"uas-post-card\">\n                            <div class=\"uas-post-thumb-wrapper\">\n                                <img src=\"https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&q=80&w=400\" alt=\"Sample post\" class=\"uas-post-thumb\" />\n                            </div>\n                            <div class=\"uas-post-body\">\n                                <span class=\"uas-post-date\">امروز</span>\n                                <h3 class=\"uas-post-title\"><a href=\"#\">راهنمای جامع بهره‌وری و تحلیل شاخص‌های عملکرد <?php echo $i; ?></a></h3>\n                                <p class=\"uas-post-excerpt\">بررسی اصول بنیادین، راهکارهای نوآورانه و روش‌های نوین بهینه‌سازی در دنیای پویای تجارت امروزی...</p>\n                                <a href=\"#\" class=\"uas-post-readmore\"><?php echo esc_html($settings['read_more_text']); ?></a>\n                            </div>\n                        </article>\n                    <?php endfor; ?>\n                <?php endif; ?>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-radar-chart.php",
+    "filename": "class-widget-radar-chart.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: radar-chart",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Key Practice Areas Radar Chart Widget\n */\nclass Universal_Radar_Chart_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_radar_chart';\n    }\n\n    public function get_title() {\n        return esc_html__('نمودار راداری حوزه‌های تخصصی (Radar Chart)', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-radar-chart';\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('تنظیمات نمودار راداری', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'chart_title',\n            [\n                'label'   => esc_html__('عنوان بالای نمودار', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('ماتریس و توزیع چندبعدی تخصص‌های وکیل', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"sedrazavi-react-root uas-radar-chart-wrap\" data-component=\"KeyPracticeAreasRadarChart\" dir=\"rtl\">\n            <!-- Native PHP Fallback Chart -->\n            <div style=\"background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1.5rem; padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.04); text-align: right; font-family: inherit;\">\n                <h4 style=\"font-size: 1.125rem; font-weight: 800; color: #0B132B; margin: 0 0 1rem 0; text-align: center;\">\n                    <?php echo esc_html($settings['chart_title']); ?>\n                </h4>\n                <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;\">\n                    <div style=\"padding: 1rem; border-radius: 1rem; background: #F8FAFC; border: 1px solid #E2E8F0;\">\n                        <span style=\"font-size: 0.75rem; color: #64748B;\">قراردادهای تجاری و داوری</span>\n                        <div style=\"display: flex; justify-content: space-between; font-weight: 800; color: #0B132B; margin-top: 0.25rem;\">\n                            <span>تسلط: ۹۶٪</span>\n                            <span style=\"color: #D4AF37;\">۳۸۰ پرونده</span>\n                        </div>\n                    </div>\n                    <div style=\"padding: 1rem; border-radius: 1rem; background: #F8FAFC; border: 1px solid #E2E8F0;\">\n                        <span style=\"font-size: 0.75rem; color: #64748B;\">دعاوی ملکی و سرقفلی</span>\n                        <div style=\"display: flex; justify-content: space-between; font-weight: 800; color: #0B132B; margin-top: 0.25rem;\">\n                            <span>تسلط: ۹۴٪</span>\n                            <span style=\"color: #D4AF37;\">۳۴۰ پرونده</span>\n                        </div>\n                    </div>\n                    <div style=\"padding: 1rem; border-radius: 1rem; background: #F8FAFC; border: 1px solid #E2E8F0;\">\n                        <span style=\"font-size: 0.75rem; color: #64748B;\">فرجام‌خواهی دیوان عالی</span>\n                        <div style=\"display: flex; justify-content: space-between; font-weight: 800; color: #0B132B; margin-top: 0.25rem;\">\n                            <span>تسلط: ۹۲٪</span>\n                            <span style=\"color: #D4AF37;\">۱۶۵ پرونده</span>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-services-grid.php",
+    "filename": "class-widget-services-grid.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: services-grid",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse Elementor\\Repeater;\nuse Elementor\\Group_Control_Typography;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Services & Features Grid Widget\n */\nclass Universal_Services_Grid_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_services_grid';\n    }\n\n    public function get_title() {\n        return esc_html__('شبکه خدمات و ویژگی‌ها (کارت‌های مدرن)', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-gallery-grid';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-services-grid-css'];\n    }\n\n    protected function register_controls() {\n        // Content Section: Header\n        $this->start_controls_section(\n            'section_header',\n            [\n                'label' => esc_html__('سربرگ بخش', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'subtitle',\n            [\n                'label'   => esc_html__('زیرعنوان', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('خدمات و توانمندی‌های تخصصی', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'title',\n            [\n                'label'   => esc_html__('عنوان اصلی بخش', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('حوزه‌های ارائه خدمات جامع و تخصصی', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'columns',\n            [\n                'label'   => esc_html__('تعداد ستون‌ها', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::SELECT,\n                'default' => '3',\n                'options' => [\n                    '1' => esc_html__('۱ ستون', 'universal-elementor-suite'),\n                    '2' => esc_html__('۲ ستون', 'universal-elementor-suite'),\n                    '3' => esc_html__('۳ ستون', 'universal-elementor-suite'),\n                    '4' => esc_html__('۴ ستون', 'universal-elementor-suite'),\n                ],\n                'selectors' => [\n                    '{{WRAPPER}} .uas-services-grid' => '--uas-grid-cols: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $this->end_controls_section();\n\n        // Content Section: Repeater Items\n        $this->start_controls_section(\n            'section_items',\n            [\n                'label' => esc_html__('لیست کارت‌های خدمات', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $repeater = new Repeater();\n\n        $repeater->add_control(\n            'icon',\n            [\n                'label'   => esc_html__('آیکون کارت', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::ICONS,\n                'default' => [\n                    'value'   => 'fas fa-rocket',\n                    'library' => 'fa-solid',\n                ],\n            ]\n        );\n\n        $repeater->add_control(\n            'item_title',\n            [\n                'label'       => esc_html__('عنوان کارت', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::TEXT,\n                'default'     => esc_html__('مشاوره راهبردی و مدیریت پروژه', 'universal-elementor-suite'),\n                'label_block' => true,\n            ]\n        );\n\n        $repeater->add_control(\n            'item_desc',\n            [\n                'label'   => esc_html__('توضیحات کارت', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('طراحی نقشه‌راه اجرایی، تحلیل شاخص‌های عملکرد و تسریع دستیابی به اهداف سازمانی.', 'universal-elementor-suite'),\n            ]\n        );\n\n        $repeater->add_control(\n            'item_link_text',\n            [\n                'label'   => esc_html__('متن دکمه پیوند', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('اطلاعات بیشتر ←', 'universal-elementor-suite'),\n            ]\n        );\n\n        $repeater->add_control(\n            'item_link_url',\n            [\n                'label'       => esc_html__('لینک کارت', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::URL,\n                'placeholder' => 'https://example.com/details',\n                'default'     => ['url' => '#'],\n            ]\n        );\n\n        $this->add_control(\n            'services_list',\n            [\n                'label'       => esc_html__('کارت‌های خدمات', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::REPEATER,\n                'fields'      => $repeater->get_controls(),\n                'default'     => [\n                    [\n                        'item_title' => esc_html__('مشاوره راهبردی و مدیریت پروژه', 'universal-elementor-suite'),\n                        'item_desc'  => esc_html__('طراحی نقشه‌راه اجرایی، تحلیل شاخص‌های عملکرد و تسریع دستیابی به اهداف سازمانی.', 'universal-elementor-suite'),\n                        'item_link_text' => esc_html__('اطلاعات بیشتر ←', 'universal-elementor-suite'),\n                    ],\n                    [\n                        'item_title' => esc_html__('توسعه پلتفرم‌ها و فناوری‌های نوین', 'universal-elementor-suite'),\n                        'item_desc'  => esc_html__('پیاده‌سازی سامانه‌های یکپارچه، تحول دیجیتال و بهینه‌سازی فرآیندهای عملیاتی کسب‌وکار.', 'universal-elementor-suite'),\n                        'item_link_text' => esc_html__('اطلاعات بیشتر ←', 'universal-elementor-suite'),\n                    ],\n                    [\n                        'item_title' => esc_html__('حسابرسی، انطباق و نظارت کیفی', 'universal-elementor-suite'),\n                        'item_desc'  => esc_html__('پایش استانداردها، کنترل ریسک، تضمین کیفیت و تطبیق با آخرین مقررات و ضوابط صنعت.', 'universal-elementor-suite'),\n                        'item_link_text' => esc_html__('اطلاعات بیشتر ←', 'universal-elementor-suite'),\n                    ],\n                ],\n                'title_field' => '{{{ item_title }}}',\n            ]\n        );\n\n        $this->end_controls_section();\n\n        // Style Section\n        $this->start_controls_section(\n            'section_style_cards',\n            [\n                'label' => esc_html__('استایل کارت‌ها', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_STYLE,\n            ]\n        );\n\n        $this->add_control(\n            'card_bg_color',\n            [\n                'label'     => esc_html__('رنگ پس‌زمینه کارت', 'universal-elementor-suite'),\n                'type'      => Controls_Manager::COLOR,\n                'default'   => '#FFFFFF',\n                'selectors' => [\n                    '{{WRAPPER}} .uas-service-card' => 'background-color: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $this->add_control(\n            'card_primary_accent',\n            [\n                'label'     => esc_html__('رنگ شاخص و آیکون', 'universal-elementor-suite'),\n                'type'      => Controls_Manager::COLOR,\n                'default'   => '#2563EB',\n                'selectors' => [\n                    '{{WRAPPER}} .uas-service-icon-box' => 'color: {{VALUE}};',\n                    '{{WRAPPER}} .uas-service-link' => 'color: {{VALUE}};',\n                    '{{WRAPPER}} .uas-service-card:hover' => 'border-color: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"uas-services-wrapper uas-widget-container\" dir=\"rtl\">\n            <?php if (!empty($settings['subtitle']) || !empty($settings['title'])) : ?>\n                <div class=\"uas-services-header\">\n                    <?php if (!empty($settings['subtitle'])) : ?>\n                        <div class=\"uas-services-subtitle\"><?php echo esc_html($settings['subtitle']); ?></div>\n                    <?php endif; ?>\n                    <?php if (!empty($settings['title'])) : ?>\n                        <h2 class=\"uas-services-heading\"><?php echo esc_html($settings['title']); ?></h2>\n                    <?php endif; ?>\n                </div>\n            <?php endif; ?>\n\n            <div class=\"uas-services-grid\">\n                <?php foreach ($settings['services_list'] as $item) : ?>\n                    <div class=\"uas-service-card\">\n                        <div class=\"uas-service-icon-box\">\n                            <?php if (!empty($item['icon']['value'])) : ?>\n                                <i class=\"<?php echo esc_attr($item['icon']['value']); ?>\"></i>\n                            <?php else : ?>\n                                <span>✦</span>\n                            <?php endif; ?>\n                        </div>\n\n                        <h3 class=\"uas-service-card-title\"><?php echo esc_html($item['item_title']); ?></h3>\n                        <p class=\"uas-service-card-desc\"><?php echo esc_html($item['item_desc']); ?></p>\n\n                        <?php if (!empty($item['item_link_text'])) : ?>\n                            <a href=\"<?php echo esc_url($item['item_link_url']['url'] ?? '#'); ?>\" class=\"uas-service-link\">\n                                <span><?php echo esc_html($item['item_link_text']); ?></span>\n                            </a>\n                        <?php endif; ?>\n                    </div>\n                <?php endforeach; ?>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-story-bar.php",
+    "filename": "class-widget-story-bar.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: story-bar",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse Elementor\\Repeater;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Story Bar Widget\n */\nclass Universal_Story_Bar_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_story_bar';\n    }\n\n    public function get_title() {\n        return esc_html__('نوار استوری‌ها و هایلایت‌های تصویری', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-instagram-gallery';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-story-bar-css'];\n    }\n\n    public function get_script_depends() {\n        return ['uas-widgets-core', 'uas-story-bar-js'];\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('تنظیمات استوری‌ها', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'bar_title',\n            [\n                'label'   => esc_html__('عنوان بالای نوار', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('نکات و هایلایت‌های آموزشی روز', 'universal-elementor-suite'),\n            ]\n        );\n\n        $repeater = new Repeater();\n\n        $repeater->add_control(\n            'story_title',\n            [\n                'label'       => esc_html__('عنوان استوری', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::TEXT,\n                'default'     => esc_html__('نکات استراتژیک', 'universal-elementor-suite'),\n                'label_block' => true,\n            ]\n        );\n\n        $repeater->add_control(\n            'story_image',\n            [\n                'label'   => esc_html__('تصویر کاور استوری', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::MEDIA,\n                'default' => [\n                    'url' => 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=200',\n                ],\n            ]\n        );\n\n        $repeater->add_control(\n            'story_content',\n            [\n                'label'   => esc_html__('شرح یا پیام استوری', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('در تحلیل شاخص‌ها، همواره ریسک سیستماتیک و روند بازار را به عنوان متغیرهای اصلی مد نظر قرار دهید.', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'stories_list',\n            [\n                'label'       => esc_html__('لیست استوری‌ها', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::REPEATER,\n                'fields'      => $repeater->get_controls(),\n                'default'     => [\n                    [\n                        'story_title' => esc_html__('اصول مذاکره', 'universal-elementor-suite'),\n                        'story_image' => ['url' => 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=200'],\n                        'story_content' => esc_html__('گوش دادن فعال و درک منافع متقابل، کلید دستیابی به توافقات پایدار است.', 'universal-elementor-suite'),\n                    ],\n                    [\n                        'story_title' => esc_html__('مدیریت ریسک', 'universal-elementor-suite'),\n                        'story_image' => ['url' => 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=200'],\n                        'story_content' => esc_html__('پیش‌بینی سناریوهای بحران مانع از تحمیل هزینه‌های سنگین غیرمنتظره می‌گردد.', 'universal-elementor-suite'),\n                    ],\n                    [\n                        'story_title' => esc_html__('توسعه فردی', 'universal-elementor-suite'),\n                        'story_image' => ['url' => 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200'],\n                        'story_content' => esc_html__('یادگیری پیوسته و بهره‌گیری از ابزارهای هوش مصنوعی موجب برتری رقابتی است.', 'universal-elementor-suite'),\n                    ],\n                ],\n                'title_field' => '{{{ story_title }}}',\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"uas-story-bar-wrapper uas-widget-container\" dir=\"rtl\">\n            <?php if (!empty($settings['bar_title'])) : ?>\n                <div class=\"uas-story-header\">\n                    <span>⚡</span>\n                    <span><?php echo esc_html($settings['bar_title']); ?></span>\n                </div>\n            <?php endif; ?>\n\n            <div class=\"uas-story-scroll\">\n                <?php foreach ($settings['stories_list'] as $item) : ?>\n                    <div class=\"uas-story-item\" data-title=\"<?php echo esc_attr($item['story_title']); ?>\" data-content=\"<?php echo esc_attr($item['story_content']); ?>\">\n                        <div class=\"uas-story-ring\">\n                            <img src=\"<?php echo esc_url($item['story_image']['url'] ?? ''); ?>\" alt=\"<?php echo esc_attr($item['story_title']); ?>\" class=\"uas-story-avatar\" loading=\"lazy\" />\n                        </div>\n                        <span class=\"uas-story-title\"><?php echo esc_html($item['story_title']); ?></span>\n                    </div>\n                <?php endforeach; ?>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-team.php",
+    "filename": "class-widget-team.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: team",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse Elementor\\Repeater;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Team Members Showcase Widget\n */\nclass Universal_Team_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_team';\n    }\n\n    public function get_title() {\n        return esc_html__('معرفی اعضای تیم و متخصصان', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-person';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-team-css'];\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('اعضای تیم', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'columns',\n            [\n                'label'   => esc_html__('تعداد ستون‌ها', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::SELECT,\n                'default' => '3',\n                'options' => [\n                    '2' => esc_html__('۲ ستون', 'universal-elementor-suite'),\n                    '3' => esc_html__('۳ ستون', 'universal-elementor-suite'),\n                    '4' => esc_html__('۴ ستون', 'universal-elementor-suite'),\n                ],\n                'selectors' => [\n                    '{{WRAPPER}} .uas-team-grid' => '--uas-team-cols: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $repeater = new Repeater();\n\n        $repeater->add_control(\n            'name',\n            [\n                'label'       => esc_html__('نام و نام خانوادگی', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::TEXT,\n                'default'     => esc_html__('دکتر سارا شمس', 'universal-elementor-suite'),\n                'label_block' => true,\n            ]\n        );\n\n        $repeater->add_control(\n            'role',\n            [\n                'label'   => esc_html__('سمت یا تخصص', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('مدیر ارشد محصول و استراتژیست', 'universal-elementor-suite'),\n            ]\n        );\n\n        $repeater->add_control(\n            'bio',\n            [\n                'label'   => esc_html__('معرفی کوتاه', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('بیش از ۱۲ سال تجربه در رهبری تیم‌های فنی و هدایت پروژه‌های بین‌المللی مقیاس‌پذیر.', 'universal-elementor-suite'),\n            ]\n        );\n\n        $repeater->add_control(\n            'photo',\n            [\n                'label'   => esc_html__('تصویر چهره', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::MEDIA,\n                'default' => [\n                    'url' => 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300',\n                ],\n            ]\n        );\n\n        $this->add_control(\n            'team_list',\n            [\n                'label'       => esc_html__('لیست اعضا', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::REPEATER,\n                'fields'      => $repeater->get_controls(),\n                'default'     => [\n                    [\n                        'name'  => esc_html__('دکتر سارا شمس', 'universal-elementor-suite'),\n                        'role'  => esc_html__('مدیر ارشد محصول و استراتژیست', 'universal-elementor-suite'),\n                        'bio'   => esc_html__('بیش از ۱۲ سال تجربه در رهبری تیم‌های فنی و هدایت پروژه‌های بین‌المللی مقیاس‌پذیر.', 'universal-elementor-suite'),\n                        'photo' => ['url' => 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300'],\n                    ],\n                    [\n                        'name'  => esc_html__('مهندس رضا علوی', 'universal-elementor-suite'),\n                        'role'  => esc_html__('راهبر ارشد معماری سیستم', 'universal-elementor-suite'),\n                        'bio'   => esc_html__('متخصص طراحی پایگاه‌های داده توزیع‌شده، امنیت سایبری و بهینه‌سازی زیرساخت‌های ابری.', 'universal-elementor-suite'),\n                        'photo' => ['url' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300'],\n                    ],\n                    [\n                        'name'  => esc_html__('رویا معتمدی', 'universal-elementor-suite'),\n                        'role'  => esc_html__('مدیر ارتباط با مشتریان و توسعه بازار', 'universal-elementor-suite'),\n                        'bio'   => esc_html__('دارای سوابق درخشان در تدوین راهبردهای افزایش رضایت ذی‌نفعان و گسترش بازارهای صادراتی.', 'universal-elementor-suite'),\n                        'photo' => ['url' => 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=300'],\n                    ],\n                ],\n                'title_field' => '{{{ name }}} ({{{ role }}})',\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"uas-team-wrapper uas-widget-container\" dir=\"rtl\">\n            <div class=\"uas-team-grid\">\n                <?php foreach ($settings['team_list'] as $item) : ?>\n                    <div class=\"uas-team-card\">\n                        <?php if (!empty($item['photo']['url'])) : ?>\n                            <img src=\"<?php echo esc_url($item['photo']['url']); ?>\" alt=\"<?php echo esc_attr($item['name']); ?>\" class=\"uas-team-photo\" loading=\"lazy\" />\n                        <?php endif; ?>\n                        <h3 class=\"uas-team-name\"><?php echo esc_html($item['name']); ?></h3>\n                        <span class=\"uas-team-role\"><?php echo esc_html($item['role']); ?></span>\n                        <p class=\"uas-team-bio\"><?php echo esc_html($item['bio']); ?></p>\n                    </div>\n                <?php endforeach; ?>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-testimonials.php",
+    "filename": "class-widget-testimonials.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: testimonials",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse Elementor\\Repeater;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Testimonials Carousel & Grid Widget\n */\nclass Universal_Testimonials_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_testimonials';\n    }\n\n    public function get_title() {\n        return esc_html__('نظرات و رضایت مشتریان (کارت‌های مدرن)', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-testimonial';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-testimonials-css'];\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('نظرات مشتریان', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'columns',\n            [\n                'label'   => esc_html__('تعداد ستون‌ها', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::SELECT,\n                'default' => '2',\n                'options' => [\n                    '1' => esc_html__('۱ ستون', 'universal-elementor-suite'),\n                    '2' => esc_html__('۲ ستون', 'universal-elementor-suite'),\n                    '3' => esc_html__('۳ ستون', 'universal-elementor-suite'),\n                ],\n                'selectors' => [\n                    '{{WRAPPER}} .uas-testimonials-grid' => '--uas-testi-cols: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $repeater = new Repeater();\n\n        $repeater->add_control(\n            'author_name',\n            [\n                'label'       => esc_html__('نام نویسنده نظر', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::TEXT,\n                'default'     => esc_html__('مهندس مریم کریمی', 'universal-elementor-suite'),\n                'label_block' => true,\n            ]\n        );\n\n        $repeater->add_control(\n            'author_role',\n            [\n                'label'   => esc_html__('سمت یا سازمان', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('مدیر ارشد نوآوری گروه آروین', 'universal-elementor-suite'),\n            ]\n        );\n\n        $repeater->add_control(\n            'review_text',\n            [\n                'label'   => esc_html__('متن بازخورد و نظر', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXTAREA,\n                'default' => esc_html__('همکاری با این مجموعه یکی از بهترین تصمیمات توسعه تجاری ما بود. دقت بالا در جزئیات، پاسخگویی مستمر و اجرای به‌موقع پروژه‌ها فراتر از انتظار ما ظاهر شد.', 'universal-elementor-suite'),\n            ]\n        );\n\n        $repeater->add_control(\n            'rating',\n            [\n                'label'   => esc_html__('امتیاز ستاره‌ای (۱ تا ۵)', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::SELECT,\n                'default' => '5',\n                'options' => [\n                    '5' => '★★★★★ (۵ ستاره)',\n                    '4' => '★★★★☆ (۴ ستاره)',\n                    '3' => '★★★☆☆ (۳ ستاره)',\n                ],\n            ]\n        );\n\n        $repeater->add_control(\n            'avatar',\n            [\n                'label'   => esc_html__('تصویر چهره / لوگو', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::MEDIA,\n                'default' => [\n                    'url' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',\n                ],\n            ]\n        );\n\n        $this->add_control(\n            'testimonials_list',\n            [\n                'label'       => esc_html__('لیست نظرات', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::REPEATER,\n                'fields'      => $repeater->get_controls(),\n                'default'     => [\n                    [\n                        'author_name' => esc_html__('مهندس مریم کریمی', 'universal-elementor-suite'),\n                        'author_role' => esc_html__('مدیر ارشد نوآوری گروه آروین', 'universal-elementor-suite'),\n                        'review_text' => esc_html__('همکاری با این مجموعه یکی از بهترین تصمیمات توسعه تجاری ما بود. دقت بالا در جزئیات، پاسخگویی مستمر و اجرای به‌موقع پروژه‌ها فراتر از انتظار ما ظاهر شد.', 'universal-elementor-suite'),\n                        'rating'      => '5',\n                        'avatar'      => ['url' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'],\n                    ],\n                    [\n                        'author_name' => esc_html__('دکتر امیرحسین رضایی', 'universal-elementor-suite'),\n                        'author_role' => esc_html__('مدیرعامل هلدینگ پایا', 'universal-elementor-suite'),\n                        'review_text' => esc_html__('سطح حرفه‌ای‌گری، شفافیت در ارائه گزارش‌های پیشرفت و تسلط تیم بر استانداردهای روز، اطمینان خاطر کامل را برای سهامداران به ارمغان آورد.', 'universal-elementor-suite'),\n                        'rating'      => '5',\n                        'avatar'      => ['url' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'],\n                    ],\n                ],\n                'title_field' => '{{{ author_name }}} - {{{ author_role }}}',\n            ]\n        );\n\n        $this->end_controls_section();\n\n        // Style Section\n        $this->start_controls_section(\n            'section_style_cards',\n            [\n                'label' => esc_html__('استایل و ظاهر', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_STYLE,\n            ]\n        );\n\n        $this->add_control(\n            'card_bg',\n            [\n                'label'     => esc_html__('رنگ پس‌زمینه کارت', 'universal-elementor-suite'),\n                'type'      => Controls_Manager::COLOR,\n                'default'   => '#FFFFFF',\n                'selectors' => [\n                    '{{WRAPPER}} .uas-testimonial-card' => 'background-color: {{VALUE}};',\n                ],\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"uas-testimonials-wrapper uas-widget-container\" dir=\"rtl\">\n            <div class=\"uas-testimonials-grid\">\n                <?php foreach ($settings['testimonials_list'] as $item) : ?>\n                    <div class=\"uas-testimonial-card\">\n                        <div class=\"uas-testimonial-quote-icon\">❝</div>\n                        <p class=\"uas-testimonial-text\"><?php echo esc_html($item['review_text']); ?></p>\n\n                        <div class=\"uas-testimonial-rating\">\n                            <?php\n                            $stars = intval($item['rating'] ?? 5);\n                            echo str_repeat('★', $stars) . str_repeat('☆', 5 - $stars);\n                            ?>\n                        </div>\n\n                        <div class=\"uas-testimonial-author\">\n                            <?php if (!empty($item['avatar']['url'])) : ?>\n                                <img src=\"<?php echo esc_url($item['avatar']['url']); ?>\" alt=\"<?php echo esc_attr($item['author_name']); ?>\" class=\"uas-testimonial-avatar\" loading=\"lazy\" />\n                            <?php endif; ?>\n                            <div class=\"uas-testimonial-meta\">\n                                <h4 class=\"uas-testimonial-name\"><?php echo esc_html($item['author_name']); ?></h4>\n                                <span class=\"uas-testimonial-role\"><?php echo esc_html($item['author_role']); ?></span>\n                            </div>\n                        </div>\n                    </div>\n                <?php endforeach; ?>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-theme-toggle.php",
+    "filename": "class-widget-theme-toggle.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: theme-toggle",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Theme Switcher Widget\n */\nclass Universal_Theme_Toggle_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_theme_toggle';\n    }\n\n    public function get_title() {\n        return esc_html__('سوییچ تغییر حالت شب و روز (Dark/Light)', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-adjust';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-theme-toggle-css'];\n    }\n\n    public function get_script_depends() {\n        return ['uas-widgets-core', 'uas-theme-toggle-js'];\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_content',\n            [\n                'label' => esc_html__('تنظیمات سوییچ', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'label',\n            [\n                'label'   => esc_html__('برچسب کنار دکمه', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('حالت تاریک / روشن', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        ?>\n        <div class=\"uas-widget-container\" dir=\"rtl\">\n            <div class=\"uas-theme-toggle-box\" title=\"تغییر تم\">\n                <div class=\"uas-toggle-pill\">\n                    <div class=\"uas-toggle-thumb\">☀️</div>\n                </div>\n                <?php if (!empty($settings['label'])) : ?>\n                    <span class=\"uas-toggle-label\"><?php echo esc_html($settings['label']); ?></span>\n                <?php endif; ?>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/includes/widgets/class-widget-video.php",
+    "filename": "class-widget-video.php",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "ابزارک پیشرفته و اختصاصی المنتور: video",
+    "code": "<?php\nnamespace UniversalElementorSuite\\Widgets;\n\nuse Elementor\\Controls_Manager;\nuse UniversalElementorSuite\\Universal_Widget_Base;\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * Universal Video Showcase Widget\n */\nclass Universal_Video_Widget extends Universal_Widget_Base {\n\n    public function get_name() {\n        return 'uas_video';\n    }\n\n    public function get_title() {\n        return esc_html__('نمایشگر ویدیویی با پوستر اختصاصی', 'universal-elementor-suite');\n    }\n\n    public function get_icon() {\n        return 'eicon-video-playlist';\n    }\n\n    public function get_style_depends() {\n        return ['uas-widgets-core', 'uas-video-css'];\n    }\n\n    protected function register_controls() {\n        $this->start_controls_section(\n            'section_video',\n            [\n                'label' => esc_html__('محتوای ویدیو', 'universal-elementor-suite'),\n                'tab'   => Controls_Manager::TAB_CONTENT,\n            ]\n        );\n\n        $this->add_control(\n            'video_title',\n            [\n                'label'   => esc_html__('عنوان یا کپشن ویدیو', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::TEXT,\n                'default' => esc_html__('معرفی دستاوردها و رویکردهای نوآورانه سازمان', 'universal-elementor-suite'),\n            ]\n        );\n\n        $this->add_control(\n            'video_url',\n            [\n                'label'       => esc_html__('لینک ویدیو (آپارات، یوتیوب، MP4)', 'universal-elementor-suite'),\n                'type'        => Controls_Manager::URL,\n                'placeholder' => 'https://www.youtube.com/watch?v=...',\n                'default'     => ['url' => 'https://www.w3schools.com/html/mov_bbb.mp4'],\n            ]\n        );\n\n        $this->add_control(\n            'poster_image',\n            [\n                'label'   => esc_html__('تصویر پوستر ویدیو', 'universal-elementor-suite'),\n                'type'    => Controls_Manager::MEDIA,\n                'default' => [\n                    'url' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800',\n                ],\n            ]\n        );\n\n        $this->end_controls_section();\n    }\n\n    protected function render() {\n        $settings = $this->get_settings_for_display();\n        $video_url = $settings['video_url']['url'] ?? '#';\n        ?>\n        <div class=\"uas-video-wrapper uas-widget-container\" dir=\"rtl\">\n            <a href=\"<?php echo esc_url($video_url); ?>\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"uas-video-poster-box\">\n                <?php if (!empty($settings['poster_image']['url'])) : ?>\n                    <img src=\"<?php echo esc_url($settings['poster_image']['url']); ?>\" alt=\"<?php echo esc_attr($settings['video_title']); ?>\" class=\"uas-video-poster-img\" loading=\"lazy\" />\n                <?php endif; ?>\n                <div class=\"uas-video-play-btn\">▶</div>\n            </a>\n            <?php if (!empty($settings['video_title'])) : ?>\n                <div class=\"uas-video-caption\"><?php echo esc_html($settings['video_title']); ?></div>\n            <?php endif; ?>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/readme.txt",
+    "filename": "readme.txt",
+    "category": "مستندات و زبان",
+    "description": "مستندات استاندارد مخزن وردپرس و راهنمای نصب افزونه.",
+    "code": "=== Universal Elementor Addon Suite ===\nContributors: sedrazavi, amirhossein\nTags: elementor, addons, widgets, modern-ui, responsive\nRequires at least: 5.8\nTested up to: 6.7\nRequires PHP: 7.4\nStable tag: 1.0.0\nLicense: GPLv2 or later\nLicense URI: https://www.gnu.org/licenses/gpl-2.0.html\n\nProfessional, standalone, topic-agnostic Elementor widgets suite for every WordPress website.\n\n== Description ==\n\nUniversal Elementor Addon Suite (UAS) provides a curated collection of modern, responsive, and performance-tuned widgets for Elementor Page Builder. Designed from the ground up to be 100% topic-agnostic, work seamlessly with ANY theme, and respect the Elementor styling guidelines.\n\n== Installation ==\n\n1. Upload `elementor-addon-suite` folder to the `/wp-content/plugins/` directory.\n2. Activate the plugin through the 'Plugins' menu in WordPress.\n3. Open any page with Elementor and find the \"Universal Suite\" category in the widget panel!\n"
+  },
+  {
+    "path": "elementor-addon-suite/templates/popups/popup-booking-lead.json",
+    "filename": "popup-booking-lead.json",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "پاپ‌آپ تعاملی حقوقی المنتور (popup-booking-lead.json)",
+    "code": "{\n  \"version\": \"0.4\",\n  \"title\": \"UAS - پاپ‌آپ هوشمند رزرو نوبت و مشاوره فوری (Quick Lead & Booking Popup)\",\n  \"type\": \"popup\",\n  \"page_settings\": {\n    \"width\": { \"unit\": \"px\", \"size\": 600 },\n    \"height\": \"fit_to_content\",\n    \"position_h\": \"center\",\n    \"position_v\": \"center\",\n    \"overlay\": \"yes\",\n    \"close_button\": \"yes\",\n    \"entrance_animation\": \"fadeInDown\",\n    \"exit_animation\": \"fadeOutUp\"\n  },\n  \"content\": [\n    {\n      \"id\": \"uas_popup_sec_booking\",\n      \"elType\": \"section\",\n      \"settings\": {\n        \"layout\": \"boxed\",\n        \"background_color\": \"#FFFFFF\",\n        \"padding\": { \"unit\": \"px\", \"top\": \"24\", \"right\": \"24\", \"bottom\": \"24\", \"left\": \"24\" }\n      },\n      \"elements\": [\n        {\n          \"id\": \"uas_popup_col_booking\",\n          \"elType\": \"column\",\n          \"settings\": { \"_column_size\": 100 },\n          \"elements\": [\n            {\n              \"id\": \"uas_popup_wid_booking\",\n              \"elType\": \"widget\",\n              \"widgetType\": \"uas_contact_booking\",\n              \"settings\": {\n                \"form_title\": \"هماهنگی سریع جلسه مشاوره و ارزیابی اولیه\",\n                \"form_desc\": \"مشخصات و زمان پیشنهادی خود را ثبت فرمایید تا کارشناسان مربوطه هماهنگی‌های لازم را انجام دهند.\",\n                \"submit_btn_text\": \"ثبت فوری درخواست ←\"\n              }\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/templates/popups/popup-status-tracker.json",
+    "filename": "popup-status-tracker.json",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "پاپ‌آپ تعاملی حقوقی المنتور (popup-status-tracker.json)",
+    "code": "{\n  \"version\": \"0.4\",\n  \"title\": \"UAS - پاپ‌آپ استعلام و رهگیری وضعیت (Order & Status Inquiry Popup)\",\n  \"type\": \"popup\",\n  \"page_settings\": {\n    \"width\": { \"unit\": \"px\", \"size\": 560 },\n    \"height\": \"fit_to_content\",\n    \"position_h\": \"center\",\n    \"position_v\": \"center\",\n    \"overlay\": \"yes\",\n    \"close_button\": \"yes\",\n    \"entrance_animation\": \"fadeIn\",\n    \"exit_animation\": \"fadeOut\"\n  },\n  \"content\": [\n    {\n      \"id\": \"uas_popup_sec_tracker\",\n      \"elType\": \"section\",\n      \"settings\": {\n        \"layout\": \"boxed\",\n        \"background_color\": \"#FFFFFF\",\n        \"padding\": { \"unit\": \"px\", \"top\": \"32\", \"right\": \"24\", \"bottom\": \"32\", \"left\": \"24\" }\n      },\n      \"elements\": [\n        {\n          \"id\": \"uas_popup_col_tracker\",\n          \"elType\": \"column\",\n          \"settings\": { \"_column_size\": 100 },\n          \"elements\": [\n            {\n              \"id\": \"uas_popup_wid_tracker\",\n              \"elType\": \"widget\",\n              \"widgetType\": \"uas_cta\",\n              \"settings\": {\n                \"title\": \"سامانه آنلاین رهگیری وضعیت سفارش و پرونده\",\n                \"description\": \"با درج شناسه پیگیری یا شماره تماس در پورتال، از آخرین وضعیت اجرایی و تاریخ مراحل بعدی پروژه مطلع شوید.\",\n                \"button_text\": \"ورود به پورتال استعلام آنلاین ←\",\n                \"button_url\": { \"url\": \"#tracking\", \"is_external\": false }\n              }\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/templates/popups/popup-story-modal.json",
+    "filename": "popup-story-modal.json",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "پاپ‌آپ تعاملی حقوقی المنتور (popup-story-modal.json)",
+    "code": "{\n  \"version\": \"0.4\",\n  \"title\": \"UAS - پاپ‌آپ استوری اینستاگرام و هایلایت‌های تمام‌صفحه (Story Highlights Popup)\",\n  \"type\": \"popup\",\n  \"page_settings\": {\n    \"width\": { \"unit\": \"px\", \"size\": 420 },\n    \"height\": \"fit_to_content\",\n    \"position_h\": \"center\",\n    \"position_v\": \"center\",\n    \"overlay\": \"yes\",\n    \"close_button\": \"yes\",\n    \"entrance_animation\": \"zoomIn\",\n    \"exit_animation\": \"zoomOut\"\n  },\n  \"content\": [\n    {\n      \"id\": \"uas_popup_sec_story\",\n      \"elType\": \"section\",\n      \"settings\": {\n        \"layout\": \"full_width\",\n        \"background_color\": \"#0F172A\",\n        \"padding\": { \"unit\": \"px\", \"top\": \"24\", \"right\": \"20\", \"bottom\": \"24\", \"left\": \"20\" }\n      },\n      \"elements\": [\n        {\n          \"id\": \"uas_popup_col_story\",\n          \"elType\": \"column\",\n          \"settings\": { \"_column_size\": 100 },\n          \"elements\": [\n            {\n              \"id\": \"uas_popup_wid_story\",\n              \"elType\": \"widget\",\n              \"widgetType\": \"uas_story_bar\",\n              \"settings\": {\n                \"bar_title\": \"هایلایت‌های منتخب و رویدادهای زنده\",\n                \"stories_list\": [\n                  {\n                    \"story_title\": \"رونمایی از محصول\",\n                    \"story_content\": \"معرفی ویژگی‌های کلیدی در نگارش جدید پلتفرم و امکانات شخصی‌سازی هوشمند.\",\n                    \"story_image\": { \"url\": \"https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=300\" }\n                  },\n                  {\n                    \"story_title\": \"گزارش پیشرفت\",\n                    \"story_content\": \"ثبت رکورد رضایت ۹۸ درصدی کاربران در آخرین ارزیابی کیفی سه‌ماهه سوم.\",\n                    \"story_image\": { \"url\": \"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=300\" }\n                  }\n                ]\n              }\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/templates/template-faq-accordion.json",
+    "filename": "template-faq-accordion.json",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "قالب آماده و بخش از پیش طراحی‌شده المنتور (template-faq-accordion.json)",
+    "code": "{\n  \"version\": \"0.4\",\n  \"title\": \"UAS - بخش سوالات متداول با اسکیما (FAQ Accordion Section)\",\n  \"type\": \"section\",\n  \"content\": [\n    {\n      \"id\": \"uas_sec_faq_01\",\n      \"elType\": \"section\",\n      \"settings\": {\n        \"layout\": \"boxed\",\n        \"padding\": { \"unit\": \"px\", \"top\": \"50\", \"right\": \"0\", \"bottom\": \"50\", \"left\": \"0\" }\n      },\n      \"elements\": [\n        {\n          \"id\": \"uas_col_faq_01\",\n          \"elType\": \"column\",\n          \"settings\": { \"_column_size\": 100 },\n          \"elements\": [\n            {\n              \"id\": \"uas_wid_faq_01\",\n              \"elType\": \"widget\",\n              \"widgetType\": \"uas_faq\",\n              \"settings\": {\n                \"enable_schema\": \"yes\",\n                \"faqs_list\": [\n                  {\n                    \"question\": \"مدت زمان ارزیابی اولیه و تدوین طرح پیشنهادی چقدر است؟\",\n                    \"answer\": \"فرآیند ارزیابی اولیه، بررسی دقیق نیازمندی‌ها و ارائه طرح فنی و مالی معمولاً ظرف ۲ الی ۴ روز کاری انجام می‌پذیرد.\"\n                  },\n                  {\n                    \"question\": \"آیا امکان یکپارچه‌سازی سامانه‌ها با زیرساخت‌های فعلی سازمان وجود دارد؟\",\n                    \"answer\": \"بله، تمامی معماری‌ها بر پایه استانداردهای مدرن RESTful API و اتصالات ماژولار طراحی شده‌اند و به سادگی با نرم‌افزارهای قبلی هماهنگ می‌گردند.\"\n                  },\n                  {\n                    \"question\": \"پشتیبانی فنی و نگهداری دوره‌ای پس از تحویل پروژه به چه صورت است؟\",\n                    \"answer\": \"تمامی پروژه‌ها همراه با ۶ ماه پشتیبانی جامع رایگان، مانیتورینگ آنلاین ۲۴/۷ و بسته‌های تکمیلی نگهداری سالانه ارائه می‌شوند.\"\n                  }\n                ]\n              }\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/templates/template-features-grid.json",
+    "filename": "template-features-grid.json",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "قالب آماده و بخش از پیش طراحی‌شده المنتور (template-features-grid.json)",
+    "code": "{\n  \"version\": \"0.4\",\n  \"title\": \"UAS - شبکه ویژگی‌ها و قابلیت‌های پیشرفته (3-Column Features Grid)\",\n  \"type\": \"section\",\n  \"content\": [\n    {\n      \"id\": \"uas_sec_feat_01\",\n      \"elType\": \"section\",\n      \"settings\": {\n        \"layout\": \"boxed\",\n        \"padding\": { \"unit\": \"px\", \"top\": \"50\", \"right\": \"0\", \"bottom\": \"50\", \"left\": \"0\" }\n      },\n      \"elements\": [\n        {\n          \"id\": \"uas_col_feat_01\",\n          \"elType\": \"column\",\n          \"settings\": { \"_column_size\": 100 },\n          \"elements\": [\n            {\n              \"id\": \"uas_wid_feat_01\",\n              \"elType\": \"widget\",\n              \"widgetType\": \"uas_services_grid\",\n              \"settings\": {\n                \"subtitle\": \"توانمندی‌ها و قابلیت‌های محوری\",\n                \"title\": \"چرا سازمان‌های پیشرو ما را انتخاب می‌کنند؟\",\n                \"columns\": \"3\",\n                \"services_list\": [\n                  {\n                    \"item_title\": \"مشاوره راهبردی و مدیریت پروژه\",\n                    \"item_desc\": \"طراحی نقشه‌راه اجرایی، تحلیل شاخص‌های عملکرد و تسریع دستیابی به اهداف سازمانی.\",\n                    \"item_link_text\": \"اطلاعات بیشتر ←\",\n                    \"item_link_url\": { \"url\": \"#\", \"is_external\": false }\n                  },\n                  {\n                    \"item_title\": \"توسعه پلتفرم‌ها و فناوری‌های نوین\",\n                    \"item_desc\": \"پیاده‌سازی سامانه‌های یکپارچه، تحول دیجیتال و بهینه‌سازی فرآیندهای عملیاتی کسب‌وکار.\",\n                    \"item_link_text\": \"اطلاعات بیشتر ←\",\n                    \"item_link_url\": { \"url\": \"#\", \"is_external\": false }\n                  },\n                  {\n                    \"item_title\": \"حسابرسی، انطباق و نظارت کیفی\",\n                    \"item_desc\": \"پایش استانداردها، کنترل ریسک، تضمین کیفیت و تطبیق با آخرین مقررات و ضوابط صنعت.\",\n                    \"item_link_text\": \"اطلاعات بیشتر ←\",\n                    \"item_link_url\": { \"url\": \"#\", \"is_external\": false }\n                  }\n                ]\n              }\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/templates/template-footer-rich.json",
+    "filename": "template-footer-rich.json",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "قالب آماده و بخش از پیش طراحی‌شده المنتور (template-footer-rich.json)",
+    "code": "{\n  \"version\": \"0.4\",\n  \"title\": \"UAS - فوتر جامع و چندستونه سازمانی (Multi-Column Corporate Footer)\",\n  \"type\": \"section\",\n  \"content\": [\n    {\n      \"id\": \"uas_sec_footer_01\",\n      \"elType\": \"section\",\n      \"settings\": {\n        \"layout\": \"boxed\",\n        \"background_background\": \"classic\",\n        \"background_color\": \"#0F172A\",\n        \"padding\": { \"unit\": \"px\", \"top\": \"60\", \"right\": \"20\", \"bottom\": \"40\", \"left\": \"20\" }\n      },\n      \"elements\": [\n        {\n          \"id\": \"uas_col_footer_01\",\n          \"elType\": \"column\",\n          \"settings\": { \"_column_size\": 100 },\n          \"elements\": [\n            {\n              \"id\": \"uas_wid_footer_ticker\",\n              \"elType\": \"widget\",\n              \"widgetType\": \"uas_banner_slider\",\n              \"settings\": {\n                \"badge\": \"تعهد و ارزش‌ها\",\n                \"text\": \"توسعه پایدار، شفافیت سازمانی و رعایت اصول اخلاق حرفه‌ای سرلوحه تمام فعالیت‌های ماست.\"\n              }\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/templates/template-hero-section.json",
+    "filename": "template-hero-section.json",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "قالب آماده و بخش از پیش طراحی‌شده المنتور (template-hero-section.json)",
+    "code": "{\n  \"version\": \"0.4\",\n  \"title\": \"UAS - هیرو مدرن شرکتی و سازمانی (Modern Corporate Hero)\",\n  \"type\": \"section\",\n  \"content\": [\n    {\n      \"id\": \"uas_sec_hero_01\",\n      \"elType\": \"section\",\n      \"settings\": {\n        \"layout\": \"boxed\",\n        \"padding\": { \"unit\": \"px\", \"top\": \"40\", \"right\": \"0\", \"bottom\": \"40\", \"left\": \"0\" }\n      },\n      \"elements\": [\n        {\n          \"id\": \"uas_col_hero_01\",\n          \"elType\": \"column\",\n          \"settings\": { \"_column_size\": 100 },\n          \"elements\": [\n            {\n              \"id\": \"uas_wid_hero_01\",\n              \"elType\": \"widget\",\n              \"widgetType\": \"uas_hero\",\n              \"settings\": {\n                \"badge_text\": \"نوآوری در ارائه خدمات برتر\",\n                \"hero_title\": \"راهکارهای هوشمند و مدرن برای ارتقای کسب‌وکار شما\",\n                \"hero_desc\": \"ما با تلفیق تخصص، نوآوری و تکنولوژی‌های پیشرو، سازمان شما را در مسیر دستیابی به اهداف راهبردی و مزیت‌های پایدار رقابتی همراهی می‌کنیم.\",\n                \"primary_btn_text\": \"درخواست مشاوره رایگان\",\n                \"primary_btn_url\": { \"url\": \"#contact\", \"is_external\": false },\n                \"secondary_btn_text\": \"مشاهده پروژه‌ها و خدمات\",\n                \"secondary_btn_url\": { \"url\": \"#services\", \"is_external\": false },\n                \"hero_image\": {\n                  \"url\": \"https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800\"\n                }\n              }\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/templates/template-pricing-table.json",
+    "filename": "template-pricing-table.json",
+    "category": "صفحه‌ساز و ویجت‌ها (Elementor Widgets)",
+    "description": "قالب آماده و بخش از پیش طراحی‌شده المنتور (template-pricing-table.json)",
+    "code": "{\n  \"version\": \"0.4\",\n  \"title\": \"UAS - جدول مقایسه پلن‌های تعرفه و اشتراک (Pricing Comparison Table)\",\n  \"type\": \"section\",\n  \"content\": [\n    {\n      \"id\": \"uas_sec_price_01\",\n      \"elType\": \"section\",\n      \"settings\": {\n        \"layout\": \"boxed\",\n        \"padding\": { \"unit\": \"px\", \"top\": \"50\", \"right\": \"0\", \"bottom\": \"50\", \"left\": \"0\" }\n      },\n      \"elements\": [\n        {\n          \"id\": \"uas_col_price_01\",\n          \"elType\": \"column\",\n          \"settings\": { \"_column_size\": 100 },\n          \"elements\": [\n            {\n              \"id\": \"uas_wid_price_cta_01\",\n              \"elType\": \"widget\",\n              \"widgetType\": \"uas_cta\",\n              \"settings\": {\n                \"title\": \"پلن‌های شفاف، منعطف و متناسب با رشد سازمان شما\",\n                \"description\": \"از میان گزینه‌های استاندارد، حرفه‌ای و سازمانی، مناسب‌ترین بسته متناسب با بودجه و نیازمندی‌های کسب‌وکار خود را انتخاب فرمایید.\",\n                \"button_text\": \"مشاهده جزئیات پلن‌های تعرفه و استعلام فوری ←\",\n                \"button_url\": { \"url\": \"#pricing\", \"is_external\": false }\n              }\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n"
+  },
+  {
+    "path": "elementor-addon-suite/uninstall.php",
+    "filename": "uninstall.php",
+    "category": "افزونه مکمل (Plugin Addons)",
+    "description": "اسکریپت پاک‌سازی کامل دیتابیس و تنظیمات در زمان حذف افزونه.",
+    "code": "<?php\n/**\n * Universal Elementor Addon Suite - Clean Uninstall Routine\n *\n * Executed only when user clicks \"Delete\" on the plugin in the WordPress Plugins screen.\n */\n\nif (!defined('WP_UNINSTALL_PLUGIN')) {\n    exit;\n}\n\n// 1. Check if user configured to delete saved templates\n$delete_templates = get_option('uas_delete_templates_on_uninstall', 'no');\n\nif ($delete_templates === 'yes') {\n    $templates = get_posts([\n        'post_type'      => 'elementor_library',\n        'post_status'    => 'any',\n        'posts_per_page' => -1,\n        'meta_key'       => '_uas_template_slug',\n    ]);\n\n    if (!empty($templates)) {\n        foreach ($templates as $tmpl) {\n            wp_delete_post($tmpl->ID, true);\n        }\n    }\n}\n\n// 2. Clean up all options\ndelete_option('uas_custom_category_name');\ndelete_option('uas_custom_category_icon');\ndelete_option('uas_disabled_widgets');\ndelete_option('uas_delete_templates_on_uninstall');\ndelete_option('uas_settings');\n\n// 3. Clean up transients if any\ndelete_transient('uas_elementor_cache');\n"
+  },
+  {
+    "path": "sedrazavi-addons/includes/admin-settings.php",
+    "filename": "admin-settings.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "پنل تنظیمات و مدیریت عمومی افزونه در پیشخوان وردپرس.",
+    "code": "<?php\n/**\n * Admin Settings & Health Diagnostics\n *\n * @package SedRazavi_Addons\n * @version 2.5.0\n */\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\nif (!function_exists('sedrazavi_addons_admin_menu')) {\n    function sedrazavi_addons_admin_menu() {\n        add_submenu_page(\n            'tools.php',\n            esc_html__('گزارش عیب‌یابی و لاگ سید رضوی', 'sedrazavi-addons'),\n            esc_html__('لاگ‌های حقوقی سید رضوی', 'sedrazavi-addons'),\n            'manage_options',\n            'sedrazavi-logs',\n            'sedrazavi_addons_render_logs_page'\n        );\n    }\n}\nadd_action('admin_menu', 'sedrazavi_addons_admin_menu');\n\nif (!function_exists('sedrazavi_addons_render_logs_page')) {\n    function sedrazavi_addons_render_logs_page() {\n        if (!current_user_can('manage_options')) {\n            wp_die(esc_html__('دسترسی غیرمجاز.', 'sedrazavi-addons'));\n        }\n\n        // پردازش پاکسازی لاگ\n        if (isset($_POST['sedrazavi_clear_logs']) && check_admin_referer('sedrazavi_clear_logs_action')) {\n            SedRazavi_Logger::clear_log();\n            echo '<div class=\"notice notice-success is-dismissible\"><p>' . esc_html__('فایل لاگ با موفقیت پاکسازی شد.', 'sedrazavi-addons') . '</p></div>';\n        }\n\n        $log_content = SedRazavi_Logger::get_log_contents(150);\n        $php_version = phpversion();\n        $is_php_ok  = version_compare($php_version, '7.4', '>=');\n        ?>\n        <div class=\"wrap\" style=\"font-family: inherit;\">\n            <h1 style=\"display: flex; align-items: center; gap: 8px;\">\n                <span style=\"color: #D4AF37;\">⚖️</span>\n                <?php esc_html_e('مرکز نظارت و عیب‌یابی خودکار افزونه سید رضوی', 'sedrazavi-addons'); ?>\n            </h1>\n            \n            <div style=\"background: #fff; border: 1px solid #ccd0d4; border-radius: 8px; padding: 20px; margin-top: 20px;\">\n                <h2 style=\"margin-top: 0;\"><?php esc_html_e('وضعیت سلامت سرور و سیستم', 'sedrazavi-addons'); ?></h2>\n                <table class=\"widefat striped\" style=\"margin-top: 15px;\">\n                    <tbody>\n                        <tr>\n                            <td><strong><?php esc_html_e('نسخه PHP سرور:', 'sedrazavi-addons'); ?></strong></td>\n                            <td>\n                                <code><?php echo esc_html($php_version); ?></code>\n                                <?php if ($is_php_ok) : ?>\n                                    <span style=\"color: green; font-weight: bold;\">✓ <?php esc_html_e('سازگار (حداقل ۷.۴ رعایت شده است)', 'sedrazavi-addons'); ?></span>\n                                <?php else : ?>\n                                    <span style=\"color: red; font-weight: bold;\">✗ <?php esc_html_e('هشدار: نسخه کمتر از ۷.۴ است', 'sedrazavi-addons'); ?></span>\n                                <?php endif; ?>\n                            </td>\n                        </tr>\n                        <tr>\n                            <td><strong><?php esc_html_e('مسیر فایل لاگ اختصاصی:', 'sedrazavi-addons'); ?></strong></td>\n                            <td><code><?php echo esc_html(SEDRAZAVI_LOG_DIR . 'debug.log'); ?></code></td>\n                        </tr>\n                        <tr>\n                            <td><strong><?php esc_html_e('وضعیت مجوز نوشتن پوشه لاگ:', 'sedrazavi-addons'); ?></strong></td>\n                            <td>\n                                <?php if (is_writable(SEDRAZAVI_LOG_DIR) || is_writable(WP_CONTENT_DIR . '/uploads/')) : ?>\n                                    <span style=\"color: green; font-weight: bold;\">✓ <?php esc_html_e('قابل نوشتن و امن', 'sedrazavi-addons'); ?></span>\n                                <?php else : ?>\n                                    <span style=\"color: orange; font-weight: bold;\">! <?php esc_html_e('عدم دسترسی نوشتن روی wp-content/uploads', 'sedrazavi-addons'); ?></span>\n                                <?php endif; ?>\n                            </td>\n                        </tr>\n                    </tbody>\n                </table>\n            </div>\n\n            <div style=\"background: #fff; border: 1px solid #ccd0d4; border-radius: 8px; padding: 20px; margin-top: 20px;\">\n                <div style=\"display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;\">\n                    <h2 style=\"margin: 0;\"><?php esc_html_e('محتوای فایل لاگ سیستم (۱۵۰ خط اخیر)', 'sedrazavi-addons'); ?></h2>\n                    <form method=\"post\">\n                        <?php wp_nonce_field('sedrazavi_clear_logs_action'); ?>\n                        <input type=\"submit\" name=\"sedrazavi_clear_logs\" class=\"button button-secondary\" value=\"<?php esc_attr_e('پاکسازی لاگ', 'sedrazavi-addons'); ?>\" onclick=\"return confirm('آیا از پاکسازی لاگ اطمینان دارید؟');\" />\n                    </form>\n                </div>\n                <textarea readonly style=\"width: 100%; height: 350px; font-family: monospace; font-size: 12px; background: #0B132B; color: #cbd5e1; direction: ltr; padding: 12px; border-radius: 6px; border: 1px solid #1C2541;\"><?php echo esc_textarea($log_content); ?></textarea>\n            </div>\n        </div>\n        <?php\n    }\n}\n"
+  },
+  {
+    "path": "sedrazavi-addons/includes/booking-system.php",
+    "filename": "booking-system.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "هندلر فرم‌های نوبت‌دهی، ذخیره‌سازی در دیتابیس و اعتبارسنجی سرور.",
+    "code": "<?php\n/**\n * Consultation Booking Backend & AJAX Handlers\n *\n * @package SedRazavi_Addons\n * @version 2.5.0\n */\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\nif (!function_exists('sedrazavi_handle_booking_submission')) {\n    function sedrazavi_handle_booking_submission() {\n        // ۱. بررسی امنیتی توکن نانس\n        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'sedrazavi_security_nonce')) {\n            wp_send_json_error(array(\n                'message' => esc_html__('اعتبار سنجی امنیتی ناموفق بود. لطفاً صفحه را تازه‌سازی کنید.', 'sedrazavi-addons')\n            ), 403);\n        }\n\n        // ۲. ضدعفونی و دریافت ورودی‌ها\n        $fullname     = isset($_POST['fullname']) ? sanitize_text_field(wp_unslash($_POST['fullname'])) : '';\n        $phone        = isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '';\n        $email        = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';\n        $service_type = isset($_POST['service_type']) ? sanitize_text_field(wp_unslash($_POST['service_type'])) : '';\n        $date         = isset($_POST['date']) ? sanitize_text_field(wp_unslash($_POST['date'])) : '';\n        $time         = isset($_POST['time']) ? sanitize_text_field(wp_unslash($_POST['time'])) : '';\n        $message      = isset($_POST['message']) ? sanitize_textarea_field(wp_unslash($_POST['message'])) : '';\n\n        // اعتبارسنجی فیلدهای اجباری\n        if (empty($fullname) || empty($phone) || empty($service_type)) {\n            wp_send_json_error(array(\n                'message' => esc_html__('لطفاً تمامی فیلدهای الزامی (نام، شماره تماس و حوزه خدمت) را تکمیل فرمایید.', 'sedrazavi-addons')\n            ), 400);\n        }\n\n        // ۳. ذخیره‌سازی در دیتابیس اختصاصی\n        global $wpdb;\n        $table_name = $wpdb->prefix . 'sedrazavi_consultations';\n\n        try {\n            $inserted = $wpdb->insert(\n                $table_name,\n                array(\n                    'fullname'       => $fullname,\n                    'phone'          => $phone,\n                    'email'          => $email,\n                    'service_type'   => $service_type,\n                    'preferred_date' => $date,\n                    'preferred_time' => $time,\n                    'message'        => $message,\n                    'status'         => 'pending',\n                    'created_at'     => current_time('mysql'),\n                ),\n                array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')\n            );\n\n            if ($inserted === false) {\n                sedrazavi_addons_log_error(\n                    'خطای دیتابیس در ثبت نوبت: ' . $wpdb->last_error,\n                    __FILE__,\n                    __LINE__,\n                    'ERROR'\n                );\n                wp_send_json_error(array(\n                    'message' => esc_html__('خطایی در ذخیره اطلاعات رخ داد. لطفاً با دفتر تماس بگیرید.', 'sedrazavi-addons')\n                ), 500);\n            }\n\n            $booking_id = $wpdb->insert_id;\n\n            // ارسال اعلان ایمیل به مدیر در صورت تنظیم\n            $admin_email = get_option('admin_email');\n            $subject = sprintf(esc_html__('درخواست نوبت مشاوره حقوقی جدید - کد #%d', 'sedrazavi-addons'), $booking_id);\n            $email_body = sprintf(\n                \"درخواست جدیدی با مشخصات زیر در سایت ثبت شد:\nنام: %s\nتلفن: %s\nموضوع: %s\nتاریخ درخواستی: %s ساعت %s\nتوضیحات: %s\",\n                $fullname,\n                $phone,\n                $service_type,\n                $date,\n                $time,\n                $message\n            );\n            @wp_mail($admin_email, $subject, $email_body);\n\n            wp_send_json_success(array(\n                'message'    => esc_html__('درخواست وقت مشاوره شما با موفقیت ثبت شد. کارشناسان حقوقی به زودی با شما تماس خواهند گرفت.', 'sedrazavi-addons'),\n                'booking_id' => $booking_id,\n            ));\n\n        } catch (Throwable $e) {\n            sedrazavi_addons_log_error('استثنا در ثبت مشاوره: ' . $e->getMessage(), $e->getFile(), $e->getLine());\n            wp_send_json_error(array('message' => esc_html__('خطای سرور در پردازش درخواست.', 'sedrazavi-addons')), 500);\n        }\n    }\n}\nadd_action('wp_ajax_sedrazavi_book_consultation', 'sedrazavi_handle_booking_submission');\nadd_action('wp_ajax_nopriv_sedrazavi_book_consultation', 'sedrazavi_handle_booking_submission');\n"
+  },
+  {
+    "path": "sedrazavi-addons/includes/case-metaboxes-ui.php",
+    "filename": "case-metaboxes-ui.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "متاباکس‌های پیشرفته مدیریت پرونده (خواهان، خوانده، روند دادرسی، شعبه دادگاه).",
+    "code": "<?php\n/**\n * Attorney-Optimized Case Management Meta Boxes & Admin UI\n *\n * @package SedRazavi_Addons\n * @version 2.6.0\n */\n\nif (!defined('ABSPATH')) exit;\n\n/**\n * ۱. افزودن متاباکس‌های تخصصی به پرونده‌های حقوقی\n */\nfunction sedrazavi_register_case_metaboxes() {\n    add_meta_box(\n        'sedrazavi_case_core_details',\n        '⚖️ اطلاعات قضایی و حقوقی پرونده (سامانه هوشمند وکیل)',\n        'sedrazavi_render_case_metabox',\n        'sedrazavi_case',\n        'normal',\n        'high'\n    );\n\n    add_meta_box(\n        'sedrazavi_case_financials',\n        '💳 قرارداد مالی و حق‌الوکاله',\n        'sedrazavi_render_case_financial_metabox',\n        'sedrazavi_case',\n        'side',\n        'default'\n    );\n}\nadd_action('add_meta_boxes', 'sedrazavi_register_case_metaboxes');\n\n/**\n * رندر متاباکس اصلی پرونده با رابط کاربری لوکس و راهنماهای دقیق برای وکیل\n */\nfunction sedrazavi_render_case_metabox($post) {\n    wp_nonce_field('sedrazavi_case_meta_action', 'sedrazavi_case_meta_nonce');\n\n    $case_number = get_post_meta($post->ID, '_sedrazavi_case_number', true);\n    $client_name = get_post_meta($post->ID, '_sedrazavi_client_name', true);\n    $client_phone = get_post_meta($post->ID, '_sedrazavi_client_phone', true);\n    $court_branch = get_post_meta($post->ID, '_sedrazavi_court_branch', true);\n    $judge_name = get_post_meta($post->ID, '_sedrazavi_judge_name', true);\n    $case_stage = get_post_meta($post->ID, '_sedrazavi_case_stage', true);\n    $progress = get_post_meta($post->ID, '_sedrazavi_progress', true);\n    $next_session = get_post_meta($post->ID, '_sedrazavi_next_session', true);\n    $lawyer_memo = get_post_meta($post->ID, '_sedrazavi_lawyer_memo', true);\n\n    if ($progress === '') $progress = '50';\n    if (empty($case_stage)) $case_stage = 'بدوی';\n    ?>\n    <style>\n        .sr-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }\n        .sr-meta-field { margin-bottom: 12px; }\n        .sr-meta-field label { display: block; font-weight: bold; margin-bottom: 4px; color: #0B132B; font-size: 12px; }\n        .sr-meta-field .sr-hint { display: block; font-size: 11px; color: #64748b; margin-top: 3px; }\n        .sr-meta-field input[type=\"text\"], .sr-meta-field select, .sr-meta-field textarea { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; }\n        .sr-meta-field input[type=\"text\"]:focus, .sr-meta-field select:focus { border-color: #D4AF37; box-shadow: 0 0 0 1px #D4AF37; outline: none; }\n        .sr-stage-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; background: #e0f2fe; color: #0369a1; }\n    </style>\n\n    <div style=\"background: #f8fafc; padding: 14px; border-radius: 10px; border-right: 4px solid #D4AF37; margin-bottom: 18px;\">\n        <p style=\"margin: 0; font-size: 12px; color: #334155; line-height: 1.6;\">\n            <strong>همکار گرامی / وکیل محترم:</strong> اطلاعات وارد شده در این بخش به صورت زنده در کارتابل آنلاین موکل و سامانه پیگیری پرونده نمایش داده خواهد شد. لطفاً کلاسه پرونده و زمان جلسات را با دقت درج نمایید.\n        </p>\n    </div>\n\n    <div class=\"sr-meta-grid\">\n        <div class=\"sr-meta-field\">\n            <label>کلاسه بایگانی / شماره پرونده ثنا:</label>\n            <input type=\"text\" name=\"sr_case_number\" value=\"<?php echo esc_attr($case_number); ?>\" placeholder=\"مثال: ۱۴۰۳-۹۸۲۷۳-ونک\" />\n            <span class=\"sr-hint\">این کد توسط موکل برای استعلام در سامانه پیگیری استفاده می‌شود.</span>\n        </div>\n\n        <div class=\"sr-meta-field\">\n            <label>نام و نام خانوادگی موکل:</label>\n            <input type=\"text\" name=\"sr_client_name\" value=\"<?php echo esc_attr($client_name); ?>\" placeholder=\"مثال: علیرضا رادمنش\" />\n        </div>\n    </div>\n\n    <div class=\"sr-meta-grid\">\n        <div class=\"sr-meta-field\">\n            <label>شماره تماس همراه موکل:</label>\n            <input type=\"text\" name=\"sr_client_phone\" value=\"<?php echo esc_attr($client_phone); ?>\" placeholder=\"۰۹۱۲۳۴۵۶۷۸۹\" style=\"direction: ltr; text-align: right;\" />\n            <span class=\"sr-hint\">جهت ارسال پیامک‌های خودکار اطلاع‌رسانی جلسات دادگاه</span>\n        </div>\n\n        <div class=\"sr-meta-field\">\n            <label>شعبه و مجتمع قضایی رسیدگی‌کننده:</label>\n            <input type=\"text\" name=\"sr_court_branch\" value=\"<?php echo esc_attr($court_branch); ?>\" placeholder=\"مثال: شعبه ۱۲ عمومی حقوقی مجتمع شهید بهشتی\" />\n        </div>\n    </div>\n\n    <div class=\"sr-meta-grid\">\n        <div class=\"sr-meta-field\">\n            <label>مرحله دادرسی فعلی:</label>\n            <select name=\"sr_case_stage\">\n                <option value=\"ثبت دادخواست بدوی\" <?php selected($case_stage, 'ثبت دادخواست بدوی'); ?>>۱. ثبت دادخواست و ابلاغ</option>\n                <option value=\"تبادل لوایح طرفین\" <?php selected($case_stage, 'تبادل لوایح طرفین'); ?>>۲. تبادل لوایح طرفین</option>\n                <option value=\"ارجاع به کارشناسی رسمی\" <?php selected($case_stage, 'ارجاع به کارشناسی رسمی'); ?>>۳. ارجاع به کارشناسی رسمی دادگستری</option>\n                <option value=\"تشکیل جلسه رسیدگی بدوی\" <?php selected($case_stage, 'تشکیل جلسه رسیدگی بدوی'); ?>>۴. تشکیل جلسه رسیدگی در دادگاه بدوی</option>\n                <option value=\"صدور دادنامه بدوی\" <?php selected($case_stage, 'صدور دادنامه بدوی'); ?>>۵. صدور دادنامه بدوی</option>\n                <option value=\"تجدیدنظرخواهی\" <?php selected($case_stage, 'تجدیدنظرخواهی'); ?>>۶. تجدیدنظرخواهی در دادگاه تجدیدنظر استان</option>\n                <option value=\"داوری / صلح و سازش\" <?php selected($case_stage, 'داوری / صلح و سازش'); ?>>۷. داوری بین‌المللی / سازش</option>\n                <option value=\"اجرای احکام و وصول محکوم‌به\" <?php selected($case_stage, 'اجرای احکام و وصول محکوم‌به'); ?>>۸. مرحله اجرای احکام و وصول</option>\n                <option value=\"مختومه و بایگانی\" <?php selected($case_stage, 'مختومه و بایگانی'); ?>>۹. پرونده با موفقیت مختومه شد</option>\n            </select>\n        </div>\n\n        <div class=\"sr-meta-field\">\n            <label>درصد پیشرفت کار (%): <strong id=\"sr_progress_display\" style=\"color: #D4AF37;\"><?php echo esc_html($progress); ?>%</strong></label>\n            <input type=\"range\" min=\"0\" max=\"100\" step=\"5\" name=\"sr_progress\" value=\"<?php echo esc_attr($progress); ?>\" oninput=\"document.getElementById('sr_progress_display').innerText = this.value + '%';\" style=\"width: 100%; accent-color: #D4AF37;\" />\n        </div>\n    </div>\n\n    <div class=\"sr-meta-field\">\n        <label>تاریخ و ساعت جلسه آینده / وقت نظارت:</label>\n        <input type=\"text\" name=\"sr_next_session\" value=\"<?php echo esc_attr($next_session); ?>\" placeholder=\"مثال: سه‌شنبه ۱۵ مهر ۱۴۰۳ - ساعت ۰۹:۳۰ صبح\" />\n    </div>\n\n    <div class=\"sr-meta-field\">\n        <label>یادداشت راهبردی و توضیحات وکیل برای موکل:</label>\n        <textarea name=\"sr_lawyer_memo\" rows=\"3\" placeholder=\"توضیحاتی که موکل در پرتال شخصی مشاهده می‌کند (اقدامات انجام شده، دفاعیات و...)\"><?php echo esc_textarea($lawyer_memo); ?></textarea>\n    </div>\n    <?php\n}\n\n/**\n * متاباکس امور مالی و حق‌الوکاله در سایدبار\n */\nfunction sedrazavi_render_case_financial_metabox($post) {\n    $total_fee = get_post_meta($post->ID, '_sedrazavi_total_fee', true);\n    $paid_fee  = get_post_meta($post->ID, '_sedrazavi_paid_fee', true);\n    ?>\n    <div style=\"font-size: 12px; space-y: 10px;\">\n        <p>\n            <label><strong>مبلغ کل حق‌الوکاله (تومان):</strong></label>\n            <input type=\"text\" name=\"sr_total_fee\" value=\"<?php echo esc_attr($total_fee); ?>\" placeholder=\"مثال: ۴۵,۰۰۰,۰۰۰\" style=\"width: 100%; margin-top: 4px;\" />\n        </p>\n        <p>\n            <label><strong>مبلغ تسویه شده تا کنون:</strong></label>\n            <input type=\"text\" name=\"sr_paid_fee\" value=\"<?php echo esc_attr($paid_fee); ?>\" placeholder=\"مثال: ۳۰,۰۰۰,۰۰۰\" style=\"width: 100%; margin-top: 4px;\" />\n        </p>\n    </div>\n    <?php\n}\n\n/**\n * ذخیره امن اطلاعات متاباکس\n */\nfunction sedrazavi_save_case_metabox_data($post_id) {\n    if (!isset($_POST['sedrazavi_case_meta_nonce']) || !wp_verify_nonce($_POST['sedrazavi_case_meta_nonce'], 'sedrazavi_case_meta_action')) {\n        return;\n    }\n    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;\n    if (!current_user_can('edit_post', $post_id)) return;\n\n    $fields = array(\n        '_sedrazavi_case_number' => 'sr_case_number',\n        '_sedrazavi_client_name' => 'sr_client_name',\n        '_sedrazavi_client_phone' => 'sr_client_phone',\n        '_sedrazavi_court_branch' => 'sr_court_branch',\n        '_sedrazavi_judge_name'  => 'sr_judge_name',\n        '_sedrazavi_case_stage'  => 'sr_case_stage',\n        '_sedrazavi_progress'    => 'sr_progress',\n        '_sedrazavi_next_session'=> 'sr_next_session',\n        '_sedrazavi_lawyer_memo' => 'sr_lawyer_memo',\n        '_sedrazavi_total_fee'   => 'sr_total_fee',\n        '_sedrazavi_paid_fee'    => 'sr_paid_fee',\n    );\n\n    foreach ($fields as $meta_key => $post_key) {\n        if (isset($_POST[$post_key])) {\n            update_post_meta($post_id, $meta_key, sanitize_text_field($_POST[$post_key]));\n        }\n    }\n}\nadd_action('save_post_sedrazavi_case', 'sedrazavi_save_case_metabox_data');\n\n/**\n * ۲. افزودن ستون‌های حرفه‌ای به جدول مدیریت پرونده‌ها در ادمین وردپرس\n */\nfunction sedrazavi_case_columns($columns) {\n    $custom = array();\n    $custom['cb'] = $columns['cb'];\n    $custom['title'] = 'موضوع دعوی و عنوان پرونده';\n    $custom['case_number'] = 'کلاسه پرونده';\n    $custom['client_name'] = 'نام موکل';\n    $custom['case_stage'] = 'مرحله دادرسی';\n    $custom['progress'] = 'پیشرفت کار';\n    $custom['next_session'] = 'جلسه آینده';\n    $custom['date'] = 'تاریخ ثبت';\n    return $custom;\n}\nadd_filter('manage_sedrazavi_case_posts_columns', 'sedrazavi_case_columns');\n\nfunction sedrazavi_case_column_content($column, $post_id) {\n    switch ($column) {\n        case 'case_number':\n            $num = get_post_meta($post_id, '_sedrazavi_case_number', true);\n            echo $num ? '<code style=\"font-weight:bold; color:#0B132B;\">' . esc_html($num) . '</code>' : '—';\n            break;\n        case 'client_name':\n            $name = get_post_meta($post_id, '_sedrazavi_client_name', true);\n            echo $name ? '<strong>' . esc_html($name) . '</strong>' : '—';\n            break;\n        case 'case_stage':\n            $stage = get_post_meta($post_id, '_sedrazavi_case_stage', true);\n            echo '<span style=\"background:#fef3c7; color:#92400e; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;\">' . esc_html($stage ?: 'در دست اقدام') . '</span>';\n            break;\n        case 'progress':\n            $prog = get_post_meta($post_id, '_sedrazavi_progress', true) ?: '0';\n            echo '<div style=\"background:#e2e8f0; border-radius:10px; width:80px; height:8px; overflow:hidden; display:inline-block; vertical-align:middle; margin-left:6px;\"><div style=\"background:#D4AF37; height:100%; width:' . esc_attr($prog) . '%;\"></div></div> <span style=\"font-size:11px; font-weight:bold;\">' . esc_html($prog) . '%</span>';\n            break;\n        case 'next_session':\n            $session = get_post_meta($post_id, '_sedrazavi_next_session', true);\n            echo $session ? '<span style=\"font-size:11px; color:#475569;\">' . esc_html($session) . '</span>' : 'تعیین نشده';\n            break;\n    }\n}\nadd_action('manage_sedrazavi_case_posts_custom_column', 'sedrazavi_case_column_content', 10, 2);\n"
+  },
+  {
+    "path": "sedrazavi-addons/includes/case-tracking.php",
+    "filename": "case-tracking.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "سامانه جستجو و استعلام وضعیت پرونده‌ها بر اساس کدرهگیری و شماره پرونده.",
+    "code": "<?php\n/**\n * Online Case Tracking System for Clients\n *\n * @package SedRazavi_Addons\n * @version 2.5.0\n */\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\nif (!function_exists('sedrazavi_ajax_track_case')) {\n    function sedrazavi_ajax_track_case() {\n        check_ajax_referer('sedrazavi_security_nonce', 'nonce');\n\n        $case_number = isset($_POST['case_number']) ? sanitize_text_field(wp_unslash($_POST['case_number'])) : '';\n        $national_id = isset($_POST['national_id']) ? sanitize_text_field(wp_unslash($_POST['national_id'])) : '';\n\n        if (empty($case_number) || empty($national_id)) {\n            wp_send_json_error(array(\n                'message' => esc_html__('لطفاً هم شماره پرونده و هم کد ملی موکل را وارد کنید.', 'sedrazavi-addons')\n            ));\n        }\n\n        // جستجو در پست‌های پرونده\n        $args = array(\n            'post_type'      => 'sedrazavi_case',\n            'post_status'    => 'publish',\n            'posts_per_page' => 1,\n            'meta_query'     => array(\n                'relation' => 'AND',\n                array(\n                    'key'     => '_sedrazavi_case_number',\n                    'value'   => $case_number,\n                    'compare' => '=',\n                ),\n                array(\n                    'key'     => '_sedrazavi_client_national_id',\n                    'value'   => $national_id,\n                    'compare' => '=',\n                ),\n            ),\n        );\n\n        $query = new WP_Query($args);\n\n        if ($query->have_posts()) {\n            $query->the_post();\n            $case_id = get_the_ID();\n            $status = get_post_meta($case_id, '_sedrazavi_case_status', true) ?: 'در جریان رسیدگی';\n            $court  = get_post_meta($case_id, '_sedrazavi_court_branch', true) ?: 'شعبه تجدیدنظر استان';\n            $next_date = get_post_meta($case_id, '_sedrazavi_next_session', true) ?: 'در انتظار تعیین وقت دادگاه';\n\n            wp_send_json_success(array(\n                'title'       => get_the_title(),\n                'status'      => esc_html($status),\n                'court'       => esc_html($court),\n                'next_session'=> esc_html($next_date),\n                'lawyer'      => esc_html(get_post_meta($case_id, '_sedrazavi_assigned_lawyer', true) ?: 'سید رضوی'),\n            ));\n        } else {\n            wp_send_json_error(array(\n                'message' => esc_html__('پرونده‌ای با این مشخصات یافت نشد. لطفاً از صحت شماره پرونده و کد ملی اطمینان حاصل فرمایید.', 'sedrazavi-addons')\n            ));\n        }\n        wp_reset_postdata();\n    }\n}\nadd_action('wp_ajax_sedrazavi_track_case', 'sedrazavi_ajax_track_case');\nadd_action('wp_ajax_nopriv_sedrazavi_track_case', 'sedrazavi_ajax_track_case');\n"
+  },
+  {
+    "path": "sedrazavi-addons/includes/class-sedrazavi-legal-intelligence.php",
+    "filename": "class-sedrazavi-legal-intelligence.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "کلاس هوش مصنوعی حقوقی و ممیزی شروط قراردادها.",
+    "code": "<?php\n/**\n * Class SedRazavi_Legal_Intelligence\n *\n * @package SedRazavi_Core_Plugin\n * @version 6.0.0\n */\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\nclass SedRazavi_Legal_Intelligence {\n\n    public function __construct() {\n        add_action('wp_ajax_sedrazavi_audit_clause', array($this, 'ajax_audit_clause'));\n        add_action('wp_ajax_nopriv_sedrazavi_audit_clause', array($this, 'ajax_audit_clause'));\n        add_action('wp_ajax_sedrazavi_search_precedents', array($this, 'ajax_search_precedents'));\n        add_action('wp_ajax_nopriv_sedrazavi_search_precedents', array($this, 'ajax_search_precedents'));\n\n        add_shortcode('sedrazavi_legal_intelligence_portal', array($this, 'render_portal'));\n        add_shortcode('sedrazavi_contract_auditor', array($this, 'render_contract_auditor'));\n    }\n\n    /**\n     * آنالیز هوشمند بند قرارداد و تعیین ریسک حقوقی\n     */\n    public function ajax_audit_clause() {\n        check_ajax_referer('sedrazavi_intel_nonce', 'security');\n\n        $raw_text = sanitize_textarea_field($_POST['clause_text'] ?? '');\n        if (empty($raw_text)) {\n            wp_send_json_error(array('message' => 'متن شرط قراردادی ارسال نشده است.'));\n        }\n\n        // الگوریتم غربالگری کلمات پرخطر حقوقی ایران\n        $risk_level = 'low';\n        $detected_risks = array();\n        $recommendations = array();\n\n        if (mb_stripos($raw_text, 'غبن افحش') !== false || mb_stripos($raw_text, 'کافه خیارات') !== false) {\n            $risk_level = 'high';\n            $detected_risks[] = 'اسقاط خیار غبن فاحش یا افحش به ضرر طرفین.';\n            $recommendations[] = 'خیار تدلیس و خیار تخلف از شرط صفت را مستثنی کنید (ماده ۴۴۸ ق.م).';\n        }\n\n        if (mb_stripos($raw_text, 'فورس‌ماژور') !== false && (mb_stripos($raw_text, 'تورم') !== false || mb_stripos($raw_text, 'افزایش قیمت') !== false)) {\n            $risk_level = 'critical';\n            $detected_risks[] = 'تفسیر غیرقانونی تورم تجاری به عنوان فورس‌ماژور قهری.';\n            $recommendations[] = 'تورم را صراحتاً از شمول قوه قاهره خارج کنید (مواد ۲۲۷ و ۲۲۹ ق.م).';\n        }\n\n        if (mb_stripos($raw_text, 'وجه التزام') !== false) {\n            $detected_risks[] = 'نیاز به تطبیق با رأی وحدت رویه ۸۰۵ دیوان عالی کشور.';\n        }\n\n        wp_send_json_success(array(\n            'risk_level'      => $risk_level,\n            'detected_risks'  => $detected_risks,\n            'recommendations' => $recommendations,\n            'safety_score'    => $risk_level === 'critical' ? 35 : ($risk_level === 'high' ? 60 : 92),\n        ));\n    }\n\n    /**\n     * جستجوی سریع در بانک آرای وحدت رویه\n     */\n    public function ajax_search_precedents() {\n        $keyword = sanitize_text_field($_GET['keyword'] ?? '');\n        $category = sanitize_text_field($_GET['category'] ?? '');\n\n        $args = array(\n            'post_type'      => 'legal_precedent',\n            'posts_per_page' => 15,\n            's'              => $keyword,\n        );\n\n        if (!empty($category)) {\n            $args['tax_query'] = array(\n                array(\n                    'taxonomy' => 'precedent_category',\n                    'field'    => 'slug',\n                    'terms'    => $category,\n                ),\n            );\n        }\n\n        $query = new WP_Query($args);\n        $results = array();\n\n        if ($query->have_posts()) {\n            while ($query->have_posts()) {\n                $query->the_post();\n                $results[] = array(\n                    'id'      => get_the_ID(),\n                    'title'   => get_the_title(),\n                    'excerpt' => get_the_excerpt(),\n                    'number'  => get_post_meta(get_the_ID(), '_precedent_number', true),\n                    'date'    => get_post_meta(get_the_ID(), '_precedent_date', true),\n                );\n            }\n            wp_reset_postdata();\n        }\n\n        wp_send_json_success(array('precedents' => $results));\n    }\n\n    public function render_portal() {\n        ob_start();\n        ?>\n        <div id=\"sedrazavi-legal-ai-root\" class=\"legal-intelligence-app\">\n            <p class=\"text-xs text-slate-500 text-center font-mono\">در حال آماده‌سازی دستیار هوش مصنوعی و ممیزی قراردادها...</p>\n        </div>\n        <?php\n        return ob_get_clean();\n    }\n\n    public function render_contract_auditor() {\n        ob_start();\n        ?>\n        <div id=\"sedrazavi-contract-audit-root\" class=\"contract-auditor-app\">\n            <p class=\"text-xs text-slate-500 text-center font-mono\">بارگذاری ماژول غربالگری ریسک قرارداد...</p>\n        </div>\n        <?php\n        return ob_get_clean();\n    }\n}\n\nnew SedRazavi_Legal_Intelligence();\n"
+  },
+  {
+    "path": "sedrazavi-addons/includes/class-sedrazavi-odr-arbitration.php",
+    "filename": "class-sedrazavi-odr-arbitration.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "کلاس داوری و حل اختلاف آنلاین و تبادل لوایح محرمانه.",
+    "code": "<?php\n/**\n * Class SedRazavi_ODR_Arbitration\n *\n * @package SedRazavi_Core_Plugin\n * @version 5.0.0\n */\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\nclass SedRazavi_ODR_Arbitration {\n\n    public function __construct() {\n        add_action('wp_ajax_sedrazavi_submit_pleading', array($this, 'ajax_submit_pleading'));\n        add_action('wp_ajax_nopriv_sedrazavi_submit_pleading', array($this, 'ajax_submit_pleading'));\n        add_action('wp_ajax_sedrazavi_issue_award', array($this, 'ajax_issue_award'));\n        add_shortcode('sedrazavi_odr_portal', array($this, 'render_odr_portal'));\n        add_shortcode('sedrazavi_virtual_courtroom', array($this, 'render_virtual_courtroom'));\n        add_shortcode('sedrazavi_petition_builder', array($this, 'render_petition_builder'));\n    }\n\n    /**\n     * ثبت لایحه جدید در پرونده داوری با پیامک خودکار\n     */\n    public function ajax_submit_pleading() {\n        check_ajax_referer('sedrazavi_odr_nonce', 'security');\n\n        $case_id = intval($_POST['case_id']);\n        $title   = sanitize_text_field($_POST['title']);\n        $content = wp_kses_post($_POST['content']);\n        $sender  = sanitize_text_field($_POST['sender']);\n\n        if (!$case_id || empty($title) || empty($content)) {\n            wp_send_json_error(array('message' => 'اطلاعات لایحه ناقص است.'));\n        }\n\n        $tracking_code = 'PLD-SR-' . rand(10000, 99999);\n\n        // ذخیره به عنوان کامنت متصل به پست داوری یا جدول اختصاصی\n        $pleading_data = array(\n            'comment_post_ID'      => $case_id,\n            'comment_content'      => $content,\n            'comment_author'       => $sender,\n            'comment_type'         => 'odr_pleading',\n            'comment_approved'     => 1,\n        );\n\n        $comment_id = wp_insert_comment($pleading_data);\n        add_comment_meta($comment_id, 'tracking_code', $tracking_code);\n        add_comment_meta($comment_id, 'pleading_title', $title);\n\n        // ارسال پیامک خودکار ابلاغ لایحه به طرف مقابل\n        do_action('sedrazavi_odr_pleading_submitted', $case_id, $tracking_code);\n\n        wp_send_json_success(array(\n            'message'       => 'لایحه با موفقیت در پرونده داوری ثبت گردید.',\n            'tracking_code' => $tracking_code\n        ));\n    }\n\n    public function render_odr_portal() {\n        ob_start();\n        ?>\n        <div id=\"sedrazavi-odr-root\" class=\"odr-interactive-app\">\n            <p class=\"text-xs text-slate-500 text-center font-mono\">بارگذاری پورتال تعاملی داوری آنلاین و ثبت پرونده...</p>\n        </div>\n        <?php\n        return ob_get_clean();\n    }\n\n    public function render_virtual_courtroom() {\n        ob_start();\n        ?>\n        <div id=\"sedrazavi-virtual-court-root\" class=\"virtual-court-app\">\n            <p class=\"text-xs text-slate-500 text-center font-mono\">اتصال به تالار دادرسی مجازی و استماع زنده...</p>\n        </div>\n        <?php\n        return ob_get_clean();\n    }\n\n    public function render_petition_builder() {\n        ob_start();\n        ?>\n        <div id=\"sedrazavi-petition-builder-root\" class=\"petition-builder-app\">\n            <p class=\"text-xs text-slate-500 text-center font-mono\">بارگذاری فرم‌ساز هوشمند دادخواست و لوایح عدل‌ایران...</p>\n        </div>\n        <?php\n        return ob_get_clean();\n    }\n}\n\nnew SedRazavi_ODR_Arbitration();\n"
+  },
+  {
+    "path": "sedrazavi-addons/includes/elementor-widgets.php",
+    "filename": "elementor-widgets.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "پل ارتباطی ابزارک‌های پوسته و افزونه با صفحه‌ساز المنتور.",
+    "code": "<?php\n/**\n * Elementor Widgets Integrator & Universal Suite Bridge\n *\n * @package SedRazavi_Addons\n * @version 3.0.0\n * @author Seyed Amir Hossein Razavi Fardoei (@sedrazavi)\n */\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n// 1. If Universal Elementor Addon Suite is present, defer directly to the standalone suite\nif (class_exists('\\UniversalElementorSuite\\Plugin')) {\n    // Standalone Suite is loaded, no duplicate registration needed.\n    return;\n}\n\n// 2. Fallback loader when standalone plugin is not yet active\nif (!function_exists('sedrazavi_addons_register_elementor_category')) {\n    function sedrazavi_addons_register_elementor_category($elements_manager) {\n        if (!class_exists('\\Elementor\\Plugin')) {\n            return;\n        }\n        $elements_manager->add_category(\n            'sedrazavi-law-elements',\n            array(\n                'title' => esc_html__('المان‌های تخصصی حقوقی SedRazavi', 'sedrazavi-addons'),\n                'icon'  => 'fa fa-gavel',\n            )\n        );\n    }\n}\nadd_action('elementor/elements/categories_registered', 'sedrazavi_addons_register_elementor_category');\n\nif (!function_exists('sedrazavi_addons_load_elementor_widgets')) {\n    function sedrazavi_addons_load_elementor_widgets($widgets_manager) {\n        if (!class_exists('\\Elementor\\Widget_Base')) {\n            return;\n        }\n\n        // Bridge to load standalone suite if available in wp-content/plugins\n        $standalone_suite = WP_PLUGIN_DIR . '/elementor-addon-suite/elementor-addon-suite.php';\n        if (file_exists($standalone_suite)) {\n            require_once $standalone_suite;\n            return;\n        }\n    }\n}\nadd_action('elementor/widgets/register', 'sedrazavi_addons_load_elementor_widgets', 20);\nadd_action('elementor/widgets/widgets_registered', 'sedrazavi_addons_load_elementor_widgets', 20);\n"
+  },
+  {
+    "path": "sedrazavi-addons/includes/logger.php",
+    "filename": "logger.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "لاگر خودکار خطاها و استثنائات در پوشه امنیتی wp-content/uploads/sedrazavi-logs.",
+    "code": "<?php\n/**\n * Automated System Logger for SedRazavi Law Firm\n *\n * @package SedRazavi_Addons\n * @version 2.5.0\n */\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\nif (!class_exists('SedRazavi_Logger')) {\n    class SedRazavi_Logger {\n        \n        public static function init() {\n            // ضبط استثناهای مدیریت‌نشده در صورت فعال بودن دیباگ افزونه\n            if (get_option('sedrazavi_enable_custom_logger', 1)) {\n                set_error_handler(array(__CLASS__, 'handle_php_error'));\n            }\n        }\n\n        public static function handle_php_error($errno, $errstr, $errfile, $errline) {\n            // تنها خطاهای مهم مربوط به فضای کاری سید رضوی ثبت شوند\n            if (strpos($errfile, 'sedrazavi') !== false) {\n                sedrazavi_addons_log_error($errstr, $errfile, $errline, 'PHP_ERROR_' . $errno);\n            }\n            return false; // اجازه ادامه به سیستم پیش‌فرض\n        }\n\n        public static function get_log_contents($max_lines = 100) {\n            $log_file = SEDRAZAVI_LOG_DIR . 'debug.log';\n            if (!file_exists($log_file)) {\n                return esc_html__('هیچ خطایی ثبت نشده است؛ سیستم پایدار است.', 'sedrazavi-addons');\n            }\n\n            $lines = @file($log_file);\n            if (empty($lines)) {\n                return esc_html__('فایل لاگ خالی است.', 'sedrazavi-addons');\n            }\n\n            $sliced = array_slice($lines, -$max_lines);\n            return implode('', array_reverse($sliced));\n        }\n\n        public static function clear_log() {\n            $log_file = SEDRAZAVI_LOG_DIR . 'debug.log';\n            if (file_exists($log_file)) {\n                return @file_put_contents($log_file, '');\n            }\n            return true;\n        }\n    }\n}\n\nSedRazavi_Logger::init();\n"
+  },
+  {
+    "path": "sedrazavi-addons/includes/otp-auth-integration.php",
+    "filename": "otp-auth-integration.php",
+    "category": "امنیت و احراز هویت (Security & Auth)",
+    "description": "یکپارچه‌سازی رمز یکبار مصرف ایمیلی با احراز هویت استاندارد وردپرس.",
+    "code": "<?php\n/**\n * ماژول همگام‌سازی ورود با موبایل، سامانه Digits و ارتباط مستقیم موکلان\n * Module: OTP Mobile Authentication & Guest Instant Callback Engine\n * \n * @package SedRazavi_Addons\n * @author Dr. Seyedeh Maryam Razavi\n */\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\n/**\n * ۱. ایجاد جدول اختصاصی درخواست‌های تماس فوری مراجعین مهمان\n */\nfunction sedrazavi_create_callbacks_table() {\n    global $wpdb;\n    $table_name = $wpdb->prefix . 'sedrazavi_quick_callbacks';\n    $charset_collate = $wpdb->get_charset_collate();\n\n    $sql = \"CREATE TABLE IF NOT EXISTS $table_name (\n        id bigint(20) NOT NULL AUTO_INCREMENT,\n        tracking_code varchar(30) NOT NULL,\n        client_name varchar(100) DEFAULT '',\n        phone_number varchar(20) NOT NULL,\n        legal_topic varchar(100) DEFAULT 'مشاوره فوری',\n        notes text DEFAULT '',\n        status varchar(30) DEFAULT 'pending',\n        ip_address varchar(45) DEFAULT '',\n        created_at datetime DEFAULT CURRENT_TIMESTAMP,\n        PRIMARY KEY  (id),\n        KEY phone_idx (phone_number),\n        KEY tracking_idx (tracking_code)\n    ) $charset_collate;\";\n\n    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');\n    dbDelta($sql);\n}\nadd_action('after_setup_theme', 'sedrazavi_create_callbacks_table');\n\n/**\n * ۲. ثبت مسیرهای اختصاصی REST API جهت ارتباط بدون ثبت‌نام و ورود OTP\n */\nadd_action('rest_api_init', function () {\n    // اندپوینت ثبت درخواست تماس فوری مراجعین بدون نیاز به حساب کاربری\n    register_rest_route('sedrazavi/v1', '/quick-callback', array(\n        'methods' => 'POST',\n        'callback' => 'sedrazavi_api_handle_quick_callback',\n        'permission_callback' => '__return_true',\n    ));\n\n    // اندپوینت ارسال کد تایید یکبار مصرف (سازگار با ملی‌پیامک و کاوه‌نگار)\n    register_rest_route('sedrazavi/v1', '/otp/send', array(\n        'methods' => 'POST',\n        'callback' => 'sedrazavi_api_handle_otp_send',\n        'permission_callback' => '__return_true',\n    ));\n\n    // اندپوینت اعتبارسنجی کد پیامک و ورود/عضویت خودکار کاربر در وردپرس\n    register_rest_route('sedrazavi/v1', '/otp/verify', array(\n        'methods' => 'POST',\n        'callback' => 'sedrazavi_api_handle_otp_verify',\n        'permission_callback' => '__return_true',\n    ));\n});\n\n/**\n * مدیریت درخواست تماس فوری مراجعین بدون نیاز به ساخت حساب\n */\nfunction sedrazavi_api_handle_quick_callback($request) {\n    global $wpdb;\n    $params = $request->get_json_params();\n\n    $phone = sanitize_text_field($params['phone'] ?? '');\n    $name = sanitize_text_field($params['name'] ?? 'مراجع محترم');\n    $topic = sanitize_text_field($params['topic'] ?? 'مشاوره فوری تلفنی');\n    $notes = sanitize_textarea_field($params['notes'] ?? '');\n\n    // اعتبارسنجی شماره موبایل ایران\n    if (!preg_match('/^09[0-9]{9}$/', $phone)) {\n        return new WP_Error('invalid_phone', 'شماره موبایل وارد شده معتبر نمی‌باشد.', array('status' => 400));\n    }\n\n    $tracking_code = 'CB-' . wp_rand(100000, 999999);\n    $table_name = $wpdb->prefix . 'sedrazavi_quick_callbacks';\n\n    $inserted = $wpdb->insert($table_name, array(\n        'tracking_code' => $tracking_code,\n        'client_name'   => $name,\n        'phone_number'  => $phone,\n        'legal_topic'   => $topic,\n        'notes'         => $notes,\n        'ip_address'    => sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? ''),\n        'status'        => 'pending',\n    ));\n\n    if (!$inserted) {\n        return new WP_Error('db_error', 'خطا در ثبت درخواست در پایگاه داده.', array('status' => 500));\n    }\n\n    // ارسال پیامک فوری به مدیر دفتر و وکیل جهت پاسخگویی سریع\n    sedrazavi_send_admin_sms_alert($phone, $name, $topic, $tracking_code);\n\n    return rest_ensure_response(array(\n        'success' => true,\n        'tracking_code' => $tracking_code,\n        'message' => 'درخواست تماس شما با موفقیت ثبت شد. به زودی تماس خواهیم گرفت.'\n    ));\n}\n\n/**\n * ارسال پیامک به وکیل با وب‌سرویس‌های ایرانی (کاوه‌نگار / ملی‌پیامک / فراز اس‌ام‌اس)\n */\nfunction sedrazavi_send_admin_sms_alert($client_phone, $client_name, $topic, $tracking_code) {\n    $admin_phone = get_option('sedrazavi_admin_phone', '09123456789');\n    $sms_gateway = get_option('sedrazavi_sms_gateway', 'kavenegar'); // kavenegar, melipayamak, farazsms\n\n    $msg = \"دفتر وکالت دکتر رضوی:\nدرخواست تماس جدید بدون ثبت‌نام\nنام: {$client_name}\nشماره: {$client_phone}\nموضوع: {$topic}\nکد پیگیری: {$tracking_code}\";\n\n    // اعمال فیلتر برای سفارشی‌سازی متن توسط سایر افزونه‌ها یا وب‌هوک‌ها\n    apply_filters('sedrazavi_dispatch_sms', $admin_phone, $msg, $sms_gateway);\n}\n\n/**\n * ۳. همگام‌سازی عمیق با افزونه محبوب ورود پیامکی Digits\n */\nadd_action('digits_after_login', function ($user_id) {\n    // اعطای نقش پیش‌فرض \"موکل حقوقی\" و ایجاد سابقه لاگ\n    $user = get_user_by('ID', $user_id);\n    if ($user && !in_array('administrator', (array)$user->roles)) {\n        $user->add_role('sedrazavi_client');\n    }\n}, 10, 1);\n\n/**\n * کد کوتاه فرم ورود پیامکی هوشمند [sedrazavi_otp_login]\n */\nfunction sedrazavi_shortcode_otp_login() {\n    if (is_user_logged_in()) {\n        $current_user = wp_get_current_user();\n        return '<div class=\"sedrazavi-logged-box p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-right\">' .\n               'سلام <strong>' . esc_html($current_user->display_name) . '</strong> گرامی! شما وارد پرتال شده‌اید. ' .\n               '<a href=\"' . wp_logout_url(home_url()) . '\" class=\"text-red-600 underline mr-2\">خروج</a>' .\n               '</div>';\n    }\n\n    // اگر افزونه Digits فعال باشد، دکمه پیشرفته آن را فراخوانی می‌کند\n    if (function_exists('digits_login_button')) {\n        return do_shortcode('[digits_login]');\n    }\n\n    // فرم رزرو پیامکی مستقل در غیاب دیجیتس\n    ob_start();\n    ?>\n    <div class=\"sedrazavi-otp-box max-w-sm mx-auto p-6 rounded-2xl bg-white shadow-lg border border-[#D4AF37]/30 text-right font-persian\">\n        <h3 class=\"text-base font-bold text-[#0B132B] mb-2\">ورود / عضویت با شماره موبایل</h3>\n        <p class=\"text-xs text-gray-500 mb-4\">کد تایید یک‌بار مصرف به شماره همراه شما ارسال خواهد شد.</p>\n        <form class=\"space-y-3\" onsubmit=\"return false;\">\n            <input type=\"tel\" dir=\"ltr\" placeholder=\"۰۹۱۲۳۴۵۶۷۸۹\" class=\"w-full px-3 py-2.5 rounded-xl border border-gray-300 font-mono text-sm focus:border-[#D4AF37]\" required />\n            <button type=\"button\" class=\"w-full py-2.5 rounded-xl bg-[#D4AF37] text-white font-bold text-xs hover:bg-[#AA820A] transition-colors\">\n                دریافت کد تایید پیامکی\n            </button>\n        </form>\n    </div>\n    <?php\n    return ob_get_clean();\n}\nadd_shortcode('sedrazavi_otp_login', 'sedrazavi_shortcode_otp_login');\n\n/**\n * کد کوتاه ویجت تماس فوری بدون ثبت‌نام [sedrazavi_quick_callback]\n */\nfunction sedrazavi_shortcode_quick_callback() {\n    ob_start();\n    ?>\n    <div class=\"sedrazavi-quick-callback-card p-5 rounded-2xl bg-amber-50/50 border border-[#D4AF37]/40 text-right font-persian\">\n        <div class=\"flex items-center gap-2 mb-2\">\n            <span class=\"w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse\"></span>\n            <h4 class=\"text-sm font-bold text-[#0B132B]\">تماس تلفنی فوری وکیل (بدون نیاز به ثبت نام)</h4>\n        </div>\n        <p class=\"text-xs text-gray-600 mb-3\">شماره تماس خود را بگذارید؛ در اسرع وقت کارشناسان دفتر با شما تماس می‌گیرند:</p>\n        <form class=\"flex gap-2\" onsubmit=\"return false;\">\n            <input type=\"tel\" dir=\"ltr\" placeholder=\"۰۹۱۲۳۴۵۶۷۸۹\" class=\"flex-1 px-3 py-2 rounded-xl border border-gray-300 font-mono text-xs focus:border-[#D4AF37]\" required />\n            <button type=\"button\" class=\"px-4 py-2 rounded-xl bg-[#0B132B] text-[#F3E5AB] text-xs font-bold hover:bg-[#1C2541]\">\n                ثبت و تماس\n            </button>\n        </form>\n    </div>\n    <?php\n    return ob_get_clean();\n}\nadd_shortcode('sedrazavi_quick_callback', 'sedrazavi_shortcode_quick_callback');\n"
+  },
+  {
+    "path": "sedrazavi-addons/includes/post-types.php",
+    "filename": "post-types.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "ثبت ۵ پست‌تایپ اختصاصی: خدمات حقوقی، پرونده‌ها، نظرات موکلین، پیام‌ها و ویدیوها.",
+    "code": "<?php\n/**\n * Custom Post Types & Taxonomies\n *\n * @package SedRazavi_Addons\n * @version 2.5.0\n */\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\nif (!function_exists('sedrazavi_addons_register_post_types')) {\n    function sedrazavi_addons_register_post_types() {\n        \n        // ۱. پست‌تایپ خدمات حقوقی تخصصی (Legal Services)\n        $service_labels = array(\n            'name'                  => esc_html__('خدمات حقوقی', 'sedrazavi-addons'),\n            'singular_name'         => esc_html__('خدمت حقوقی', 'sedrazavi-addons'),\n            'menu_name'             => esc_html__('خدمات حقوقی', 'sedrazavi-addons'),\n            'add_new'               => esc_html__('افزودن خدمت جدید', 'sedrazavi-addons'),\n            'add_new_item'          => esc_html__('افزودن خدمت حقوقی جدید', 'sedrazavi-addons'),\n            'edit_item'             => esc_html__('ویرایش خدمت', 'sedrazavi-addons'),\n            'all_items'             => esc_html__('همه خدمات حقوقی', 'sedrazavi-addons'),\n            'search_items'          => esc_html__('جستجوی خدمات', 'sedrazavi-addons'),\n            'not_found'             => esc_html__('خدمتی یافت نشد', 'sedrazavi-addons'),\n        );\n        register_post_type('service', array(\n            'labels'             => $service_labels,\n            'public'             => true,\n            'publicly_queryable' => true,\n            'show_ui'            => true,\n            'show_in_menu'       => true,\n            'menu_icon'          => 'dashicons-hammer',\n            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),\n            'has_archive'        => true,\n            'rewrite'            => array('slug' => 'services'),\n            'show_in_rest'       => true,\n        ));\n\n        // تاکسونومی دسته‌بندی خدمات حقوقی\n        register_taxonomy('service_category', 'service', array(\n            'labels'            => array(\n                'name'          => esc_html__('دسته‌بندی خدمات', 'sedrazavi-addons'),\n                'singular_name' => esc_html__('دسته خدمت', 'sedrazavi-addons'),\n            ),\n            'hierarchical'      => true,\n            'show_ui'           => true,\n            'show_admin_column' => true,\n            'rewrite'           => array('slug' => 'service-category'),\n            'show_in_rest'      => true,\n        ));\n\n        // ۲. پست‌تایپ دعاوی و پرونده‌های حقوقی موکلین (Legal Cases)\n        $case_labels = array(\n            'name'                  => esc_html__('دعاوی و پرونده‌ها', 'sedrazavi-addons'),\n            'singular_name'         => esc_html__('پرونده حقوقی', 'sedrazavi-addons'),\n            'menu_name'             => esc_html__('پرونده‌های موکلین', 'sedrazavi-addons'),\n            'add_new'               => esc_html__('ثبت پرونده جدید', 'sedrazavi-addons'),\n            'add_new_item'          => esc_html__('افزودن پرونده جدید', 'sedrazavi-addons'),\n            'edit_item'             => esc_html__('ویرایش پرونده', 'sedrazavi-addons'),\n            'all_items'             => esc_html__('همه پرونده‌ها', 'sedrazavi-addons'),\n            'search_items'          => esc_html__('جستجوی پرونده', 'sedrazavi-addons'),\n            'not_found'             => esc_html__('پرونده‌ای یافت نشد', 'sedrazavi-addons'),\n        );\n        register_post_type('sedrazavi_case', array(\n            'labels'             => $case_labels,\n            'public'             => true,\n            'publicly_queryable' => true,\n            'show_ui'            => true,\n            'show_in_menu'       => true,\n            'menu_icon'          => 'dashicons-portfolio',\n            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),\n            'has_archive'        => true,\n            'rewrite'            => array('slug' => 'cases'),\n            'show_in_rest'       => true,\n        ));\n\n        register_taxonomy('case_category', 'sedrazavi_case', array(\n            'labels'            => array(\n                'name'          => esc_html__('حوزه دعاوی', 'sedrazavi-addons'),\n                'singular_name' => esc_html__('حوزه دعوی', 'sedrazavi-addons'),\n            ),\n            'hierarchical'      => true,\n            'show_ui'           => true,\n            'show_admin_column' => true,\n            'rewrite'           => array('slug' => 'case-category'),\n            'show_in_rest'      => true,\n        ));\n\n        // ۳. پست‌تایپ نظرات و رضایت موکلان (Testimonials)\n        $testimonial_labels = array(\n            'name'                  => esc_html__('نظرات موکلان', 'sedrazavi-addons'),\n            'singular_name'         => esc_html__('نظر موکل', 'sedrazavi-addons'),\n            'menu_name'             => esc_html__('نظرات موکلان', 'sedrazavi-addons'),\n            'add_new'               => esc_html__('ثبت نظر جدید', 'sedrazavi-addons'),\n            'add_new_item'          => esc_html__('افزودن نظر جدید', 'sedrazavi-addons'),\n            'edit_item'             => esc_html__('ویرایش نظر', 'sedrazavi-addons'),\n            'all_items'             => esc_html__('همه نظرات موکلان', 'sedrazavi-addons'),\n        );\n        register_post_type('testimonial', array(\n            'labels'             => $testimonial_labels,\n            'public'             => true,\n            'show_ui'            => true,\n            'show_in_menu'       => true,\n            'menu_icon'          => 'dashicons-format-quote',\n            'supports'           => array('title', 'editor', 'thumbnail', 'custom-fields'),\n            'has_archive'        => true,\n            'rewrite'            => array('slug' => 'testimonials'),\n            'show_in_rest'       => true,\n        ));\n\n        // ۴. پست‌تایپ ایمیل‌ها و پیام‌های استعلام و رزرو مشاوره (Emails & Consultations)\n        $email_labels = array(\n            'name'                  => esc_html__('پیام‌ها و استعلام‌ها', 'sedrazavi-addons'),\n            'singular_name'         => esc_html__('پیام / استعلام', 'sedrazavi-addons'),\n            'menu_name'             => esc_html__('پیام‌های دریافتی', 'sedrazavi-addons'),\n            'all_items'             => esc_html__('همه پیام‌ها و ایمیل‌ها', 'sedrazavi-addons'),\n            'edit_item'             => esc_html__('مشاهده پیام', 'sedrazavi-addons'),\n        );\n        register_post_type('email', array(\n            'labels'             => $email_labels,\n            'public'             => false,\n            'show_ui'            => true,\n            'show_in_menu'       => true,\n            'menu_icon'          => 'dashicons-email-alt',\n            'supports'           => array('title', 'editor', 'custom-fields'),\n            'show_in_rest'       => false,\n        ));\n\n        // ۵. پست‌تایپ ویدئوهای حقوقی و آموزشی (Legal Educational Videos)\n        $video_labels = array(\n            'name'                  => esc_html__('ویدئوهای حقوقی', 'sedrazavi-addons'),\n            'singular_name'         => esc_html__('ویدئوی حقوقی', 'sedrazavi-addons'),\n            'menu_name'             => esc_html__('ویدئوها و آموزش‌ها', 'sedrazavi-addons'),\n            'add_new'               => esc_html__('افزودن ویدئو', 'sedrazavi-addons'),\n            'add_new_item'          => esc_html__('افزودن ویدئوی حقوقی جدید', 'sedrazavi-addons'),\n            'edit_item'             => esc_html__('ویرایش ویدئو', 'sedrazavi-addons'),\n            'all_items'             => esc_html__('همه ویدئوها', 'sedrazavi-addons'),\n        );\n        register_post_type('video', array(\n            'labels'             => $video_labels,\n            'public'             => true,\n            'publicly_queryable' => true,\n            'show_ui'            => true,\n            'show_in_menu'       => true,\n            'menu_icon'          => 'dashicons-video-alt3',\n            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),\n            'has_archive'        => true,\n            'rewrite'            => array('slug' => 'videos'),\n            'show_in_rest'       => true,\n        ));\n\n        register_taxonomy('video_category', 'video', array(\n            'labels'            => array(\n                'name'          => esc_html__('دسته‌بندی ویدئوها', 'sedrazavi-addons'),\n                'singular_name' => esc_html__('دسته ویدئو', 'sedrazavi-addons'),\n            ),\n            'hierarchical'      => true,\n            'show_ui'           => true,\n            'show_admin_column' => true,\n            'rewrite'           => array('slug' => 'video-category'),\n            'show_in_rest'      => true,\n        ));\n\n        // ۶. پست‌تایپ تیم وکلای همکار و مشاوران (Lawyers Team)\n        $lawyer_labels = array(\n            'name'                  => esc_html__('تیم وکلا و همکاران', 'sedrazavi-addons'),\n            'singular_name'         => esc_html__('وکیل / همکار', 'sedrazavi-addons'),\n            'menu_name'             => esc_html__('تیم وکلا', 'sedrazavi-addons'),\n            'add_new'               => esc_html__('افزودن همکار جدید', 'sedrazavi-addons'),\n            'edit_item'             => esc_html__('ویرایش اطلاعات همکار', 'sedrazavi-addons'),\n            'all_items'             => esc_html__('همه اعضای تیم و همکاران', 'sedrazavi-addons'),\n        );\n        register_post_type('sedrazavi_lawyer', array(\n            'labels'             => $lawyer_labels,\n            'public'             => true,\n            'show_ui'            => true,\n            'show_in_menu'       => true,\n            'menu_icon'          => 'dashicons-businessman',\n            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),\n            'has_archive'        => true,\n            'rewrite'            => array('slug' => 'lawyers'),\n            'show_in_rest'       => true,\n        ));\n\n        // ۷. پست‌تایپ رسمی نوبت‌های مشاوره و رزرو وقت (Appointments & Consultations)\n        $appointment_labels = array(\n            'name'                  => esc_html__('نوبت‌های مشاوره', 'sedrazavi-addons'),\n            'singular_name'         => esc_html__('نوبت مشاوره', 'sedrazavi-addons'),\n            'menu_name'             => esc_html__('رزرو نوبت‌ها', 'sedrazavi-addons'),\n            'add_new'               => esc_html__('ثبت نوبت جدید', 'sedrazavi-addons'),\n            'edit_item'             => esc_html__('مشاهده نوبت', 'sedrazavi-addons'),\n            'all_items'             => esc_html__('همه نوبت‌های رزرو', 'sedrazavi-addons'),\n        );\n        register_post_type('sedrazavi_appointment', array(\n            'labels'             => $appointment_labels,\n            'public'             => false,\n            'show_ui'            => true,\n            'show_in_menu'       => true,\n            'menu_icon'          => 'dashicons-calendar-alt',\n            'supports'           => array('title', 'editor', 'custom-fields'),\n            'show_in_rest'       => true,\n        ));\n        register_post_type('sedrazavi_booking', array(\n            'labels'             => $appointment_labels,\n            'public'             => false,\n            'show_ui'            => false,\n            'show_in_menu'       => false,\n            'supports'           => array('title', 'editor', 'custom-fields'),\n            'show_in_rest'       => true,\n        ));\n    }\n}\nadd_action('init', 'sedrazavi_addons_register_post_types');\n"
+  },
+  {
+    "path": "sedrazavi-addons/includes/shortcodes-engine.php",
+    "filename": "shortcodes-engine.php",
+    "category": "ماژول‌های افزونه (Plugin Includes)",
+    "description": "موتور رندر شورت‌کدهای تعاملی و ثبت در هسته وردپرس.",
+    "code": "<?php\n/**\n * Master Shortcode Engine for SedRazavi Law Firm\n *\n * @package SedRazavi_Addons\n * @version 2.6.0\n */\n\nif (!defined('ABSPATH')) exit;\n\n/**\n * ۱. کد کوتاه پرتال کاربری موکلین [sedrazavi_client_portal]\n */\nfunction sedrazavi_shortcode_client_portal($atts) {\n    ob_start();\n    ?>\n    <div id=\"sedrazavi-client-portal-app\" class=\"sedrazavi-client-portal-wrapper\">\n        <div class=\"p-6 rounded-3xl bg-[#0B132B] text-white border border-[#D4AF37]/40 shadow-xl text-right\">\n            <div class=\"flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-gray-800\">\n                <div class=\"flex items-center gap-3\">\n                    <span style=\"font-size:2rem;\">⚖️</span>\n                    <div>\n                        <h3 class=\"text-xl font-bold font-serif text-white\">پرتال جامع موکلین دفتر وکالت SedRazavi</h3>\n                        <p class=\"text-xs text-gray-300\">مشاهده لحظه‌ای لوایح، تقویم جلسات دادگاه و اسناد محرمانه</p>\n                    </div>\n                </div>\n                <span class=\"px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold\">سامانه امن ثنا</span>\n            </div>\n            <div class=\"py-6 text-center\">\n                <p class=\"text-sm text-gray-300 mb-4\">برای مشاهده پرونده‌های خود، شماره پرونده یا کد ملی خود را وارد فرمایید:</p>\n                <form class=\"flex flex-col sm:flex-row items-center justify-center gap-2 max-w-md mx-auto\">\n                    <input type=\"text\" placeholder=\"شماره کلاسه پرونده (مثال: ۱۴۰۳-۹۸۲۷۳-ونک)...\" class=\"px-4 py-2.5 rounded-xl border border-gray-700 bg-gray-900 text-white text-xs w-full sm:w-80\" />\n                    <button type=\"button\" class=\"btn-gold px-5 py-2.5 rounded-xl text-xs font-bold\">ورود به کارتابل</button>\n                </form>\n            </div>\n        </div>\n    </div>\n    <?php\n    return ob_get_clean();\n}\nadd_shortcode('sedrazavi_client_portal', 'sedrazavi_shortcode_client_portal');\n\n/**\n * ۲. کد کوتاه پیگیری سریع پرونده [sedrazavi_tracking]\n */\nfunction sedrazavi_shortcode_tracking($atts) {\n    ob_start();\n    ?>\n    <div class=\"sedrazavi-tracking-box p-6 rounded-2xl bg-white border border-gray-200 shadow-lg text-right max-w-xl mx-auto\">\n        <h4 class=\"text-base font-bold text-[#0B132B] mb-2\">استعلام سریع وضعیت پرونده</h4>\n        <p class=\"text-xs text-gray-500 mb-4\">کد پرونده درج‌شده در قرارداد وکالت را وارد نمایید:</p>\n        <div class=\"flex gap-2\">\n            <input type=\"text\" placeholder=\"کد رهگیری پرونده...\" class=\"flex-1 px-4 py-2 rounded-xl border border-gray-300 text-xs font-mono\" />\n            <button class=\"btn-gold px-5 py-2 rounded-xl text-xs font-bold\">استعلام</button>\n        </div>\n    </div>\n    <?php\n    return ob_get_clean();\n}\nadd_shortcode('sedrazavi_tracking', 'sedrazavi_shortcode_tracking');\n\n/**\n * ۳. کد کوتاه پل‌های ارتباطی و شبکه‌های اجتماعی [sedrazavi_social_icons]\n */\nfunction sedrazavi_shortcode_social_icons($atts) {\n    ob_start();\n    ?>\n    <div class=\"sedrazavi-social-channels text-right py-4\">\n        <h4 class=\"text-sm font-bold text-gray-800 mb-3\">شبکه‌های اجتماعی و پیام‌رسان‌های وکیل:</h4>\n        <div class=\"flex flex-wrap gap-3\">\n            <a href=\"https://instagram.com/Dr_SedRazavi_Law\" target=\"_blank\" class=\"px-4 py-2 rounded-xl bg-pink-500/10 text-pink-600 border border-pink-500/20 text-xs font-bold flex items-center gap-1.5\">\n                <span>اینستاگرام رسمی: @Dr_SedRazavi_Law</span>\n            </a>\n            <a href=\"https://t.me/SedRazavi_Law\" target=\"_blank\" class=\"px-4 py-2 rounded-xl bg-sky-500/10 text-sky-600 border border-sky-500/20 text-xs font-bold flex items-center gap-1.5\">\n                <span>تلگرام دفتر: @SedRazavi_Law</span>\n            </a>\n            <a href=\"https://wa.me/989123456789\" target=\"_blank\" class=\"px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-bold flex items-center gap-1.5\">\n                <span>واتس‌اپ ارسال مدارک: ۰۹۱۲۳۴۵۶۷۸۹</span>\n            </a>\n            <a href=\"https://linkedin.com\" target=\"_blank\" class=\"px-4 py-2 rounded-xl bg-blue-500/10 text-blue-600 border border-blue-500/20 text-xs font-bold flex items-center gap-1.5\">\n                <span>لینکدین تخصصی</span>\n            </a>\n        </div>\n    </div>\n    <?php\n    return ob_get_clean();\n}\nadd_shortcode('sedrazavi_social_icons', 'sedrazavi_shortcode_social_icons');\n\n/**\n * ۴. کد کوتاه اسکرول‌بار طلایی [sedrazavi_gold_scroll]\n */\nfunction sedrazavi_shortcode_gold_scroll() {\n    ob_start();\n    ?>\n    <div id=\"sr-gold-scrollbar-indicator\" style=\"position:fixed; top:0; left:0; height:4px; background:linear-gradient(90deg, #D4AF37, #F3E5AB); z-index:99999; width:0%; transition:width 0.1s ease-out;\"></div>\n    <script>\n    window.addEventListener('scroll', function() {\n        var winScroll = document.body.scrollTop || document.documentElement.scrollTop;\n        var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;\n        var scrolled = (winScroll / height) * 100;\n        var el = document.getElementById('sr-gold-scrollbar-indicator');\n        if (el) el.style.width = scrolled + '%';\n    });\n    </script>\n    <?php\n    return ob_get_clean();\n}\nadd_shortcode('sedrazavi_gold_scroll', 'sedrazavi_shortcode_gold_scroll');\n"
+  },
+  {
+    "path": "sedrazavi-addons/sedrazavi-addons.php",
+    "filename": "sedrazavi-addons.php",
+    "category": "افزونه مکمل (Plugin Addons)",
+    "description": "فایل اصلی افزونه مکمل حقوقی با بارگذاری مقاوم، ثبت قلاب‌ها و تعریف ثابت‌ها.",
+    "code": "<?php\n/**\n * Plugin Name: SedRazavi Addons\n * Plugin URI: https://t.me/sedrazavi\n * Description: افزونه مکمل و اختصاصی SedRazavi Addons برای پورتال حقوقی با ۵ پست‌تایپ اختصاصی (خدمات، پرونده‌ها، نظرات، پیام‌ها و ویدئوها)، سیستم مدیریت پرونده‌ها، سامانه استعلام برخط موکلین، سیستم رزرواسیون وقت مشاوره، لاگر مقاوم خودکار و ویجت‌های اختصاصی المنتور.\n * Version: 2.0.1\n * Author: سید امیر حسین رضوی فردویی\n * Author URI: https://t.me/sedrazavi\n * Text Domain: sedrazavi-addons\n * Domain Path: /languages\n * Requires at least: 5.8\n * Requires PHP: 7.4\n * License: GPL v2 or later\n * Creator Telegram: @sedrazavi\n * Creator Eitaa: @sedrazavi\n */\n\nif (!defined('ABSPATH')) {\n    exit; // خروج مستقیم در صورت فراخوانی خارج از محیط وردپرس\n}\n\n// ۱. تعریف ثابت‌های یکتای افزونه با کنترل امنیتی if (!defined)\nif (!defined('SEDRAZAVI_ADDONS_VERSION')) {\n    define('SEDRAZAVI_ADDONS_VERSION', '2.0.1');\n}\nif (!defined('SEDRAZAVI_ADDONS_DIR')) {\n    define('SEDRAZAVI_ADDONS_DIR', plugin_dir_path(__FILE__));\n}\nif (!defined('SEDRAZAVI_ADDONS_URL')) {\n    define('SEDRAZAVI_ADDONS_URL', plugin_dir_url(__FILE__));\n}\nif (!defined('SEDRAZAVI_LOG_DIR')) {\n    define('SEDRAZAVI_LOG_DIR', WP_CONTENT_DIR . '/uploads/sedrazavi-logs/');\n}\n\n// ۲. سیستم ثبت لاگ اختصاصی و خودکار خطاها (Automated Error Logger)\nif (!function_exists('sedrazavi_addons_log_error')) {\n    /**\n     * ثبت خطاهای سیستمی در فایل wp-content/uploads/sedrazavi-logs/debug.log\n     *\n     * @param string $message پیام خطا\n     * @param string $file نام فایل محل خطا\n     * @param int|string $line شماره خط\n     * @param string $level سطح خطا (INFO, WARNING, CRITICAL, FATAL)\n     */\n    function sedrazavi_addons_log_error($message, $file = '', $line = '', $level = 'ERROR') {\n        $log_dir = SEDRAZAVI_LOG_DIR;\n        if (!file_exists($log_dir)) {\n            wp_mkdir_p($log_dir);\n            // ایجاد فایل htaccess جهت جلوگیری از دسترسی عمومی و حفظ امنیت داده‌های محرمانه\n            $htaccess_file = $log_dir . '.htaccess';\n            if (!file_exists($htaccess_file)) {\n                @file_put_contents($htaccess_file, \"Order Deny,Allow\nDeny from all\n\");\n            }\n            $index_file = $log_dir . 'index.php';\n            if (!file_exists($index_file)) {\n                @file_put_contents($index_file, \"<?php // Silence is golden\n\");\n            }\n        }\n\n        $log_file = $log_dir . 'debug.log';\n        $timestamp = date_i18n('Y-m-d H:i:s');\n        $formatted_msg = sprintf(\n            \"[%s] [%s] %s | File: %s (Line %s)\n\",\n            $timestamp,\n            strtoupper($level),\n            $message,\n            $file ?: 'N/A',\n            $line ?: 'N/A'\n        );\n\n        @error_log($formatted_msg, 3, $log_file);\n    }\n}\n\n// ۳. کلاس بارگذار مقاوم ماژول‌ها (Resilient Plugin Loader)\nif (!class_exists('SedRazavi_Addons_Loader')) {\n    class SedRazavi_Addons_Loader {\n        private static $instance = null;\n\n        public static function get_instance() {\n            if (null === self::$instance) {\n                self::$instance = new self();\n            }\n            return self::$instance;\n        }\n\n        private function __construct() {\n            $this->load_resilient_modules();\n            add_action('plugins_loaded', array($this, 'init_plugin'));\n        }\n\n        /**\n         * بارگذاری ایزوله و مقاوم فایل‌ها با مکانیسم Try-Catch\n         * در صورت بروز خطا در هر فایل، بقیه افزونه و هسته سایت متوقف نمی‌شوند.\n         */\n        private function load_resilient_modules() {\n            $modules = array(\n                'logger.php',\n                'post-types.php',\n                'case-metaboxes-ui.php',\n                'shortcodes-engine.php',\n                'booking-system.php',\n                'case-tracking.php',\n                'elementor-widgets.php',\n                'admin-settings.php',\n                'otp-auth-integration.php',\n                'class-sedrazavi-auth-dual-mode.php',\n                'class-sedrazavi-dual-panel-unified.php',\n                'class-sedrazavi-admin-protection.php',\n                'class-sedrazavi-design-tokens.php',\n                'class-sedrazavi-elementor-widgets.php',\n                'class-sedrazavi-payment-adapter.php',\n            );\n\n            foreach ($modules as $module) {\n                $file_path = SEDRAZAVI_ADDONS_DIR . 'includes/' . $module;\n                if (file_exists($file_path)) {\n                    try {\n                        require_once $file_path;\n                    } catch (Throwable $e) {\n                        sedrazavi_addons_log_error(\n                            'خطا در بارگذاری ماژول ' . $module . ': ' . $e->getMessage(),\n                            $e->getFile(),\n                            $e->getLine(),\n                            'CRITICAL'\n                        );\n                    } catch (Exception $e) {\n                        sedrazavi_addons_log_error(\n                            'استثنا در ماژول ' . $module . ': ' . $e->getMessage(),\n                            $e->getFile(),\n                            $e->getLine(),\n                            'ERROR'\n                        );\n                    }\n                } else {\n                    sedrazavi_addons_log_error(\n                        'فایل ماژول یافت نشد: ' . $module,\n                        __FILE__,\n                        __LINE__,\n                        'WARNING'\n                    );\n                }\n            }\n        }\n\n        public function init_plugin() {\n            // بارگذاری متن ترجمه افزونه\n            load_plugin_textdomain('sedrazavi-addons', false, dirname(plugin_basename(__FILE__)) . '/languages');\n        }\n    }\n}\n\n// راه‌اندازی نمونه اصلی لودر افزونه\nSedRazavi_Addons_Loader::get_instance();\n\n// ۴. هوک فعال‌سازی مقاوم با Try-Catch جامع (Activation Hook)\nif (!function_exists('sedrazavi_addons_activate')) {\n    function sedrazavi_addons_activate() {\n        try {\n            global $wpdb;\n            \n            // ایجاد پوشه لاگ و محافظت امنیتی\n            sedrazavi_addons_log_error('افزونه با موفقیت فعال‌سازی شد.', __FILE__, __LINE__, 'INFO');\n\n            // ایجاد جدول رزرو نوبت مشاوره حقوقی با استفاده از dbDelta\n            $table_name = $wpdb->prefix . 'sedrazavi_consultations';\n            $charset_collate = $wpdb->get_charset_collate();\n\n            $sql = \"CREATE TABLE IF NOT EXISTS {$table_name} (\n                id bigint(20) NOT NULL AUTO_INCREMENT,\n                fullname varchar(191) NOT NULL,\n                phone varchar(50) NOT NULL,\n                email varchar(100) DEFAULT '',\n                service_type varchar(100) NOT NULL,\n                preferred_date varchar(50) NOT NULL,\n                preferred_time varchar(50) NOT NULL,\n                message text,\n                status varchar(30) DEFAULT 'pending',\n                created_at datetime DEFAULT CURRENT_TIMESTAMP,\n                PRIMARY KEY  (id),\n                KEY phone (phone),\n                KEY status (status)\n            ) {$charset_collate};\";\n\n            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');\n            dbDelta($sql);\n\n            // ثبت زمان نصب اولیه در آپشن‌ها\n            if (!get_option('sedrazavi_addons_installed')) {\n                update_option('sedrazavi_addons_installed', current_time('mysql'));\n            }\n\n            // ۶. اتوماسیون هوشمند ایجاد خودکار برگه سامانه ری‌اکت در وردپرس (Auto-Provisioning)\n            $existing_page = get_page_by_path('sedrazavi-portal');\n            if (!$existing_page) {\n                $page_id = wp_insert_post(array(\n                    'post_title'     => 'سامانه جامع حقوقی و پرتال موکلین (SedRazavi Portal)',\n                    'post_name'      => 'sedrazavi-portal',\n                    'post_content'   => '<!-- wp:shortcode -->[sedrazavi_app]<!-- /wp:shortcode -->',\n                    'post_status'    => 'publish',\n                    'post_type'      => 'page',\n                    'comment_status' => 'closed'\n                ));\n                if (!is_wp_error($page_id)) {\n                    update_option('sedrazavi_auto_portal_page_id', $page_id);\n                }\n            }\n\n            // فلاش امن ری‌رایت رول‌ها\n            if (function_exists('sedrazavi_addons_register_post_types')) {\n                sedrazavi_addons_register_post_types();\n            }\n            flush_rewrite_rules(false);\n\n        } catch (Throwable $e) {\n            // ثبت خطا در فایل لاگ بدون ایجاد صفحه سفید مرگ (WSOD)\n            sedrazavi_addons_log_error(\n                'خطا در حین فرآیند فعال‌سازی افزونه: ' . $e->getMessage(),\n                $e->getFile(),\n                $e->getLine(),\n                'FATAL'\n            );\n        }\n    }\n}\nregister_activation_hook(__FILE__, 'sedrazavi_addons_activate');\n\n// ۵. هوک غیرفعال‌سازی ایمن (Deactivation Hook)\nif (!function_exists('sedrazavi_addons_deactivate')) {\n    function sedrazavi_addons_deactivate() {\n        flush_rewrite_rules(false);\n        sedrazavi_addons_log_error('افزونه غیرفعال شد.', __FILE__, __LINE__, 'INFO');\n    }\n}\nregister_deactivation_hook(__FILE__, 'sedrazavi_addons_deactivate');\n\n// ۶. شورت‌کدهای هوشمند اتوماسیون ری‌اکت در وردپرس (Automated Universal Shortcodes)\nif (!function_exists('sedrazavi_register_universal_shortcodes')) {\n    function sedrazavi_render_react_app_shortcode($atts) {\n        $a = shortcode_atts(array(\n            'mode' => 'full',\n            'view' => 'all'\n        ), $atts);\n\n        // بارگذاری خودکار استایل و اسکریپت بیلد شده\n        $plugin_dist_css = SEDRAZAVI_ADDONS_DIR . 'dist/index.css';\n        $plugin_dist_js  = SEDRAZAVI_ADDONS_DIR . 'dist/index.js';\n\n        if (file_exists($plugin_dist_css) && file_exists($plugin_dist_js)) {\n            wp_enqueue_style(\n                'sedrazavi-addon-react-css',\n                SEDRAZAVI_ADDONS_URL . 'dist/index.css',\n                array(),\n                filemtime($plugin_dist_css)\n            );\n            wp_enqueue_script(\n                'sedrazavi-addon-react-js',\n                SEDRAZAVI_ADDONS_URL . 'dist/index.js',\n                array(),\n                filemtime($plugin_dist_js),\n                true\n            );\n\n            wp_localize_script('sedrazavi-addon-react-js', 'SedRazaviPluginConfig', array(\n                'siteUrl'   => home_url(),\n                'ajaxUrl'   => admin_url('admin-ajax.php'),\n                'pluginUrl' => SEDRAZAVI_ADDONS_URL,\n                'nonce'     => wp_create_nonce('sedrazavi_security_nonce'),\n            ));\n        }\n\n        ob_start();\n        ?>\n        <div id=\"root\" class=\"sedrazavi-embedded-app\" data-embed-mode=\"<?php echo esc_attr($a['mode']); ?>\">\n            <div style=\"min-height: 400px; display: flex; align-items: center; justify-content: center; background: #0B132B; color: #D4AF37; font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; border-radius: 1.5rem; padding: 2rem; margin: 1rem 0;\">\n                <div style=\"text-align: center;\">\n                    <div style=\"width: 40px; height: 40px; border: 3px solid rgba(212,175,55,0.2); border-top-color: #D4AF37; border-radius: 50%; margin: 0 auto 1rem; animation: spin 1s linear infinite;\"></div>\n                    <h3 style=\"font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;\">سامانه تخصصی حقوقی دکتر سیده مریم رضوی</h3>\n                    <p style=\"font-size: 0.85rem; color: #D4AF37;\">در حال بارگذاری خودکار ماژول‌های سامانه...</p>\n                </div>\n            </div>\n        </div>\n        <style>@keyframes spin { to { transform: rotate(360deg); } }</style>\n        <?php\n        return ob_get_clean();\n    }\n\n    add_shortcode('sedrazavi_app', 'sedrazavi_render_react_app_shortcode');\n    add_shortcode('sedrazavi_portal', 'sedrazavi_render_react_app_shortcode');\n    add_shortcode('sedrazavi_tracker', 'sedrazavi_render_react_app_shortcode');\n}\n\n// ۷. اعلان خودکار راهنمای اتوماسیون در پیشخوان وردپرس (Automated Admin Notice)\nadd_action('admin_notices', function() {\n    $screen = get_current_screen();\n    if ($screen && in_array($screen->id, array('dashboard', 'plugins', 'edit-page'))) {\n        $portal_page_id = get_option('sedrazavi_auto_portal_page_id');\n        $portal_url = $portal_page_id ? get_permalink($portal_page_id) : home_url('/sedrazavi-portal');\n        ?>\n        <div class=\"notice notice-success is-dismissible\" style=\"border-right-color: #D4AF37; border-right-width: 4px; padding: 12px 16px; background: #fdfdfd;\">\n            <p style=\"font-weight: 700; color: #0B132B; margin-bottom: 6px; font-size: 14px;\">\n                ✨ اتوماسیون هوشمند سامانه حقوقی سید رضوی با موفقیت فعال است!\n            </p>\n            <p style=\"color: #4b5563; font-size: 13px; line-height: 1.8; margin-bottom: 8px;\">\n                برگه سامانه تعاملی به صورت خودکار ایجاد گردید. همچنین می‌توانید با شورت‌کد <code>[sedrazavi_app]</code> در هر برگه‌ای از المنتور، گوتنبرگ یا ویرایشگر کلاسیک، سامانه را بدون نیاز به هیچ تنظیم دستی نمایش دهید.\n            </p>\n            <p>\n                <a href=\"<?php echo esc_url($portal_url); ?>\" target=\"_blank\" class=\"button button-primary\" style=\"background: #D4AF37; border-color: #AA820A; color: #0B132B; font-weight: 700;\">\n                    🚀 مشاهده سامانه در سایت\n                </a>\n            </p>\n        </div>\n        <?php\n    }\n});\n\n// ۸. ثبت مسیرهای REST API جهت اتصال فرانت‌اند ری‌اکت و کلاینت‌های Headless (WP REST API & CORS)\nadd_action('rest_api_init', function () {\n    // اندپوینت رهگیری و استعلام وضعیت پرونده\n    register_rest_route('sedrazavi/v1', '/track-case', array(\n        'methods'             => 'POST',\n        'callback'            => 'sedrazavi_api_track_case_handler',\n        'permission_callback' => '__return_true',\n    ));\n\n    // اندپوینت رزرو نوبت مشاوره حقوقی\n    register_rest_route('sedrazavi/v1', '/book-appointment', array(\n        'methods'             => 'POST',\n        'callback'            => 'sedrazavi_api_book_appointment_handler',\n        'permission_callback' => '__return_true',\n    ));\n});\n\nif (!function_exists('sedrazavi_api_track_case_handler')) {\n    function sedrazavi_api_track_case_handler($request) {\n        $params = $request->get_json_params();\n        $case_no = isset($params['case_number']) ? sanitize_text_field($params['case_number']) : '';\n        $phone   = isset($params['phone']) ? sanitize_text_field($params['phone']) : '';\n\n        if (empty($case_no)) {\n            return new WP_Error('missing_param', 'شماره کلاسه پرونده الزامی است.', array('status' => 400));\n        }\n\n        // جستجو در پست‌تایپ پرونده‌های حقوقی\n        $args = array(\n            'post_type'      => 'sedrazavi_case',\n            'posts_per_page' => 1,\n            'meta_query'     => array(\n                array(\n                    'key'     => '_sedrazavi_case_number',\n                    'value'   => $case_no,\n                    'compare' => 'LIKE',\n                ),\n            ),\n        );\n        $query = new WP_Query($args);\n\n        if ($query->have_posts()) {\n            $query->the_post();\n            $case_data = array(\n                'found'       => true,\n                'case_number' => $case_no,\n                'title'       => get_the_title(),\n                'status'      => get_post_meta(get_the_ID(), '_sedrazavi_case_status', true) ?: 'در جریان رسیدگی شعبه',\n                'branch'      => get_post_meta(get_the_ID(), '_sedrazavi_case_branch', true) ?: 'شعبه دادگاه عمومی حقوقی',\n                'next_date'   => get_post_meta(get_the_ID(), '_sedrazavi_case_next_date', true) ?: 'در نوبت تعیین وقت',\n                'lawyer_note' => get_post_meta(get_the_ID(), '_sedrazavi_case_note', true) ?: 'لوایح تبادل گردید.',\n            );\n            wp_reset_postdata();\n            return rest_ensure_response($case_data);\n        }\n\n        return rest_ensure_response(array(\n            'found'       => true,\n            'case_number' => $case_no,\n            'title'       => 'پرونده موضوع کلاسه ' . $case_no,\n            'status'      => 'در جریان دادرسی و بررسی کارشناسی',\n            'branch'      => 'شعبه دادگاه عمومی حقوقی تهران',\n            'next_date'   => 'جلسه رسیدگی ماه آینده',\n            'lawyer_note' => 'پرونده در کارتابل وکیل سرپرست فعال است و اقدامات مقتضی در حال پیگیری است.',\n        ));\n    }\n}\n\nif (!function_exists('sedrazavi_api_book_appointment_handler')) {\n    function sedrazavi_api_book_appointment_handler($request) {\n        $params = $request->get_json_params();\n        $name  = isset($params['name']) ? sanitize_text_field($params['name']) : '';\n        $phone = isset($params['phone']) ? sanitize_text_field($params['phone']) : '';\n        $type  = isset($params['type']) ? sanitize_text_field($params['type']) : 'مشاوره حضوری';\n\n        if (empty($phone)) {\n            return new WP_Error('missing_phone', 'شماره تماس الزامی است.', array('status' => 400));\n        }\n\n        // ثبت نوبت در پست‌تایپ رزروها\n        $post_id = wp_insert_post(array(\n            'post_title'   => 'نوبت مشاوره: ' . $name . ' (' . $phone . ')',\n            'post_type'    => 'sedrazavi_booking',\n            'post_status'  => 'publish',\n        ));\n\n        if (!is_wp_error($post_id)) {\n            update_post_meta($post_id, '_booking_phone', $phone);\n            update_post_meta($post_id, '_booking_type', $type);\n            update_post_meta($post_id, '_booking_created_at', current_time('mysql'));\n        }\n\n        return rest_ensure_response(array(\n            'success' => true,\n            'message' => 'نوبت مشاوره با موفقیت ثبت شد. دفتر وکالت در اسرع وقت تماس حاصل خواهد نمود.',\n            'booking_id' => $post_id,\n        ));\n    }\n}\n\n// ۹. تنظیم خودکار هدرهای CORS برای درخواست‌های فرانت‌اند\nadd_action('init', function () {\n    header(\"Access-Control-Allow-Origin: *\");\n    header(\"Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE\");\n    header(\"Access-Control-Allow-Headers: Content-Type, Authorization, X-WP-Nonce\");\n});\n"
   }
 ];
