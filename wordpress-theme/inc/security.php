@@ -19,16 +19,17 @@ if (!defined('ABSPATH')) {
 class SedRazavi_Rate_Limiter {
 
     /**
-     * Check rate limit for a specific action by client IP
+     * Check rate limit for a specific action by client IP or identifier
      *
-     * @param string $action Action key (e.g. 'booking', 'tracking', 'otp')
+     * @param string $action Action key (e.g. 'booking', 'tracking', 'otp', 'email_otp')
      * @param int $max_attempts Maximum allowed attempts within window
      * @param int $window_seconds Window in seconds (default 600s = 10 minutes)
+     * @param string $identifier Optional custom identifier (such as email or phone)
      * @return bool True if allowed, false if limit exceeded
      */
-    public static function check_rate_limit($action, $max_attempts = 5, $window_seconds = 600) {
-        $ip = self::get_client_ip();
-        $transient_key = 'sedrazavi_rl_' . substr(md5($action . '_' . $ip), 0, 24);
+    public static function check_rate_limit($action, $max_attempts = 5, $window_seconds = 600, $identifier = '') {
+        $key_id = !empty($identifier) ? sanitize_text_field($identifier) : self::get_client_ip();
+        $transient_key = 'sedrazavi_rl_' . substr(md5($action . '_' . $key_id), 0, 24);
         $attempts = (int) get_transient($transient_key);
 
         if ($attempts >= $max_attempts) {
@@ -41,26 +42,45 @@ class SedRazavi_Rate_Limiter {
     }
 
     /**
-     * Reset rate limit for a specific action and IP
+     * Reset rate limit for a specific action and IP or identifier
      */
-    public static function reset_rate_limit($action) {
-        $ip = self::get_client_ip();
-        $transient_key = 'sedrazavi_rl_' . substr(md5($action . '_' . $ip), 0, 24);
+    public static function reset_rate_limit($action, $identifier = '') {
+        $key_id = !empty($identifier) ? sanitize_text_field($identifier) : self::get_client_ip();
+        $transient_key = 'sedrazavi_rl_' . substr(md5($action . '_' . $key_id), 0, 24);
         delete_transient($transient_key);
     }
 
     /**
-     * Get sanitized client IP address
+     * Get sanitized client IP address with Trusted Proxies validation
+     *
+     * HTTP_X_FORWARDED_FOR and HTTP_CF_CONNECTING_IP are only accepted if
+     * REMOTE_ADDR matches the configured trusted proxies list.
      */
     public static function get_client_ip() {
-        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-            return sanitize_text_field(wp_unslash($_SERVER['HTTP_CF_CONNECTING_IP']));
+        $remote_addr = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '127.0.0.1';
+
+        // Check if trusted proxies are defined. Default is empty array (no untrusted headers accepted).
+        $trusted_proxies = array();
+        if (defined('SEDRAZAVI_TRUSTED_PROXIES')) {
+            if (is_array(SEDRAZAVI_TRUSTED_PROXIES)) {
+                $trusted_proxies = SEDRAZAVI_TRUSTED_PROXIES;
+            } elseif (is_string(SEDRAZAVI_TRUSTED_PROXIES) && !empty(SEDRAZAVI_TRUSTED_PROXIES)) {
+                $trusted_proxies = array_map('trim', explode(',', SEDRAZAVI_TRUSTED_PROXIES));
+            }
         }
-        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $parts = explode(',', wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']));
-            return sanitize_text_field(trim($parts[0]));
+
+        // Only trust forwarded headers if the upstream connection is from a trusted proxy
+        if (!empty($trusted_proxies) && in_array($remote_addr, $trusted_proxies, true)) {
+            if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+                return sanitize_text_field(wp_unslash($_SERVER['HTTP_CF_CONNECTING_IP']));
+            }
+            if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $parts = explode(',', wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']));
+                return sanitize_text_field(trim($parts[0]));
+            }
         }
-        return isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '127.0.0.1';
+
+        return $remote_addr;
     }
 }
 

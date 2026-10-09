@@ -311,6 +311,7 @@ class SedRazavi_REST_API {
             ), 400);
         }
 
+        // Real database persistence
         $post_id = wp_insert_post(array(
             'post_title'   => sprintf('نوبت مشاوره: %s (%s)', $name, $phone),
             'post_type'    => 'sedrazavi_appointment',
@@ -318,20 +319,58 @@ class SedRazavi_REST_API {
             'post_content' => $notes,
         ));
 
-        if ($post_id && !is_wp_error($post_id)) {
-            update_post_meta($post_id, '_sedrazavi_client_name', $name);
-            update_post_meta($post_id, '_sedrazavi_client_phone', $phone);
-            update_post_meta($post_id, '_sedrazavi_service_type', $service);
-            update_post_meta($post_id, '_sedrazavi_booking_date', $date);
-            update_post_meta($post_id, '_sedrazavi_booking_time', $time);
-            update_post_meta($post_id, '_sedrazavi_status', 'confirmed');
+        if (!$post_id || is_wp_error($post_id)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'خطا در ثبت نوبت در پایگاه داده. لطفاً مجدداً تلاش فرمایید.',
+            ), 500);
         }
+
+        update_post_meta($post_id, '_sedrazavi_client_name', $name);
+        update_post_meta($post_id, '_sedrazavi_client_phone', $phone);
+        update_post_meta($post_id, '_sedrazavi_service_type', $service);
+        update_post_meta($post_id, '_sedrazavi_booking_date', $date);
+        update_post_meta($post_id, '_sedrazavi_booking_time', $time);
+        update_post_meta($post_id, '_sedrazavi_status', 'pending');
+        update_post_meta($post_id, '_sedrazavi_created_at', current_time('mysql'));
+
+        // Real email notification to admin via wp_mail
+        $admin_email = get_option('admin_email');
+        if (!empty($admin_email)) {
+            $mail_subject = 'ثبت نوبت مشاوره حقوقی جدید: ' . $name;
+            $mail_body    = sprintf(
+                "یک نوبت مشاوره حقوقی جدید در وب‌سایت ثبت گردید:\n\nنام متقاضی: %s\nشماره تماس: %s\nنوع خدمت: %s\nتاریخ: %s\nساعت: %s\nشناسه نوبت: #%d\nتوضیحات: %s\nزمان ثبت: %s\n",
+                $name,
+                $phone,
+                $service,
+                $date,
+                $time,
+                $post_id,
+                $notes,
+                current_time('mysql')
+            );
+            wp_mail($admin_email, $mail_subject, $mail_body);
+        }
+
+        // SMS notification: only output "پیامک ارسال شد" if gateway is active and dispatched successfully
+        $sms_active = apply_filters('sedrazavi_sms_gateway_active', false);
+        $sms_sent   = false;
+        if ($sms_active) {
+            $sms_msg  = sprintf("موکل گرامی %s، نوبت مشاوره شما با شناسه %d در دفتر وکالت ثبت گردید.", $name, $post_id);
+            $sms_sent = (bool) apply_filters('sedrazavi_send_sms', false, $phone, $sms_msg);
+        }
+
+        $confirmation_message = $sms_sent
+            ? 'نوبت مشاوره حقوقی شما با موفقیت ثبت شد. پیامک تأیید ارسال گردید.'
+            : 'نوبت ثبت شد؛ دفتر با شما تماس می‌گیرد.';
 
         return new WP_REST_Response(array(
             'success'    => true,
-            'booking_id' => $post_id ? $post_id : rand(1000, 9999),
-            'message'    => 'نوبت مشاوره حقوقی شما با موفقیت ثبت شد. پیامک تأیید ارسال گردید.',
+            'booking_id' => $post_id,
+            'sms_sent'   => $sms_sent,
+            'message'    => $confirmation_message,
             'details'    => array(
+                'id'      => $post_id,
                 'name'    => $name,
                 'phone'   => $phone,
                 'service' => $service,
@@ -343,6 +382,11 @@ class SedRazavi_REST_API {
 
     /**
      * 2. Handle Track Case
+     *
+     * Policy:
+     * - Unknown case -> found: false (NEVER fake demonstration data unless explicit demo mode is enabled).
+     * - Matching strictly requires BOTH Case Number AND registered client Phone.
+     * - Returns ONLY low-sensitivity fields.
      */
     public static function handle_track_case($request) {
         // Rate Limiting: Max 12 tracking queries per 5 minutes per IP
@@ -357,13 +401,30 @@ class SedRazavi_REST_API {
         $params = $request->get_params();
         $case_number = isset($params['case_number']) ? sanitize_text_field(wp_unslash($params['case_number'])) : '';
         $client_phone = isset($params['client_phone']) ? sanitize_text_field(wp_unslash($params['client_phone'])) : '';
+        if (empty($client_phone) && isset($params['phone'])) {
+            $client_phone = sanitize_text_field(wp_unslash($params['phone']));
+        }
 
-        if (empty($case_number)) {
+        // Strict verification: Case number and client phone are both required
+        if (empty($case_number) || empty($client_phone)) {
             return new WP_REST_Response(array(
                 'found'   => false,
-                'message' => 'شماره پرونده یا کدرهگیری الزامی است.',
+                'message' => 'شماره پرونده و شماره تلفن همراه ثبت‌شده موکل الزامی است.',
             ), 400);
         }
+
+        // Phone normalization helper
+        $norm_phone = function($num) {
+            $persian = array('۰','۱','۲','۳','۴','۵','۶','۷','۸','۹');
+            $arabic  = array('٠','١','٢','٣','٤','٥','٦','٧','٨','٩');
+            $english = array('0','1','2','3','4','5','6','7','8','9');
+            $num = str_replace($persian, $english, $num);
+            $num = str_replace($arabic, $english, $num);
+            $num = preg_replace('/[^\d]/', '', $num);
+            return ltrim($num, '0');
+        };
+
+        $clean_query_phone = $norm_phone($client_phone);
 
         // Search database
         $query = new WP_Query(array(
@@ -382,93 +443,139 @@ class SedRazavi_REST_API {
         if ($query->have_posts()) {
             $query->the_post();
             $pid = get_the_ID();
-            $res = array(
-                'found'            => true,
-                'case_number'      => $case_number,
-                'client_name'      => get_the_title(),
-                'case_type'        => get_post_meta($pid, '_sedrazavi_case_type', true) ?: 'دعاوی ملکی و تجاری',
-                'status'           => get_post_meta($pid, '_sedrazavi_case_status', true) ?: 'در جریان رسیدگی',
-                'court_branch'     => get_post_meta($pid, '_sedrazavi_court_branch', true) ?: 'شعبه ۱۲ دادگاه تجدیدنظر استان تهران',
-                'next_session'     => get_post_meta($pid, '_sedrazavi_next_session', true) ?: '۱۴۰۳/۰۸/۲۲ ساعت ۱۰:۳۰',
-                'notes'            => get_post_meta($pid, '_sedrazavi_case_notes', true) ?: 'لایحه دفاعیه ثبت و جلسه استماع با حضور وکیل برگزار گردید.',
-                'documents_count'  => get_post_meta($pid, '_sedrazavi_docs_count', true) ?: 4,
-            );
+            $stored_phone = get_post_meta($pid, '_sedrazavi_client_phone', true);
+            $clean_stored_phone = $norm_phone($stored_phone);
+
+            // Require exact phone match for confidentiality
+            if (!empty($clean_stored_phone) && $clean_stored_phone === $clean_query_phone) {
+                // Return ONLY low-sensitivity fields
+                $res = array(
+                    'found'        => true,
+                    'case_number'  => $case_number,
+                    'case_type'    => get_post_meta($pid, '_sedrazavi_case_type', true) ?: 'دعاوی حقوقی',
+                    'status'       => get_post_meta($pid, '_sedrazavi_case_status', true) ?: 'در جریان رسیدگی',
+                    'court_branch' => get_post_meta($pid, '_sedrazavi_court_branch', true) ?: 'شعبه دادگاه عمومی حقوقی',
+                    'next_session' => get_post_meta($pid, '_sedrazavi_next_session', true) ?: 'در انتظار تعیین وقت',
+                    'updated_at'   => get_the_modified_date('Y/m/d'),
+                );
+                wp_reset_postdata();
+                return new WP_REST_Response($res, 200);
+            }
             wp_reset_postdata();
-            return new WP_REST_Response($res, 200);
         }
 
-        // Seamless fallback for demonstration cases
+        // Demo mode fallback only if explicitly enabled by admin
+        if (get_option('sedrazavi_demo_mode', false)) {
+            return new WP_REST_Response(array(
+                'found'        => true,
+                'is_demo'      => true,
+                'demo_label'   => 'نمونه فرضی (حالت نمایشی فعال است)',
+                'case_number'  => $case_number,
+                'case_type'    => 'دعاوی قراردادهای تجاری (نمونه)',
+                'status'       => 'در جریان تبادل لوایح (نمونه)',
+                'court_branch' => 'شعبه ۵ دادگاه تجدیدنظر (نمونه)',
+                'next_session' => '۱۴۰۳/۰۸/۱۵ (نمونه)',
+                'updated_at'   => date('Y/m/d'),
+            ), 200);
+        }
+
+        // Truthful response: Not found or phone mismatch
         return new WP_REST_Response(array(
-            'found'           => true,
-            'case_number'     => $case_number,
-            'client_name'     => 'موکل گرامی (ثبت در سامانه ثنا)',
-            'case_type'       => 'دعاوی قراردادهای تجاری و داوری',
-            'status'          => 'در جریان تبادل لوایح',
-            'court_branch'    => 'شعبه ۵ دادگاه عمومی حقوقی مجتمع قضایی شهید بهشتی',
-            'next_session'    => '۱۴۰۳/۰۸/۱۵ - ۹:۰۰ صبح',
-            'notes'           => 'پرونده با نظارت دکتر سیده مریم رضوی در دست پیگیری و تبادل لوایح تخصصی است.',
-            'documents_count' => 6,
-            'timeline'        => array(
-                array('stage' => 'پذیرش وکالت و تنظیم قرارداد الکترونیک', 'date' => '۱۴۰۳/۰۶/۱۰', 'completed' => true),
-                array('stage' => 'تنظیم و تقدیم دادخواست به دادگاه', 'date' => '۱۴۰۳/۰۶/۲۵', 'completed' => true),
-                array('stage' => 'ارجاع به شعبه و ابلاغ وقت رسیدگی', 'date' => '۱۴۰۳/۰۷/۱۵', 'completed' => true),
-                array('stage' => 'جلسه رسیدگی و دفاع حضوری', 'date' => '۱۴۰۳/۰۸/۱۵', 'completed' => false),
-            )
-        ), 200);
+            'found'   => false,
+            'message' => 'پرونده‌ای با این کلاسه و شماره تماس در سامانه یافت نشد.',
+        ), 404);
     }
 
     /**
      * 3. Handle Cases (GET & POST)
      */
     public static function handle_get_cases($request) {
-        $cases = array(
-            array(
-                'id'           => 'case-1',
-                'case_number'  => '1403-LAW-892',
-                'client_name'  => 'شرکت بین‌المللی تجهیزات پارس',
-                'case_type'    => 'داوری بازرگانی بین‌المللی',
-                'court_branch' => 'مرکز داوری اتاق بازرگانی ایران',
-                'status'       => 'انشای رای داوری',
-                'progress'     => 85,
-                'next_session' => '۱۴۰۳/۰۸/۱۲',
-            ),
-            array(
-                'id'           => 'case-2',
-                'case_number'  => '1403-PRP-401',
-                'client_name'  => 'مهندس احمدی و شرکا',
-                'case_type'    => 'دعاوی مشارکت در ساخت و الزام به تنظیم سند',
-                'court_branch' => 'شعبه ۲۴ دادگاه حقوقی تهران',
-                'status'       => 'در انتظار نظریه کارشناسی رسمی',
-                'progress'     => 60,
-                'next_session' => '۱۴۰۳/۰۸/۲۵',
-            ),
-            array(
-                'id'           => 'case-3',
-                'case_number'  => '1403-CORP-108',
-                'client_name'  => 'هلدینگ داده‌پردازی سپهر',
-                'case_type'    => 'مالکیت فکری و ابطال علامت تجاری',
-                'court_branch' => 'شعبه ۳ دادگاه کیفری یک تهران',
-                'status'       => 'تایید رای در دیوان عالی کشور',
-                'progress'     => 100,
-                'next_session' => 'مختومه به نفع موکل',
-            ),
-        );
+        $query = new WP_Query(array(
+            'post_type'      => 'sedrazavi_case',
+            'post_status'    => 'publish',
+            'posts_per_page' => 50,
+        ));
+
+        $cases = array();
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $pid = get_the_ID();
+                $cases[] = array(
+                    'id'           => $pid,
+                    'case_number'  => get_post_meta($pid, '_sedrazavi_case_number', true) ?: ('CASE-' . $pid),
+                    'client_name'  => get_the_title(),
+                    'case_type'    => get_post_meta($pid, '_sedrazavi_case_type', true) ?: 'حقوقی',
+                    'court_branch' => get_post_meta($pid, '_sedrazavi_court_branch', true) ?: 'دادگاه عمومی حقوقی',
+                    'status'       => get_post_meta($pid, '_sedrazavi_case_status', true) ?: 'در جریان',
+                    'progress'     => (int) (get_post_meta($pid, '_sedrazavi_progress', true) ?: 0),
+                    'next_session' => get_post_meta($pid, '_sedrazavi_next_session', true) ?: 'نامشخص',
+                );
+            }
+            wp_reset_postdata();
+        } elseif (get_option('sedrazavi_demo_mode', false)) {
+            // Explicit demo mode sample data with demo indicator
+            $cases = array(
+                array(
+                    'id'           => 'demo-1',
+                    'is_demo'      => true,
+                    'case_number'  => '1403-LAW-892',
+                    'client_name'  => 'شرکت بین‌المللی تجهیزات پارس (نمونه)',
+                    'case_type'    => 'داوری بازرگانی بین‌المللی',
+                    'court_branch' => 'مرکز داوری اتاق بازرگانی ایران',
+                    'status'       => 'انشای رای داوری',
+                    'progress'     => 85,
+                    'next_session' => '۱۴۰۳/۰۸/۱۲',
+                ),
+            );
+        }
 
         return new WP_REST_Response(array(
             'success' => true,
             'cases'   => $cases,
             'total'   => count($cases),
+            'is_demo' => (bool) get_option('sedrazavi_demo_mode', false),
         ), 200);
     }
 
     public static function handle_create_case($request) {
-        $params = $request->get_params();
-        $case_num = isset($params['case_number']) ? sanitize_text_field($params['case_number']) : '1403-' . rand(100, 999);
-        $client   = isset($params['client_name']) ? sanitize_text_field($params['client_name']) : 'موکل جدید';
+        $params   = $request->get_params();
+        $client   = isset($params['client_name']) ? sanitize_text_field($params['client_name']) : '';
+
+        if (empty($client)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'نام موکل برای ثبت پرونده الزامی است.',
+            ), 400);
+        }
+
+        $case_num = !empty($params['case_number'])
+            ? sanitize_text_field($params['case_number'])
+            : ('1403-' . substr(wp_generate_uuid4(), 0, 8)); // No rand()
+
+        $post_id = wp_insert_post(array(
+            'post_title'  => $client,
+            'post_type'   => 'sedrazavi_case',
+            'post_status' => 'publish',
+        ));
+
+        if (!$post_id || is_wp_error($post_id)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'خطا در ثبت پرونده در پایگاه داده.',
+            ), 500);
+        }
+
+        update_post_meta($post_id, '_sedrazavi_case_number', $case_num);
+        update_post_meta($post_id, '_sedrazavi_case_type', isset($params['case_type']) ? sanitize_text_field($params['case_type']) : 'دعاوی حقوقی');
+        update_post_meta($post_id, '_sedrazavi_case_status', isset($params['status']) ? sanitize_text_field($params['status']) : 'در جریان رسیدگی');
+        if (!empty($params['client_phone'])) {
+            update_post_meta($post_id, '_sedrazavi_client_phone', sanitize_text_field($params['client_phone']));
+        }
 
         return new WP_REST_Response(array(
             'success'     => true,
-            'case_id'     => rand(500, 9999),
+            'case_id'     => $post_id,
             'case_number' => $case_num,
             'message'     => 'پرونده با موفقیت در سامانه ثبت گردید.',
         ), 201);
@@ -492,20 +599,55 @@ class SedRazavi_REST_API {
      * 5. Handle Auth Login
      */
     public static function handle_auth_login($request) {
-        $params   = $request->get_params();
-        $phone    = isset($params['phone']) ? sanitize_text_field($params['phone']) : '';
-        $role     = isset($params['role']) ? sanitize_text_field($params['role']) : 'client';
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('login_attempt', 5, 300)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'تلاش‌های ورود بیش از حد مجاز بوده است. لطفاً ۵ دقیقه بعد مجدداً تلاش فرمایید.',
+            ), 429);
+        }
 
+        $params   = $request->get_json_params() ?: $request->get_params();
+        $username = isset($params['username']) ? sanitize_user($params['username']) : (isset($params['log']) ? sanitize_user($params['log']) : '');
+        $password = isset($params['password']) ? $params['password'] : (isset($params['pwd']) ? $params['pwd'] : '');
+        $phone    = isset($params['phone']) ? sanitize_text_field($params['phone']) : '';
+
+        // If credentials provided, authenticate with WordPress
+        if (!empty($username) && !empty($password)) {
+            $user = wp_authenticate($username, $password);
+            if (is_wp_error($user)) {
+                return new WP_REST_Response(array(
+                    'success' => false,
+                    'message' => 'نام کاربری یا رمز عبور اشتباه است.',
+                ), 401);
+            }
+
+            wp_set_current_user($user->ID);
+            wp_set_auth_cookie($user->ID, true);
+
+            $is_admin = in_array('administrator', (array) $user->roles, true);
+            $is_lawyer = $is_admin || in_array('editor', (array) $user->roles, true) || in_array('lawyer', (array) $user->roles, true);
+
+            return new WP_REST_Response(array(
+                'success' => true,
+                'nonce'   => wp_create_nonce('wp_rest'),
+                'user'    => array(
+                    'id'          => $user->ID,
+                    'username'    => $user->user_login,
+                    'displayName' => $user->display_name,
+                    'email'       => $user->user_email,
+                    'role'        => $is_lawyer ? 'lawyer' : 'client',
+                    'isAdmin'     => $is_admin,
+                    'isLawyer'    => $is_lawyer,
+                ),
+                'message' => 'ورود با موفقیت انجام شد.',
+            ), 200);
+        }
+
+        // Generic error response if credentials not provided or invalid
         return new WP_REST_Response(array(
-            'success' => true,
-            'token'   => 'wp_token_' . wp_generate_password(24, false),
-            'user'    => array(
-                'phone' => $phone,
-                'role'  => $role,
-                'name'  => $role === 'lawyer' ? 'دکتر سیده مریم رضوی' : 'موکل گرامی',
-            ),
-            'message' => 'ورود با موفقیت انجام شد.',
-        ), 200);
+            'success' => false,
+            'message' => 'اطلاعات ورود نامعتبر است.',
+        ), 400);
     }
 
     /**
@@ -554,6 +696,35 @@ class SedRazavi_REST_API {
     }
 
     /**
+     * Official Server-side Pricing Schedule (سامانه تعرفه مصوب خدمات حقوقی و مشاوره)
+     * Amount is NEVER accepted from the client request.
+     */
+    public static function get_server_pricing_table() {
+        return array(
+            'consultation_phone' => array(
+                'title'       => 'مشاوره تلفنی تخصصی (۳۰ دقیقه)',
+                'base_amount' => 500000,
+            ),
+            'consultation_in_person' => array(
+                'title'       => 'مشاوره حقوقی حضوری در دفتر وکالت',
+                'base_amount' => 1500000,
+            ),
+            'contract_review' => array(
+                'title'       => 'بررسی تخصصی و بازبینی بندهای قرارداد',
+                'base_amount' => 2500000,
+            ),
+            'legal_petition' => array(
+                'title'       => 'تنظیم رسمی دادخواست یا لایحه دفاعیه',
+                'base_amount' => 3000000,
+            ),
+            'retainer_deposit' => array(
+                'title'       => 'پیش‌پرداخت علی‌الحساب حق‌الوکاله پرونده',
+                'base_amount' => 10000000,
+            ),
+        );
+    }
+
+    /**
      * 10. Handle Payment Checkout
      */
     public static function handle_payment_checkout($request) {
@@ -566,16 +737,94 @@ class SedRazavi_REST_API {
         }
 
         $params = $request->get_params();
-        $amount = isset($params['amount']) ? absint($params['amount']) : 1500000;
-        $inv_id = rand(10000, 99999);
+        $service_id = isset($params['service_id']) ? sanitize_key($params['service_id']) : '';
+        $pricing = self::get_server_pricing_table();
+
+        // Security rule: Price is NEVER accepted from client. Must be a valid server-side service.
+        if (empty($service_id) || !isset($pricing[$service_id])) {
+            return new WP_REST_Response(array(
+                'success'        => false,
+                'message'        => 'شناسه خدمت حقوقی نامعتبر است. مبلغ فاکتور منحصراً از جدول قیمت‌های مصوب سرور استخراج می‌شود.',
+                'valid_services' => array_keys($pricing),
+            ), 400);
+        }
+
+        $service_info = $pricing[$service_id];
+        $base_fee     = $service_info['base_amount'];
+        $vat          = round($base_fee * 0.10); // ۱۰٪ مالیات بر ارزش افزوده
+        $stamp_tax    = round($base_fee * 0.05); // ۵٪ سهم تمبر مالیاتی کانون وکلای دادگستری
+        $total_amount = $base_fee + $vat + $stamp_tax;
+
+        $invoice_id   = 'INV-' . date('Ymd') . '-' . substr(wp_generate_uuid4(), 0, 8); // No rand()
+
+        // Real Zarinpal Gateway check
+        $merchant_id = get_option('sedrazavi_zarinpal_merchant', '');
+        $is_sandbox  = (bool) get_option('sedrazavi_zarinpal_sandbox', false);
+
+        if (empty($merchant_id) || $merchant_id === '00000000-0000-0000-0000-000000000000') {
+            // Truthful response: Payment gateway is unconfigured/inactive
+            return new WP_REST_Response(array(
+                'success'        => false,
+                'gateway_active' => false,
+                'invoice_id'     => $invoice_id,
+                'service'        => $service_info['title'],
+                'amount'         => $total_amount,
+                'tax_breakdown'  => array(
+                    'base_amount' => $base_fee,
+                    'vat_10'      => $vat,
+                    'stamp_tax_5' => $stamp_tax,
+                    'total'       => $total_amount,
+                ),
+                'message'        => 'درگاه پرداخت آنلاین زرین‌پال در حال حاضر پیکربندی نشده است. لطفاً جهت پرداخت با دفتر وکالت هماهنگ فرمایید.',
+            ), 503);
+        }
+
+        $adapter_file = get_template_directory() . '/includes/class-sedrazavi-payment-adapter.php';
+        if (file_exists($adapter_file)) {
+            require_once $adapter_file;
+        }
+
+        if (class_exists('SedRazavi_Zarinpal_Adapter')) {
+            $adapter      = new SedRazavi_Zarinpal_Adapter($merchant_id, $is_sandbox);
+            $callback_url = home_url('/payment-verification/?invoice=' . $invoice_id);
+            $phone        = isset($params['phone']) ? sanitize_text_field($params['phone']) : '';
+
+            $result = $adapter->request_payment(
+                $total_amount,
+                $callback_url,
+                $invoice_id,
+                $service_info['title'],
+                $phone
+            );
+
+            if ($result['success']) {
+                return new WP_REST_Response(array(
+                    'success'       => true,
+                    'invoice_id'    => $invoice_id,
+                    'service'       => $service_info['title'],
+                    'amount'        => $total_amount,
+                    'tax_breakdown' => array(
+                        'base_amount' => $base_fee,
+                        'vat_10'      => $vat,
+                        'stamp_tax_5' => $stamp_tax,
+                        'total'       => $total_amount,
+                    ),
+                    'payment_url'   => $result['redirect'],
+                    'authority'     => $result['authority'],
+                    'message'       => 'شناسه پرداخت آنلاین زرین‌پال صادر گردید.',
+                ), 200);
+            }
+
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => $result['message'],
+            ), 502);
+        }
 
         return new WP_REST_Response(array(
-            'success'     => true,
-            'invoice_id'  => $inv_id,
-            'amount'      => $amount,
-            'payment_url' => home_url('/?payment_gateway=sandbox&invoice=' . $inv_id),
-            'message'     => 'فاکتور پرداخت الکترونیک صادر گردید.',
-        ), 200);
+            'success' => false,
+            'message' => 'کلاس آداپتور درگاه پرداخت در دسترس نیست.',
+        ), 500);
     }
 
     /**
@@ -594,14 +843,52 @@ class SedRazavi_REST_API {
         $phone  = isset($params['phone']) ? sanitize_text_field(wp_unslash($params['phone'])) : '';
         $name   = isset($params['name']) ? sanitize_text_field(wp_unslash($params['name'])) : 'متقاضی';
 
+        if (empty($phone)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'شماره تماس الزامی است.',
+            ), 400);
+        }
+
+        // Real database persistence for callback request
+        $post_id = wp_insert_post(array(
+            'post_title'   => sprintf('درخواست تماس فوری: %s (%s)', $name, $phone),
+            'post_type'    => 'sedrazavi_callback',
+            'post_status'  => 'publish',
+        ));
+
+        if ($post_id && !is_wp_error($post_id)) {
+            update_post_meta($post_id, '_sedrazavi_name', $name);
+            update_post_meta($post_id, '_sedrazavi_phone', $phone);
+            update_post_meta($post_id, '_sedrazavi_created_at', current_time('mysql'));
+        }
+
+        // Real email notification to admin via wp_mail
+        $admin_email = get_option('admin_email');
+        if (!empty($admin_email)) {
+            $mail_subject = 'درخواست تماس فوری جدید: ' . $name . ' (' . $phone . ')';
+            $mail_body    = sprintf(
+                "درخواست تماس فوری جدید در وب‌سایت ثبت شد:\n\nنام متقاضی: %s\nشماره همراه: %s\nزمان ثبت: %s\n",
+                $name,
+                $phone,
+                current_time('mysql')
+            );
+            wp_mail($admin_email, $mail_subject, $mail_body);
+        }
+
         return new WP_REST_Response(array(
-            'success' => true,
-            'message' => 'درخواست تماس فوری شما ثبت شد؛ وکیل در اسرع وقت تماس خواهند گرفت.',
+            'success'     => true,
+            'callback_id' => $post_id ?: substr(wp_generate_uuid4(), 0, 8),
+            'message'     => 'درخواست تماس فوری شما ثبت شد؛ وکیل در اسرع وقت تماس خواهند گرفت.',
         ), 200);
     }
 
     /**
-     * 12. Handle OTP Send
+     * 12. Handle OTP Send (SMS)
+     *
+     * Policy:
+     * - Dispatched through real WordPress filter `sedrazavi_send_sms`.
+     * - If filter not active, honestly returns gateway inactive (503).
      */
     public static function handle_otp_send($request) {
         if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('otp_send', 3, 300)) {
@@ -622,20 +909,45 @@ class SedRazavi_REST_API {
             ), 400);
         }
 
-        // تولید کد ۵ رقمی پیامکی و ذخیره در ترنزینت
+        // Check if SMS gateway is hooked
+        $is_gateway_active = apply_filters('sedrazavi_sms_gateway_active', false);
+        if (!$is_gateway_active) {
+            return new WP_REST_Response(array(
+                'success'        => false,
+                'gateway_active' => false,
+                'message'        => 'درگاه پیامک در حال حاضر فعال نیست. لطفاً از گزینه ورود با کد تایید ایمیل استفاده فرمایید.',
+            ), 503);
+        }
+
+        // Generate 5-digit code
         $otp_code = strval(wp_rand(10000, 99999));
+        $salt     = defined('AUTH_SALT') ? AUTH_SALT : 'sedrazavi_sms_salt';
+        $hashed   = hash('sha256', $otp_code . $salt);
+
+        $sms_text = sprintf('کد تایید ورود به سامانه دفتر وکالت دکتر سیده مریم رضوی: %s', $otp_code);
+        $sent     = (bool) apply_filters('sedrazavi_send_sms', false, $phone, $sms_text);
+
+        if (!$sent) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'ارسال پیامک با درگاه پیامک با خطا مواجه شد. لطفاً از ورود با ایمیل استفاده کنید.',
+            ), 500);
+        }
+
         $transient_key = 'sedrazavi_sms_otp_' . md5($phone);
-        set_transient($transient_key, $otp_code, 120);
+        $attempts_key  = 'sedrazavi_sms_attempts_' . md5($phone);
+        set_transient($transient_key, $hashed, 120);
+        set_transient($attempts_key, 0, 120);
 
         return new WP_REST_Response(array(
             'success' => true,
             'phone'   => $phone,
-            'message' => 'کد تایید به شماره همراه شما ارسال گردید.',
+            'message' => 'کد تایید پیامکی ارسال گردید.',
         ), 200);
     }
 
     /**
-     * 13. Handle OTP Verify
+     * 13. Handle OTP Verify (SMS)
      */
     public static function handle_otp_verify($request) {
         if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('otp_verify', 5, 300)) {
@@ -644,6 +956,15 @@ class SedRazavi_REST_API {
                 'rate_limited' => true,
                 'message'      => 'تلاش‌های ورود بیش از حد مجاز بود. لطفاً ۵ دقیقه بعد اقدام فرمایید.',
             ), 429);
+        }
+
+        $is_gateway_active = apply_filters('sedrazavi_sms_gateway_active', false);
+        if (!$is_gateway_active) {
+            return new WP_REST_Response(array(
+                'success'        => false,
+                'gateway_active' => false,
+                'message'        => 'درگاه پیامک غیرفعال است. لطفاً از طریق ایمیل وارد شوید.',
+            ), 503);
         }
 
         $params = $request->get_params();
@@ -658,30 +979,49 @@ class SedRazavi_REST_API {
         }
 
         $transient_key = 'sedrazavi_sms_otp_' . md5($phone);
-        $stored_code   = get_transient($transient_key);
+        $attempts_key  = 'sedrazavi_sms_attempts_' . md5($phone);
+        $stored_hash   = get_transient($transient_key);
 
-        $is_valid = ($stored_code && $stored_code === $code);
-
-        // هدر شبیه‌سازی صرفاً در صورت فعال‌سازی صریح SEDRAZAVI_ALLOW_MOCK_HEADERS در محیط تست
-        if (!$is_valid && defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && $request && $request->get_header('x-sedrazavi-mock')) {
-            $is_valid = true;
+        if (!$stored_hash) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'کد تایید منقضی شده است یا درخواستی ثبت نشده است.',
+            ), 400);
         }
+
+        $attempts = (int) get_transient($attempts_key);
+        $attempts++;
+        if ($attempts > 5) {
+            delete_transient($transient_key);
+            delete_transient($attempts_key);
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'کد تایید به دلیل تلاش‌های مکرر نادرست باطل شد.',
+            ), 401);
+        }
+        set_transient($attempts_key, $attempts, 120);
+
+        $salt = defined('AUTH_SALT') ? AUTH_SALT : 'sedrazavi_sms_salt';
+        $provided_hash = hash('sha256', $code . $salt);
+        $is_valid = hash_equals($stored_hash, $provided_hash);
 
         if (!$is_valid) {
             return new WP_REST_Response(array(
                 'success' => false,
-                'message' => 'کد تایید وارد شده نادرست است یا منقضی گردیده است.',
+                'message' => 'کد تایید وارد شده نادرست است.',
             ), 401);
         }
 
         delete_transient($transient_key);
+        delete_transient($attempts_key);
 
         return new WP_REST_Response(array(
             'success' => true,
-            'token'   => 'otp_verified_' . wp_generate_password(16, false),
+            'nonce'   => wp_create_nonce('wp_rest'),
             'user'    => array(
                 'phone' => $phone,
-                'name'  => 'کاربر احراز شده',
+                'name'  => 'موکل محترم',
+                'role'  => 'client',
             ),
             'message' => 'کد تایید صحیح بود.',
         ), 200);
@@ -691,13 +1031,72 @@ class SedRazavi_REST_API {
      * 14. Handle Dashboard Stats
      */
     public static function handle_dashboard_stats($request) {
+        $is_demo = (bool) get_option('sedrazavi_demo_mode', false);
+
+        if ($is_demo) {
+            return new WP_REST_Response(array(
+                'success'             => true,
+                'is_demo'             => true,
+                'demo_label'          => 'داده‌های نمونه (حالت آزمایشی)',
+                'active_cases'        => 48,
+                'upcoming_sessions'   => 3,
+                'consultations_today' => 5,
+                'documents_archived'  => 142,
+                'success_rate'        => '۹۴٪',
+            ), 200);
+        }
+
+        // Real counts from CPTs
+        $case_counts = wp_count_posts('sedrazavi_case');
+        $active_cases = isset($case_counts->publish) ? (int) $case_counts->publish : 0;
+
+        $booking_counts = wp_count_posts('sedrazavi_appointment');
+        $total_bookings = isset($booking_counts->publish) ? (int) $booking_counts->publish : 0;
+
+        // Upcoming sessions (cases with next session set)
+        $upcoming_query = new WP_Query(array(
+            'post_type'      => 'sedrazavi_case',
+            'post_status'    => 'publish',
+            'meta_query'     => array(
+                array(
+                    'key'     => '_sedrazavi_next_session',
+                    'value'   => '',
+                    'compare' => '!=',
+                ),
+            ),
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+        ));
+        $upcoming_sessions = (int) $upcoming_query->found_posts;
+
+        // Consultations today
+        $today = date('Y-m-d');
+        $today_query = new WP_Query(array(
+            'post_type'      => 'sedrazavi_appointment',
+            'post_status'    => 'publish',
+            'meta_query'     => array(
+                array(
+                    'key'     => '_sedrazavi_booking_date',
+                    'value'   => $today,
+                    'compare' => '=',
+                ),
+            ),
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+        ));
+        $consultations_today = (int) $today_query->found_posts;
+
+        $doc_counts = wp_count_posts('attachment');
+        $documents_archived = isset($doc_counts->inherit) ? (int) $doc_counts->inherit : 0;
+
         return new WP_REST_Response(array(
             'success'             => true,
-            'active_cases'        => 48,
-            'upcoming_sessions'   => 3,
-            'consultations_today' => 5,
-            'documents_archived'  => 142,
-            'success_rate'        => '۹۴٪',
+            'is_demo'             => false,
+            'active_cases'        => $active_cases,
+            'upcoming_sessions'   => $upcoming_sessions,
+            'consultations_today' => $consultations_today,
+            'documents_archived'  => $documents_archived,
+            'total_appointments'  => $total_bookings,
         ), 200);
     }
 
@@ -750,22 +1149,48 @@ class SedRazavi_REST_API {
             ), 400);
         }
 
+        $email_clean = strtolower(trim($email));
+
+        // Dual Rate Limiting: IP-based and Email-based
+        if (class_exists('SedRazavi_Rate_Limiter')) {
+            if (!SedRazavi_Rate_Limiter::check_rate_limit('email_otp_send_ip', 5, 300)) {
+                return new WP_REST_Response(array(
+                    'success' => false,
+                    'message' => 'تعداد درخواست‌ها از این آدرس اینترنتی بیش از حد مجاز است. لطفاً ۵ دقیقه دیگر تلاش فرمایید.',
+                ), 429);
+            }
+            if (!SedRazavi_Rate_Limiter::check_rate_limit('email_otp_send_email', 3, 300, $email_clean)) {
+                return new WP_REST_Response(array(
+                    'success' => false,
+                    'message' => 'ارسال مکرر کد به این آدرس ایمیل محدود شده است. لطفاً پس از ۵ دقیقه مجدداً تلاش کنید.',
+                ), 429);
+            }
+        }
+
         // تولید کد ۶ رقمی تصادفی
         $otp_code = strval(wp_rand(100000, 999999));
-        $transient_key = 'sedrazavi_email_otp_' . md5(strtolower(trim($email)));
-        set_transient($transient_key, $otp_code, 120); // ۲ دقیقه اعتبار
+        $salt = defined('AUTH_SALT') ? AUTH_SALT : 'sedrazavi_salt';
+        $hashed_code = hash('sha256', $otp_code . $salt);
+
+        $transient_key = 'sedrazavi_email_otp_' . md5($email_clean);
+        $attempts_key  = 'sedrazavi_email_otp_attempts_' . md5($email_clean);
+
+        // Store hashed OTP code and reset wrong attempts counter
+        set_transient($transient_key, $hashed_code, 120); // ۲ دقیقه اعتبار
+        set_transient($attempts_key, 0, 120);
 
         // ارسال ایمیل واقعی در صورت فعال بودن سرور ایمیل وردپرس
         $subject = 'کد تایید ورود یکبار مصرف - وب‌سایت دفتر وکالت دکتر سیده مریم رضوی';
         $message = "سلام و احترام،\n\nکد ورود یکبار مصرف شما در وب‌سایت دفتر وکالت دکتر سیده مریم رضوی:\n\n{$otp_code}\n\nاین کد به مدت ۲ دقیقه معتبر است.\nدر صورتی که شما این درخواست را ارسال نکرده‌اید، این پیام را نادیده بگیرید.\n\nبا احترام،\nدفتر وکالت و داوری دکتر سیده مریم رضوی";
         $headers = array('Content-Type: text/plain; charset=UTF-8');
 
-        @wp_mail($email, $subject, $message, $headers);
+        @wp_mail($email_clean, $subject, $message, $headers);
 
+        // Identical response whether user exists in WordPress or not (privacy & enumeration protection)
         return new WP_REST_Response(array(
             'success'     => true,
             'message'     => 'کد تایید ۶ رقمی به آدرس ایمیل شما ارسال شد.',
-            'email'       => $email,
+            'email'       => $email_clean,
             'timer'       => 120,
         ), 200);
     }
@@ -785,11 +1210,54 @@ class SedRazavi_REST_API {
             ), 400);
         }
 
-        $transient_key = 'sedrazavi_email_otp_' . md5(strtolower(trim($email)));
-        $stored_code   = get_transient($transient_key);
+        $email_clean = strtolower(trim($email));
 
-        // اعتبارسنجی صرفاً با کد ذخیره‌شده واقعی در ترنزینت
-        $is_valid = ($stored_code && $stored_code === $code);
+        // Dual Rate Limiting on Verify: IP and Email
+        if (class_exists('SedRazavi_Rate_Limiter')) {
+            if (!SedRazavi_Rate_Limiter::check_rate_limit('email_otp_verify_ip', 15, 300)) {
+                return new WP_REST_Response(array(
+                    'success' => false,
+                    'message' => 'تلاش‌های ورود بیش از حد مجاز بوده است. لطفاً ۵ دقیقه دیگر تلاش نمایید.',
+                ), 429);
+            }
+            if (!SedRazavi_Rate_Limiter::check_rate_limit('email_otp_verify_email', 10, 300, $email_clean)) {
+                return new WP_REST_Response(array(
+                    'success' => false,
+                    'message' => 'تلاش‌های بیش از حد برای این آدرس ایمیل. لطفاً ۵ دقیقه دیگر تلاش نمایید.',
+                ), 429);
+            }
+        }
+
+        $transient_key = 'sedrazavi_email_otp_' . md5($email_clean);
+        $attempts_key  = 'sedrazavi_email_otp_attempts_' . md5($email_clean);
+
+        $stored_hash = get_transient($transient_key);
+        $current_attempts = (int) get_transient($attempts_key);
+
+        if (!$stored_hash) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'کد تایید وارد شده نادرست است یا منقضی شده است.',
+            ), 401);
+        }
+
+        // Increment wrong attempt counter
+        $current_attempts++;
+        if ($current_attempts > 5) {
+            // Maximum 5 wrong attempts reached -> invalidate code immediately
+            delete_transient($transient_key);
+            delete_transient($attempts_key);
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'کد تایید به دلیل تلاش‌های مکرر نادرست باطل شد. لطفاً کد جدید درخواست نمایید.',
+            ), 401);
+        }
+        set_transient($attempts_key, $current_attempts, 120);
+
+        // Constant-time hash comparison
+        $salt = defined('AUTH_SALT') ? AUTH_SALT : 'sedrazavi_salt';
+        $provided_hash = hash('sha256', $code . $salt);
+        $is_valid = hash_equals($stored_hash, $provided_hash);
 
         // پشتیبانی از تست محلی/توسعه صرفاً در صورت فعال بودن صریح هدر شبیه‌سازی
         if (!$is_valid && defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && $request && $request->get_header('x-sedrazavi-mock')) {
@@ -803,37 +1271,46 @@ class SedRazavi_REST_API {
             ), 401);
         }
 
-        // حذف ترنزینت پس از مصرف
+        // حذف ترنزینت پس از مصرف موفقیت‌آمیز
         delete_transient($transient_key);
+        delete_transient($attempts_key);
 
-        // تشخیص یا ایجاد کاربر در وردپرس
-        $user = get_user_by('email', $email);
-        $role = 'client';
+        // Fetch user strictly by email
+        $user = get_user_by('email', $email_clean);
+
+        // Security Policy: Administrator & Editor roles CANNOT authenticate via email OTP alone.
+        // They must authenticate via username/password and secondary authentication.
         if ($user) {
-            if (in_array('administrator', $user->roles)) {
-                $role = 'admin';
-            } elseif (in_array('editor', $user->roles) || in_array('author', $user->roles)) {
-                $role = 'lawyer';
+            $roles = (array) $user->roles;
+            if (in_array('administrator', $roles, true) || in_array('editor', $roles, true)) {
+                return new WP_REST_Response(array(
+                    'success' => false,
+                    'message' => 'حساب‌های کاربری با سطح دسترسی مدیریتی مجاز به ورود صرف با کد ایمیل نیستند. لطفاً با نام کاربری، رمز عبور و عامل دوم وارد شوید.',
+                ), 403);
             }
+        }
+
+        // Real WordPress Authentication session setup
+        if ($user) {
+            $roles = (array) $user->roles;
+            $role = (in_array('lawyer', $roles, true) || in_array('author', $roles, true)) ? 'lawyer' : 'client';
             wp_set_current_user($user->ID);
             wp_set_auth_cookie($user->ID, true);
+            $display_name = $user->display_name;
         } else {
-            // برای مراجعین جدید
-            if (strpos($email, 'lawyer') !== false) {
-                $role = 'lawyer';
-            } elseif (strpos($email, 'admin') !== false) {
-                $role = 'admin';
-            }
+            // New or non-registered client session
+            $role = 'client';
+            $display_name = 'موکل گرامی';
         }
 
         return new WP_REST_Response(array(
             'success'   => true,
             'message'   => 'احراز هویت با موفقیت انجام شد.',
+            'nonce'     => wp_create_nonce('wp_rest'),
             'user'      => array(
-                'email'        => $email,
-                'displayName'  => $user ? $user->display_name : ($role === 'lawyer' ? 'دکتر سیده مریم رضوی' : 'موکل گرامی'),
+                'email'        => $email_clean,
+                'displayName'  => $display_name,
                 'role'         => $role,
-                'token'        => wp_create_nonce('sedrazavi_auth_' . $email),
             ),
         ), 200);
     }
@@ -842,66 +1319,88 @@ class SedRazavi_REST_API {
      * 19. Handle Cases Timeline
      */
     public static function handle_cases_timeline($request) {
-        $case_id = sanitize_text_field($request->get_param('case_id') ?: 'c-01');
+        $case_id = sanitize_text_field($request->get_param('case_id') ?: '');
+        $is_demo = (bool) get_option('sedrazavi_demo_mode', false);
 
-        $timeline_data = array(
-            'case_id'     => $case_id,
-            'case_number' => '۱۴۰۳-۹۸۲۷۳-ونک',
-            'subject'     => 'الزام به تنظیم سند رسمی انتقال ملک و مطالبه خسارت تاخیر تادیه',
-            'progress'    => 75,
-            'milestones'  => array(
-                array(
-                    'step'     => 1,
-                    'title'    => 'ثبت رسمی دادخواست بدوی در سامانه عدل‌ایران',
-                    'date'     => '۱۴۰۳/۰۳/۱۵',
-                    'status'   => 'completed',
-                    'venue'    => 'دفتر خدمات الکترونیک قضایی تهران',
-                    'summary'  => 'طرح دعوای الزام به تنظیم سند رسمی، فک رهن بانکی و خسارت تاخیر.',
-                ),
-                array(
-                    'step'     => 2,
-                    'title'    => 'تعیین شعبه ۱۲ و ابلاغ وقت رسیدگی اول',
-                    'date'     => '۱۴۰۳/۰۴/۰۲',
-                    'status'   => 'completed',
-                    'venue'    => 'شعبه ۱۲ دادگاه عمومی حقوقی شهید بهشتی',
-                    'summary'  => 'ابلاغ اخطاریه قانونی به خوانده و پاسخ به ایراد عدم صلاحیت محلی.',
-                ),
-                array(
-                    'step'     => 3,
-                    'title'    => 'جلسه اول دادرسی و ارجاع به کارشناس',
-                    'date'     => '۱۴۰۳/۰۴/۲۸',
-                    'status'   => 'completed',
-                    'venue'    => 'شعبه ۱۲ دادگاه با حضور ریاست شعبه',
-                    'summary'  => 'استماع دفاعیات وکلای طرفین و صدور قرار کارشناسی رسمی متراژ و سند.',
-                ),
-                array(
-                    'step'     => 4,
-                    'title'    => 'تسلیم لایحه اعتراضیه تکمیلی وکیل',
-                    'date'     => '۱۴۰۳/۰۶/۲۵',
-                    'status'   => 'in_progress',
-                    'venue'    => 'شعبه ۱۲ دادگاه عمومی حقوقی',
-                    'summary'  => 'دفاع وکیل دکتر سیده مریم رضوی و پاسخ به اعتراضات خوانده.',
-                ),
-                array(
-                    'step'     => 5,
-                    'title'    => 'جلسه دوم دادگاه و بررسی نهایی خسارات',
-                    'date'     => 'سه‌شنبه ۱۵ مهر ۱۴۰۳ - ساعت ۰۹:۳۰',
-                    'status'   => 'upcoming',
-                    'venue'    => 'شعبه ۱۲ مجتمع قضایی شهید بهشتی',
-                    'summary'  => 'رسیدگی نهایی به تقاضای خسارت دیرکرد روزانه و الزام به فک رهن.',
-                ),
-                array(
-                    'step'     => 6,
-                    'title'    => 'انشای دادنامه بدوی و ابلاغ در سامانه ثنا',
-                    'date'     => 'پیش‌بینی: آبان ۱۴۰۳',
-                    'status'   => 'upcoming',
-                    'venue'    => 'شعبه ۱۲ دادگاه حقوقی',
-                    'summary'  => 'صدور حکم به نفع موکل و محکومیت خوانده به انتقال رسمی سند.',
-                ),
-            ),
-        );
+        if (empty($case_id)) {
+            if ($is_demo) {
+                return new WP_REST_Response(array(
+                    'success'     => true,
+                    'is_demo'     => true,
+                    'demo_label'  => 'نمونه جدول زمانی پرونده (حالت آزمایشی)',
+                    'case_id'     => 'demo-case',
+                    'case_number' => '۱۴۰۳-۹۸۲۷۳-ونک',
+                    'subject'     => 'الزام به تنظیم سند رسمی انتقال ملک و مطالبه خسارت تاخیر تادیه (نمونه)',
+                    'progress'    => 75,
+                    'milestones'  => array(
+                        array('step' => 1, 'title' => 'ثبت دادخواست بدوی', 'date' => '۱۴۰۳/۰۳/۱۵', 'status' => 'completed'),
+                        array('step' => 2, 'title' => 'جلسه رسیدگی و دفاع وکیل', 'date' => '۱۴۰۳/۰۴/۲۸', 'status' => 'completed'),
+                        array('step' => 3, 'title' => 'در نوبت انشای دادنامه', 'date' => '۱۴۰۳/۰۸/۱۵', 'status' => 'in_progress'),
+                    ),
+                ), 200);
+            }
 
-        return new WP_REST_Response($timeline_data, 200);
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'شناسه پرونده الزامی است.',
+            ), 400);
+        }
+
+        // Search database for the real case
+        $post = is_numeric($case_id) ? get_post($case_id) : null;
+        if (!$post || $post->post_type !== 'sedrazavi_case') {
+            $q = new WP_Query(array(
+                'post_type'      => 'sedrazavi_case',
+                'post_status'    => 'publish',
+                'meta_query'     => array(
+                    array(
+                        'key'     => '_sedrazavi_case_number',
+                        'value'   => $case_id,
+                        'compare' => '=',
+                    ),
+                ),
+                'posts_per_page' => 1,
+            ));
+            if ($q->have_posts()) {
+                $post = $q->posts[0];
+            }
+        }
+
+        if (!$post || $post->post_type !== 'sedrazavi_case') {
+            if ($is_demo) {
+                return new WP_REST_Response(array(
+                    'success'     => true,
+                    'is_demo'     => true,
+                    'demo_label'  => 'نمونه فرضی',
+                    'case_id'     => $case_id,
+                    'case_number' => $case_id,
+                    'subject'     => 'پرونده موضوع کلاسه ' . $case_id,
+                    'progress'    => 50,
+                    'milestones'  => array(),
+                ), 200);
+            }
+
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'پرونده‌ای با این مشخصات یافت نشد.',
+            ), 404);
+        }
+
+        $milestones = get_post_meta($post->ID, '_sedrazavi_milestones', true);
+        if (!is_array($milestones)) {
+            $milestones = array();
+        }
+
+        return new WP_REST_Response(array(
+            'success'     => true,
+            'is_demo'     => false,
+            'case_id'     => $post->ID,
+            'case_number' => get_post_meta($post->ID, '_sedrazavi_case_number', true) ?: $post->post_title,
+            'subject'     => get_the_title($post->ID),
+            'status'      => get_post_meta($post->ID, '_sedrazavi_case_status', true) ?: 'در جریان رسیدگی',
+            'progress'    => (int) (get_post_meta($post->ID, '_sedrazavi_progress', true) ?: 0),
+            'milestones'  => $milestones,
+        ), 200);
     }
 
     /**

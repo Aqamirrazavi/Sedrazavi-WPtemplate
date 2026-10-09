@@ -204,6 +204,13 @@ class SedRazavi_WP_REST_Auth {
      * Handle Secure Login via REST
      */
     public static function handle_secure_login($request) {
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('login_attempt', 5, 300)) {
+            return new WP_REST_Response([
+                'success' => false,
+                'message' => 'تلاش‌های ورود بیش از حد مجاز بوده است. لطفاً ۵ دقیقه بعد مجدداً تلاش فرمایید.',
+            ], 429);
+        }
+
         $params = $request->get_json_params() ?: $request->get_params();
 
         $credentials = [
@@ -215,7 +222,7 @@ class SedRazavi_WP_REST_Auth {
         if (empty($credentials['user_login']) || empty($credentials['user_password'])) {
             return new WP_REST_Response([
                 'success' => false,
-                'message' => 'لطفاً نام کاربری/ایمیل و رمز عبور را وارد فرمایید.',
+                'message' => 'نام کاربری یا رمز عبور اشتباه است.',
             ], 400);
         }
 
@@ -225,7 +232,6 @@ class SedRazavi_WP_REST_Auth {
             return new WP_REST_Response([
                 'success' => false,
                 'message' => 'نام کاربری یا رمز عبور اشتباه است.',
-                'code'    => $user->get_error_code(),
             ], 401);
         }
 

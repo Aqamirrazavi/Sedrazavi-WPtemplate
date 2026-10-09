@@ -162,7 +162,16 @@ function openStoryModal(index) {
     var story = storiesData[index] || storiesData[0];
     document.getElementById("story-modal-title").textContent = story.title;
     document.getElementById("story-modal-cat").textContent = story.category;
-    document.getElementById("story-modal-img").src = story.img;
+    var modalImg = document.getElementById("story-modal-img");
+    if (modalImg) {
+        modalImg.onerror = function() {
+            var themeUri = (window.SedRazaviReactConfig && window.SedRazaviReactConfig.site && window.SedRazaviReactConfig.site.url) 
+                ? window.SedRazaviReactConfig.site.url + '/wp-content/themes/sedrazavi-theme/screenshot.png' 
+                : 'screenshot.png';
+            this.src = themeUri;
+        };
+        modalImg.src = story.img;
+    }
     document.getElementById("story-slide-title").textContent = story.slideTitle;
     document.getElementById("story-slide-desc").textContent = story.slideDesc;
 

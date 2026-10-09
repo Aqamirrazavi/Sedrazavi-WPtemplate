@@ -115,6 +115,19 @@ function sedrazavi_customize_seo_register($wp_customize) {
         'section'     => 'sedrazavi_seo_branding_section',
         'type'        => 'text',
     ));
+
+    // 10. Lawyer Portrait Photo
+    $wp_customize->add_setting('sedrazavi_lawyer_portrait', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'sedrazavi_lawyer_portrait', array(
+        'label'       => esc_html__('تصویر پرتره رسمی وکیل (Lawyer Portrait)', 'sedrazavi'),
+        'description' => esc_html__('تصویر رسمی پرتره وکیل جهت نمایش در هدر و بخش معرفی صفحه اصلی', 'sedrazavi'),
+        'section'     => 'sedrazavi_seo_branding_section',
+        'settings'    => 'sedrazavi_lawyer_portrait',
+    )));
 }
 add_action('customize_register', 'sedrazavi_customize_seo_register');
 }

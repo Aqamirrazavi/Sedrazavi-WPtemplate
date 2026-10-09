@@ -71,7 +71,6 @@ export const OtpAuthModal: React.FC<OtpAuthModalProps> = ({
   const [timer, setTimer] = useState(60);
   const [isSending, setIsSending] = useState(false);
   const [otpErrorMsg, setOtpErrorMsg] = useState('');
-  const [generatedDemoCode, setGeneratedDemoCode] = useState('');
 
   // Lawyer / Admin Login State (Matching WordPress Admin Credentials)
   const [adminUsername, setAdminUsername] = useState('admin');
@@ -174,13 +173,27 @@ export const OtpAuthModal: React.FC<OtpAuthModalProps> = ({
     }
 
     setIsSending(true);
-    setTimeout(() => {
-      setIsSending(false);
-      const randomOtp = Math.floor(10000 + Math.random() * 90000).toString();
-      setGeneratedDemoCode(randomOtp);
-      setTimer(60);
-      setStep('otp');
-    }, 600);
+    fetch('/wp-json/sedrazavi/v1/auth/otp/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: cleanPhone }),
+    })
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        setIsSending(false);
+        if (res.ok && data.success) {
+          setTimer(120);
+          setStep('otp');
+        } else {
+          setOtpErrorMsg(
+            data.message || 'درگاه پیامک در حال حاضر فعال نیست. لطفاً از تب «ورود با ایمیل» استفاده فرمایید.'
+          );
+        }
+      })
+      .catch(() => {
+        setIsSending(false);
+        setOtpErrorMsg('درگاه پیامک در این محیط فعال نیست. لطفاً از گزینه ورود با ایمیل استفاده فرمایید.');
+      });
   };
 
   const handleVerifyOtp = (e: React.FormEvent) => {
@@ -194,11 +207,25 @@ export const OtpAuthModal: React.FC<OtpAuthModalProps> = ({
     }
 
     setIsSending(true);
-    setTimeout(() => {
-      setIsSending(false);
-      onLoginSuccess(otpPhone, userName || 'موکل محترم', 'client');
-      onClose();
-    }, 600);
+    fetch('/wp-json/sedrazavi/v1/auth/otp/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: otpPhone, code: fullCode }),
+    })
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        setIsSending(false);
+        if (res.ok && data.success) {
+          onLoginSuccess(otpPhone, (data.user && data.user.name) || userName || 'موکل محترم', 'client');
+          onClose();
+        } else {
+          setOtpErrorMsg(data.message || 'کد تایید وارد شده نادرست است یا منقضی گردیده است.');
+        }
+      })
+      .catch(() => {
+        setIsSending(false);
+        setOtpErrorMsg('خطا در برقراری ارتباط با سرور.');
+      });
   };
 
   const handleOtpInput = (index: number, value: string) => {
@@ -650,10 +677,7 @@ export const OtpAuthModal: React.FC<OtpAuthModalProps> = ({
                 ) : (
                   <form onSubmit={handleVerifyOtp} className="space-y-4">
                     <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-[#F3E5AB]">
-                      کد تایید ۵ رقمی به شماره <span className="font-bold ltr">{otpPhone}</span> ارسال شد.
-                      <div className="mt-1 font-mono font-bold text-amber-800 dark:text-[#D4AF37]">
-                        کد آزمایشی جهت ورود سریع: {generatedDemoCode}
-                      </div>
+                      کد تایید ۵ رقمی به شماره <span className="font-bold ltr">{otpPhone}</span> ارسال شد. لطفاً کد پیامک‌شده را وارد فرمایید.
                     </div>
 
                     <div className="flex justify-center gap-2" dir="ltr">

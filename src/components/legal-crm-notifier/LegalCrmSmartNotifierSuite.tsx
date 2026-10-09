@@ -266,7 +266,16 @@ export const LegalCrmSmartNotifierSuite: React.FC<{
                     />
                   </div>
                   <button
-                    onClick={() => alert('فرم افزودن موکل جدید باز شد.')}
+                    onClick={() => {
+                      window.dispatchEvent(new CustomEvent('sedrazavi-show-toast', {
+                        detail: {
+                          title: 'پرونده جدید CRM',
+                          message: 'فرم تشکیل پرونده و ثبت مشخصات موکل جدید باز شد.',
+                          type: 'info',
+                          duration: 4000
+                        }
+                      }));
+                    }}
                     className="px-4 py-2 rounded-xl bg-[#D4AF37] text-[#0B132B] font-bold text-xs hover:brightness-110 transition-all shadow-md shadow-[#D4AF37]/20"
                   >
                     + تشکیل پرونده جدید
@@ -463,7 +472,16 @@ export const LegalCrmSmartNotifierSuite: React.FC<{
 
               <div className="space-y-3 pt-4">
                 <button
-                  onClick={() => alert('شناسه صورتحساب الکترونیکی با موفقیت به سامانه مودیان و کارپوشه ارسال شد.')}
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('sedrazavi-show-toast', {
+                      detail: {
+                        title: 'سامانه مودیان و پیامک CRM',
+                        message: 'شناسه صورتحساب الکترونیکی با موفقیت به سامانه مودیان و کارپوشه ارسال و پیامک لینک به موکل مخابره شد.',
+                        type: 'success',
+                        duration: 5000
+                      }
+                    }));
+                  }}
                   className="w-full py-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B38F26] text-[#0B132B] font-bold text-xs flex items-center justify-center gap-2 hover:brightness-110 shadow-lg shadow-[#D4AF37]/10 transition-all"
                 >
                   <Send className="w-4 h-4" />
@@ -489,7 +507,16 @@ export const LegalCrmSmartNotifierSuite: React.FC<{
                   </p>
                 </div>
                 <button
-                  onClick={() => alert('تنظیمات درگاه پیامکی ثنا و کاوه‌نگار با موفقیت بروزرسانی شد.')}
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('sedrazavi-show-toast', {
+                      detail: {
+                        title: 'تنظیمات درگاه پیامک',
+                        message: 'تنظیمات وب‌سرویس پیامکی ثنا و کاوه‌نگار با موفقیت ذخیره و فعال‌سازی گردید.',
+                        type: 'success',
+                        duration: 4000
+                      }
+                    }));
+                  }}
                   className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-[#D4AF37]/20 hover:text-[#D4AF37] text-slate-300 text-xs border border-slate-700"
                 >
                   پیکربندی درگاه پیامک
@@ -522,7 +549,16 @@ export const LegalCrmSmartNotifierSuite: React.FC<{
                         <CheckCircle2 className="w-3.5 h-3.5" /> پیامک ارسال شد
                       </span>
                       <button
-                        onClick={() => alert(`پیامک یادآوری جلسه دادگاه برای موکل ${h.clientName} با موفقیت مجدداً ارسال گردید.`)}
+                        onClick={() => {
+                          window.dispatchEvent(new CustomEvent('sedrazavi-show-toast', {
+                            detail: {
+                              title: 'ارسال هشدار دادگاه',
+                              message: `پیامک یادآوری جلسه دادگاه برای موکل ${h.clientName} با موفقیت مجدداً ارسال گردید.`,
+                              type: 'success',
+                              duration: 5000
+                            }
+                          }));
+                        }}
                         className="text-[#D4AF37] hover:underline"
                       >
                         ارسال مجدد آلارم

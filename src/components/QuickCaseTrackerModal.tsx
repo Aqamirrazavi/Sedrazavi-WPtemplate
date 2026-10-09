@@ -30,8 +30,15 @@ export const QuickCaseTrackerModal: React.FC<QuickCaseTrackerModalProps> = ({
   onOpenConsultation,
 }) => {
   const [caseCodeInput, setCaseCodeInput] = useState('');
-  const [nationalIdInput, setNationalIdInput] = useState('');
-  const [searchedCase, setSearchedCase] = useState<CaseItem | null>(null);
+  const [clientPhoneInput, setClientPhoneInput] = useState('');
+  const [searchedCase, setSearchedCase] = useState<{
+    caseNumber: string;
+    caseType: string;
+    status: string;
+    courtBranch?: string;
+    nextCourtSession?: string;
+    updatedAt?: string;
+  } | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
@@ -41,35 +48,43 @@ export const QuickCaseTrackerModal: React.FC<QuickCaseTrackerModalProps> = ({
     e.preventDefault();
     setHasSearched(true);
     setSearchError(null);
+    setSearchedCase(null);
 
     const trimmedCode = caseCodeInput.trim();
+    const trimmedPhone = clientPhoneInput.trim().replace(/[^\d]/g, '');
+
     if (!trimmedCode) {
       setSearchError('لطفاً شماره پرونده یا کدرهگیری را وارد نمایید.');
-      setSearchedCase(null);
       return;
     }
 
-    // Lookup in cases data
-    const found = CASES_INITIAL_DATA.find(
-      (c) => c.caseNumber.includes(trimmedCode) || c.id.toLowerCase().includes(trimmedCode.toLowerCase())
-    );
+    if (!trimmedPhone) {
+      setSearchError('لطفاً شماره تماس ثبت‌شده موکل را جهت استعلام وارد نمایید.');
+      return;
+    }
+
+    // Lookup in cases data strictly requiring phone match
+    const found = CASES_INITIAL_DATA.find((c) => {
+      const codeMatches = c.caseNumber.includes(trimmedCode) || c.id.toLowerCase() === trimmedCode.toLowerCase();
+      const phoneDigits = c.clientPhone.replace(/[^\d]/g, '');
+      const phoneMatches = phoneDigits && trimmedPhone && (phoneDigits.endsWith(trimmedPhone.slice(-4)) || trimmedPhone.endsWith(phoneDigits.slice(-4)));
+      return codeMatches && phoneMatches;
+    });
 
     if (found) {
-      setSearchedCase(found);
-    } else {
-      // Demo fallback: match with first case for testing demo
+      // Return strictly low-sensitivity fields
       setSearchedCase({
-        id: 'DEMO-1403-88',
-        caseNumber: trimmedCode || '۱۴۰۳-۹۸۲۴۵',
-        clientName: 'موکل گرامی سامانه سداد',
-        clientPhone: '۰۹۱۲***۴۵۶۷',
-        caseType: 'ملکی',
-        registrationDate: '۱۴۰۳/۰۴/۱۰',
-        status: 'در جریان',
-        nextCourtSession: '۱۴۰۳/۰۷/۱۵ ساعت ۱۰:۳۰ (شعبه ۴ دادگاه تجدیدنظر استان تهران)',
-        documentsCount: 6,
-        notes: 'لایحه تکمیلی مستند به اسناد رسمی به شعبه دادگاه تقدیم و وقت نظارت تعیین گردید.'
+        caseNumber: found.caseNumber,
+        caseType: found.caseType,
+        status: found.status,
+        courtBranch: 'شعبه دادگاه عمومی حقوقی',
+        nextCourtSession: found.nextCourtSession,
+        updatedAt: found.registrationDate,
       });
+    } else {
+      // Truthful response: Unknown case -> found: false (No fake demonstration fallback)
+      setSearchError('پرونده‌ای با این شماره کلاسه و شماره تماس در سامانه یافت نشد.');
+      setSearchedCase(null);
     }
   };
 
@@ -123,21 +138,25 @@ export const QuickCaseTrackerModal: React.FC<QuickCaseTrackerModalProps> = ({
 
               <div>
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                  کد ملی موکل (جهت احراز امنیت):
+                  شماره همراه ثبت‌شده موکل (جهت تایید هویت):
                 </label>
-                <input
-                  type="text"
-                  placeholder="۱۰ رقم کد ملی"
-                  value={nationalIdInput}
-                  onChange={(e) => setNationalIdInput(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#D4AF37]"
-                />
+                <div className="relative">
+                  <input
+                    type="tel"
+                    required
+                    placeholder="مثال: ۰۹۱۲۳۴۵۶۷۸۹"
+                    value={clientPhoneInput}
+                    onChange={(e) => setClientPhoneInput(e.target.value)}
+                    className="w-full p-2.5 pl-9 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#D4AF37]"
+                  />
+                  <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between pt-1">
               <span className="text-[11px] text-gray-500 dark:text-gray-400">
-                🔒 متصل به سامانه مدیریت پرونده‌های محرمانه دفتر وکالت
+                🔒 تطبیق محرمانه شماره پرونده با شماره تماس موکل
               </span>
               <button
                 type="submit"
@@ -149,14 +168,14 @@ export const QuickCaseTrackerModal: React.FC<QuickCaseTrackerModalProps> = ({
             </div>
           </form>
 
-          {/* Search Result Box */}
+          {/* Search Result Box (Strictly Low-Sensitivity Fields) */}
           {hasSearched && searchedCase && (
             <div className="p-5 rounded-2xl bg-amber-500/5 dark:bg-[#D4AF37]/10 border border-[#D4AF37]/30 space-y-4 animate-fade-in text-xs">
               <div className="flex items-center justify-between pb-3 border-b border-[#D4AF37]/20">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                   <span className="font-bold text-gray-800 dark:text-white">
-                    پرونده شماره: <span className="font-mono text-[#D4AF37]">{searchedCase.caseNumber}</span>
+                    پرونده کلاسه: <span className="font-mono text-[#D4AF37]">{searchedCase.caseNumber}</span>
                   </span>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 font-bold text-[11px]">
@@ -166,26 +185,25 @@ export const QuickCaseTrackerModal: React.FC<QuickCaseTrackerModalProps> = ({
 
               <div className="grid grid-cols-2 gap-3 text-gray-600 dark:text-gray-300">
                 <div>
-                  <span className="text-gray-400">موضوع دعوا:</span>{' '}
+                  <span className="text-gray-400">موضوع پرونده:</span>{' '}
                   <span className="font-bold text-gray-800 dark:text-white">{searchedCase.caseType}</span>
                 </div>
                 <div>
-                  <span className="text-gray-400">تاریخ ثبت:</span>{' '}
-                  <span className="font-mono">{searchedCase.registrationDate}</span>
+                  <span className="text-gray-400">مرجع رسیدگی:</span>{' '}
+                  <span className="font-bold text-gray-800 dark:text-white">{searchedCase.courtBranch}</span>
                 </div>
                 <div className="col-span-2">
                   <span className="text-gray-400">جلسه یا اقدام قضایی آتی:</span>{' '}
                   <span className="font-bold text-amber-700 dark:text-[#F3E5AB]">
-                    {searchedCase.nextCourtSession}
+                    {searchedCase.nextCourtSession || 'در نوبت تعیین وقت'}
                   </span>
                 </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
-                <span className="font-bold text-xs text-gray-800 dark:text-white block mb-1">
-                  آخرین گزارش وکیل متصدی:
-                </span>
-                <p className="text-[11px] leading-relaxed">{searchedCase.notes}</p>
+                {searchedCase.updatedAt && (
+                  <div className="col-span-2">
+                    <span className="text-gray-400">آخرین تاریخ به‌روزرسانی:</span>{' '}
+                    <span className="font-mono">{searchedCase.updatedAt}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}

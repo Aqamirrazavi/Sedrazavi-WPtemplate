@@ -76,6 +76,7 @@ function sedrazavi_render_dynamic_seo_tags() {
     $default_placeholder_image = get_template_directory_uri() . '/screenshot.png';
     $custom_og_image = get_theme_mod('sedrazavi_seo_og_image', '');
     $custom_logo     = get_theme_mod('sedrazavi_seo_logo', '');
+    $custom_portrait = get_theme_mod('sedrazavi_lawyer_portrait', '');
 
     if (is_singular() && has_post_thumbnail()) {
         $og_image = get_the_post_thumbnail_url(null, 'full');
@@ -87,6 +88,7 @@ function sedrazavi_render_dynamic_seo_tags() {
     $og_image = esc_url($og_image);
 
     $logo_url = !empty($custom_logo) ? esc_url($custom_logo) : $default_placeholder_image;
+    $portrait_url = !empty($custom_portrait) ? esc_url($custom_portrait) : $default_placeholder_image;
 
     // 5. Lawyer & Office Details
     $lawyer_name    = esc_attr(get_theme_mod('sedrazavi_seo_lawyer_name', 'دکتر سیده مریم رضوی'));
@@ -185,6 +187,7 @@ function sedrazavi_render_dynamic_seo_tags() {
                 '@id'        => home_url('/#attorney'),
                 'name'       => $lawyer_name,
                 'jobTitle'   => $lawyer_title,
+                'image'      => $portrait_url,
                 'worksFor'   => array(
                     '@id' => home_url('/#organization'),
                 ),
@@ -199,6 +202,27 @@ function sedrazavi_render_dynamic_seo_tags() {
             ),
         ),
     );
+
+    if (!is_front_page() && !is_home()) {
+        $schema_graph['@graph'][] = array(
+            '@type'           => 'BreadcrumbList',
+            '@id'             => $canonical_url . '#breadcrumb',
+            'itemListElement' => array(
+                array(
+                    '@type'    => 'ListItem',
+                    'position' => 1,
+                    'name'     => $site_name,
+                    'item'     => home_url('/'),
+                ),
+                array(
+                    '@type'    => 'ListItem',
+                    'position' => 2,
+                    'name'     => $page_title,
+                    'item'     => $canonical_url,
+                ),
+            ),
+        );
+    }
 
     echo wp_json_encode($schema_graph, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     ?>

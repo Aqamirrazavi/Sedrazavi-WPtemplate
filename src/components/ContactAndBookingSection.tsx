@@ -55,7 +55,14 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!clientName || !clientPhone) {
-      alert('لطفاً نام و شماره تماس خود را وارد نمایید.');
+      window.dispatchEvent(new CustomEvent('sedrazavi-show-toast', {
+        detail: {
+          title: 'اطلاعات ناقص',
+          message: 'لطفاً نام و شماره همراه خود را جهت ثبت نوبت وارد نمایید.',
+          type: 'warning',
+          duration: 4000
+        }
+      }));
       return;
     }
 
@@ -63,7 +70,15 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
     setTimeout(() => {
       setBookingSubmitting(false);
       setBookingSuccess(true);
-    }, 800);
+      window.dispatchEvent(new CustomEvent('sedrazavi-show-toast', {
+        detail: {
+          title: 'ثبت موفق نوبت مشاوره',
+          message: `نوبت مشاوره برای «${clientName}» (${serviceType}) با موفقیت ثبت شد. دفتر وکالت جهت تأیید نهایی با شما تماس خواهد گرفت.`,
+          type: 'success',
+          duration: 6000
+        }
+      }));
+    }, 600);
   };
 
   const handleCaseSearch = (e: React.FormEvent) => {

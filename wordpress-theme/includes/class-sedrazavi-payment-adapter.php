@@ -158,20 +158,53 @@ class SedRazavi_Payment_Adapter {
     }
 
     public static function handle_checkout($request) {
-        $params   = $request->get_json_params();
-        $baseFee  = absint($params['amount'] ?? 1000000);
-        $taxData  = self::calculate_tax_breakdown($baseFee);
-        $orderId  = 'SR-' . time() . '-' . random_int(100, 999);
-        $mobile   = sanitize_text_field($params['mobile'] ?? '');
-        $gateway  = sanitize_text_field($params['gateway'] ?? 'zarinpal');
+        $params   = $request->get_json_params() ?: $request->get_params();
+        $serviceId = sanitize_key($params['service_id'] ?? '');
+
+        // Server-side price table lookup - Amount NEVER from client!
+        $pricing = [
+            'consultation_phone'     => ['title' => 'مشاوره تلفنی تخصصی (۳۰ دقیقه)', 'base_amount' => 500000],
+            'consultation_in_person' => ['title' => 'مشاوره حقوقی حضوری دفتر وکالت', 'base_amount' => 1500000],
+            'contract_review'        => ['title' => 'بررسی و اصلاح تخصصی قرارداد', 'base_amount' => 2500000],
+            'legal_petition'         => ['title' => 'تنظیم دادخواست یا لایحه دفاعیه', 'base_amount' => 3000000],
+            'retainer_deposit'       => ['title' => 'پیش‌پرداخت علی‌الحساب حق‌الوکاله', 'base_amount' => 10000000],
+        ];
+
+        if (empty($serviceId) || !isset($pricing[$serviceId])) {
+            return new WP_REST_Response([
+                'success'        => false,
+                'message'        => 'شناسه خدمت نامعتبر است. مبالغ صرفاً از جدول تعرفه مصوب سرور تعیین می‌شوند.',
+                'valid_services' => array_keys($pricing),
+            ], 400);
+        }
+
+        $service = $pricing[$serviceId];
+        $baseFee = $service['base_amount'];
+        $taxData = self::calculate_tax_breakdown($baseFee);
+        $orderId = 'SR-' . date('Ymd') . '-' . substr(wp_generate_uuid4(), 0, 8); // No rand()
+        $mobile  = sanitize_text_field($params['mobile'] ?? ($params['phone'] ?? ''));
+        $gateway = sanitize_text_field($params['gateway'] ?? 'zarinpal');
+
+        $merchant = get_option('sedrazavi_zarinpal_merchant', '');
+        if (empty($merchant) || $merchant === '00000000-0000-0000-0000-000000000000') {
+            return new WP_REST_Response([
+                'success'        => false,
+                'gateway_active' => false,
+                'order_id'       => $orderId,
+                'service'        => $service['title'],
+                'tax_data'       => $taxData,
+                'message'        => 'درگاه پرداخت آنلاین زرین‌پال روی سامانه فعال نیست. لطفاً با دفتر وکالت هماهنگ فرمایید.',
+            ], 503);
+        }
 
         $adapter  = self::get_adapter($gateway);
         $callback = home_url('/payment-verification/?order_id=' . $orderId);
 
-        $result   = $adapter->request_payment($taxData['total_toman'], $callback, $orderId, 'پرداخت فاکتور رسمی وکالت', $mobile);
+        $result   = $adapter->request_payment($taxData['total_toman'], $callback, $orderId, $service['title'], $mobile);
 
         return rest_ensure_response([
             'order_id' => $orderId,
+            'service'  => $service['title'],
             'tax_data' => $taxData,
             'gateway'  => $adapter->get_gateway_title(),
             'result'   => $result

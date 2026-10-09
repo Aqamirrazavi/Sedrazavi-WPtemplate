@@ -45,7 +45,7 @@ get_header();
             <div class="story-thumb-item" onclick="openStoryModal(0)">
                 <div class="story-ring-gold">
                     <div class="story-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=200" alt="نکات چک صیادی" class="story-photo-img" />
+                        <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=200" alt="نکات چک صیادی" class="story-photo-img" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
                     </div>
                 </div>
                 <div class="story-text-wrap">
@@ -58,7 +58,7 @@ get_header();
             <div class="story-thumb-item" onclick="openStoryModal(1)">
                 <div class="story-ring-gold">
                     <div class="story-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=200" alt="پیروزی در پرونده" class="story-photo-img" />
+                        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=200" alt="پیروزی در پرونده" class="story-photo-img" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
                     </div>
                 </div>
                 <div class="story-text-wrap">
@@ -71,7 +71,7 @@ get_header();
             <div class="story-thumb-item" onclick="openStoryModal(2)">
                 <div class="story-ring-subtle">
                     <div class="story-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200" alt="طلاق و مهریه" class="story-photo-img" />
+                        <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200" alt="طلاق و مهریه" class="story-photo-img" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
                     </div>
                 </div>
                 <div class="story-text-wrap">
@@ -84,7 +84,7 @@ get_header();
             <div class="story-thumb-item" onclick="openStoryModal(3)">
                 <div class="story-ring-gold">
                     <div class="story-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=200" alt="سهم‌الارث مادر" class="story-photo-img" />
+                        <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=200" alt="سهم‌الارث مادر" class="story-photo-img" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
                     </div>
                 </div>
                 <div class="story-text-wrap">
@@ -97,7 +97,7 @@ get_header();
             <div class="story-thumb-item" onclick="openStoryModal(4)">
                 <div class="story-ring-subtle">
                     <div class="story-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=200" alt="قرارداد مشارکت" class="story-photo-img" />
+                        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=200" alt="قرارداد مشارکت" class="story-photo-img" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
                     </div>
                 </div>
                 <div class="story-text-wrap">
@@ -208,11 +208,16 @@ get_header();
                     <div class="hero-portrait-glow"></div>
 
                     <div class="hero-portrait-card">
+                        <?php
+                        $lawyer_hero_portrait = get_theme_mod('sedrazavi_lawyer_portrait', '');
+                        if (empty($lawyer_hero_portrait)) {
+                            $lawyer_hero_portrait = get_template_directory_uri() . '/screenshot.png';
+                        }
+                        ?>
                         <img 
-                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800" 
+                            src="<?php echo esc_url($lawyer_hero_portrait); ?>" 
                             alt="سرکار خانم دکتر سیده مریم رضوی" 
-                            class="hero-portrait-image"
-                            onerror="this.src='https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=800'"
+                            class="hero-portrait-image object-cover"
                         />
 
                         <div class="hero-floating-badge-top">
@@ -425,7 +430,7 @@ get_header();
                 <div class="relative mx-auto max-w-md">
                     <div class="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-[#D4AF37]/30 to-[#0B132B]/20 blur-xl transform rotate-2"></div>
                     <div class="relative rounded-2xl overflow-hidden border-2 border-[#D4AF37]/40 shadow-2xl bg-gray-900">
-                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800" alt="دکتر سیده مریم رضوی" class="w-full h-[500px] object-cover object-top" />
+                        <img src="<?php echo esc_url($lawyer_hero_portrait); ?>" alt="دکتر سیده مریم رضوی" class="w-full h-[500px] object-cover object-top" />
                         
                         <div class="absolute bottom-6 right-6 left-6 p-4 rounded-xl bg-[#0B132B]/95 backdrop-blur-md border border-[#D4AF37]/30 shadow-xl space-y-2">
                             <div class="flex items-center gap-2 text-[#F3E5AB] font-bold text-xs">
@@ -567,7 +572,7 @@ get_header();
             <!-- مقاله ۱ -->
             <article class="bg-[#070D1E] rounded-2xl overflow-hidden border border-gray-800 hover:border-[#D4AF37]/50 shadow-xl transition-all">
                 <div class="relative h-48 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=400" alt="نکات کلیدی قرارداد مشارکت در ساخت" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    <img src="https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=400" alt="نکات کلیدی قرارداد مشارکت در ساخت" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
                     <span class="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#0B132B]/90 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/30">دعاوی ملکی</span>
                 </div>
                 <div class="p-6 space-y-3 text-right">
@@ -590,7 +595,7 @@ get_header();
             <!-- مقاله ۲ -->
             <article class="bg-[#070D1E] rounded-2xl overflow-hidden border border-gray-800 hover:border-[#D4AF37]/50 shadow-xl transition-all">
                 <div class="relative h-48 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400" alt="قوانین چک صیادی" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400" alt="قوانین چک صیادی" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
                     <span class="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#0B132B]/90 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/30">اسناد تجاری</span>
                 </div>
                 <div class="p-6 space-y-3 text-right">
@@ -613,7 +618,7 @@ get_header();
             <!-- مقاله ۳ -->
             <article class="bg-[#070D1E] rounded-2xl overflow-hidden border border-gray-800 hover:border-[#D4AF37]/50 shadow-xl transition-all">
                 <div class="relative h-48 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400" alt="داوری تجاری بین‌المللی" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400" alt="داوری تجاری بین‌المللی" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
                     <span class="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#0B132B]/90 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/30">داوری بین‌المللی</span>
                 </div>
                 <div class="p-6 space-y-3 text-right">
@@ -853,7 +858,7 @@ get_header();
         <div class="relative z-10 flex items-center justify-between p-4 pt-7 bg-gradient-to-b from-black/80 to-transparent">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-full border border-[#D4AF37] overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200" alt="دکتر سیده مریم رضوی - استوری نکات حقوقی" class="w-full h-full object-cover" />
+                    <img src="<?php echo esc_url($lawyer_hero_portrait); ?>" alt="دکتر سیده مریم رضوی - استوری نکات حقوقی" class="w-full h-full object-cover" />
                 </div>
                 <div>
                     <h5 id="story-modal-title" class="text-xs font-bold text-white"></h5>

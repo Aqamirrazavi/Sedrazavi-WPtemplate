@@ -338,15 +338,23 @@ add_action('rest_api_init', function () {
 
 if (!function_exists('sedrazavi_api_track_case_handler')) {
     function sedrazavi_api_track_case_handler($request) {
-        $params = $request->get_json_params();
-        $case_no = isset($params['case_number']) ? sanitize_text_field($params['case_number']) : '';
-        $phone   = isset($params['phone']) ? sanitize_text_field($params['phone']) : '';
-
-        if (empty($case_no)) {
-            return new WP_Error('missing_param', 'شماره کلاسه پرونده الزامی است.', array('status' => 400));
+        if (class_exists('SedRazavi_REST_API')) {
+            return SedRazavi_REST_API::handle_track_case($request);
         }
 
-        // جستجو در پست‌تایپ پرونده‌های حقوقی
+        $params = $request->get_json_params() ?: $request->get_params();
+        $case_no = isset($params['case_number']) ? sanitize_text_field($params['case_number']) : '';
+        $phone   = isset($params['phone']) ? sanitize_text_field($params['phone']) : (isset($params['client_phone']) ? sanitize_text_field($params['client_phone']) : '');
+
+        if (empty($case_no) || empty($phone)) {
+            return new WP_Error('missing_param', 'شماره پرونده و تلفن همراه ثبت‌شده موکل الزامی است.', array('status' => 400));
+        }
+
+        $norm = function($p) {
+            $p = str_replace(array('۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'), array('0','1','2','3','4','5','6','7','8','9'), $p);
+            return ltrim(preg_replace('/[^\d]/', '', $p), '0');
+        };
+
         $args = array(
             'post_type'      => 'sedrazavi_case',
             'posts_per_page' => 1,
@@ -354,7 +362,7 @@ if (!function_exists('sedrazavi_api_track_case_handler')) {
                 array(
                     'key'     => '_sedrazavi_case_number',
                     'value'   => $case_no,
-                    'compare' => 'LIKE',
+                    'compare' => '=',
                 ),
             ),
         );
@@ -362,59 +370,90 @@ if (!function_exists('sedrazavi_api_track_case_handler')) {
 
         if ($query->have_posts()) {
             $query->the_post();
-            $case_data = array(
-                'found'       => true,
-                'case_number' => $case_no,
-                'title'       => get_the_title(),
-                'status'      => get_post_meta(get_the_ID(), '_sedrazavi_case_status', true) ?: 'در جریان رسیدگی شعبه',
-                'branch'      => get_post_meta(get_the_ID(), '_sedrazavi_case_branch', true) ?: 'شعبه دادگاه عمومی حقوقی',
-                'next_date'   => get_post_meta(get_the_ID(), '_sedrazavi_case_next_date', true) ?: 'در نوبت تعیین وقت',
-                'lawyer_note' => get_post_meta(get_the_ID(), '_sedrazavi_case_note', true) ?: 'لوایح تبادل گردید.',
-            );
+            $stored_phone = get_post_meta(get_the_ID(), '_sedrazavi_client_phone', true);
+            if ($norm($stored_phone) === $norm($phone)) {
+                $case_data = array(
+                    'found'        => true,
+                    'case_number'  => $case_no,
+                    'case_type'    => get_post_meta(get_the_ID(), '_sedrazavi_case_type', true) ?: 'دعاوی حقوقی',
+                    'status'       => get_post_meta(get_the_ID(), '_sedrazavi_case_status', true) ?: 'در جریان رسیدگی',
+                    'court_branch' => get_post_meta(get_the_ID(), '_sedrazavi_court_branch', true) ?: 'شعبه دادگاه عمومی حقوقی',
+                    'next_session' => get_post_meta(get_the_ID(), '_sedrazavi_next_session', true) ?: 'در نوبت تعیین وقت',
+                    'updated_at'   => get_the_modified_date('Y/m/d'),
+                );
+                wp_reset_postdata();
+                return rest_ensure_response($case_data);
+            }
             wp_reset_postdata();
-            return rest_ensure_response($case_data);
         }
 
-        return rest_ensure_response(array(
-            'found'       => true,
-            'case_number' => $case_no,
-            'title'       => 'پرونده موضوع کلاسه ' . $case_no,
-            'status'      => 'در جریان دادرسی و بررسی کارشناسی',
-            'branch'      => 'شعبه دادگاه عمومی حقوقی تهران',
-            'next_date'   => 'جلسه رسیدگی ماه آینده',
-            'lawyer_note' => 'پرونده در کارتابل وکیل سرپرست فعال است و اقدامات مقتضی در حال پیگیری است.',
-        ));
+        if (get_option('sedrazavi_demo_mode', false)) {
+            return rest_ensure_response(array(
+                'found'        => true,
+                'is_demo'      => true,
+                'demo_label'   => 'نمونه فرضی',
+                'case_number'  => $case_no,
+                'case_type'    => 'دعاوی حقوقی (نمونه)',
+                'status'       => 'در جریان تبادل لوایح',
+                'court_branch' => 'شعبه ۵ دادگاه تجدیدنظر (نمونه)',
+                'next_session' => '۱۴۰۳/۰۸/۱۵',
+                'updated_at'   => date('Y/m/d'),
+            ));
+        }
+
+        return new WP_REST_Response(array(
+            'found'   => false,
+            'message' => 'پرونده‌ای با این مشخصات یافت نشد.',
+        ), 404);
     }
 }
 
 if (!function_exists('sedrazavi_api_book_appointment_handler')) {
     function sedrazavi_api_book_appointment_handler($request) {
-        $params = $request->get_json_params();
-        $name  = isset($params['name']) ? sanitize_text_field($params['name']) : '';
-        $phone = isset($params['phone']) ? sanitize_text_field($params['phone']) : '';
-        $type  = isset($params['type']) ? sanitize_text_field($params['type']) : 'مشاوره حضوری';
-
-        if (empty($phone)) {
-            return new WP_Error('missing_phone', 'شماره تماس الزامی است.', array('status' => 400));
+        if (class_exists('SedRazavi_REST_API')) {
+            return SedRazavi_REST_API::handle_book_appointment($request);
         }
 
-        // ثبت نوبت در پست‌تایپ رزروها
+        $params = $request->get_json_params() ?: $request->get_params();
+        $name  = isset($params['client_name']) ? sanitize_text_field($params['client_name']) : (isset($params['name']) ? sanitize_text_field($params['name']) : '');
+        $phone = isset($params['client_phone']) ? sanitize_text_field($params['client_phone']) : (isset($params['phone']) ? sanitize_text_field($params['phone']) : '');
+        $type  = isset($params['service_type']) ? sanitize_text_field($params['service_type']) : (isset($params['type']) ? sanitize_text_field($params['type']) : 'مشاوره حضوری');
+
+        if (empty($phone) || empty($name)) {
+            return new WP_Error('missing_params', 'نام و شماره تماس متقاضی الزامی است.', array('status' => 400));
+        }
+
         $post_id = wp_insert_post(array(
             'post_title'   => 'نوبت مشاوره: ' . $name . ' (' . $phone . ')',
-            'post_type'    => 'sedrazavi_booking',
+            'post_type'    => 'sedrazavi_appointment',
             'post_status'  => 'publish',
         ));
 
-        if (!is_wp_error($post_id)) {
-            update_post_meta($post_id, '_booking_phone', $phone);
-            update_post_meta($post_id, '_booking_type', $type);
-            update_post_meta($post_id, '_booking_created_at', current_time('mysql'));
+        if (!is_wp_error($post_id) && $post_id) {
+            update_post_meta($post_id, '_sedrazavi_client_name', $name);
+            update_post_meta($post_id, '_sedrazavi_client_phone', $phone);
+            update_post_meta($post_id, '_sedrazavi_service_type', $type);
+            update_post_meta($post_id, '_sedrazavi_created_at', current_time('mysql'));
         }
 
+        $admin_email = get_option('admin_email');
+        if (!empty($admin_email)) {
+            wp_mail($admin_email, 'ثبت نوبت مشاوره: ' . $name, "نوبت جدید ثبت شد:\nنام: {$name}\nتلفن: {$phone}\nنوع: {$type}");
+        }
+
+        $sms_active = apply_filters('sedrazavi_sms_gateway_active', false);
+        $sms_sent   = false;
+        if ($sms_active) {
+            $sms_sent = (bool) apply_filters('sedrazavi_send_sms', false, $phone, "نوبت شما ثبت شد.");
+        }
+
+        $msg = $sms_sent ? 'نوبت مشاوره با موفقیت ثبت شد. پیامک تأیید ارسال گردید.' : 'نوبت ثبت شد؛ دفتر با شما تماس می‌گیرد.';
+
         return rest_ensure_response(array(
-            'success' => true,
-            'message' => 'نوبت مشاوره با موفقیت ثبت شد. دفتر وکالت در اسرع وقت تماس حاصل خواهد نمود.',
+            'success'    => true,
+            'message'    => $msg,
             'booking_id' => $post_id,
+            'sms_sent'   => $sms_sent,
         ));
     }
 }

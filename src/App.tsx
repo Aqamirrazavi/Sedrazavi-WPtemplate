@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Header, ThemeViewMode } from './components/Header';
+import { ToastProvider } from './context/ToastContext';
 import { StoryBar } from './components/StoryBar';
 import { HeroSection } from './components/HeroSection';
 import { TrustBadges } from './components/TrustBadges';
@@ -213,7 +214,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9] dark:bg-[#070D1E] text-[#0B132B] dark:text-gray-100 transition-colors duration-300 font-persian relative">
+    <ToastProvider>
+      <div className="min-h-screen bg-[#F4F6F9] dark:bg-[#070D1E] text-[#0B132B] dark:text-gray-100 transition-colors duration-300 font-persian relative">
       {/* Dynamic SEO Title, Meta Description and Multi-Lawyer Schema.org Engine */}
       <DynamicSeoHead profile={lawyerProfile} />
 
@@ -1556,5 +1558,6 @@ export default function App() {
       {/* GDPR / Cookie Consent Banner (Section 13) */}
       <CookieConsentBanner />
     </div>
+    </ToastProvider>
   );
 }
