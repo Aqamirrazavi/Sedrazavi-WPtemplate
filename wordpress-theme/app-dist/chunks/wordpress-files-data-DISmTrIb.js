@@ -398,9 +398,23 @@ get_header();
                         <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
                             <div class="space-y-2">
                                 <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                                    <span class="flex items-center gap-1">📅 <?php echo get_the_date('j F Y'); ?></span>
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        </svg>
+                                        <span><?php echo get_the_date('j F Y'); ?></span>
+                                    </span>
                                     <span>•</span>
-                                    <span class="flex items-center gap-1">⏱️ <?php echo max(1, round(str_word_count(strip_tags(get_the_content())) / 180)); ?> دقیقه مطالعه</span>
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <span><?php echo max(1, round(str_word_count(strip_tags(get_the_content())) / 180)); ?> دقیقه مطالعه</span>
+                                    </span>
                                 </div>
 
                                 <h2 class="text-xl font-bold font-serif text-[#0B132B] dark:text-white group-hover:text-[#D4AF37] transition-colors leading-snug">
@@ -415,7 +429,11 @@ get_header();
                             <!-- Card Footer -->
                             <div class="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                    ✍️ <?php the_author(); ?>
+                                    <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 20h9"></path>
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                    </svg>
+                                    <span><?php the_author(); ?></span>
                                 </span>
                                 <a href="<?php the_permalink(); ?>" class="text-xs font-bold text-[#D4AF37] group-hover:translate-x-[-4px] transition-transform flex items-center gap-1">
                                     <span>مطالعه کامل مقاله</span>
@@ -442,7 +460,12 @@ get_header();
 
         <?php else : ?>
             <div class="bg-white dark:bg-[#0B132B] rounded-2xl p-12 text-center max-w-xl mx-auto border border-gray-200 dark:border-gray-800">
-                <span class="text-5xl mb-4 block">🔍</span>
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#D4AF37]/10 flex items-center justify-center text-sr-gold">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
                 <h3 class="text-xl font-bold font-serif text-[#0B132B] dark:text-white mb-2"><?php esc_html_e('مقاله‌ای در این آرشیو یافت نشد', 'sedrazavi'); ?></h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-6"><?php esc_html_e('می‌توانید از جستجوی سایت برای یافتن موضوع حقوقی مورد نظر استفاده فرمایید.', 'sedrazavi'); ?></p>
                 <a href="<?php echo esc_url(home_url('/')); ?>" class="btn-gold text-xs"><?php esc_html_e('بازگشت به صفحه اصلی', 'sedrazavi'); ?></a>
@@ -464,6 +487,69 @@ body {
 
 .prose {
   text-align: right;
+}
+`},{path:"assets/css/vazirmatn.css",filename:"vazirmatn.css",category:"استایل و دارایی‌ها (Assets)",description:"فایل رسمی پوسته وردپرس: assets/css/vazirmatn.css",code:`/**
+ * Vazirmatn Persian Typography Stylesheet
+ * Local self-contained font stack ensuring 100% offline uptime and zero dependency on external CDNs.
+ *
+ * @package SedRazavi
+ * @version 3.0.0
+ */
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: local('Vazirmatn Light'), local('Vazirmatn-Light'), local('Vazirmatn');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Vazirmatn Regular'), local('Vazirmatn-Regular'), local('Vazirmatn');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local('Vazirmatn Medium'), local('Vazirmatn-Medium'), local('Vazirmatn');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Vazirmatn SemiBold'), local('Vazirmatn-SemiBold'), local('Vazirmatn');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Vazirmatn Bold'), local('Vazirmatn-Bold'), local('Vazirmatn');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: local('Vazirmatn ExtraBold'), local('Vazirmatn-ExtraBold'), local('Vazirmatn');
+}
+
+:root {
+  --sr-font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'IRANSans', 'Sahel', Tahoma, Arial, sans-serif;
+}
+
+body, button, input, select, textarea {
+  font-family: var(--sr-font-family);
 }
 `},{path:"assets/js/main.js",filename:"main.js",category:"استایل و دارایی‌ها (Assets)",description:"فایل رسمی پوسته وردپرس: assets/js/main.js",code:`/**
  * SedRazavi Law Firm Interactive Engine v2.6.0
@@ -995,9 +1081,9 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
 }
 ?>
 
-<footer id="colophon" class="site-footer bg-[#060B18] text-white pt-16 pb-8 border-t border-[#D4AF37]/20 relative overflow-hidden">
+<footer id="colophon" class="site-footer bg-sr-bg text-sr-primary pt-16 pb-8 border-t border-sr-border relative overflow-hidden">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-gray-800">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-sr-border-subtle">
             
             <!-- ستون ۱: برندینگ، پروانه و توصیف -->
             <div class="space-y-4">
@@ -1011,80 +1097,100 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
                         </svg>
                     </div>
                     <div>
-                        <span class="text-lg font-bold font-serif text-white">دفتر وکالت و داوری SedRazavi</span>
-                        <p class="text-[10px] text-[#D4AF37]">پوسته رسمی کانون وکلای مرکز</p>
+                        <span class="text-lg font-bold font-serif text-sr-primary">دفتر وکالت و داوری SedRazavi</span>
+                        <p class="text-[10px] text-sr-gold">پوسته رسمی کانون وکلای مرکز</p>
                     </div>
                 </div>
 
-                <p class="text-gray-400 text-xs leading-relaxed">
+                <p class="text-sr-muted text-xs leading-relaxed">
                     دفتر وکالت و داوری حقوقی دکتر سیده مریم رضوی (SedRazavi)؛ پاسدار حقوق فردی و شرکتی با بیش از دو دهه تجربه درخشان در محاکم قضایی و مراجع داوری بین‌المللی.
                 </p>
 
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-[#D4AF37]">
-                    <span>🛡️ پروانه رسمی کانون وکلای دادگستری مرکز</span>
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sr-surface border border-sr-border-subtle text-xs text-sr-gold">
+                    <svg class="w-3.5 h-3.5 text-sr-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <span>پروانه رسمی کانون وکلای دادگستری مرکز</span>
                 </div>
             </div>
 
             <!-- ستون ۲: دسترسی سریع به خدمات -->
             <div>
-                <h4 class="text-base font-bold text-white mb-4 pb-2 border-b border-[#D4AF37]/30 inline-block font-serif">
+                <h4 class="text-base font-bold text-sr-primary mb-4 pb-2 border-b border-[#D4AF37]/30 inline-block font-serif">
                     دسترسی سریع به خدمات
                 </h4>
-                <ul class="space-y-2.5 text-xs text-gray-400">
-                    <li><a href="#services" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1.5"><span class="text-[#D4AF37]">‹</span> دعاوی تجاری و شرکت‌ها</a></li>
-                    <li><a href="#services" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1.5"><span class="text-[#D4AF37]">‹</span> دعاوی ملکی، اراضی و سرقفلی</a></li>
-                    <li><a href="#services" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1.5"><span class="text-[#D4AF37]">‹</span> جرایم اقتصادی و دادگاه انقلاب</a></li>
-                    <li><a href="#services" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1.5"><span class="text-[#D4AF37]">‹</span> حقوق خانواده، مهریه و تقسیم ارث</a></li>
-                    <li><a href="#services" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1.5"><span class="text-[#D4AF37]">‹</span> داوری بین‌المللی و بازرگانی (ICC)</a></li>
+                <ul class="space-y-2.5 text-xs text-sr-muted">
+                    <li><a href="<?php echo esc_url(home_url('/#services')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1.5"><span class="text-sr-gold">‹</span> دعاوی تجاری و شرکت‌ها</a></li>
+                    <li><a href="<?php echo esc_url(home_url('/#services')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1.5"><span class="text-sr-gold">‹</span> دعاوی ملکی، اراضی و سرقفلی</a></li>
+                    <li><a href="<?php echo esc_url(home_url('/#services')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1.5"><span class="text-sr-gold">‹</span> جرایم اقتصادی و دادگاه انقلاب</a></li>
+                    <li><a href="<?php echo esc_url(home_url('/#services')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1.5"><span class="text-sr-gold">‹</span> حقوق خانواده، مهریه و تقسیم ارث</a></li>
+                    <li><a href="<?php echo esc_url(home_url('/#services')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1.5"><span class="text-sr-gold">‹</span> داوری بین‌المللی و بازرگانی (ICC)</a></li>
                 </ul>
             </div>
 
             <!-- ستون ۳: پیوندهای مفید سامانه -->
             <div>
-                <h4 class="text-base font-bold text-white mb-4 pb-2 border-b border-[#D4AF37]/30 inline-block font-serif">
+                <h4 class="text-base font-bold text-sr-primary mb-4 pb-2 border-b border-[#D4AF37]/30 inline-block font-serif">
                     پیوندهای مفید سامانه
                 </h4>
-                <ul class="space-y-2.5 text-xs text-gray-400">
-                    <li><a href="#tracking" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1.5 text-[#D4AF37] font-bold"><span class="text-[#D4AF37]">🔍</span> پیگیری لحظه‌ای پرونده موکلین</a></li>
-                    <li><a href="#booking" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1.5"><span class="text-[#D4AF37]">‹</span> رزرو آنلاین نوبت مشاوره</a></li>
-                    <li><a href="#about" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1.5"><span class="text-[#D4AF37]">‹</span> درباره وکیل و منشور اخلاق</a></li>
-                    <li><a href="#articles" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1.5"><span class="text-[#D4AF37]">‹</span> یادداشت‌ها و مقالات حقوقی</a></li>
-                    <li><a href="#faq" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1.5"><span class="text-[#D4AF37]">‹</span> پرسش‌های متداول موکلین</a></li>
+                <ul class="space-y-2.5 text-xs text-sr-muted">
+                    <li><a href="<?php echo esc_url(home_url('/#tracking')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1.5 text-sr-gold font-bold">
+                        <svg class="w-3.5 h-3.5 text-sr-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span>پیگیری لحظه‌ای پرونده موکلین</span>
+                    </a></li>
+                    <li><a href="<?php echo esc_url(home_url('/#booking')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1.5"><span class="text-sr-gold">‹</span> رزرو آنلاین نوبت مشاوره</a></li>
+                    <li><a href="<?php echo esc_url(home_url('/#about')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1.5"><span class="text-sr-gold">‹</span> درباره وکیل و منشور اخلاق</a></li>
+                    <li><a href="<?php echo esc_url(home_url('/#articles')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1.5"><span class="text-sr-gold">‹</span> یادداشت‌ها و مقالات حقوقی</a></li>
+                    <li><a href="<?php echo esc_url(home_url('/#faq')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1.5"><span class="text-sr-gold">‹</span> پرسش‌های متداول موکلین</a></li>
                 </ul>
             </div>
 
             <!-- ستون ۴: ارتباط و خبرنامه -->
             <div class="space-y-4">
-                <h4 class="text-base font-bold text-white mb-4 pb-2 border-b border-[#D4AF37]/30 inline-block font-serif">
+                <h4 class="text-base font-bold text-sr-primary mb-4 pb-2 border-b border-[#D4AF37]/30 inline-block font-serif">
                     ارتباط و خبرنامه تخصصی
                 </h4>
-                <p class="text-xs text-gray-400 leading-relaxed">
+                <p class="text-xs text-sr-muted leading-relaxed">
                     جهت دریافت مهم‌ترین تحولات حقوقی و رویه‌های جدید قضایی، ایمیل خود را ثبت نمایید:
                 </p>
                 <form onsubmit="handleNewsletter(event)" class="flex gap-2">
-                    <input type="email" required placeholder="آدرس ایمیل..." class="flex-1 px-3 py-2 rounded-xl bg-[#0B132B] border border-gray-700 text-white text-xs focus:border-[#D4AF37] focus:outline-none" />
+                    <input type="email" required placeholder="آدرس ایمیل..." class="flex-1 px-3 py-2 rounded-xl bg-sr-surface border border-sr-border text-sr-primary text-xs focus:border-[#D4AF37] focus:outline-none" />
                     <button type="submit" class="btn-gold text-xs px-4 py-2 rounded-xl font-bold cursor-pointer">ثبت</button>
                 </form>
-                <div class="text-xs text-gray-400 space-y-1 pt-2">
-                    <p>📞 تلفن: ۰۲۱-۸۸۹۹۰۰۱۱</p>
-                    <p>📍 نشانی: تهران، ونک، ملاصدرا، پلاک ۱۱۸</p>
+                <div class="text-xs text-sr-muted space-y-1.5 pt-2">
+                    <p class="flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-sr-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        <span>تلفن: ۰۲۱-۸۸۹۹۰۰۱۱</span>
+                    </p>
+                    <p class="flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-sr-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        <span>نشانی: تهران، ونک، ملاصدرا، پلاک ۱۱۸</span>
+                    </p>
                 </div>
             </div>
 
         </div>
 
         <!-- اطلاعات طراح و حق چاپ طبق بخش ۷ و پارت ۹ -->
-        <div class="pt-8 pb-3 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-3">
-            <p>طراحی و توسعه توسط <a href="https://t.me/sedrazavi" target="_blank" rel="noopener" class="text-[#D4AF37] font-bold hover:underline">سید امیر حسین رضوی فردویی</a></p>
+        <div class="pt-8 pb-3 border-t border-sr-border-subtle flex flex-col sm:flex-row items-center justify-between text-xs text-sr-muted gap-3">
+            <p>طراحی و توسعه توسط <a href="https://t.me/sedrazavi" target="_blank" rel="noopener" class="text-sr-gold font-bold hover:underline">سید امیر حسین رضوی فردویی</a></p>
             <div class="flex items-center gap-4 text-xs">
-                <a href="https://t.me/sedrazavi" target="_blank" rel="noopener" class="text-gray-400 hover:text-[#D4AF37] transition-colors">تلگرام: @sedrazavi</a>
-                <span class="text-gray-700">|</span>
-                <a href="https://eitaa.com/sedrazavi" target="_blank" rel="noopener" class="text-gray-400 hover:text-[#D4AF37] transition-colors">ایتا: @sedrazavi</a>
+                <a href="https://t.me/sedrazavi" target="_blank" rel="noopener" class="text-sr-muted hover:text-sr-gold transition-colors">تلگرام: @sedrazavi</a>
+                <span class="text-sr-border-subtle">|</span>
+                <a href="https://eitaa.com/sedrazavi" target="_blank" rel="noopener" class="text-sr-muted hover:text-sr-gold transition-colors">ایتا: @sedrazavi</a>
             </div>
         </div>
-        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between text-xs text-sr-muted gap-4">
             <p>© <?php echo date('Y'); ?> تمامی حقوق مادی و معنوی متعلق به دفتر وکالت و داوری SedRazavi می‌باشد.</p>
-            <p><a href="<?php echo esc_url(home_url('/privacy-policy')); ?>" class="hover:text-gray-400">قوانین و حریم خصوصی</a></p>
+            <p><a href="<?php echo esc_url(home_url('/privacy-policy')); ?>" class="hover:text-sr-primary">قوانین و حریم خصوصی</a></p>
         </div>
     </div>
 </footer>
@@ -1145,81 +1251,70 @@ get_header();
 <div id="root" class="sedrazavi-app-mount">
 
 
-<!-- بخش ۱: نکات و استوری‌های آموزشی حقوقی روز (Story Bar) -->
-<section class="stories-bar-section">
+<!-- بخش ۱: نکات حقوقی روز و آرای وحدت رویه دیوان عالی کشور (Legal Insights Bar) -->
+<section class="legal-insights-bar-section">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="stories-header">
-            <svg class="w-4 h-4 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-            </svg>
-            <span>نکات و استوری‌های آموزشی حقوقی روز</span>
+        <div class="legal-insights-header">
+            <div class="legal-insights-title">
+                <svg class="w-4 h-4 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                    <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                    <path d="M7 21h10"/>
+                    <path d="M12 3v18"/>
+                </svg>
+                <span>نکات حقوقی روز، قوانین موضوعه جدید و آرای وحدت رویه دیوان عالی کشور</span>
+            </div>
+            <span class="legal-insights-badge">استناد رسمی محاکم</span>
         </div>
 
-        <div class="stories-scroll-container">
-            <!-- Story 1 -->
-            <div class="story-thumb-item" onclick="openStoryModal(0)">
-                <div class="story-ring-gold">
-                    <div class="story-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=200" alt="نکات چک صیادی" class="story-photo-img" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
+        <div class="legal-insights-grid">
+            <!-- کارت ۱ -->
+            <a href="#articles" class="legal-insight-card">
+                <div>
+                    <div class="legal-insight-cat-row">
+                        <span class="legal-insight-tag">بانکی و اسناد تجاری</span>
+                        <span class="legal-insight-num">رأی ۸۵۲</span>
                     </div>
+                    <h4 class="legal-insight-title-text">ضوابط اعتبار چک‌های تضمینی و صیادی</h4>
                 </div>
-                <div class="story-text-wrap">
-                    <span class="story-title-label">نکات چک صیادی</span>
-                    <span class="story-cat-label">نکات کاربردی</span>
-                </div>
-            </div>
+                <p class="legal-insight-desc-text">رویه قطعی اجرای مستقیم ماده ۲۳ قانون صدور چک در محاکم</p>
+            </a>
 
-            <!-- Story 2 -->
-            <div class="story-thumb-item" onclick="openStoryModal(1)">
-                <div class="story-ring-gold">
-                    <div class="story-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=200" alt="پیروزی در پرونده" class="story-photo-img" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
+            <!-- کارت ۲ -->
+            <a href="#articles" class="legal-insight-card">
+                <div>
+                    <div class="legal-insight-cat-row">
+                        <span class="legal-insight-tag">املاک و اراضی</span>
+                        <span class="legal-insight-num">قانون جدید</span>
                     </div>
+                    <h4 class="legal-insight-title-text">الزام به ثبت رسمی معاملات اموال غیرمنقول</h4>
                 </div>
-                <div class="story-text-wrap">
-                    <span class="story-title-label">پیروزی در پروند...</span>
-                    <span class="story-cat-label">موفقیت‌های اخیر</span>
-                </div>
-            </div>
+                <p class="legal-insight-desc-text">سلب اعتبار از اسناد عادی و قولنامه‌های معارض در دادگستری</p>
+            </a>
 
-            <!-- Story 3 -->
-            <div class="story-thumb-item" onclick="openStoryModal(2)">
-                <div class="story-ring-subtle">
-                    <div class="story-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200" alt="طلاق و مهریه" class="story-photo-img" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
+            <!-- کارت ۳ -->
+            <a href="#articles" class="legal-insight-card">
+                <div>
+                    <div class="legal-insight-cat-row">
+                        <span class="legal-insight-tag">حقوق خانواده</span>
+                        <span class="legal-insight-num">تعدیل اقساط</span>
                     </div>
+                    <h4 class="legal-insight-title-text">تعدیل اقساط مهریه و اثبات عدم استطاعت</h4>
                 </div>
-                <div class="story-text-wrap">
-                    <span class="story-title-label">طلاق و مهریه</span>
-                    <span class="story-cat-label">حقوق خانواده</span>
-                </div>
-            </div>
+                <p class="legal-insight-desc-text">رویه شعب دادگاه تجدیدنظر پیرامون تورم و نوسان سکه</p>
+            </a>
 
-            <!-- Story 4 -->
-            <div class="story-thumb-item" onclick="openStoryModal(3)">
-                <div class="story-ring-gold">
-                    <div class="story-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=200" alt="سهم‌الارث مادر" class="story-photo-img" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
+            <!-- کارت ۴ -->
+            <a href="#articles" class="legal-insight-card">
+                <div>
+                    <div class="legal-insight-cat-row">
+                        <span class="legal-insight-tag">داوری بین‌المللی</span>
+                        <span class="legal-insight-num">اتاق پاریس ICC</span>
                     </div>
+                    <h4 class="legal-insight-title-text">اعتبار شرط داوری و اجرای احکام خارجی</h4>
                 </div>
-                <div class="story-text-wrap">
-                    <span class="story-title-label">سهم‌الارث م...</span>
-                    <span class="story-cat-label">انحصار وراثت</span>
-                </div>
-            </div>
-
-            <!-- Story 5 -->
-            <div class="story-thumb-item" onclick="openStoryModal(4)">
-                <div class="story-ring-subtle">
-                    <div class="story-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=200" alt="قرارداد مشارکت" class="story-photo-img" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
-                    </div>
-                </div>
-                <div class="story-text-wrap">
-                    <span class="story-title-label">قرارداد مشارکت</span>
-                    <span class="story-cat-label">تجاری</span>
-                </div>
-            </div>
+                <p class="legal-insight-desc-text">مصونیت آرای داوری تجاری بین‌المللی از ابطال در محاکم داخلی</p>
+            </a>
         </div>
     </div>
 </section>
@@ -1289,7 +1384,7 @@ get_header();
                             <line x1="8" y1="2" x2="8" y2="6"></line>
                             <line x1="3" y1="10" x2="21" y2="10"></line>
                         </svg>
-                        <span>درخواست مشاوره فوری با دکتر رضوی (SedRazavi)</span>
+                        <span>رزرو وقت مشاوره تخصصی با وکیل</span>
                     </a>
 
                     <a href="#tracking" class="btn-navy-hero">
@@ -1297,7 +1392,7 @@ get_header();
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                        <span>پیگیری آنلاین وضعیت پرونده</span>
+                        <span>استعلام برخط پرونده قضایی</span>
                     </a>
                 </div>
 
@@ -1312,7 +1407,7 @@ get_header();
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>دفتر مرکزی فعال و پاسخگویی حضوری</span>
+                        <span>پاسخگویی مستقیم: ۰۲۱-۸۸۹۹۰۰۱۱</span>
                     </div>
                 </div>
             </div>
@@ -1357,35 +1452,35 @@ get_header();
 </section>
 
 <!-- بخش ۳: آمارهای کلیدی و نشان‌های اعتماد (TrustBadges) -->
-<section class="trust-badges-section py-12 bg-[#060B18] border-y border-[#D4AF37]/20 relative">
+<section class="trust-badges-section py-12 bg-sr-bg border-y border-sr-border relative">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-            <div class="stat-card p-6 rounded-2xl bg-[#0B132B] border border-gray-800 hover:border-[#D4AF37]/40 transition-all">
+            <div class="stat-card p-6 rounded-2xl bg-sr-surface border border-sr-border-subtle hover:border-[#D4AF37]/50 transition-all">
                 <div class="text-3xl sm:text-4xl font-black font-serif text-[#D4AF37] mb-2" id="stat-cases">۱۲۸۰+</div>
-                <div class="text-sm font-bold text-white mb-1">پرونده موفق دادگستری</div>
-                <div class="text-xs text-gray-400">آرای قطعی در دیوان عالی و تجدیدنظر</div>
+                <div class="text-sm font-bold text-sr-primary mb-1">پرونده موفق دادگستری</div>
+                <div class="text-xs text-sr-muted">آرای قطعی در دیوان عالی و تجدیدنظر</div>
             </div>
-            <div class="stat-card p-6 rounded-2xl bg-[#0B132B] border border-gray-800 hover:border-[#D4AF37]/40 transition-all">
+            <div class="stat-card p-6 rounded-2xl bg-sr-surface border border-sr-border-subtle hover:border-[#D4AF37]/50 transition-all">
                 <div class="text-3xl sm:text-4xl font-black font-serif text-[#D4AF37] mb-2" id="stat-satisfaction">۹۸٪</div>
-                <div class="text-sm font-bold text-white mb-1">رضایت کامل موکلین</div>
-                <div class="text-xs text-gray-400">بر اساس نظرسنجی مکتوب انتهای پرونده</div>
+                <div class="text-sm font-bold text-sr-primary mb-1">رضایت کامل موکلین</div>
+                <div class="text-xs text-sr-muted">بر اساس نظرسنجی مکتوب انتهای پرونده</div>
             </div>
-            <div class="stat-card p-6 rounded-2xl bg-[#0B132B] border border-gray-800 hover:border-[#D4AF37]/40 transition-all">
+            <div class="stat-card p-6 rounded-2xl bg-sr-surface border border-sr-border-subtle hover:border-[#D4AF37]/50 transition-all">
                 <div class="text-3xl sm:text-4xl font-black font-serif text-[#D4AF37] mb-2" id="stat-experience">۲۰+</div>
-                <div class="text-sm font-bold text-white mb-1">سال سابقه درخشان وکالت</div>
-                <div class="text-xs text-gray-400">عضو کانون وکلای دادگستری مرکز</div>
+                <div class="text-sm font-bold text-sr-primary mb-1">سال سابقه درخشان وکالت</div>
+                <div class="text-xs text-sr-muted">عضو کانون وکلای دادگستری مرکز</div>
             </div>
-            <div class="stat-card p-6 rounded-2xl bg-[#0B132B] border border-gray-800 hover:border-[#D4AF37]/40 transition-all">
+            <div class="stat-card p-6 rounded-2xl bg-sr-surface border border-sr-border-subtle hover:border-[#D4AF37]/50 transition-all">
                 <div class="text-3xl sm:text-4xl font-black font-serif text-[#D4AF37] mb-2" id="stat-contracts">۴۵۰+</div>
-                <div class="text-sm font-bold text-white mb-1">قرارداد بازرگانی و داوری</div>
-                <div class="text-xs text-gray-400">تدوین و نظارت بر قراردادهای کلان</div>
+                <div class="text-sm font-bold text-sr-primary mb-1">قرارداد بازرگانی و داوری</div>
+                <div class="text-xs text-sr-muted">تدوین و نظارت بر قراردادهای کلان</div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- بخش ۴: حوزه‌های تخصصی وکالت و داوری (ServicesSection) -->
-<section id="services" class="py-20 bg-[#070D1E] relative">
+<section id="services" class="py-20 bg-sr-bg-alt relative">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-3xl mx-auto space-y-4 mb-12">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/30">
@@ -1394,10 +1489,10 @@ get_header();
                 </svg>
                 <span>حوزه‌های تخصصی وکالت و داوری</span>
             </div>
-            <h2 class="text-3xl sm:text-4xl font-bold font-serif text-white">
+            <h2 class="text-3xl sm:text-4xl font-bold font-serif text-sr-primary">
                 خدمات حقوقی با استانداردهای بین‌المللی
             </h2>
-            <p class="text-sm sm:text-base text-gray-400">
+            <p class="text-sm sm:text-base text-sr-muted">
                 تمرکز بر تسلط علمی، تنظیم قراردادهای بازدارنده و دفاع قاطعانه از حقوق شما در محاکم دادگستری و مراجع داوری.
             </p>
 
@@ -1412,110 +1507,142 @@ get_header();
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="services-grid">
             <!-- خدمت ۱ -->
-            <div class="service-card" data-category="criminal">
-                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] text-2xl mb-4">
-                    🏢
+            <div class="service-card bg-sr-surface border border-sr-border-subtle" data-category="criminal">
+                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] mb-4">
+                    <svg class="w-6 h-6 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                        <path d="M9 22v-4h6v4"/>
+                        <path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/>
+                        <path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M12 10h.01"/>
+                        <path d="M8 14h.01"/><path d="M16 14h.01"/><path d="M12 14h.01"/>
+                    </svg>
                 </div>
-                <h3 class="text-lg font-bold text-white mb-2">دعاوی ملکی، اراضی و سرقفلی</h3>
-                <p class="text-xs text-gray-400 leading-relaxed mb-4">
+                <h3 class="text-lg font-bold text-sr-primary mb-2">دعاوی ملکی، اراضی و سرقفلی</h3>
+                <p class="text-xs text-sr-muted leading-relaxed mb-4">
                     الزام به تنظیم سند رسمی، خلع ید، تصرف عدوانی، پیش‌فروش ساختمان، دعاوی سرقفلی و حق کسب و پیشه در مراجع قضایی و ثبتی.
                 </p>
-                <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                <div class="pt-3 border-t border-sr-border-subtle flex items-center justify-between">
                     <span class="text-[11px] text-[#D4AF37] font-semibold">کمیسیون تخصصی املاک</span>
-                    <a href="#booking" class="text-xs text-white hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
+                    <a href="#booking" class="text-xs text-sr-primary hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
                 </div>
             </div>
 
             <!-- خدمت ۲ -->
-            <div class="service-card" data-category="commercial">
-                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] text-2xl mb-4">
-                    💼
+            <div class="service-card bg-sr-surface border border-sr-border-subtle" data-category="commercial">
+                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] mb-4">
+                    <svg class="w-6 h-6 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                    </svg>
                 </div>
-                <h3 class="text-lg font-bold text-white mb-2">دعاوی تجاری و قراردادهای بازرگانی</h3>
-                <p class="text-xs text-gray-400 leading-relaxed mb-4">
+                <h3 class="text-lg font-bold text-sr-primary mb-2">دعاوی تجاری و قراردادهای بازرگانی</h3>
+                <p class="text-xs text-sr-muted leading-relaxed mb-4">
                     تنظیم و بازبینی قراردادهای بین‌المللی، حل‌وفصل اختلافات شرکتی، داوری تجاری و دعاوی ورشکستگی با تضمین محرمانگی اسناد.
                 </p>
-                <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                <div class="pt-3 border-t border-sr-border-subtle flex items-center justify-between">
                     <span class="text-[11px] text-[#D4AF37] font-semibold">پشتیبانی حقوقی شرکتی</span>
-                    <a href="#booking" class="text-xs text-white hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
+                    <a href="#booking" class="text-xs text-sr-primary hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
                 </div>
             </div>
 
             <!-- خدمت ۳ -->
-            <div class="service-card" data-category="criminal">
-                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] text-2xl mb-4">
-                    ⚖️
+            <div class="service-card bg-sr-surface border border-sr-border-subtle" data-category="criminal">
+                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] mb-4">
+                    <svg class="w-6 h-6 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                        <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                        <path d="M7 21h10"/>
+                        <path d="M12 3v18"/>
+                    </svg>
                 </div>
-                <h3 class="text-lg font-bold text-white mb-2">دعاوی کیفری و جرایم اقتصادی</h3>
-                <p class="text-xs text-gray-400 leading-relaxed mb-4">
+                <h3 class="text-lg font-bold text-sr-primary mb-2">دعاوی کیفری و جرایم اقتصادی</h3>
+                <p class="text-xs text-sr-muted leading-relaxed mb-4">
                     دفاع تخصصی در پرونده‌های اختلاس، کلاهبرداری، خیانت در امانت، پولشویی و دفاع راهبردی در دادگاه‌های انقلاب و تجدیدنظر.
                 </p>
-                <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                <div class="pt-3 border-t border-sr-border-subtle flex items-center justify-between">
                     <span class="text-[11px] text-[#D4AF37] font-semibold">دفاع فوری و راهبردی</span>
-                    <a href="#booking" class="text-xs text-white hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
+                    <a href="#booking" class="text-xs text-sr-primary hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
                 </div>
             </div>
 
             <!-- خدمت ۴ -->
-            <div class="service-card" data-category="family">
-                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] text-2xl mb-4">
-                    👥
+            <div class="service-card bg-sr-surface border border-sr-border-subtle" data-category="family">
+                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] mb-4">
+                    <svg class="w-6 h-6 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
                 </div>
-                <h3 class="text-lg font-bold text-white mb-2">حقوق خانواده و انحصار وراثت</h3>
-                <p class="text-xs text-gray-400 leading-relaxed mb-4">
+                <h3 class="text-lg font-bold text-sr-primary mb-2">حقوق خانواده و انحصار وراثت</h3>
+                <p class="text-xs text-sr-muted leading-relaxed mb-4">
                     رسیدگی به پرونده‌های مهریه، طلاق توافقی، حضانت فرزندان، تقسیم ترکه، تحریر ترکه و وصیت‌نامه با حداکثر سرعت و رازداری تام.
                 </p>
-                <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                <div class="pt-3 border-t border-sr-border-subtle flex items-center justify-between">
                     <span class="text-[11px] text-[#D4AF37] font-semibold">طلاق توافقی در ۱۰ روز</span>
-                    <a href="#booking" class="text-xs text-white hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
+                    <a href="#booking" class="text-xs text-sr-primary hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
                 </div>
             </div>
 
             <!-- خدمت ۵ -->
-            <div class="service-card" data-category="commercial">
-                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] text-2xl mb-4">
-                    🌐
+            <div class="service-card bg-sr-surface border border-sr-border-subtle" data-category="commercial">
+                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] mb-4">
+                    <svg class="w-6 h-6 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="2" y1="12" x2="22" y2="12"/>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
                 </div>
-                <h3 class="text-lg font-bold text-white mb-2">داوری بین‌المللی و سرمایه‌گذاری</h3>
-                <p class="text-xs text-gray-400 leading-relaxed mb-4">
+                <h3 class="text-lg font-bold text-sr-primary mb-2">داوری بین‌المللی و سرمایه‌گذاری</h3>
+                <p class="text-xs text-sr-muted leading-relaxed mb-4">
                     داوری در قراردادهای تجاری خارجی، صادرات و واردات، ترخیص گمرکی و حل اختلافات بازرگانان در اتاق بازرگانی بین‌المللی (ICC).
                 </p>
-                <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                <div class="pt-3 border-t border-sr-border-subtle flex items-center justify-between">
                     <span class="text-[11px] text-[#D4AF37] font-semibold">داوری قطعی و لازم‌الاجرا</span>
-                    <a href="#booking" class="text-xs text-white hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
+                    <a href="#booking" class="text-xs text-sr-primary hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
                 </div>
             </div>
 
             <!-- خدمت ۶ -->
-            <div class="service-card" data-category="commercial">
-                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] text-2xl mb-4">
-                    📜
+            <div class="service-card bg-sr-surface border border-sr-border-subtle" data-category="commercial">
+                <div class="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] mb-4">
+                    <svg class="w-6 h-6 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
                 </div>
-                <h3 class="text-lg font-bold text-white mb-2">دیوان عدالت اداری و شهرداری‌ها</h3>
-                <p class="text-xs text-gray-400 leading-relaxed mb-4">
+                <h3 class="text-lg font-bold text-sr-primary mb-2">دیوان عدالت اداری و شهرداری‌ها</h3>
+                <p class="text-xs text-sr-muted leading-relaxed mb-4">
                     اعتراض به آرای کمیسیون‌های ماده ۱۰۰ و ۹۹ شهرداری، دعاوی ابطال مصوبات غیرقانونی دولتی و اختلافات اداره کار و تامین اجتماعی.
                 </p>
-                <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                <div class="pt-3 border-t border-sr-border-subtle flex items-center justify-between">
                     <span class="text-[11px] text-[#D4AF37] font-semibold">ابطال قطعی آرای معارض</span>
-                    <a href="#booking" class="text-xs text-white hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
+                    <a href="#booking" class="text-xs text-sr-primary hover:text-[#D4AF37] flex items-center gap-1 font-semibold">مشاوره &larr;</a>
                 </div>
             </div>
         </div>
     </div>
-</section>
-
 <!-- بخش ۴.۵: سامانه هوشمند ممیزی قراردادها و خزانه‌گاه اسناد تجاری (Contract Audit & Drafting Suite) -->
-<section id="contract-auditor-section" class="py-16 bg-[#060B18] relative border-t border-gray-800">
+<section id="contract-auditor-section" class="py-16 bg-sr-bg relative border-t border-sr-border-subtle">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-3xl mx-auto space-y-4 mb-10">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/30">
-                <span>📝</span>
+                <svg class="w-3.5 h-3.5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
                 <span>سامانه هوشمند ممیزی قراردادها و شرط داوری</span>
             </div>
-            <h2 class="text-2xl sm:text-4xl font-bold font-serif text-white">
+            <h2 class="text-2xl sm:text-4xl font-bold font-serif text-sr-primary">
                 ممیزی حقوقی شروط قرارداد پیش از امضا
             </h2>
-            <p class="text-xs sm:text-sm text-gray-400">
+            <p class="text-xs sm:text-sm text-sr-muted">
                 شروط خسارت، تعهدات مالی، سلب مسئولیت و شرط داوری قرارداد خود را با هوش مصنوعی وکلای پایه یک ارزیابی و اصلاح کنید.
             </p>
         </div>
@@ -1528,7 +1655,7 @@ get_header();
             <a href="<?php echo esc_url(home_url('/contract-audit/')); ?>" class="btn-gold py-2.5 px-6 rounded-xl text-xs font-bold shadow-lg">
                 <span>ورود به پرتال کامل ممیزی قراردادها</span>
             </a>
-            <a href="<?php echo esc_url(home_url('/drafting-vault/')); ?>" class="py-2.5 px-6 rounded-xl text-xs font-bold text-white border border-slate-700 hover:border-[#D4AF37] bg-white/5 transition-colors">
+            <a href="<?php echo esc_url(home_url('/drafting-vault/')); ?>" class="py-2.5 px-6 rounded-xl text-xs font-bold text-sr-primary border border-sr-border-subtle hover:border-[#D4AF37] bg-sr-surface-hover transition-colors">
                 <span>دانلود نمونه قراردادهای استاندارد دوزبانه</span>
             </a>
         </div>
@@ -1536,22 +1663,26 @@ get_header();
 </section>
 
 <!-- بخش ۵: درباره وکیل و منشور اخلاق حرفه‌ای (AboutSection) -->
-<section id="about" class="py-20 bg-[#0B132B] relative overflow-hidden border-t border-gray-800">
+<section id="about" class="py-20 bg-sr-surface relative overflow-hidden border-t border-sr-border-subtle">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             <!-- ستون تصویر و گواهینامه‌ها -->
             <div class="lg:col-span-5 relative">
                 <div class="relative mx-auto max-w-md">
-                    <div class="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-[#D4AF37]/30 to-[#0B132B]/20 blur-xl transform rotate-2"></div>
-                    <div class="relative rounded-2xl overflow-hidden border-2 border-[#D4AF37]/40 shadow-2xl bg-gray-900">
+                    <div class="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-[#D4AF37]/30 to-[#0B132B]/10 blur-xl transform rotate-2"></div>
+                    <div class="relative rounded-2xl overflow-hidden border-2 border-sr-border shadow-2xl bg-sr-surface-card">
                         <img src="<?php echo esc_url($lawyer_hero_portrait); ?>" alt="دکتر سیده مریم رضوی" class="w-full h-[500px] object-cover object-top" />
                         
-                        <div class="absolute bottom-6 right-6 left-6 p-4 rounded-xl bg-[#0B132B]/95 backdrop-blur-md border border-[#D4AF37]/30 shadow-xl space-y-2">
-                            <div class="flex items-center gap-2 text-[#F3E5AB] font-bold text-xs">
-                                <span>🎓 رتبه برتر آزمون وکالت کانون وکلای مرکز</span>
+                        <div class="absolute bottom-6 right-6 left-6 p-4 rounded-xl bg-sr-surface/95 backdrop-blur-md border border-sr-border shadow-xl space-y-2">
+                            <div class="flex items-center gap-2 text-sr-gold font-bold text-xs">
+                                <svg class="w-4 h-4 shrink-0 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                                </svg>
+                                <span>رتبه برتر آزمون وکالت کانون وکلای مرکز</span>
                             </div>
-                            <p class="text-xs text-gray-300">
+                            <p class="text-xs text-sr-secondary">
                                 عضو رسمی کانون وکلای دادگستری مرکز و مدرس دوره‌های تخصصی تنظیم قرارداد
                             </p>
                         </div>
@@ -1568,39 +1699,39 @@ get_header();
                     درباره وکیل دکتر سیده مریم رضوی (SedRazavi)
                 </div>
 
-                <h2 class="text-3xl sm:text-4xl font-bold font-serif text-white leading-tight">
+                <h2 class="text-3xl sm:text-4xl font-bold font-serif text-sr-primary leading-tight">
                     دو دهه پاسداری متعهدانه از حقوق و منافع مشروع موکلین
                 </h2>
 
-                <p class="text-sm sm:text-base text-gray-300 leading-relaxed">
+                <p class="text-sm sm:text-base text-sr-secondary leading-relaxed">
                     سرکار خانم دکتر سیده مریم رضوی پس از فراغت از تحصیل در مقطع دکترای حقوق بین‌الملل و خصوصی از دانشگاه تهران و گذراندن دوره‌های تخصصی داوری بین‌المللی، دفتر وکالت خود را با نام مؤسسه حقوقی SedRazavi بنا نهاد. ایشان تاکنون وکالت بیش از ۱۲۸۰ پرونده سنگین حقوقی، ملکی، تجاری و داوری را با بالاترین درصد موفقیت بر عهده داشته است.
                 </p>
 
                 <div class="space-y-3 pt-2">
-                    <h3 class="text-sm font-bold text-white">منشور اخلاق حرفه‌ای و تعهدات بنیادین:</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-300">
-                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-gray-800/60 border border-gray-700">
+                    <h3 class="text-sm font-bold text-sr-primary">منشور اخلاق حرفه‌ای و تعهدات بنیادین:</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-sr-secondary">
+                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-sr-surface-card border border-sr-border-subtle">
                             <span class="text-[#2A9D8F] font-bold">✓</span>
                             <span>بررسی واقع‌بینانه شانس پیروزی دعوا بدون امید واهی</span>
                         </div>
-                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-gray-800/60 border border-gray-700">
+                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-sr-surface-card border border-sr-border-subtle">
                             <span class="text-[#2A9D8F] font-bold">✓</span>
                             <span>شفافیت کامل در قرارداد مالی و نحوه وصول حق‌الوکاله</span>
                         </div>
-                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-gray-800/60 border border-gray-700">
+                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-sr-surface-card border border-sr-border-subtle">
                             <span class="text-[#2A9D8F] font-bold">✓</span>
                             <span>گزارش‌دهی مستمر و دسترسی آنلاین موکل به لوایح پرونده</span>
                         </div>
-                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-gray-800/60 border border-gray-700">
+                        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-sr-surface-card border border-sr-border-subtle">
                             <span class="text-[#2A9D8F] font-bold">✓</span>
                             <span>حفظ کامل اسرار شغلی، اسناد تجاری و حریم خانوادگی</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="p-4 rounded-xl bg-[#060B18] border border-[#D4AF37]/30 flex items-center gap-3">
+                <div class="p-4 rounded-xl bg-sr-bg-alt border border-sr-border flex items-center gap-3">
                     <span class="text-2xl text-[#D4AF37]">❝</span>
-                    <p class="text-xs text-gray-300 italic">
+                    <p class="text-xs text-sr-secondary italic">
                         «وکالت، تنها دفاع در محکمه نیست؛ معماری امن روابط تجاری و احقاق شجاعانه حق بر پایه تسلط بر موازین قانونی است.»
                     </p>
                 </div>
@@ -1608,32 +1739,32 @@ get_header();
         </div>
 
         <!-- نقاط عطف و روند رشد مؤسسه حقوقی (Firm Milestones Timeline) -->
-        <div class="mt-16 pt-12 border-t border-gray-800">
+        <div class="mt-16 pt-12 border-t border-sr-border-subtle">
             <?php echo do_shortcode('[sedrazavi_react_firm_milestones]'); ?>
         </div>
     </div>
 </section>
 
 <!-- بخش ۶: رضایت موکلین و روایت تجربیات (TestimonialsSlider) -->
-<section class="py-20 bg-[#070D1E] relative overflow-hidden border-t border-gray-800">
+<section class="py-20 bg-sr-bg-alt relative overflow-hidden border-t border-sr-border-subtle">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-3xl mx-auto space-y-4 mb-14">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/30">
                 <svg class="w-3.5 h-3.5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
                 </svg>
-                اعتماد و رضایت موکلین
+                <span>اعتماد و رضایت موکلین</span>
             </div>
-            <h2 class="text-3xl sm:text-4xl font-bold font-serif text-white">
+            <h2 class="text-3xl sm:text-4xl font-bold font-serif text-sr-primary">
                 روایت تجربه همراهی با دفتر وکالت دکتر رضوی
             </h2>
-            <p class="text-sm sm:text-base text-gray-400">
+            <p class="text-sm sm:text-base text-sr-muted">
                 دیدگاه موکلین گرامی پیرامون دقت نظر، پیگیری پرونده و حصول نتایج درخشان حقوقی.
             </p>
         </div>
 
         <div class="max-w-4xl mx-auto">
-            <div class="relative bg-[#0B132B] rounded-3xl p-8 sm:p-12 border border-gray-800 shadow-2xl">
+            <div class="relative bg-sr-surface rounded-3xl p-8 sm:p-12 border border-sr-border-subtle shadow-2xl">
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex text-[#D4AF37] gap-1 text-lg">★★★★★</div>
                     <span class="px-3 py-1 rounded-full bg-[#2A9D8F]/15 text-[#2A9D8F] text-xs font-bold border border-[#2A9D8F]/30" id="testimonial-service">
@@ -1641,21 +1772,21 @@ get_header();
                     </span>
                 </div>
 
-                <blockquote class="text-base sm:text-lg text-gray-200 leading-relaxed mb-8 italic" id="testimonial-quote">
+                <blockquote class="text-base sm:text-lg text-sr-secondary leading-relaxed mb-8 italic" id="testimonial-quote">
                     «تسلط علمی سرکار خانم دکتر رضوی بر قوانین ثبتی و املاک موجب شد ملکی به ارزش بیش از ۴۰۰ میلیارد ریال که با معارض جعلی مواجه شده بود، در دیوان عالی کشور کاملاً احقاق حق و سند معارض باطل گردد. رازداری و نظم بی‌نظیر ایشان ستودنی است.»
                 </blockquote>
 
-                <div class="flex items-center justify-between border-t border-gray-800 pt-6">
+                <div class="flex items-center justify-between border-t border-sr-border-subtle pt-6">
                     <div>
-                        <h4 class="font-bold text-white text-base" id="testimonial-author">مهندس علیرضا سلیمانی</h4>
-                        <p class="text-xs text-gray-400" id="testimonial-role">مدیرعامل گروه سرمایه‌گذاری پارس نوین</p>
+                        <h4 class="font-bold text-sr-primary text-base" id="testimonial-author">مهندس علیرضا سلیمانی</h4>
+                        <p class="text-xs text-sr-muted" id="testimonial-role">مدیرعامل گروه سرمایه‌گذاری پارس نوین</p>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <button onclick="prevTestimonial()" class="p-2.5 rounded-xl bg-gray-800 hover:bg-[#D4AF37] hover:text-[#0B132B] text-white transition-all cursor-pointer">
+                        <button onclick="prevTestimonial()" class="p-2.5 rounded-xl bg-sr-surface-card hover:bg-[#D4AF37] hover:text-[#0B132B] text-sr-primary border border-sr-border-subtle transition-all cursor-pointer">
                             &rarr;
                         </button>
-                        <button onclick="nextTestimonial()" class="p-2.5 rounded-xl bg-gray-800 hover:bg-[#D4AF37] hover:text-[#0B132B] text-white transition-all cursor-pointer">
+                        <button onclick="nextTestimonial()" class="p-2.5 rounded-xl bg-sr-surface-card hover:bg-[#D4AF37] hover:text-[#0B132B] text-sr-primary border border-sr-border-subtle transition-all cursor-pointer">
                             &larr;
                         </button>
                     </div>
@@ -1666,88 +1797,88 @@ get_header();
 </section>
 
 <!-- بخش ۷: جدیدترین مقالات حقوقی (ArticlesSection) -->
-<section id="articles" class="py-20 bg-[#0B132B] relative border-t border-gray-800">
+<section id="articles" class="py-20 bg-sr-surface relative border-t border-sr-border-subtle">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-3xl mx-auto space-y-4 mb-14">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/30">
                 <svg class="w-3.5 h-3.5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
                 </svg>
-                دانش حقوقی و تحلیل آراء
+                <span>دانش حقوقی و تحلیل آراء</span>
             </div>
-            <h2 class="text-3xl sm:text-4xl font-bold font-serif text-white">
+            <h2 class="text-3xl sm:text-4xl font-bold font-serif text-sr-primary">
                 جدیدترین مقالات و یادداشت‌های تخصصی
             </h2>
-            <p class="text-sm sm:text-base text-gray-400">
+            <p class="text-sm sm:text-base text-sr-muted">
                 بررسی جدیدترین قوانین موضوعه، رویه‌های قضایی وحدت رویه و نکات پیشگیرانه در تنظیم قراردادها.
             </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <!-- مقاله ۱ -->
-            <article class="bg-[#070D1E] rounded-2xl overflow-hidden border border-gray-800 hover:border-[#D4AF37]/50 shadow-xl transition-all">
-                <div class="relative h-48 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=400" alt="نکات کلیدی قرارداد مشارکت در ساخت" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
-                    <span class="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#0B132B]/90 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/30">دعاوی ملکی</span>
+            <article class="bg-sr-bg-alt rounded-2xl overflow-hidden border border-sr-border-subtle hover:border-[#D4AF37]/50 shadow-xl transition-all">
+                <div class="relative h-48 overflow-hidden bg-sr-surface-card">
+                    <img src="<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>" alt="نکات کلیدی قرارداد مشارکت در ساخت" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    <span class="absolute top-3 right-3 px-3 py-1 rounded-full bg-sr-surface/90 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/30">دعاوی ملکی</span>
                 </div>
                 <div class="p-6 space-y-3 text-right">
-                    <div class="text-xs text-gray-500 flex items-center justify-between">
+                    <div class="text-xs text-sr-muted flex items-center justify-between">
                         <span>۱۴۰۳/۰۵/۲۰</span>
                         <span>⏱ مطالعه: ۶ دقیقه</span>
                     </div>
-                    <h3 class="text-base font-bold text-white leading-snug hover:text-[#D4AF37] transition-colors">
+                    <h3 class="text-base font-bold text-sr-primary leading-snug hover:text-[#D4AF37] transition-colors">
                         ۱۰ شرط حیاتی و غیرقابل چشم‌پوشی در قراردادهای مشارکت در ساخت
                     </h3>
-                    <p class="text-xs text-gray-400 leading-relaxed">
+                    <p class="text-xs text-sr-muted leading-relaxed">
                         تحلیل ضمانت‌اجراهای تاخیر در ساخت، حق حبس، تعیین قدرالسهم و سازوکار حل اختلاف از طریق داوری تخصصی.
                     </p>
-                    <div class="pt-3 border-t border-gray-800">
+                    <div class="pt-3 border-t border-sr-border-subtle">
                         <a href="#articles" class="text-xs text-[#D4AF37] font-semibold flex items-center gap-1">مطالعه یادداشت کامل &larr;</a>
                     </div>
                 </div>
             </article>
 
             <!-- مقاله ۲ -->
-            <article class="bg-[#070D1E] rounded-2xl overflow-hidden border border-gray-800 hover:border-[#D4AF37]/50 shadow-xl transition-all">
-                <div class="relative h-48 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400" alt="قوانین چک صیادی" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
-                    <span class="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#0B132B]/90 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/30">اسناد تجاری</span>
+            <article class="bg-sr-bg-alt rounded-2xl overflow-hidden border border-sr-border-subtle hover:border-[#D4AF37]/50 shadow-xl transition-all">
+                <div class="relative h-48 overflow-hidden bg-sr-surface-card">
+                    <img src="<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>" alt="قوانین چک صیادی" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    <span class="absolute top-3 right-3 px-3 py-1 rounded-full bg-sr-surface/90 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/30">اسناد تجاری</span>
                 </div>
                 <div class="p-6 space-y-3 text-right">
-                    <div class="text-xs text-gray-500 flex items-center justify-between">
+                    <div class="text-xs text-sr-muted flex items-center justify-between">
                         <span>۱۴۰۳/۰۵/۱۵</span>
                         <span>⏱ مطالعه: ۸ دقیقه</span>
                     </div>
-                    <h3 class="text-base font-bold text-white leading-snug hover:text-[#D4AF37] transition-colors">
+                    <h3 class="text-base font-bold text-sr-primary leading-snug hover:text-[#D4AF37] transition-colors">
                         راهنمای کاربردی صدور اجراییه مستقیم چک صیادی بدون دادخواست
                     </h3>
-                    <p class="text-xs text-gray-400 leading-relaxed">
+                    <p class="text-xs text-sr-muted leading-relaxed">
                         چگونه می‌توان طبق ماده ۲۳ قانون اصلاح قانون صدور چک، در کمتر از ۱۰ روز اموال صادرکننده را توقیف نمود؟
                     </p>
-                    <div class="pt-3 border-t border-gray-800">
+                    <div class="pt-3 border-t border-sr-border-subtle">
                         <a href="#articles" class="text-xs text-[#D4AF37] font-semibold flex items-center gap-1">مطالعه یادداشت کامل &larr;</a>
                     </div>
                 </div>
             </article>
 
             <!-- مقاله ۳ -->
-            <article class="bg-[#070D1E] rounded-2xl overflow-hidden border border-gray-800 hover:border-[#D4AF37]/50 shadow-xl transition-all">
-                <div class="relative h-48 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400" alt="داوری تجاری بین‌المللی" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" onerror="this.src='<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>'" />
-                    <span class="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#0B132B]/90 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/30">داوری بین‌المللی</span>
+            <article class="bg-sr-bg-alt rounded-2xl overflow-hidden border border-sr-border-subtle hover:border-[#D4AF37]/50 shadow-xl transition-all">
+                <div class="relative h-48 overflow-hidden bg-sr-surface-card">
+                    <img src="<?php echo esc_url(get_template_directory_uri() . '/screenshot.png'); ?>" alt="داوری تجاری بین‌المللی" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    <span class="absolute top-3 right-3 px-3 py-1 rounded-full bg-sr-surface/90 text-[#D4AF37] text-xs font-bold border border-[#D4AF37]/30">داوری بین‌المللی</span>
                 </div>
                 <div class="p-6 space-y-3 text-right">
-                    <div class="text-xs text-gray-500 flex items-center justify-between">
+                    <div class="text-xs text-sr-muted flex items-center justify-between">
                         <span>۱۴۰۳/۰۵/۱۰</span>
                         <span>⏱ مطالعه: ۵ دقیقه</span>
                     </div>
-                    <h3 class="text-base font-bold text-white leading-snug hover:text-[#D4AF37] transition-colors">
+                    <h3 class="text-base font-bold text-sr-primary leading-snug hover:text-[#D4AF37] transition-colors">
                         مزایای شرط داوری اتاق بازرگانی بین‌المللی در قراردادهای تجاری خارجی
                     </h3>
-                    <p class="text-xs text-gray-400 leading-relaxed">
+                    <p class="text-xs text-sr-muted leading-relaxed">
                         بررسی سرعت رسیدگی، اعتبار بین‌المللی رای داوری و عدم امکان ابطال آن در مراجع قضایی داخلی.
                     </p>
-                    <div class="pt-3 border-t border-gray-800">
+                    <div class="pt-3 border-t border-sr-border-subtle">
                         <a href="#articles" class="text-xs text-[#D4AF37] font-semibold flex items-center gap-1">مطالعه یادداشت کامل &larr;</a>
                     </div>
                 </div>
@@ -1757,64 +1888,64 @@ get_header();
 </section>
 
 <!-- بخش ۸: پرسش‌های متداول موکلین (FaqSection) -->
-<section id="faq" class="py-20 bg-[#070D1E] relative border-t border-gray-800">
+<section id="faq" class="py-20 bg-sr-bg-alt relative border-t border-sr-border-subtle">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
         <div class="text-center space-y-4 mb-14">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/30">
                 <svg class="w-3.5 h-3.5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
-                پاسخ به ابهامات رایج موکلین
+                <span>پاسخ به ابهامات رایج موکلین</span>
             </div>
-            <h2 class="text-3xl sm:text-4xl font-bold font-serif text-white">
+            <h2 class="text-3xl sm:text-4xl font-bold font-serif text-sr-primary">
                 پرسش‌های متداول حقوقی و وکالتی
             </h2>
-            <p class="text-sm sm:text-base text-gray-400">
+            <p class="text-sm sm:text-base text-sr-muted">
                 پاسخ‌های شفاف و کاربردی به متداول‌ترین سوالات موکلین در بدو ورود به پرونده.
             </p>
         </div>
 
         <div class="space-y-4">
             <!-- پرسش ۱ -->
-            <div class="faq-item rounded-2xl bg-[#0B132B] border border-gray-800 overflow-hidden">
-                <button class="faq-question w-full p-5 text-right flex items-center justify-between font-bold text-sm text-white cursor-pointer hover:text-[#D4AF37]">
+            <div class="faq-item rounded-2xl bg-sr-surface border border-sr-border-subtle overflow-hidden">
+                <button class="faq-question w-full p-5 text-right flex items-center justify-between font-bold text-sm text-sr-primary cursor-pointer hover:text-[#D4AF37]">
                     <span>۱. نحوه تعیین حق‌الوکاله در دفتر وکالت دکتر رضوی چگونه است؟ آیا امکان تقسیط وجود دارد؟</span>
                     <span class="faq-icon text-[#D4AF37] text-lg">+</span>
                 </button>
-                <div class="faq-answer hidden p-5 pt-0 text-xs text-gray-300 leading-relaxed border-t border-gray-800">
+                <div class="faq-answer hidden p-5 pt-0 text-xs text-sr-secondary leading-relaxed border-t border-sr-border-subtle">
                     حق‌الوکاله بر اساس پیچیدگی پرونده، مرحله رسیدگی (بدوی، تجدیدنظر یا فرجام‌خواهی) و مطابق آیین‌نامه تعرفه کانون وکلا تعیین می‌شود. در ۹۰٪ پرونده‌ها امکان تقسیط حق‌الوکاله متناسب با پیشرفت مراحل دادرسی فراهم می‌باشد و کلیه توافقات در قرارداد الکترونیک سامانه عدل‌ایران ثبت می‌گردد.
                 </div>
             </div>
 
             <!-- پرسش ۲ -->
-            <div class="faq-item rounded-2xl bg-[#0B132B] border border-gray-800 overflow-hidden">
-                <button class="faq-question w-full p-5 text-right flex items-center justify-between font-bold text-sm text-white cursor-pointer hover:text-[#D4AF37]">
+            <div class="faq-item rounded-2xl bg-sr-surface border border-sr-border-subtle overflow-hidden">
+                <button class="faq-question w-full p-5 text-right flex items-center justify-between font-bold text-sm text-sr-primary cursor-pointer hover:text-[#D4AF37]">
                     <span>۲. آیا برای مشاوره اولیه حضور فیزیکی در دفتر تهران الزامی است؟</span>
                     <span class="faq-icon text-[#D4AF37] text-lg">+</span>
                 </button>
-                <div class="faq-answer hidden p-5 pt-0 text-xs text-gray-300 leading-relaxed border-t border-gray-800">
+                <div class="faq-answer hidden p-5 pt-0 text-xs text-sr-secondary leading-relaxed border-t border-sr-border-subtle">
                     خیر؛ موکلین مقیم شهرستان‌ها یا خارج از کشور می‌توانند پس از رزرو نوبت از طریق سامانه، جلسه مشاوره تصویری امن (از طریق گوگل‌میت یا واتساپ) یا مشاوره تلفنی داشته باشند. عقد وکالتنامه نیز از طریق سامانه میخک وزارت خارجه یا ثنای قوه قضاییه به سادگی انجام می‌شود.
                 </div>
             </div>
 
             <!-- پرسش ۳ -->
-            <div class="faq-item rounded-2xl bg-[#0B132B] border border-gray-800 overflow-hidden">
-                <button class="faq-question w-full p-5 text-right flex items-center justify-between font-bold text-sm text-white cursor-pointer hover:text-[#D4AF37]">
+            <div class="faq-item rounded-2xl bg-sr-surface border border-sr-border-subtle overflow-hidden">
+                <button class="faq-question w-full p-5 text-right flex items-center justify-between font-bold text-sm text-sr-primary cursor-pointer hover:text-[#D4AF37]">
                     <span>۳. محرمانگی اسناد تجاری و اطلاعات پرونده چگونه تضمین می‌گردد؟</span>
                     <span class="faq-icon text-[#D4AF37] text-lg">+</span>
                 </button>
-                <div class="faq-answer hidden p-5 pt-0 text-xs text-gray-300 leading-relaxed border-t border-gray-800">
+                <div class="faq-answer hidden p-5 pt-0 text-xs text-sr-secondary leading-relaxed border-t border-sr-border-subtle">
                     تمامی اطلاعات پرونده‌ها و اسناد موکلین تحت نظارت مستقیم وکیل سرپرست در سرورهای محرمانه نگهداری شده و طبق سوگندنامه کانون وکلای دادگستری و قوانین رازداری حرفه‌ای، ۱۰۰٪ محرمانه و غیرقابل افشا نزد اشخاص ثالث خواهد بود.
                 </div>
             </div>
 
             <!-- پرسش ۴ -->
-            <div class="faq-item rounded-2xl bg-[#0B132B] border border-gray-800 overflow-hidden">
-                <button class="faq-question w-full p-5 text-right flex items-center justify-between font-bold text-sm text-white cursor-pointer hover:text-[#D4AF37]">
+            <div class="faq-item rounded-2xl bg-sr-surface border border-sr-border-subtle overflow-hidden">
+                <button class="faq-question w-full p-5 text-right flex items-center justify-between font-bold text-sm text-sr-primary cursor-pointer hover:text-[#D4AF37]">
                     <span>۴. روند پیگیری لحظه‌ای پرونده برای موکل چگونه طراحی شده است؟</span>
                     <span class="faq-icon text-[#D4AF37] text-lg">+</span>
                 </button>
-                <div class="faq-answer hidden p-5 pt-0 text-xs text-gray-300 leading-relaxed border-t border-gray-800">
+                <div class="faq-answer hidden p-5 pt-0 text-xs text-sr-secondary leading-relaxed border-t border-sr-border-subtle">
                     پس از انعقاد قرارداد، یک کد پیگیری محرمانه به موکل اختصاص می‌یابد. موکل در هر ساعت از شبانه‌روز با درج این کد در همین وبسایت می‌تواند آخرین اقدامات دفاعی، ابلاغیه‌ها و لوایح تنظیمی را به صورت زنده رصد نماید.
                 </div>
             </div>
@@ -1823,31 +1954,35 @@ get_header();
 </section>
 
 <!-- بخش ۹: رزرو نوبت، استعلام پرونده و اطلاعات تماس (ContactAndBookingSection) -->
-<section id="contact" class="py-20 bg-[#0B132B] relative border-t border-gray-800">
+<section id="contact" class="py-20 bg-sr-surface relative border-t border-sr-border-subtle">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- استعلام پرونده (Case Tracker Card) -->
-        <div id="tracking" class="mb-16 max-w-4xl mx-auto rounded-3xl p-8 bg-gradient-to-b from-[#1C2541] to-[#0B132B] border border-[#D4AF37]/30 shadow-2xl">
+        <div id="tracking" class="mb-16 max-w-4xl mx-auto rounded-3xl p-8 bg-sr-surface-card border border-sr-border shadow-2xl">
             <div class="text-center space-y-2 mb-6">
-                <span class="text-xs font-bold text-[#D4AF37]">سامانه محرمانه موکلین</span>
-                <h3 class="text-2xl font-bold font-serif text-white">پیگیری آنلاین و لحظه‌ای پرونده قضایی</h3>
-                <p class="text-xs text-gray-300">کد پرونده (مانند SR-1403-882) یا شماره همراه ثبت‌شده را وارد فرمایید:</p>
+                <span class="text-xs font-bold text-sr-gold">سامانه محرمانه موکلین</span>
+                <h3 class="text-2xl font-bold font-serif text-sr-primary">پیگیری آنلاین و لحظه‌ای پرونده قضایی</h3>
+                <p class="text-xs text-sr-muted">کد پرونده (مانند SR-1403-882) یا شماره همراه ثبت‌شده را وارد فرمایید:</p>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-3">
-                <input type="text" id="case-search-input" placeholder="نمونه: SR-1403-882 یا شماره همراه موکل" class="flex-1 px-4 py-3 rounded-xl bg-[#060B18] border border-gray-700 text-white text-sm focus:outline-none focus:border-[#D4AF37]" />
-                <button onclick="searchCaseStatus()" class="btn-gold px-8 py-3 rounded-xl font-bold text-sm cursor-pointer">
-                    🔍 استعلام آخرین وضعیت
+                <input type="text" id="case-search-input" placeholder="نمونه: SR-1403-882 یا شماره همراه موکل" class="flex-1 px-4 py-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm focus:outline-none focus:border-[#D4AF37]" />
+                <button onclick="searchCaseStatus()" class="btn-gold px-8 py-3 rounded-xl font-bold text-sm cursor-pointer flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <span>استعلام آخرین وضعیت</span>
                 </button>
             </div>
 
-            <div id="case-result-display" class="hidden mt-6 p-5 rounded-xl bg-[#060B18] border border-[#D4AF37]/30 space-y-3">
-                <div class="flex items-center justify-between border-b border-gray-800 pb-2">
-                    <span id="res-case-title" class="font-bold text-white text-sm"></span>
-                    <span id="res-case-status" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"></span>
+            <div id="case-result-display" class="hidden mt-6 p-5 rounded-xl bg-sr-bg border border-sr-border space-y-3">
+                <div class="flex items-center justify-between border-b border-sr-border-subtle pb-2">
+                    <span id="res-case-title" class="font-bold text-sr-primary text-sm"></span>
+                    <span id="res-case-status" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"></span>
                 </div>
-                <p id="res-case-desc" class="text-xs text-gray-300 leading-relaxed"></p>
-                <div class="flex items-center justify-between text-xs text-gray-400 pt-2">
+                <p id="res-case-desc" class="text-xs text-sr-secondary leading-relaxed"></p>
+                <div class="flex items-center justify-between text-xs text-sr-muted pt-2">
                     <span id="res-case-branch"></span>
                     <span id="res-case-date" class="font-mono"></span>
                 </div>
@@ -1858,28 +1993,28 @@ get_header();
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             
             <!-- ستون فرم رزرو نوبت (۷ ستون) -->
-            <div id="booking" class="lg:col-span-7 bg-[#070D1E] p-8 rounded-3xl border border-gray-800 shadow-xl">
+            <div id="booking" class="lg:col-span-7 bg-sr-surface-card p-8 rounded-3xl border border-sr-border-subtle shadow-xl">
                 <div class="space-y-2 mb-6">
-                    <span class="text-xs font-bold text-[#D4AF37]">درخواست رسمی وقت مشاوره</span>
-                    <h3 class="text-2xl font-bold font-serif text-white">ثبت نوبت مشاوره حضوری یا آنلاین</h3>
+                    <span class="text-xs font-bold text-sr-gold">درخواست رسمی وقت مشاوره</span>
+                    <h3 class="text-2xl font-bold font-serif text-sr-primary">ثبت نوبت مشاوره حضوری یا آنلاین</h3>
                 </div>
 
                 <form id="booking-form-main" onsubmit="handleBookingSubmit(event)" class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">نام و نام خانوادگی موکل *</label>
-                            <input type="text" required id="book-name" class="w-full px-4 py-2.5 rounded-xl bg-[#0B132B] border border-gray-700 text-white text-sm focus:border-[#D4AF37] focus:outline-none" />
+                            <label class="block text-xs font-semibold text-sr-secondary mb-1.5">نام و نام خانوادگی موکل *</label>
+                            <input type="text" required id="book-name" class="w-full px-4 py-2.5 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm focus:border-[#D4AF37] focus:outline-none" />
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">شماره همراه معتبر (جهت پیامک نوبت) *</label>
-                            <input type="tel" required id="book-phone" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="w-full px-4 py-2.5 rounded-xl bg-[#0B132B] border border-gray-700 text-white text-sm text-left font-mono focus:border-[#D4AF37] focus:outline-none" />
+                            <label class="block text-xs font-semibold text-sr-secondary mb-1.5">شماره همراه معتبر (جهت پیامک نوبت) *</label>
+                            <input type="tel" required id="book-phone" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="w-full px-4 py-2.5 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm text-left font-mono focus:border-[#D4AF37] focus:outline-none" />
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">موضوع دعوی یا قرارداد</label>
-                            <select id="book-service" class="w-full px-4 py-2.5 rounded-xl bg-[#0B132B] border border-gray-700 text-white text-sm focus:border-[#D4AF37] focus:outline-none">
+                            <label class="block text-xs font-semibold text-sr-secondary mb-1.5">موضوع دعوی یا قرارداد</label>
+                            <select id="book-service" class="w-full px-4 py-2.5 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm focus:border-[#D4AF37] focus:outline-none">
                                 <option>دعاوی ملکی، اراضی و سرقفلی</option>
                                 <option>دعاوی تجاری و قراردادها</option>
                                 <option>دعاوی کیفری و جرایم اقتصادی</option>
@@ -1888,8 +2023,8 @@ get_header();
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">نحوه برگزاری جلسه مشاوره</label>
-                            <select id="book-mode" class="w-full px-4 py-2.5 rounded-xl bg-[#0B132B] border border-gray-700 text-white text-sm focus:border-[#D4AF37] focus:outline-none">
+                            <label class="block text-xs font-semibold text-sr-secondary mb-1.5">نحوه برگزاری جلسه مشاوره</label>
+                            <select id="book-mode" class="w-full px-4 py-2.5 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm focus:border-[#D4AF37] focus:outline-none">
                                 <option value="in_person">جلسه حضوری در دفتر تهران (میدان ونک)</option>
                                 <option value="online">مشاوره تصویری آنلاین (گوگل‌میت / واتساپ)</option>
                                 <option value="phone">مشاوره تلفنی مستقیم با وکیل</option>
@@ -1898,8 +2033,8 @@ get_header();
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1.5">شرح مختصر خواسته یا روند پرونده</label>
-                        <textarea id="book-notes" rows="3" placeholder="موضوع دعوی، شماره پرونده یا شعبه رسیدگی‌کننده..." class="w-full px-4 py-2.5 rounded-xl bg-[#0B132B] border border-gray-700 text-white text-sm focus:border-[#D4AF37] focus:outline-none"></textarea>
+                        <label class="block text-xs font-semibold text-sr-secondary mb-1.5">شرح مختصر خواسته یا روند پرونده</label>
+                        <textarea id="book-notes" rows="3" placeholder="موضوع دعوی، شماره پرونده یا شعبه رسیدگی‌کننده..." class="w-full px-4 py-2.5 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm focus:border-[#D4AF37] focus:outline-none"></textarea>
                     </div>
 
                     <button type="submit" class="btn-gold w-full py-3.5 rounded-xl font-bold text-sm cursor-pointer shadow-lg">
@@ -1909,49 +2044,71 @@ get_header();
             </div>
 
             <!-- ستون اطلاعات تماس دفتر و ساعات کاری (۵ ستون) -->
-            <div class="lg:col-span-5 bg-[#070D1E] p-8 rounded-3xl border border-gray-800 shadow-xl space-y-6">
+            <div class="lg:col-span-5 bg-sr-surface-card p-8 rounded-3xl border border-sr-border-subtle shadow-xl space-y-6">
                 <div>
-                    <span class="text-xs font-bold text-[#D4AF37]">راه‌های ارتباط مستقیم</span>
-                    <h3 class="text-2xl font-bold font-serif text-white mt-1">دفتر وکالت SedRazavi</h3>
+                    <span class="text-xs font-bold text-sr-gold">راه‌های ارتباط مستقیم</span>
+                    <h3 class="text-2xl font-bold font-serif text-sr-primary mt-1">دفتر وکالت SedRazavi</h3>
                 </div>
 
-                <div class="space-y-4 text-xs sm:text-sm text-gray-300">
+                <div class="space-y-4 text-xs sm:text-sm text-sr-secondary">
                     <div class="flex items-start gap-3">
-                        <span class="text-[#D4AF37] text-lg">📍</span>
+                        <div class="w-8 h-8 rounded-lg bg-sr-surface flex items-center justify-center text-sr-gold border border-sr-border-subtle shrink-0 mt-0.5">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                        </div>
                         <div>
-                            <strong class="block text-white mb-1">نشانی دفتر مرکزی:</strong>
+                            <strong class="block text-sr-primary mb-1">نشانی دفتر مرکزی:</strong>
                             <span>تهران، میدان ونک، خیابان ملاصدرا، پلاک ۱۱۸، برج حقوقی سدید، طبقه پنجم، واحد ۱۵</span>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <span class="text-[#D4AF37] text-lg">📞</span>
+                        <div class="w-8 h-8 rounded-lg bg-sr-surface flex items-center justify-center text-sr-gold border border-sr-border-subtle shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                        </div>
                         <div>
-                            <strong class="block text-white mb-0.5">تلفن‌های دفتر:</strong>
-                            <a href="tel:02188990011" class="font-mono text-[#D4AF37] hover:underline">۰۲۱-۸۸۹۹۰۰۱۱</a> | <a href="tel:02188990012" class="font-mono text-[#D4AF37] hover:underline">۰۲۱-۸۸۹۹۰۰۱۲</a>
+                            <strong class="block text-sr-primary mb-0.5">تلفن‌های دفتر:</strong>
+                            <a href="tel:02188990011" class="font-mono text-sr-gold hover:underline">۰۲۱-۸۸۹۹۰۰۱۱</a> | <a href="tel:02188990012" class="font-mono text-sr-gold hover:underline">۰۲۱-۸۸۹۹۰۰۱۲</a>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <span class="text-[#D4AF37] text-lg">✉️</span>
+                        <div class="w-8 h-8 rounded-lg bg-sr-surface flex items-center justify-center text-sr-gold border border-sr-border-subtle shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </div>
                         <div>
-                            <strong class="block text-white mb-0.5">پست الکترونیک رسمی:</strong>
+                            <strong class="block text-sr-primary mb-0.5">پست الکترونیک رسمی:</strong>
                             <span class="font-mono">legal@sedrazavi.com</span>
                         </div>
                     </div>
 
                     <div class="flex items-start gap-3">
-                        <span class="text-[#D4AF37] text-lg">⏰</span>
+                        <div class="w-8 h-8 rounded-lg bg-sr-surface flex items-center justify-center text-sr-gold border border-sr-border-subtle shrink-0 mt-0.5">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
                         <div>
-                            <strong class="block text-white mb-1">ساعات کاری و پذیرش:</strong>
+                            <strong class="block text-sr-primary mb-1">ساعات کاری و پذیرش:</strong>
                             <p>شنبه تا چهارشنبه: ۹:۰۰ الی ۱۹:۰۰</p>
                             <p>پنج‌شنبه: ۹:۰۰ الی ۱۳:۰۰ (با تعیین وقت قبلی)</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="p-4 rounded-2xl bg-[#0B132B] border border-gray-800 text-xs text-gray-400">
-                    <span class="text-[#D4AF37] font-bold">🛡️ تضمین محرمانگی:</span> کلیه تماس‌ها، اسناد و مشاوره‌ها مطابق منشور اخلاقی کانون وکلا کاملاً محرمانه تلقی می‌گردد.
+                <div class="p-4 rounded-2xl bg-sr-bg border border-sr-border-subtle text-xs text-sr-muted flex items-start gap-2.5">
+                    <svg class="w-4 h-4 text-sr-gold shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <span><strong class="text-sr-primary">تضمین محرمانگی:</strong> کلیه تماس‌ها، اسناد و مشاوره‌ها مطابق منشور اخلاقی کانون وکلا کاملاً محرمانه تلقی می‌گردد.</span>
                 </div>
             </div>
 
@@ -1962,77 +2119,43 @@ get_header();
 
 <!-- پنجره‌های مودال تعاملی (Modals) -->
 
-<!-- مودال ۱: استوری‌ها -->
-<div id="story-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 backdrop-blur-md p-4" role="dialog" aria-modal="true">
-    <div class="relative w-full max-w-md bg-[#0B132B] text-white rounded-2xl overflow-hidden shadow-2xl border border-[#D4AF37]/30 flex flex-col h-[650px] max-h-[90vh]">
-        <div class="absolute top-3 left-3 right-3 z-20 flex gap-1.5">
-            <div class="h-1 flex-1 rounded-full bg-white/20 overflow-hidden">
-                <div id="story-progress-bar" class="h-full bg-[#D4AF37] w-full transition-all duration-300"></div>
-            </div>
+<!-- مودال ۱: نظرسنجی خدمات -->
+<div id="survey-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-sr-surface rounded-2xl p-6 max-w-md w-full border border-sr-border text-right space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-sr-border-subtle pb-3">
+            <h4 class="font-bold text-sr-primary text-sm">نظرسنجی کیفیت خدمات و رضایت موکل</h4>
+            <button onclick="closeSurveyModal()" class="text-sr-muted hover:text-sr-primary cursor-pointer">&times;</button>
         </div>
-        <div class="relative z-10 flex items-center justify-between p-4 pt-7 bg-gradient-to-b from-black/80 to-transparent">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-full border border-[#D4AF37] overflow-hidden">
-                    <img src="<?php echo esc_url($lawyer_hero_portrait); ?>" alt="دکتر سیده مریم رضوی - استوری نکات حقوقی" class="w-full h-full object-cover" />
-                </div>
-                <div>
-                    <h5 id="story-modal-title" class="text-xs font-bold text-white"></h5>
-                    <span id="story-modal-cat" class="text-[10px] text-[#F3E5AB]"></span>
-                </div>
-            </div>
-            <button onclick="closeStoryModal()" class="p-1 rounded-full bg-black/40 hover:bg-black/80 text-white cursor-pointer">&times;</button>
-        </div>
-        <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
-            <img id="story-modal-img" src="" alt="تصویر اسلاید استوری حقوقی وکیل" class="w-full h-full object-cover opacity-85" />
-            <div class="absolute inset-0 bg-gradient-to-t from-[#0B132B] via-transparent to-transparent"></div>
-            <div class="absolute bottom-6 left-5 right-5 z-10 text-right space-y-2">
-                <h4 id="story-slide-title" class="text-base font-bold text-white"></h4>
-                <p id="story-slide-desc" class="text-xs text-gray-200 leading-relaxed"></p>
-                <a href="#booking" onclick="closeStoryModal()" class="btn-gold inline-block text-xs py-2 px-4 mt-2">
-                    رزرو فوری مشاوره درباره این موضوع &larr;
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- مودال ۲: نظرسنجی خدمات -->
-<div id="survey-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-    <div class="bg-[#0B132B] rounded-2xl p-6 max-w-md w-full border border-[#D4AF37]/30 text-right space-y-4">
-        <div class="flex items-center justify-between border-b border-gray-800 pb-3">
-            <h4 class="font-bold text-white text-sm">نظرسنجی کیفیت خدمات و رضایت موکل</h4>
-            <button onclick="closeSurveyModal()" class="text-gray-400 hover:text-white cursor-pointer">&times;</button>
-        </div>
-        <p class="text-xs text-gray-300">دیدگاه ارزشمند شما ما را در ارتقای سطح استانداردهای دادرسی و پاسخگویی یاری می‌نماید.</p>
-        <div class="flex items-center justify-center gap-2 text-2xl text-[#D4AF37] py-2 cursor-pointer">
+        <p class="text-xs text-sr-secondary">دیدگاه ارزشمند شما ما را در ارتقای سطح استانداردهای دادرسی و پاسخگویی یاری می‌نماید.</p>
+        <div class="flex items-center justify-center gap-2 text-2xl text-sr-gold py-2 cursor-pointer">
             <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
         </div>
-        <textarea rows="3" placeholder="دیدگاه یا پیشنهاد خود را مرقوم بفرمایید..." class="w-full p-3 rounded-xl bg-[#060B18] border border-gray-700 text-white text-xs focus:border-[#D4AF37] focus:outline-none"></textarea>
+        <textarea rows="3" placeholder="دیدگاه یا پیشنهاد خود را مرقوم بفرمایید..." class="w-full p-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-xs focus:border-[#D4AF37] focus:outline-none"></textarea>
         <button onclick="submitSurvey()" class="btn-gold w-full py-2.5 rounded-xl font-bold text-xs cursor-pointer">
             ثبت و ارسال بازخورد
         </button>
     </div>
 </div>
 
-<!-- مودال ۳: راهنمای تعاملی سایت -->
-<div id="tour-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-    <div class="bg-[#0B132B] rounded-2xl p-6 max-w-md w-full border border-[#D4AF37]/30 text-right space-y-4">
-        <div class="flex items-center justify-between border-b border-gray-800 pb-3">
-            <h4 class="font-bold text-white text-sm">راهنمای تعاملی سامانه وکالت</h4>
-            <button onclick="closeTourModal()" class="text-gray-400 hover:text-white cursor-pointer">&times;</button>
+<!-- مودال ۲: راهنمای تعاملی سایت -->
+<div id="tour-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-sr-surface rounded-2xl p-6 max-w-md w-full border border-sr-border text-right space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-sr-border-subtle pb-3">
+            <h4 class="font-bold text-sr-primary text-sm">راهنمای تعاملی سامانه وکالت</h4>
+            <button onclick="closeTourModal()" class="text-sr-muted hover:text-sr-primary cursor-pointer">&times;</button>
         </div>
-        <div class="space-y-3 text-xs text-gray-300">
-            <div class="p-3 rounded-xl bg-[#060B18] border border-gray-800">
-                <strong class="text-[#D4AF37] block mb-1">۱. نوار استوری‌ها:</strong>
-                آخرین نکات چک، قوانین ملکی و موفقیت‌های اخیر پرونده‌ها را مشاهده فرمایید.
+        <div class="space-y-3 text-xs text-sr-secondary">
+            <div class="p-3 rounded-xl bg-sr-bg border border-sr-border-subtle">
+                <strong class="text-sr-gold block mb-1">۱. نوار تحلیل‌های شاخص و آرای قضایی:</strong>
+                آخرین تحلیل‌های حقوقی، قوانین ملکی و چک، و آرای وحدت رویه را مطالعه نمایید.
             </div>
-            <div class="p-3 rounded-xl bg-[#060B18] border border-gray-800">
-                <strong class="text-[#D4AF37] block mb-1">۲. استعلام پرونده:</strong>
-                با کد اختصاصی SR روند لوایح و تصمیمات قضایی را به صورت ۲۴ ساعته دنبال کنید.
+            <div class="p-3 rounded-xl bg-sr-bg border border-sr-border-subtle">
+                <strong class="text-sr-gold block mb-1">۲. استعلام برخط پرونده:</strong>
+                با کد اختصاصی پرونده، روند لوایح و تصمیمات قضایی را به صورت ۲۴ ساعته دنبال کنید.
             </div>
-            <div class="p-3 rounded-xl bg-[#060B18] border border-gray-800">
-                <strong class="text-[#D4AF37] block mb-1">۳. رزرو آنلاین نوبت:</strong>
-                مشاوره حضوری، تلفنی یا تصویری خود را تنها در ۱ دقیقه رزرو فرمایید.
+            <div class="p-3 rounded-xl bg-sr-bg border border-sr-border-subtle">
+                <strong class="text-sr-gold block mb-1">۳. رزرو آنلاین نوبت مشاوره:</strong>
+                مشاوره حضوری در دفتر ونک، تلفنی یا تصویری خود را تنها در ۱ دقیقه رزرو فرمایید.
             </div>
         </div>
         <button onclick="closeTourModal()" class="btn-gold w-full py-2.5 rounded-xl font-bold text-xs cursor-pointer">
@@ -2041,41 +2164,58 @@ get_header();
     </div>
 </div>
 
-<!-- مودال ۴: آکادمی و مستندات -->
-<div id="academy-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-    <div class="bg-[#0B132B] rounded-2xl p-6 max-w-lg w-full border border-[#D4AF37]/30 text-right space-y-4">
-        <div class="flex items-center justify-between border-b border-gray-800 pb-3">
-            <h4 class="font-bold text-white text-sm">آکادمی و مستندات دفتر وکالت SedRazavi</h4>
-            <button onclick="closeAcademyModal()" class="text-gray-400 hover:text-white cursor-pointer">&times;</button>
+<!-- مودال ۳: آکادمی و مستندات -->
+<div id="academy-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-sr-surface rounded-2xl p-6 max-w-lg w-full border border-sr-border text-right space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-sr-border-subtle pb-3">
+            <h4 class="font-bold text-sr-primary text-sm">آکادمی و مستندات دفتر وکالت SedRazavi</h4>
+            <button onclick="closeAcademyModal()" class="text-sr-muted hover:text-sr-primary cursor-pointer">&times;</button>
         </div>
-        <p class="text-xs text-gray-300">دسترسی به فرم‌های دادخواست نمونه، قوانین موضوعه جدید و شیوه‌نامه تنظیم قراردادهای تجاری.</p>
+        <p class="text-xs text-sr-secondary">دسترسی به فرم‌های دادخواست نمونه، قوانین موضوعه جدید و شیوه‌نامه تنظیم قراردادهای تجاری.</p>
         <div class="grid grid-cols-2 gap-3 text-xs">
-            <a href="#articles" onclick="closeAcademyModal()" class="p-3 rounded-xl bg-[#060B18] border border-gray-800 hover:border-[#D4AF37] block">
-                <span class="text-[#D4AF37] block font-bold mb-1">📚 آرشیو قوانین</span>
-                قوانین چک، سرقفلی و اراضی
+            <a href="#articles" onclick="closeAcademyModal()" class="p-3 rounded-xl bg-sr-bg border border-sr-border-subtle hover:border-[#D4AF37] block">
+                <div class="flex items-center gap-1.5 text-sr-gold font-bold mb-1">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    <span>آرشیو قوانین</span>
+                </div>
+                <span class="text-sr-muted">قوانین چک، سرقفلی و اراضی</span>
             </a>
-            <a href="#articles" onclick="closeAcademyModal()" class="p-3 rounded-xl bg-[#060B18] border border-gray-800 hover:border-[#D4AF37] block">
-                <span class="text-[#D4AF37] block font-bold mb-1">⚖️ آرای وحدت رویه</span>
-                جدیدترین آرای دیوان عالی
+            <a href="#articles" onclick="closeAcademyModal()" class="p-3 rounded-xl bg-sr-bg border border-sr-border-subtle hover:border-[#D4AF37] block">
+                <div class="flex items-center gap-1.5 text-sr-gold font-bold mb-1">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                        <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                        <path d="M7 21h10"/>
+                        <path d="M12 3v18"/>
+                    </svg>
+                    <span>آرای وحدت رویه</span>
+                </div>
+                <span class="text-sr-muted">جدیدترین آرای دیوان عالی</span>
             </a>
         </div>
-        <button onclick="closeAcademyModal()" class="w-full py-2 rounded-xl bg-gray-800 text-white text-xs cursor-pointer">
+        <button onclick="closeAcademyModal()" class="w-full py-2 rounded-xl bg-sr-surface-hover text-sr-primary border border-sr-border-subtle text-xs cursor-pointer">
             بستن
         </button>
     </div>
 </div>
 
 <!-- بنر کوکی و حریم خصوصی در پایین صفحه -->
-<div id="cookie-banner" class="fixed bottom-4 right-4 left-4 sm:right-auto sm:left-6 sm:max-w-md z-40 p-4 rounded-2xl bg-[#0B132B]/95 backdrop-blur-md border border-[#D4AF37]/30 shadow-2xl text-right space-y-3">
-    <div class="flex items-center gap-2 text-[#D4AF37] font-bold text-xs">
-        <span>🍪 امنیت و محرمانگی اطلاعات موکلین</span>
+<div id="cookie-banner" class="fixed bottom-4 right-4 left-4 sm:right-auto sm:left-6 sm:max-w-md z-40 p-4 rounded-2xl bg-sr-surface/95 backdrop-blur-md border border-sr-border shadow-2xl text-right space-y-3">
+    <div class="flex items-center gap-2 text-sr-gold font-bold text-xs">
+        <svg class="w-4 h-4 text-sr-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>امنیت و محرمانگی اطلاعات موکلین</span>
     </div>
-    <p class="text-[11px] text-gray-300 leading-relaxed">
+    <p class="text-[11px] text-sr-secondary leading-relaxed">
         این پایگاه حقوقی جهت ارائه خدمات مطلوب و حفاظت از اسناد، از کوکی‌های رمزنگاری‌شده بهره می‌برد.
     </p>
     <div class="flex items-center gap-2">
         <button onclick="acceptCookies()" class="btn-gold text-[11px] py-1.5 px-4 font-bold cursor-pointer">پذیرش و تایید</button>
-        <button onclick="dismissCookies()" class="text-gray-400 hover:text-white text-[11px] py-1.5 px-2 cursor-pointer">انصراف</button>
+        <button onclick="dismissCookies()" class="text-sr-muted hover:text-sr-primary text-[11px] py-1.5 px-2 cursor-pointer">انصراف</button>
     </div>
 </div><!-- #root -->
 
@@ -2417,12 +2557,12 @@ if (!function_exists('sedrazavi_customizer_dynamic_css')) {
  */
 if (!function_exists('enqueue_react_assets')) {
     function enqueue_react_assets() {
-        // 6.1. Persian Webfont Vazirmatn
+        // 6.1. Persian Webfont Vazirmatn (Local Self-contained Asset - 0% External CDN Dependency)
         wp_enqueue_style(
             'sedrazavi-vazirmatn-font',
-            'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css',
+            SEDRAZAVI_THEME_URI . '/assets/css/vazirmatn.css',
             [],
-            '33.003'
+            SEDRAZAVI_THEME_VERSION
         );
 
         // 6.2. WordPress Main Stylesheet
@@ -2615,6 +2755,19 @@ if (!defined('ABSPATH')) {
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="profile" href="https://gmpg.org/xfn/11">
+    <script>
+        (function() {
+            try {
+                var savedTheme = localStorage.getItem('sedrazavi_theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                if (savedTheme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            } catch (e) {}
+        })();
+    <\/script>
     <?php
     if (function_exists('sedrazavi_render_dynamic_seo_tags')) {
         sedrazavi_render_dynamic_seo_tags();
@@ -2622,7 +2775,7 @@ if (!defined('ABSPATH')) {
     wp_head();
     ?>
 </head>
-<body <?php body_class('bg-[#0B132B] text-slate-100 antialiased font-sans'); ?>>
+<body <?php body_class('antialiased font-sans'); ?>>
 <?php wp_body_open(); ?>
 
 <a class="skip-link screen-reader-text" href="#main-content">
@@ -2642,15 +2795,15 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-2">
         <!-- سمت راست: شماره پروانه و ساعات کاری -->
         <div class="flex items-center gap-4">
-            <span class="flex items-center gap-1.5 text-[#D4AF37] font-semibold text-xs">
+            <span class="flex items-center gap-1.5 text-sr-gold font-semibold text-xs">
                 <svg class="w-3.5 h-3.5 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                 </svg>
                 <span>۱۸۴۵۲ / ک.و.م</span>
             </span>
-            <span class="hidden sm:inline-block text-gray-500">|</span>
-            <span class="hidden sm:inline-flex items-center gap-1 text-gray-300 text-xs">
-                <svg class="w-3 h-3 text-gray-400 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <span class="hidden sm:inline-block text-sr-muted">|</span>
+            <span class="hidden sm:inline-flex items-center gap-1 text-sr-secondary text-xs">
+                <svg class="w-3 h-3 text-sr-muted inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
                 <span>شنبه تا چهارشنبه: ۹:۰۰ الی ۱۹:۰۰ | پنج‌شنبه: ۹:۰۰ الی ۱۳:۰۰</span>
@@ -2659,29 +2812,29 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
 
         <!-- سمت چپ: نظرسنجی، راهنما، آکادمی و شماره تماس -->
         <div class="flex items-center gap-3 text-xs overflow-x-auto whitespace-nowrap">
-            <a href="#survey" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1 text-gray-300">
-                <svg class="w-3.5 h-3.5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <a href="<?php echo esc_url(home_url('/#survey')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1 text-sr-secondary">
+                <svg class="w-3.5 h-3.5 text-sr-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
                 </svg>
                 <span>نظرسنجی خدمات</span>
             </a>
-            <span class="text-gray-600">|</span>
-            <a href="#guide" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1 text-gray-300">
-                <svg class="w-3.5 h-3.5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <span class="text-sr-muted">|</span>
+            <a href="<?php echo esc_url(home_url('/#guide')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1 text-sr-secondary">
+                <svg class="w-3.5 h-3.5 text-sr-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
                 </svg>
                 <span>راهنمای تعاملی</span>
             </a>
-            <span class="text-gray-600">|</span>
-            <a href="#academy" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1 text-gray-300">
+            <span class="text-sr-muted">|</span>
+            <a href="<?php echo esc_url(home_url('/#academy')); ?>" class="hover:text-sr-gold transition-colors flex items-center gap-1 text-sr-secondary">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
                 <span>آکادمی و مستندات</span>
             </a>
-            <span class="text-gray-600">|</span>
-            <a href="tel:02188990011" class="text-gray-200 hover:text-[#D4AF37] font-mono flex items-center gap-1">
-                <svg class="w-3 h-3 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <span class="text-sr-muted">|</span>
+            <a href="tel:02188990011" class="text-sr-primary hover:text-sr-gold font-mono flex items-center gap-1">
+                <svg class="w-3 h-3 text-sr-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                 </svg>
                 <span>۰۲۱-۸۸۹۹۰۰۱۱</span>
@@ -2720,13 +2873,13 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
             wp_nav_menu(array(
                 'theme_location' => 'primary',
                 'container'      => 'nav',
-                'container_class'=> 'hidden xl:flex items-center gap-1 font-medium text-xs text-gray-200',
+                'container_class'=> 'hidden xl:flex items-center gap-1 font-medium text-xs text-sr-secondary',
                 'menu_class'     => 'flex items-center gap-1',
                 'fallback_cb'    => 'sedrazavi_fallback_menu',
             ));
         } else {
         ?>
-        <nav class="hidden xl:flex items-center gap-1 font-medium text-xs text-gray-200">
+        <nav class="hidden xl:flex items-center gap-1 font-medium text-xs text-sr-secondary">
             <a href="<?php echo esc_url(home_url('/')); ?>" class="nav-link"><?php esc_html_e('صفحه اصلی', 'sedrazavi'); ?></a>
             
             <div class="nav-dropdown-wrapper">
@@ -2735,19 +2888,34 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
                     <svg class="w-3.5 h-3.5 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
                 <div class="nav-dropdown-menu">
-                    <a href="#services" class="dropdown-item">🏢 دعاوی ملکی، اراضی و سرقفلی</a>
-                    <a href="#services" class="dropdown-item">💼 دعاوی تجاری، شرکت‌ها و ورشکستگی</a>
-                    <a href="#services" class="dropdown-item">⚖️ دعاوی کیفری، جرایم اقتصادی و دادگاه انقلاب</a>
-                    <a href="#services" class="dropdown-item">👥 حقوق خانواده، طلاق توافقی و تقسیم ترکه</a>
-                    <a href="#services" class="dropdown-item">🌐 داوری بین‌المللی و تنظیم قراردادها</a>
+                    <a href="<?php echo esc_url(home_url('/#services')); ?>" class="dropdown-item flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/></svg>
+                        <span>دعاوی ملکی، اراضی و سرقفلی</span>
+                    </a>
+                    <a href="<?php echo esc_url(home_url('/#services')); ?>" class="dropdown-item flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        <span>دعاوی تجاری، شرکت‌ها و ورشکستگی</span>
+                    </a>
+                    <a href="<?php echo esc_url(home_url('/#services')); ?>" class="dropdown-item flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/></svg>
+                        <span>دعاوی کیفری، جرایم اقتصادی و دادگاه انقلاب</span>
+                    </a>
+                    <a href="<?php echo esc_url(home_url('/#services')); ?>" class="dropdown-item flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span>حقوق خانواده، طلاق توافقی و تقسیم ترکه</span>
+                    </a>
+                    <a href="<?php echo esc_url(home_url('/#services')); ?>" class="dropdown-item flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        <span>داوری بین‌المللی و تنظیم قراردادها</span>
+                    </a>
                 </div>
             </div>
 
-            <a href="#articles" class="nav-link"><?php esc_html_e('آرشیو مقالات و ویدیوها', 'sedrazavi'); ?></a>
-            <a href="#about" class="nav-link"><?php esc_html_e('درباره وکیل', 'sedrazavi'); ?></a>
-            <a href="#tracking" class="nav-link text-[#D4AF37] font-bold"><?php esc_html_e('پیگیری پرونده', 'sedrazavi'); ?></a>
-            <a href="#faq" class="nav-link"><?php esc_html_e('سوالات متداول', 'sedrazavi'); ?></a>
-            <a href="#contact" class="nav-link"><?php esc_html_e('تماس با ما', 'sedrazavi'); ?></a>
+            <a href="<?php echo esc_url(home_url('/#articles')); ?>" class="nav-link"><?php esc_html_e('آرشیو مقالات و ویدیوها', 'sedrazavi'); ?></a>
+            <a href="<?php echo esc_url(home_url('/#about')); ?>" class="nav-link"><?php esc_html_e('درباره وکیل', 'sedrazavi'); ?></a>
+            <a href="<?php echo esc_url(home_url('/#tracking')); ?>" class="nav-link text-sr-gold font-bold"><?php esc_html_e('پیگیری پرونده', 'sedrazavi'); ?></a>
+            <a href="<?php echo esc_url(home_url('/#faq')); ?>" class="nav-link"><?php esc_html_e('سوالات متداول', 'sedrazavi'); ?></a>
+            <a href="<?php echo esc_url(home_url('/#contact')); ?>" class="nav-link"><?php esc_html_e('تماس با ما', 'sedrazavi'); ?></a>
         </nav>
         <?php } ?>
 
@@ -2765,7 +2933,7 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
             </button>
 
             <!-- رزرو نوبت مشاوره -->
-            <a href="#booking" class="btn-gold hidden sm:inline-flex items-center gap-1.5 text-xs px-4 py-2">
+            <a href="<?php echo esc_url(home_url('/#booking')); ?>" class="btn-gold hidden sm:inline-flex items-center gap-1.5 text-xs px-4 py-2">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                     <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -2777,7 +2945,7 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
 
             <!-- منوی موبایل -->
             <button id="mobile-menu-btn" class="hamburger-btn xl:hidden" aria-label="<?php esc_attr_e('منوی موبایل', 'sedrazavi'); ?>">
-                <svg class="w-5 h-5 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <svg class="w-5 h-5 text-sr-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -2794,7 +2962,7 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
     <div class="mobile-drawer-panel">
         <div>
             <!-- سربرگ منوی کشویی -->
-            <div class="flex items-center justify-between pb-5 border-b border-slate-800">
+            <div class="flex items-center justify-between pb-5 border-b border-sr-border-subtle">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#AA820A] flex items-center justify-center text-white shadow-md">
                         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2805,11 +2973,11 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
                         </svg>
                     </div>
                     <div>
-                        <span class="block text-sm font-bold text-white">SedRazavi</span>
+                        <span class="block text-sm font-bold text-sr-primary">SedRazavi</span>
                         <span class="block text-[10px] text-[#D4AF37]"><?php esc_html_e('دفتر وکالت و مشاوره حقوقی تخصصی', 'sedrazavi'); ?></span>
                     </div>
                 </div>
-                <button id="close-mobile-menu-btn" class="p-2 rounded-lg text-slate-400 hover:text-white bg-white/5 cursor-pointer" aria-label="<?php esc_attr_e('بستن منو', 'sedrazavi'); ?>">
+                <button id="close-mobile-menu-btn" class="p-2 rounded-lg text-sr-muted hover:text-sr-primary bg-sr-surface-hover cursor-pointer" aria-label="<?php esc_attr_e('بستن منو', 'sedrazavi'); ?>">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -2817,7 +2985,7 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
             </div>
 
             <!-- فهرست پیوندهای موبایل -->
-            <ul class="py-5 space-y-3 text-sm font-medium text-slate-200">
+            <ul class="py-5 space-y-3 text-sm font-medium text-sr-primary">
                 <li><a href="<?php echo esc_url(home_url('/')); ?>" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('صفحه اصلی', 'sedrazavi'); ?></a></li>
                 
                 <li>
@@ -2825,32 +2993,51 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
                         <span><?php esc_html_e('حوزه‌های تخصصی وکالت', 'sedrazavi'); ?></span>
                         <svg id="mobile-services-arrow" class="w-4 h-4 transition-transform text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div id="mobile-services-list" class="hidden pr-4 pt-2 space-y-2 text-xs text-slate-300">
-                        <a href="#services" class="block py-1 hover:text-[#D4AF37]">🏢 دعاوی ملکی، اراضی و سرقفلی</a>
-                        <a href="#services" class="block py-1 hover:text-[#D4AF37]">💼 دعاوی تجاری و شرکت‌ها</a>
-                        <a href="#services" class="block py-1 hover:text-[#D4AF37]">⚖️ دعاوی کیفری و اقتصادی</a>
-                        <a href="#services" class="block py-1 hover:text-[#D4AF37]">👥 خانواده و انحصار وراثت</a>
-                        <a href="#services" class="block py-1 hover:text-[#D4AF37]">🌐 داوری بین‌المللی و قراردادها</a>
+                    <div id="mobile-services-list" class="hidden pr-4 pt-2 space-y-2 text-xs text-sr-secondary">
+                        <a href="<?php echo esc_url(home_url('/#services')); ?>" class="flex items-center gap-2 py-1 hover:text-[#D4AF37]">
+                            <svg class="w-3.5 h-3.5 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/></svg>
+                            <span>دعاوی ملکی، اراضی و سرقفلی</span>
+                        </a>
+                        <a href="<?php echo esc_url(home_url('/#services')); ?>" class="flex items-center gap-2 py-1 hover:text-[#D4AF37]">
+                            <svg class="w-3.5 h-3.5 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                            <span>دعاوی تجاری و شرکت‌ها</span>
+                        </a>
+                        <a href="<?php echo esc_url(home_url('/#services')); ?>" class="flex items-center gap-2 py-1 hover:text-[#D4AF37]">
+                            <svg class="w-3.5 h-3.5 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/></svg>
+                            <span>دعاوی کیفری و اقتصادی</span>
+                        </a>
+                        <a href="<?php echo esc_url(home_url('/#services')); ?>" class="flex items-center gap-2 py-1 hover:text-[#D4AF37]">
+                            <svg class="w-3.5 h-3.5 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            <span>خانواده و انحصار وراثت</span>
+                        </a>
+                        <a href="<?php echo esc_url(home_url('/#services')); ?>" class="flex items-center gap-2 py-1 hover:text-[#D4AF37]">
+                            <svg class="w-3.5 h-3.5 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                            <span>داوری بین‌المللی و قراردادها</span>
+                        </a>
                     </div>
                 </li>
 
-                <li><a href="#about" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('درباره وکیل و افتخارات', 'sedrazavi'); ?></a></li>
-                <li><a href="#tracking" class="block py-1.5 text-[#D4AF37] font-bold"><?php esc_html_e('🔍 سامانه استعلام پرونده', 'sedrazavi'); ?></a></li>
-                <li><a href="#cases" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('آرای شاخص و پرونده‌ها', 'sedrazavi'); ?></a></li>
-                <li><a href="#booking" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('رزرو آنلاین نوبت مشاوره', 'sedrazavi'); ?></a></li>
-                <li><a href="#articles" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('یادداشت‌ها و مقالات', 'sedrazavi'); ?></a></li>
-                <li><a href="#faq" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('پرسش‌های متداول موکلین', 'sedrazavi'); ?></a></li>
-                <li><a href="#contact" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('نشانی و تماس با دفتر', 'sedrazavi'); ?></a></li>
+                <li><a href="<?php echo esc_url(home_url('/#about')); ?>" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('درباره وکیل و افتخارات', 'sedrazavi'); ?></a></li>
+                <li><a href="<?php echo esc_url(home_url('/#tracking')); ?>" class="flex items-center gap-1.5 py-1.5 text-[#D4AF37] font-bold">
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <span><?php esc_html_e('سامانه استعلام پرونده', 'sedrazavi'); ?></span>
+                </a></li>
+                <li><a href="<?php echo esc_url(home_url('/#cases')); ?>" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('آرای شاخص و پرونده‌ها', 'sedrazavi'); ?></a></li>
+                <li><a href="<?php echo esc_url(home_url('/#booking')); ?>" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('رزرو آنلاین نوبت مشاوره', 'sedrazavi'); ?></a></li>
+                <li><a href="<?php echo esc_url(home_url('/#articles')); ?>" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('یادداشت‌ها و مقالات', 'sedrazavi'); ?></a></li>
+                <li><a href="<?php echo esc_url(home_url('/#faq')); ?>" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('پرسش‌های متداول موکلین', 'sedrazavi'); ?></a></li>
+                <li><a href="<?php echo esc_url(home_url('/#contact')); ?>" class="block py-1.5 hover:text-[#D4AF37]"><?php esc_html_e('نشانی و تماس با دفتر', 'sedrazavi'); ?></a></li>
             </ul>
         </div>
 
         <!-- فوتر منوی کشویی موبایل -->
-        <div class="pt-5 border-t border-slate-800 space-y-3">
-            <a href="#booking" class="btn-gold w-full text-center py-2.5 text-xs font-bold block rounded-xl">
+        <div class="pt-5 border-t border-sr-border-subtle space-y-3">
+            <a href="<?php echo esc_url(home_url('/#booking')); ?>" class="btn-gold w-full text-center py-2.5 text-xs font-bold block rounded-xl">
                 <?php esc_html_e('رزرو وقت مشاوره با وکیل', 'sedrazavi'); ?>
             </a>
-            <a href="tel:02188990011" class="w-full text-center py-2.5 text-xs font-semibold text-slate-300 border border-slate-700 hover:border-[#D4AF37] rounded-xl flex items-center justify-center gap-2">
-                <span>📞 تماس فوری: ۰۲۱-۸۸۹۹۰۰۱۱</span>
+            <a href="tel:02188990011" class="w-full text-center py-2.5 text-xs font-semibold text-sr-secondary border border-sr-border-subtle hover:border-[#D4AF37] rounded-xl flex items-center justify-center gap-2">
+                <svg class="w-3.5 h-3.5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>تماس فوری: ۰۲۱-۸۸۹۹۰۰۱۱</span>
             </a>
         </div>
     </div>
@@ -13680,8 +13867,12 @@ get_header();
 <div class="py-16 bg-[#F4F6F9] dark:bg-[#070D1E] min-h-[60vh]">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
         <header class="page-header mb-8 bg-white dark:bg-[#0B132B] p-6 sm:p-8 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm">
-            <h1 class="text-2xl font-bold font-serif text-[#0B132B] dark:text-white">
-                🔍 <?php printf(esc_html__('نتایج جستجو برای: %s', 'sedrazavi'), '<span class="text-[#D4AF37]">' . get_search_query() . '</span>'); ?>
+            <h1 class="text-2xl font-bold font-serif text-[#0B132B] dark:text-white flex items-center gap-2">
+                <svg class="w-6 h-6 text-sr-gold inline-block shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span><?php printf(esc_html__('نتایج جستجو برای: %s', 'sedrazavi'), '<span class="text-[#D4AF37]">' . get_search_query() . '</span>'); ?></span>
             </h1>
         </header>
 
@@ -13939,9 +14130,23 @@ get_header();
                     <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                         <span class="px-3 py-1 bg-[#D4AF37]/20 text-[#D4AF37] font-bold rounded-lg"><?php the_category(', '); ?></span>
                         <span>•</span>
-                        <span>📅 <?php echo get_the_date('j F Y'); ?></span>
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span><?php echo get_the_date('j F Y'); ?></span>
+                        </span>
                         <span>•</span>
-                        <span>⏱️ <?php echo max(1, round(str_word_count(strip_tags(get_the_content())) / 180)); ?> دقیقه مطالعه</span>
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <span><?php echo max(1, round(str_word_count(strip_tags(get_the_content())) / 180)); ?> دقیقه مطالعه</span>
+                        </span>
                     </div>
                     <h1 class="text-2xl sm:text-4xl font-bold font-serif text-[#0B132B] dark:text-white leading-tight">
                         <?php the_title(); ?>
@@ -13977,7 +14182,13 @@ get_header();
                 <!-- Tags -->
                 <?php if (has_tag()) : ?>
                     <div class="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-2">
-                        <span class="text-xs text-gray-400">🏷️ <?php esc_html_e('برچسب‌ها:', 'sedrazavi'); ?></span>
+                        <span class="text-xs text-gray-400 inline-flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                            </svg>
+                            <span><?php esc_html_e('برچسب‌ها:', 'sedrazavi'); ?></span>
+                        </span>
                         <?php the_tags('<span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-600 dark:text-gray-300">', '</span> <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-600 dark:text-gray-300">', '</span>'); ?>
                     </div>
                 <?php endif; ?>
@@ -13985,7 +14196,12 @@ get_header();
                 <!-- Author Box -->
                 <div class="bg-[#F4F6F9] dark:bg-gray-900/60 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center gap-5">
                     <div class="w-16 h-16 rounded-full bg-[#0B132B] text-[#D4AF37] flex items-center justify-center font-serif text-2xl font-bold">
-                        ⚖️
+                        <svg class="w-8 h-8 text-sr-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                            <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                            <path d="M7 21h10"/>
+                            <path d="M12 3v18"/>
+                        </svg>
                     </div>
                     <div>
                         <h4 class="font-bold text-sm text-[#0B132B] dark:text-white"><?php the_author(); ?></h4>
@@ -14042,26 +14258,85 @@ Creator Eitaa: @sedrazavi
   --sr-navy-600: #4A6587;
 
   --sr-bg: #060B18;
+  --sr-bg-alt: #070D1E;
   --sr-surface: #0B132B;
+  --sr-surface-card: #0F172A;
   --sr-surface-hover: #1C2541;
-  --sr-border: rgba(212, 175, 55, 0.25);
+  --sr-surface-alt: #162038;
+
+  --sr-border: rgba(212, 175, 55, 0.22);
+  --sr-border-subtle: rgba(255, 255, 255, 0.08);
+  --sr-border-card: rgba(255, 255, 255, 0.1);
   --sr-border-focus: #D4AF37;
-  --sr-text-primary: #FFFFFF;
-  --sr-text-secondary: #94A3B8;
-  --sr-text-muted: #64748B;
+
+  --sr-text-primary: #F8FAFC;
+  --sr-text-secondary: #CBD5E1;
+  --sr-text-muted: #94A3B8;
+  --sr-text-inverted: #0B132B;
+
+  --sr-gold-accent: #D4AF37;
+  --sr-gold-accent-hover: #AA820A;
   --sr-gold-grad: linear-gradient(135deg, #F3E5AB 0%, #D4AF37 50%, #AA820A 100%);
+
+  --sr-header-bg: rgba(11, 19, 43, 0.95);
+  --sr-topbar-bg: #0B132B;
+  --sr-modal-bg: #0B132B;
+  --sr-input-bg: #070D1E;
 }
 
 [data-theme="light"] {
   --sr-bg: #F8FAFC;
+  --sr-bg-alt: #F1F5F9;
   --sr-surface: #FFFFFF;
-  --sr-surface-hover: #F1F5F9;
-  --sr-border: rgba(212, 175, 55, 0.35);
+  --sr-surface-card: #FFFFFF;
+  --sr-surface-hover: #F8FAFC;
+  --sr-surface-alt: #E2E8F0;
+
+  --sr-border: rgba(170, 130, 10, 0.22);
+  --sr-border-subtle: rgba(15, 23, 42, 0.08);
+  --sr-border-card: rgba(15, 23, 42, 0.1);
   --sr-border-focus: #AA820A;
+
   --sr-text-primary: #0B132B;
-  --sr-text-secondary: #475569;
-  --sr-text-muted: #94A3B8;
+  --sr-text-secondary: #334155;
+  --sr-text-muted: #64748B;
+  --sr-text-inverted: #F8FAFC;
+
+  --sr-gold-accent: #AA820A;
+  --sr-gold-accent-hover: #8A6908;
+  --sr-gold-grad: linear-gradient(135deg, #AA820A 0%, #D4AF37 50%, #8A6908 100%);
+
+  --sr-header-bg: rgba(255, 255, 255, 0.96);
+  --sr-topbar-bg: #F1F5F9;
+  --sr-modal-bg: #FFFFFF;
+  --sr-input-bg: #FFFFFF;
 }
+
+/* --------------------------------------------------------------------------
+   کلاس‌های کمکی و توکن‌های معنایی سازگار با تم روشن و تاریک (Semantic Utility Tokens)
+   -------------------------------------------------------------------------- */
+.bg-sr-bg { background-color: var(--sr-bg) !important; }
+.bg-sr-bg-alt { background-color: var(--sr-bg-alt) !important; }
+.bg-sr-surface { background-color: var(--sr-surface) !important; }
+.bg-sr-surface-card { background-color: var(--sr-surface-card) !important; }
+.bg-sr-surface-hover:hover { background-color: var(--sr-surface-hover) !important; }
+.bg-sr-surface-alt { background-color: var(--sr-surface-alt) !important; }
+
+.border-sr-border { border-color: var(--sr-border) !important; }
+.border-sr-border-subtle { border-color: var(--sr-border-subtle) !important; }
+.border-sr-border-card { border-color: var(--sr-border-card) !important; }
+.border-sr-border-focus { border-color: var(--sr-border-focus) !important; }
+
+.text-sr-primary { color: var(--sr-text-primary) !important; }
+.text-sr-secondary { color: var(--sr-text-secondary) !important; }
+.text-sr-muted { color: var(--sr-text-muted) !important; }
+.text-sr-gold { color: var(--sr-gold-accent) !important; }
+.hover\\:text-sr-gold:hover { color: var(--sr-gold-accent) !important; }
+.hover\\:text-sr-primary:hover { color: var(--sr-text-primary) !important; }
+.text-sr-border-subtle { color: var(--sr-border-subtle) !important; }
+.bg-sr-surface\\/95 { background-color: var(--sr-surface) !important; }
+.bg-sr-surface\\/90 { background-color: var(--sr-surface) !important; }
+
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -14152,30 +14427,26 @@ img {
    ۳. نوار اعلان فوقانی و هدر اصلی (Header & Top Bar)
    -------------------------------------------------------------------------- */
 .top-notification-bar {
-  background-color: #0B132B;
-  color: #D1D5DB;
+  background-color: var(--sr-topbar-bg);
+  color: var(--sr-text-secondary);
   font-size: 0.75rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  border-bottom: 1px solid var(--sr-border-subtle);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .site-header {
   position: sticky;
   top: 0;
   z-index: 40;
-  background-color: rgba(11, 19, 43, 0.95);
+  background-color: var(--sr-header-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  border-bottom: 1px solid var(--sr-border);
   padding-top: 0.85rem;
   padding-bottom: 0.85rem;
   transition: all 0.3s ease;
-}
-
-[data-theme="light"] .site-header {
-  background-color: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
 }
 
 .site-branding {
@@ -14200,12 +14471,8 @@ img {
   font-size: 1.25rem;
   font-weight: 700;
   font-family: Georgia, 'Vazirmatn', serif;
-  color: #FFFFFF;
+  color: var(--sr-text-primary);
   line-height: 1.2;
-}
-
-[data-theme="light"] .brand-title {
-  color: #0B132B;
 }
 
 .badge-official {
@@ -14213,34 +14480,30 @@ img {
   padding: 2px 8px;
   border-radius: 9999px;
   background-color: rgba(212, 175, 55, 0.15);
-  color: #F3E5AB;
-  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: var(--sr-gold-accent);
+  border: 1px solid var(--sr-border);
   font-weight: 700;
   white-space: nowrap;
 }
 
-[data-theme="light"] .badge-official {
-  color: #AA820A;
-}
-
 .brand-tagline {
   font-size: 0.75rem;
-  color: #94A3B8;
+  color: var(--sr-text-muted);
   margin-top: 1px;
 }
 
 .nav-link {
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
-  color: #E2E8F0;
+  color: var(--sr-text-secondary);
   font-size: 0.8rem;
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .nav-link:hover {
-  color: #D4AF37;
-  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--sr-gold-accent);
+  background-color: var(--sr-surface-hover);
 }
 
 .nav-dropdown-wrapper {
@@ -14253,11 +14516,11 @@ img {
   top: 100%;
   right: 0;
   width: 280px;
-  background-color: #0B132B;
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  background-color: var(--sr-surface);
+  border: 1px solid var(--sr-border);
   border-radius: 0.75rem;
   padding: 0.5rem;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
   z-index: 50;
 }
 
@@ -14269,21 +14532,22 @@ img {
   display: block;
   padding: 0.6rem 0.75rem;
   font-size: 0.75rem;
-  color: #E2E8F0;
+  color: var(--sr-text-secondary);
   border-radius: 0.5rem;
   transition: all 0.2s ease;
 }
 
 .dropdown-item:hover {
-  color: #D4AF37;
-  background-color: rgba(212, 175, 55, 0.1);
+  color: var(--sr-gold-accent);
+  background-color: var(--sr-surface-hover);
 }
 
 .theme-btn, .hamburger-btn {
   padding: 0.5rem;
   border-radius: 0.75rem;
-  border: 1px solid #374151;
-  background-color: #1F2937;
+  border: 1px solid var(--sr-border-subtle);
+  background-color: var(--sr-surface);
+  color: var(--sr-text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -14292,7 +14556,8 @@ img {
 }
 
 .theme-btn:hover, .hamburger-btn:hover {
-  border-color: #D4AF37;
+  border-color: var(--sr-border-focus);
+  background-color: var(--sr-surface-hover);
 }
 
 .btn-gold {
@@ -14318,115 +14583,108 @@ img {
 }
 
 /* --------------------------------------------------------------------------
-   ۴. نوار استوری‌های حقوقی (Story Bar Section - Matching Screenshot 2)
+   ۴. نوار تحلیل‌های شاخص و آرای وحدت رویه دیوان عالی کشور (Legal Insights Bar)
    -------------------------------------------------------------------------- */
-.stories-bar-section {
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background-color: rgba(11, 19, 43, 0.5);
-  backdrop-filter: blur(8px);
+.legal-insights-bar-section {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--sr-border-subtle);
+  background-color: var(--sr-surface);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.stories-header {
+.legal-insights-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.legal-insights-title {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #94A3B8;
+  color: var(--sr-text-primary);
 }
 
-.stories-scroll-container {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-  scrollbar-width: none;
-}
-
-.stories-scroll-container::-webkit-scrollbar {
-  display: none;
-}
-
-.story-thumb-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.story-thumb-item:hover {
-  transform: scale(1.04);
-}
-
-.story-ring-gold {
-  padding: 2px;
+.legal-insights-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #D4AF37 0%, #AA820A 50%, #F3E5AB 100%);
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.4);
+  background-color: rgba(212, 175, 55, 0.12);
+  border: 1px solid var(--sr-border);
+  color: var(--sr-gold-accent);
 }
 
-.story-ring-subtle {
-  padding: 2px;
-  border-radius: 9999px;
-  background-color: #374151;
-}
-
-.story-img-wrap {
-  padding: 2px;
-  border-radius: 9999px;
-  background-color: #0B132B;
-}
-
-.story-photo-img {
-  width: 68px;
-  height: 68px;
-  border-radius: 9999px;
-  object-fit: cover;
-  display: block;
+.legal-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
 @media (min-width: 640px) {
-  .story-photo-img {
-    width: 72px;
-    height: 72px;
+  .legal-insights-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.story-text-wrap {
-  text-align: center;
-  max-width: 85px;
+@media (min-width: 1024px) {
+  .legal-insights-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
-.story-title-label {
-  display: block;
+.legal-insight-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--sr-surface-card);
+  border: 1px solid var(--sr-border-subtle);
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.legal-insight-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sr-border-focus);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.legal-insight-cat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.legal-insight-tag {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--sr-gold-accent);
+}
+
+.legal-insight-num {
+  font-size: 0.6875rem;
+  color: var(--sr-text-muted);
+}
+
+.legal-insight-title-text {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--sr-text-primary);
+  line-height: 1.5;
+  margin-bottom: 0.375rem;
+}
+
+.legal-insight-desc-text {
   font-size: 0.75rem;
-  font-weight: 600;
-  color: #E2E8F0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.story-thumb-item:hover .story-title-label {
-  color: #D4AF37;
-}
-
-.story-cat-label {
-  display: block;
-  font-size: 10px;
-  color: #94A3B8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: var(--sr-text-muted);
+  line-height: 1.5;
 }
 
 /* --------------------------------------------------------------------------
@@ -14609,28 +14867,29 @@ img {
   gap: 0.625rem;
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  background-color: rgba(11, 19, 43, 0.8);
-  color: #E2E8F0;
+  border: 1px solid var(--sr-border);
+  background-color: var(--sr-surface);
+  color: var(--sr-text-primary);
   font-weight: 600;
   font-size: 0.875rem;
   transition: all 0.2s ease;
 }
 
 .btn-navy-hero:hover {
-  background-color: rgba(28, 37, 65, 0.9);
-  border-color: #D4AF37;
+  background-color: var(--sr-surface-hover);
+  border-color: var(--sr-border-focus);
+  color: var(--sr-gold-accent);
 }
 
 .hero-trust-row {
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--sr-border-subtle);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 1.5rem;
   font-size: 0.75rem;
-  color: #94A3B8;
+  color: var(--sr-text-muted);
 }
 
 /* ستون پرتره و کارت طلایی */
@@ -14650,7 +14909,7 @@ img {
   position: absolute;
   inset: -0.75rem;
   border-radius: 1.5rem;
-  background: linear-gradient(to top right, rgba(212, 175, 55, 0.5), rgba(170, 130, 10, 0.2), rgba(11, 19, 43, 0.1));
+  background: linear-gradient(to top right, rgba(212, 175, 55, 0.4), rgba(170, 130, 10, 0.15), rgba(11, 19, 43, 0.05));
   filter: blur(24px);
   transform: rotate(-2deg);
 }
@@ -14659,9 +14918,9 @@ img {
   position: relative;
   border-radius: 1rem;
   overflow: hidden;
-  border: 2px solid rgba(212, 175, 55, 0.4);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-  background-color: #1C2541;
+  border: 2px solid var(--sr-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  background-color: var(--sr-surface);
 }
 
 .hero-portrait-image {
@@ -14681,18 +14940,18 @@ img {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background-color: rgba(11, 19, 43, 0.9);
+  background-color: var(--sr-surface);
   backdrop-filter: blur(8px);
   padding: 0.375rem 0.75rem;
   border-radius: 0.5rem;
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  border: 1px solid var(--sr-border);
   font-size: 0.75rem;
   font-weight: 700;
-  color: #F3E5AB;
+  color: var(--sr-gold-accent);
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15);
 }
 
 .pulse-emerald-dot {
@@ -14710,11 +14969,11 @@ img {
   left: 1rem;
   padding: 1rem;
   border-radius: 0.75rem;
-  background-color: rgba(11, 19, 43, 0.92);
+  background-color: var(--sr-surface);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  color: #FFFFFF;
-  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4);
+  border: 1px solid var(--sr-border);
+  color: var(--sr-text-primary);
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.25);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -14724,12 +14983,12 @@ img {
   font-size: 0.95rem;
   font-weight: 700;
   font-family: Georgia, 'Vazirmatn', serif;
-  color: #D4AF37;
+  color: var(--sr-gold-accent);
 }
 
 .hero-lawyer-title {
   font-size: 0.75rem;
-  color: #CBD5E1;
+  color: var(--sr-text-muted);
   margin-top: 0.125rem;
 }
 
@@ -14737,7 +14996,7 @@ img {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.5rem;
-  background-color: #D4AF37;
+  background-color: var(--sr-gold-accent);
   color: #0B132B;
   display: flex;
   align-items: center;
@@ -14752,16 +15011,20 @@ img {
    -------------------------------------------------------------------------- */
 .service-card {
   padding: 1.5rem;
-  border-radius: 1rem;
-  background-color: #0B132B;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  background-color: var(--sr-surface);
+  border: 1px solid var(--sr-border-subtle);
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--sr-text-primary);
 }
 
 .service-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(212, 175, 55, 0.4);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border-color: var(--sr-border-focus);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
 }
 
 .mobile-menu-drawer {
@@ -14778,7 +15041,7 @@ img {
 .mobile-drawer-backdrop {
   position: absolute;
   inset: 0;
-  background-color: rgba(0,0,0,0.75);
+  background-color: rgba(0,0,0,0.6);
   backdrop-filter: blur(4px);
 }
 
@@ -14789,13 +15052,14 @@ img {
   bottom: 0;
   width: 85%;
   max-width: 320px;
-  background-color: #0B132B;
-  border-left: 1px solid rgba(212, 175, 55, 0.2);
+  background-color: var(--sr-surface);
+  border-left: 1px solid var(--sr-border);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow-y: auto;
+  color: var(--sr-text-primary);
 }
 
 /* ==========================================================================
@@ -14804,23 +15068,24 @@ img {
 
 /* Trust Badges Section */
 .trust-badges-section {
-    background: #060B18;
-    border-top: 1px solid rgba(212, 175, 55, 0.2);
-    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    background: var(--sr-bg);
+    border-top: 1px solid var(--sr-border);
+    border-bottom: 1px solid var(--sr-border);
     padding: 3rem 0;
 }
 .stat-card {
-    background: #0B132B;
-    border: 1px solid #1f2937;
+    background: var(--sr-surface);
+    border: 1px solid var(--sr-border-subtle);
     border-radius: 1rem;
     padding: 1.5rem;
     text-align: center;
     transition: all 0.3s ease;
+    color: var(--sr-text-primary);
 }
 .stat-card:hover {
-    border-color: rgba(212, 175, 55, 0.5);
+    border-color: var(--sr-border-focus);
     transform: translateY(-4px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
 }
 
 /* Service Filter Buttons */
@@ -14830,56 +15095,44 @@ img {
     font-size: 0.8125rem;
     font-weight: 700;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #94a3b8;
+    border: 1px solid var(--sr-border-subtle);
+    color: var(--sr-text-muted);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 .service-filter-btn:hover {
-    color: #ffffff;
-    border-color: rgba(212, 175, 55, 0.4);
+    color: var(--sr-text-primary);
+    border-color: var(--sr-border-focus);
 }
 .service-filter-btn.active {
-    background: linear-gradient(135deg, #D4AF37 0%, #AA820A 100%);
+    background: var(--sr-gold-grad);
     color: #0B132B;
     border-color: transparent;
     box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
 }
 
-/* Service Cards */
-.service-card {
-    background: #0B132B;
-    border: 1px solid #1e293b;
-    border-radius: 1.25rem;
-    padding: 1.75rem;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-.service-card:hover {
-    border-color: rgba(212, 175, 55, 0.6);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-}
-
 /* FAQ Items */
 .faq-item {
-    background: #0B132B;
-    border: 1px solid #1e293b;
+    background: var(--sr-surface);
+    border: 1px solid var(--sr-border-subtle);
     border-radius: 1rem;
     overflow: hidden;
     transition: border-color 0.2s;
 }
 .faq-item:hover {
-    border-color: rgba(212, 175, 55, 0.3);
+    border-color: var(--sr-border-focus);
 }
 .faq-question {
+    color: var(--sr-text-primary);
     cursor: pointer;
     transition: color 0.2s;
 }
 .faq-question:hover {
-    color: #D4AF37;
+    color: var(--sr-gold-accent);
+}
+.faq-answer {
+    color: var(--sr-text-secondary);
+    border-top: 1px solid var(--sr-border-subtle);
 }
 
 /* Modal Helpers */
@@ -15089,8 +15342,9 @@ img {
     gap: 1.25rem;
 }
 .comment-form-wrapper {
-    background: #0B132B;
-    border: 1px solid rgba(212, 175, 55, 0.25);
+    background: var(--sr-surface);
+    border: 1px solid var(--sr-border);
+    color: var(--sr-text-primary);
     border-radius: 1.25rem;
     padding: 2rem;
 }
@@ -15154,11 +15408,12 @@ img {
 .sedrazavi-milestones-page-card,
 .sedrazavi-timeline-page-card,
 .sedrazavi-otp-login-card {
-    background: #0B132B;
-    border: 1px solid rgba(212, 175, 55, 0.25);
+    background: var(--sr-surface);
+    border: 1px solid var(--sr-border);
+    color: var(--sr-text-primary);
     border-radius: 1.5rem;
     padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 /* بنر خدمت و پانوشت سایت */
@@ -15237,6 +15492,21 @@ img {
 .theme-toggle-moon,
 .theme-toggle-sun {
     transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+[data-theme="light"] .theme-toggle-sun {
+    display: block !important;
+}
+[data-theme="light"] .theme-toggle-moon {
+    display: none !important;
+}
+:root:not([data-theme="light"]) .theme-toggle-sun,
+[data-theme="dark"] .theme-toggle-sun {
+    display: none !important;
+}
+:root:not([data-theme="light"]) .theme-toggle-moon,
+[data-theme="dark"] .theme-toggle-moon {
+    display: block !important;
 }
 .sedrazavi-admin-wrap,
 .sedrazavi-options-wrap,

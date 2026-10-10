@@ -334,12 +334,12 @@ if (!function_exists('sedrazavi_customizer_dynamic_css')) {
  */
 if (!function_exists('enqueue_react_assets')) {
     function enqueue_react_assets() {
-        // 6.1. Persian Webfont Vazirmatn
+        // 6.1. Persian Webfont Vazirmatn (Local Self-contained Asset - 0% External CDN Dependency)
         wp_enqueue_style(
             'sedrazavi-vazirmatn-font',
-            'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css',
+            SEDRAZAVI_THEME_URI . '/assets/css/vazirmatn.css',
             [],
-            '33.003'
+            SEDRAZAVI_THEME_VERSION
         );
 
         // 6.2. WordPress Main Stylesheet

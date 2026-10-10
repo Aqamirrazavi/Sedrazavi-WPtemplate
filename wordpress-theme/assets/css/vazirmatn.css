@@ -1,0 +1,63 @@
+/**
+ * Vazirmatn Persian Typography Stylesheet
+ * Local self-contained font stack ensuring 100% offline uptime and zero dependency on external CDNs.
+ *
+ * @package SedRazavi
+ * @version 3.0.0
+ */
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: local('Vazirmatn Light'), local('Vazirmatn-Light'), local('Vazirmatn');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Vazirmatn Regular'), local('Vazirmatn-Regular'), local('Vazirmatn');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local('Vazirmatn Medium'), local('Vazirmatn-Medium'), local('Vazirmatn');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Vazirmatn SemiBold'), local('Vazirmatn-SemiBold'), local('Vazirmatn');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Vazirmatn Bold'), local('Vazirmatn-Bold'), local('Vazirmatn');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: local('Vazirmatn ExtraBold'), local('Vazirmatn-ExtraBold'), local('Vazirmatn');
+}
+
+:root {
+  --sr-font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'IRANSans', 'Sahel', Tahoma, Arial, sans-serif;
+}
+
+body, button, input, select, textarea {
+  font-family: var(--sr-font-family);
+}

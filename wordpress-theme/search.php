@@ -12,8 +12,12 @@ get_header();
 <div class="py-16 bg-[#F4F6F9] dark:bg-[#070D1E] min-h-[60vh]">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
         <header class="page-header mb-8 bg-white dark:bg-[#0B132B] p-6 sm:p-8 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm">
-            <h1 class="text-2xl font-bold font-serif text-[#0B132B] dark:text-white">
-                🔍 <?php printf(esc_html__('نتایج جستجو برای: %s', 'sedrazavi'), '<span class="text-[#D4AF37]">' . get_search_query() . '</span>'); ?>
+            <h1 class="text-2xl font-bold font-serif text-[#0B132B] dark:text-white flex items-center gap-2">
+                <svg class="w-6 h-6 text-sr-gold inline-block shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span><?php printf(esc_html__('نتایج جستجو برای: %s', 'sedrazavi'), '<span class="text-[#D4AF37]">' . get_search_query() . '</span>'); ?></span>
             </h1>
         </header>
 

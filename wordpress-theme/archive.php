@@ -62,9 +62,23 @@ get_header();
                         <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
                             <div class="space-y-2">
                                 <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                                    <span class="flex items-center gap-1">📅 <?php echo get_the_date('j F Y'); ?></span>
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        </svg>
+                                        <span><?php echo get_the_date('j F Y'); ?></span>
+                                    </span>
                                     <span>•</span>
-                                    <span class="flex items-center gap-1">⏱️ <?php echo max(1, round(str_word_count(strip_tags(get_the_content())) / 180)); ?> دقیقه مطالعه</span>
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <span><?php echo max(1, round(str_word_count(strip_tags(get_the_content())) / 180)); ?> دقیقه مطالعه</span>
+                                    </span>
                                 </div>
 
                                 <h2 class="text-xl font-bold font-serif text-[#0B132B] dark:text-white group-hover:text-[#D4AF37] transition-colors leading-snug">
@@ -79,7 +93,11 @@ get_header();
                             <!-- Card Footer -->
                             <div class="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                    ✍️ <?php the_author(); ?>
+                                    <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 20h9"></path>
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                    </svg>
+                                    <span><?php the_author(); ?></span>
                                 </span>
                                 <a href="<?php the_permalink(); ?>" class="text-xs font-bold text-[#D4AF37] group-hover:translate-x-[-4px] transition-transform flex items-center gap-1">
                                     <span>مطالعه کامل مقاله</span>
@@ -106,7 +124,12 @@ get_header();
 
         <?php else : ?>
             <div class="bg-white dark:bg-[#0B132B] rounded-2xl p-12 text-center max-w-xl mx-auto border border-gray-200 dark:border-gray-800">
-                <span class="text-5xl mb-4 block">🔍</span>
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#D4AF37]/10 flex items-center justify-center text-sr-gold">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
                 <h3 class="text-xl font-bold font-serif text-[#0B132B] dark:text-white mb-2"><?php esc_html_e('مقاله‌ای در این آرشیو یافت نشد', 'sedrazavi'); ?></h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-6"><?php esc_html_e('می‌توانید از جستجوی سایت برای یافتن موضوع حقوقی مورد نظر استفاده فرمایید.', 'sedrazavi'); ?></p>
                 <a href="<?php echo esc_url(home_url('/')); ?>" class="btn-gold text-xs"><?php esc_html_e('بازگشت به صفحه اصلی', 'sedrazavi'); ?></a>

@@ -19,9 +19,23 @@ get_header();
                     <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                         <span class="px-3 py-1 bg-[#D4AF37]/20 text-[#D4AF37] font-bold rounded-lg"><?php the_category(', '); ?></span>
                         <span>•</span>
-                        <span>📅 <?php echo get_the_date('j F Y'); ?></span>
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span><?php echo get_the_date('j F Y'); ?></span>
+                        </span>
                         <span>•</span>
-                        <span>⏱️ <?php echo max(1, round(str_word_count(strip_tags(get_the_content())) / 180)); ?> دقیقه مطالعه</span>
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <span><?php echo max(1, round(str_word_count(strip_tags(get_the_content())) / 180)); ?> دقیقه مطالعه</span>
+                        </span>
                     </div>
                     <h1 class="text-2xl sm:text-4xl font-bold font-serif text-[#0B132B] dark:text-white leading-tight">
                         <?php the_title(); ?>
@@ -57,7 +71,13 @@ get_header();
                 <!-- Tags -->
                 <?php if (has_tag()) : ?>
                     <div class="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-2">
-                        <span class="text-xs text-gray-400">🏷️ <?php esc_html_e('برچسب‌ها:', 'sedrazavi'); ?></span>
+                        <span class="text-xs text-gray-400 inline-flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-sr-gold inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                            </svg>
+                            <span><?php esc_html_e('برچسب‌ها:', 'sedrazavi'); ?></span>
+                        </span>
                         <?php the_tags('<span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-600 dark:text-gray-300">', '</span> <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-600 dark:text-gray-300">', '</span>'); ?>
                     </div>
                 <?php endif; ?>
@@ -65,7 +85,12 @@ get_header();
                 <!-- Author Box -->
                 <div class="bg-[#F4F6F9] dark:bg-gray-900/60 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center gap-5">
                     <div class="w-16 h-16 rounded-full bg-[#0B132B] text-[#D4AF37] flex items-center justify-center font-serif text-2xl font-bold">
-                        ⚖️
+                        <svg class="w-8 h-8 text-sr-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                            <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                            <path d="M7 21h10"/>
+                            <path d="M12 3v18"/>
+                        </svg>
                     </div>
                     <div>
                         <h4 class="font-bold text-sm text-[#0B132B] dark:text-white"><?php the_author(); ?></h4>
