@@ -31,6 +31,8 @@ import {
   ArrowRight,
   Eye,
   X,
+  Cpu,
+  GitBranch,
 } from 'lucide-react';
 import { CaseItem } from '../../types/theme';
 import { CASES_INITIAL_DATA, SERVICES_DATA, ATTORNEY_INFO } from '../../data/mockData';
@@ -41,6 +43,9 @@ import {
 } from '../../utils/lawyerCustomizationStorage';
 import { downloadCaseloadCsvFile } from '../../utils/caseloadCsvExporter';
 import { AdminHelpAndDocsSystem } from './AdminHelpAndDocsSystem';
+import { AdminPresetManagerTab } from './AdminPresetManagerTab';
+import { GitHubSuiteDashboard } from './GitHubSuiteDashboard';
+import { usePresetConfig } from '../../hooks/usePresetConfig';
 import { ManualAccountCreatorModal } from '../ManualAccountCreatorModal';
 import { LawyerPrintBioCard } from '../LawyerPrintBioCard';
 import { LawyerRealtimeToastNotifier } from '../notifications/LawyerRealtimeToastNotifier';
@@ -183,7 +188,9 @@ export const ComprehensiveAdminPortal: React.FC<ComprehensiveAdminPortalProps> =
   onUpdateLawyerProfile,
   onSwitchToLawyerDashboard,
 }) => {
-  const [activeTab, setActiveTab] = useState<'cases' | 'clients' | 'bookings' | 'settings' | 'help'>('cases');
+  const { preset, modularSettings } = usePresetConfig();
+  const [activeTab, setActiveTab] = useState<'cases' | 'presets' | 'clients' | 'bookings' | 'settings' | 'help' | 'github_suite'>('cases');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // State
   const [cases, setCases] = useState<CaseItem[]>(CASES_INITIAL_DATA);
@@ -301,33 +308,195 @@ export const ComprehensiveAdminPortal: React.FC<ComprehensiveAdminPortalProps> =
   });
 
   return (
-    <div className="min-h-screen bg-gray-50/70 dark:bg-gray-950 py-8 text-right font-sans" dir="rtl">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6 max-w-7xl">
-        
-        {/* Top Navbar */}
-        <div className="bg-white dark:bg-[#0B132B] rounded-3xl p-5 sm:p-6 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#0B132B] dark:bg-[#D4AF37] text-[#D4AF37] dark:text-[#0B132B] flex items-center justify-center font-bold shadow-md">
-              <Scale className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold font-serif text-[#0B132B] dark:text-white">
-                  پنل جامع مدیریت وکیل و امور دفتر
-                </h1>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
-                  ادمین فعال
-                </span>
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070D1E] text-slate-900 dark:text-slate-100 font-sans flex flex-col md:flex-row text-right" dir="rtl">
+      {/* GitHub/Peycode Style Collapsible Sidebar */}
+      <aside
+        className={`shrink-0 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B132B] transition-all flex flex-col justify-between z-20 ${
+          sidebarCollapsed ? 'w-full md:w-20' : 'w-full md:w-64'
+        }`}
+      >
+        <div>
+          {/* Brand & Preset Lockup */}
+          <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm"
+                style={{ backgroundColor: preset.accent_color }}
+              >
+                <Scale className="w-5 h-5" />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                مدیریت لحظه‌ای پرونده‌ها، مراجعین، نوبت‌ها، تنظیمات قالب و مستندات گام‌به‌گام.
-              </p>
+              {!sidebarCollapsed && (
+                <div className="min-w-0">
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                    {profile.lawyerName || preset.site_title}
+                  </h2>
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500 truncate mt-0.5">
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: preset.accent_color }} />
+                    <span className="truncate">{preset.name}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="hidden md:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title={sidebarCollapsed ? 'باز کردن منو' : 'جمع کردن منو'}
+            >
+              <Sliders className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Navigation Links Group */}
+          <nav className="p-3 space-y-1">
+            <button
+              onClick={() => setActiveTab('cases')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all text-right ${
+                activeTab === 'cases'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <Briefcase className="w-4 h-4 shrink-0" />
+              {!sidebarCollapsed && <span>پرونده‌ها و کارتابل ({cases.length})</span>}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('presets')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all text-right ${
+                activeTab === 'presets'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <Sliders className="w-4 h-4 shrink-0 text-amber-500" />
+              {!sidebarCollapsed && (
+                <div className="flex items-center justify-between w-full">
+                  <span>صنف سایت و پریست‌ها</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold">
+                    ۶ صنف
+                  </span>
+                </div>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('clients')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all text-right ${
+                activeTab === 'clients'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <Users className="w-4 h-4 shrink-0" />
+              {!sidebarCollapsed && <span>{preset.terms.clients} ({clients.length})</span>}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('bookings')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all text-right ${
+                activeTab === 'bookings'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <Calendar className="w-4 h-4 shrink-0" />
+              {!sidebarCollapsed && <span>نوبت‌ها و جلسات ({bookings.length})</span>}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all text-right ${
+                activeTab === 'settings'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <Settings className="w-4 h-4 shrink-0" />
+              {!sidebarCollapsed && <span>تنظیمات و هویت برند</span>}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('github_suite')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all text-right ${
+                activeTab === 'github_suite'
+                  ? 'bg-[#238636] text-white font-bold shadow-sm'
+                  : 'text-[#58A6FF] hover:bg-[#58A6FF]/10'
+              }`}
+            >
+              <GitBranch className="w-4 h-4 shrink-0 text-[#58A6FF]" />
+              {!sidebarCollapsed && (
+                <div className="flex items-center justify-between w-full">
+                  <span>پیشخوان گیت‌هاب و شورت‌کدها</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#388bfd26] text-[#58A6FF] font-bold font-mono">
+                    Primer
+                  </span>
+                </div>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('help')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all text-right ${
+                activeTab === 'help'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <BookOpen className="w-4 h-4 shrink-0" />
+              {!sidebarCollapsed && <span>مستندات و راهنما</span>}
+            </button>
+          </nav>
+        </div>
+
+        {/* Sidebar Footer */}
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800 space-y-1">
+          {onBackToHome && (
+            <button
+              onClick={onBackToHome}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <ExternalLink className="w-4 h-4 shrink-0" />
+              {!sidebarCollapsed && <span>مشاهده فرانت سایت</span>}
+            </button>
+          )}
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
+            >
+              <LogOut className="w-4 h-4 shrink-0" />
+              {!sidebarCollapsed && <span>خروج از پنل</span>}
+            </button>
+          )}
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 min-w-0 flex flex-col">
+        {/* Top GitHub/Peycode Breadcrumb & Actions Bar */}
+        <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B132B] px-4 sm:px-6 flex items-center justify-between gap-4 shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden"
+            >
+              <Sliders className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-slate-400">داشبورد مدیریت</span>
+              <span className="text-slate-300 dark:text-slate-700">/</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200">
+                {activeTab === 'cases' && 'پرونده‌ها و کارتابل'}
+                {activeTab === 'presets' && 'انتخابگر صنف و پریست‌ها'}
+                {activeTab === 'clients' && preset.terms.clients}
+                {activeTab === 'bookings' && 'نوبت‌ها و جلسات'}
+                {activeTab === 'settings' && 'تنظیمات و هویت'}
+                {activeTab === 'help' && 'راهنما و مستندات اداری'}
+              </span>
             </div>
           </div>
 
-          {/* Quick Actions Toolbar */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Real-time Toast Notifier for Court Deadlines & Client Messages */}
+          <div className="flex items-center gap-2">
             <LawyerRealtimeToastNotifier
               onSelectCase={(caseNum) => {
                 setCaseSearch(caseNum);
@@ -337,26 +506,26 @@ export const ComprehensiveAdminPortal: React.FC<ComprehensiveAdminPortalProps> =
 
             <button
               onClick={() => setShowPrintModal(true)}
-              className="px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-[#AA820A] dark:text-[#D4AF37] border border-[#D4AF37]/50 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-              title="چاپ کارت بیوگرافی رسمی و شناسنامه حرفه‌ای وکیل"
+              className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors hidden sm:flex items-center gap-1.5 text-xs cursor-pointer"
+              title="چاپ کارت شناسنامه وکیل"
             >
               <Printer className="w-4 h-4" />
-              <span>چاپ بیوگرافی وکیل</span>
+              <span>چاپ کارت</span>
             </button>
 
             <button
               onClick={handleDownloadCsv}
-              className="px-3.5 py-2 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-700 dark:text-blue-300 border border-blue-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-              title="خروجی فایل اکسل و CSV از پرونده‌ها و اطلاعات"
+              className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors hidden sm:flex items-center gap-1.5 text-xs cursor-pointer"
+              title="خروجی فایل اکسل و CSV"
             >
               <Download className="w-4 h-4" />
-              <span>خروجی اکسل (CSV)</span>
+              <span>خروجی اکسل</span>
             </button>
 
             <button
               onClick={() => setShowManualAccountModal(true)}
-              className="px-3.5 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-              title="ساخت اکانت برای موکل بدون نیاز به پیامک"
+              className="p-2 rounded-lg border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors hidden sm:flex items-center gap-1.5 text-xs cursor-pointer"
+              title="ساخت اکانت بدون پیامک"
             >
               <UserCheck className="w-4 h-4" />
               <span>اکانت بدون پیامک</span>
@@ -365,168 +534,76 @@ export const ComprehensiveAdminPortal: React.FC<ComprehensiveAdminPortalProps> =
             {onSwitchToLawyerDashboard && (
               <button
                 onClick={onSwitchToLawyerDashboard}
-                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] hover:brightness-110 text-xs font-black flex items-center gap-1.5 transition-all shadow-md shadow-[#D4AF37]/20 cursor-pointer"
-                title="ورود به میز کار و پیشخوان اختصاصی وکیل جهت جانشینی وکیل غایب، ارجاع پرونده به وکلای شریک و ثبت مستقیم پرونده‌ها"
+                className="px-3 py-1.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold hover:bg-slate-800 transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <Scale className="w-4 h-4" />
-                <span>⚖️ میز کار و داشبورد وکیل (جانشینی)</span>
-              </button>
-            )}
-
-            {onBackToHome && (
-              <button
-                onClick={onBackToHome}
-                className="px-3.5 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 text-xs font-bold transition-all"
-              >
-                مشاهده فرانت سایت
-              </button>
-            )}
-
-            {onLogout && (
-              <button
-                onClick={onLogout}
-                className="px-3.5 py-2 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800 text-xs font-bold flex items-center gap-1.5 transition-all"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>خروج</span>
+                <span className="hidden sm:inline">میز کار وکیل</span>
               </button>
             )}
           </div>
-        </div>
+        </header>
 
-        {/* Notification Toast */}
-        {notificationMsg && (
-          <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between gap-2 shadow-sm animate-fade-in">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-              <span>{notificationMsg}</span>
+        {/* Viewport Content */}
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-6">
+          {notificationMsg && (
+            <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between gap-2 shadow-sm">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>{notificationMsg}</span>
+              </div>
+              <button onClick={() => setNotificationMsg(null)} className="p-1">
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={() => setNotificationMsg(null)}
-              className="text-emerald-600 hover:text-emerald-800 p-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+          )}
 
-        {/* 4 Quick Stat KPI Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm space-y-1">
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>پرونده‌های جاری</span>
-              <Briefcase className="w-4 h-4 text-[#D4AF37]" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B132B] dark:text-white">
-              {cases.length}
-            </div>
-            <div className="text-[11px] text-emerald-600 flex items-center gap-1">
-              <span>۹۶.۴٪ نرخ موفقیت قطعی</span>
-            </div>
-          </div>
+          {/* KPI Strip only if modularSettings.showOverviewStats is on and we are on cases tab */}
+          {activeTab === 'cases' && modularSettings.showOverviewStats && (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="p-4 rounded-xl bg-white dark:bg-[#0B132B] border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="flex items-center justify-between text-xs text-slate-500">
+                  <span>{preset.terms.cases} فعال</span>
+                  <Briefcase className="w-4 h-4 text-amber-500" />
+                </div>
+                <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">
+                  {cases.length}
+                </div>
+              </div>
 
-          <div className="p-5 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm space-y-1">
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>موکلین ثبت‌شده</span>
-              <Users className="w-4 h-4 text-blue-500" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B132B] dark:text-white">
-              {clients.length}
-            </div>
-            <div className="text-[11px] text-gray-400">
-              دسترسی فعال به پرتال آنلاین
-            </div>
-          </div>
+              <div className="p-4 rounded-xl bg-white dark:bg-[#0B132B] border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="flex items-center justify-between text-xs text-slate-500">
+                  <span>{preset.terms.clients} ثبت‌شده</span>
+                  <Users className="w-4 h-4 text-blue-500" />
+                </div>
+                <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">
+                  {clients.length}
+                </div>
+              </div>
 
-          <div className="p-5 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm space-y-1">
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>نوبت‌های مشاوره</span>
-              <Calendar className="w-4 h-4 text-purple-500" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B132B] dark:text-white">
-              {bookings.length}
-            </div>
-            <div className="text-[11px] text-purple-600 dark:text-purple-400">
-              {bookings.filter((b) => b.status === 'تایید شده').length} نوبت تایید شده
-            </div>
-          </div>
+              <div className="p-4 rounded-xl bg-white dark:bg-[#0B132B] border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="flex items-center justify-between text-xs text-slate-500">
+                  <span>نوبت‌های رزرو</span>
+                  <Calendar className="w-4 h-4 text-purple-500" />
+                </div>
+                <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">
+                  {bookings.length}
+                </div>
+              </div>
 
-          <div className="p-5 rounded-3xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm space-y-1">
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>ورود با رمز یکبار مصرف</span>
-              <Mail className="w-4 h-4 text-emerald-500" />
+              <div className="p-4 rounded-xl bg-white dark:bg-[#0B132B] border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="flex items-center justify-between text-xs text-slate-500">
+                  <span>صنف فعال سیستم</span>
+                  <Sliders className="w-4 h-4 text-emerald-500" />
+                </div>
+                <div className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                  {preset.name}
+                </div>
+              </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">
-              فعال
-            </div>
-            <div className="text-[11px] text-gray-400">
-              اتصال هوشمند Email OTP
-            </div>
-          </div>
-        </div>
+          )}
 
-        {/* Primary Segmented Navigation Tabs */}
-        <div className="p-1.5 rounded-2xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => setActiveTab('cases')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeTab === 'cases'
-                ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-[#D4AF37] dark:text-[#0B132B] shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            <Briefcase className="w-4 h-4" />
-            <span>۱. پرونده‌های دادرسی ({cases.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('clients')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeTab === 'clients'
-                ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-[#D4AF37] dark:text-[#0B132B] shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>۲. لیست موکلین ({clients.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('bookings')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeTab === 'bookings'
-                ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-[#D4AF37] dark:text-[#0B132B] shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            <Calendar className="w-4 h-4" />
-            <span>۳. مدیریت رزروها و تقویم ({bookings.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeTab === 'settings'
-                ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-[#D4AF37] dark:text-[#0B132B] shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            <span>۴. تنظیمات سایت و هویت وکیل</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('help')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeTab === 'help'
-                ? 'bg-[#0B132B] dark:bg-[#D4AF37] text-[#D4AF37] dark:text-[#0B132B] shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            <BookOpen className="w-4 h-4" />
-            <span>۵. مستندات و راهنمای اداری (Help & Docs)</span>
-          </button>
-        </div>
+          {/* PRESETS TAB */}
+          {activeTab === 'presets' && <AdminPresetManagerTab />}
 
         {/* ======================================================== */}
         {/* TAB 1: CASELOAD MANAGEMENT                               */}
@@ -950,7 +1027,12 @@ export const ComprehensiveAdminPortal: React.FC<ComprehensiveAdminPortalProps> =
           </div>
         )}
 
-      </div>
+        {/* ======================================================== */}
+        {/* TAB 7: GITHUB PRIMER SUITE & AUTONOMOUS DASHBOARD        */}
+        {/* ======================================================== */}
+        {activeTab === 'github_suite' && <GitHubSuiteDashboard />}
+
+      </main>
 
       {/* Add Case Modal */}
       {showAddCaseModal && (
@@ -1066,7 +1148,7 @@ export const ComprehensiveAdminPortal: React.FC<ComprehensiveAdminPortalProps> =
         onClose={() => setShowPrintModal(false)}
         profile={profile}
       />
-
+      </div>
     </div>
   );
 };

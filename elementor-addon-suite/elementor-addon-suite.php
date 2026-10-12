@@ -85,27 +85,42 @@ final class Universal_Elementor_Addon_Suite {
             return;
         }
 
-        // 2. Check if Elementor is installed and loaded
+        // 2. Always Load Standalone Engine, Industry Blocks, eCommerce/WoodMart Bridge & GitHub Admin
+        require_once UAS_PATH . 'includes/class-standalone-shortcodes.php';
+        \UniversalElementorSuite\Standalone_Shortcodes::instance();
+
+        require_once UAS_PATH . 'includes/class-industry-blocks.php';
+        \UniversalElementorSuite\Industry_Blocks::instance();
+
+        require_once UAS_PATH . 'includes/class-woocommerce-compatibility.php';
+        \UniversalElementorSuite\WooCommerce_Compatibility::instance();
+
+        if (is_admin()) {
+            require_once UAS_PATH . 'includes/class-github-admin.php';
+            \UniversalElementorSuite\GitHub_Admin::instance();
+        }
+
+        // 3. Check if Elementor is installed and loaded for Visual Widget registration
         if (!did_action('elementor/loaded')) {
-            add_action('admin_notices', [$this, 'admin_notice_missing_elementor']);
+            add_action('admin_notices', [$this, 'admin_notice_optional_elementor']);
             return;
         }
 
-        // 3. Check Elementor Version
+        // 4. Check Elementor Version
         if (defined('ELEMENTOR_VERSION') && version_compare(ELEMENTOR_VERSION, UAS_MINIMUM_ELEMENTOR_VERSION, '<')) {
             add_action('admin_notices', [$this, 'admin_notice_minimum_elementor_version']);
             return;
         }
 
-        // 4. Safe Bootstrap: Load Core Engine
+        // 5. Load Elementor Core Engine
         require_once UAS_PATH . 'includes/class-plugin.php';
         \UniversalElementorSuite\Plugin::instance();
     }
 
     /**
-     * Admin Notice: Missing Elementor Plugin
+     * Admin Notice: Optional Elementor Information
      */
-    public function admin_notice_missing_elementor() {
+    public function admin_notice_optional_elementor() {
         if (!current_user_can('activate_plugins')) {
             return;
         }
@@ -122,21 +137,23 @@ final class Universal_Elementor_Addon_Suite {
 
         $message = sprintf(
             /* translators: 1: Plugin name 2: Elementor */
-            esc_html__('افزونه «%1$s» جهت ارائه المان‌ها و ویجت‌های تعاملی نیازمند فعال بودن صفحه‌ساز «%2$s» است.', 'universal-elementor-suite'),
+            esc_html__('افزونه «%1$s»: تمامی شورت‌کدها، بلوک‌ها و پیشخوان گیت‌هابی به صورت ۱۰۰٪ مستقل و بدون نیاز به المنتور یا قالب خاص فعال هستند. در صورت تمایل به ویرایش زنده با درگ‌اند‌دراپ، می‌توانید صفحه‌ساز «%2$s» را نیز فعال نمایید.', 'universal-elementor-suite'),
             '<strong>Universal Elementor Addon Suite</strong>',
             '<strong>Elementor</strong>'
         );
 
         printf(
-            '<div class="notice notice-warning is-dismissible" style="border-right-color: #D4AF37; padding: 12px 16px;">
-                <p style="font-size: 13px; margin: 0 0 8px 0;">%1$s</p>
-                <p style="margin: 0;">
-                    <a href="%2$s" class="button button-primary" style="background: #0B132B; border-color: #D4AF37; color: #F3E5AB;">%3$s</a>
+            '<div class="notice notice-info is-dismissible" style="border-right-color: #238636; padding: 12px 16px; background: #0D1117; color: #F0F6FC;">
+                <p style="font-size: 13px; margin: 0 0 8px 0; color: #F0F6FC;">%1$s</p>
+                <p style="margin: 0; display: flex; gap: 10px;">
+                    <a href="%2$s" class="button button-primary" style="background: #238636; border-color: #238636; color: #fff;">%3$s</a>
+                    <a href="%4$s" class="button" style="background: #21262D; border-color: #30363D; color: #C9D1D9;">مشاهده راهنمای شورت‌کدها در پیشخوان گیت‌هاب</a>
                 </p>
             </div>',
             $message,
             esc_url($install_url),
-            esc_html__('نصب و فعال‌سازی صفحه‌ساز المنتور', 'universal-elementor-suite')
+            esc_html__('نصب و فعال‌سازی صفحه‌ساز المنتور (اختیاری)', 'universal-elementor-suite'),
+            esc_url(admin_url('admin.php?page=sedrazavi-docs'))
         );
     }
 

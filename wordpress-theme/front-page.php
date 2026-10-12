@@ -104,6 +104,16 @@ get_header();
     <div class="hero-ambient-glow-left"></div>
 
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <?php
+        $preset = function_exists('sedrazavi_get_preset') ? sedrazavi_get_preset() : null;
+        $preset_title = $preset ? esc_html($preset['hero_title']) : 'عدالت با دقت، حرفه‌ای‌گری با تعهد';
+        $preset_desc = $preset ? esc_html($preset['hero_desc']) : 'دفاعی هوشمندانه برای آینده‌ای امن؛ پاسدار حقوق و منافع شما در مراجع قضایی و بین‌المللی';
+        $preset_badge = $preset ? esc_html($preset['badge'] . ' • ' . $preset['hero_kicker']) : 'دکترای تخصصی حقوق خصوصی از دانشگاه تهران • بیش از ۲۰ سال سابقه وکالت';
+        $cta_primary = $preset ? esc_html($preset['hero_cta_primary']) : 'رزرو وقت مشاوره تخصصی با وکیل';
+        $cta_secondary = $preset ? esc_html($preset['hero_cta_secondary']) : 'استعلام برخط پرونده قضایی';
+        $client_term = function_exists('sedrazavi_get_term') ? sedrazavi_get_term('client', 'موکل') : 'موکل';
+        $case_term = function_exists('sedrazavi_get_term') ? sedrazavi_get_term('case', 'پرونده') : 'پرونده';
+        ?>
         <div class="hero-grid-layout">
             <!-- ستون راست: تیتر اصلی، نشان تجربه، چک‌لیست و دکمه‌ها -->
             <div class="hero-content-col">
@@ -111,15 +121,15 @@ get_header();
                     <svg class="w-4 h-4 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
                     </svg>
-                    <span>دکترای تخصصی حقوق خصوصی از دانشگاه تهران • بیش از ۲۰ سال سابقه وکالت</span>
+                    <span><?php echo $preset_badge; ?></span>
                 </div>
 
                 <h1 class="hero-main-title">
-                    عدالت با دقت، <span class="hero-gold-gradient">حرفه‌ای‌گری با تعهد</span>
+                    <?php echo $preset_title; ?>
                 </h1>
 
                 <p class="hero-slogan-text">
-                    دفاعی هوشمندانه برای آینده‌ای امن؛ پاسدار حقوق و منافع شما در مراجع قضایی و بین‌المللی
+                    <?php echo $preset_desc; ?>
                 </p>
 
                 <!-- چک‌لیست ۴ گانه -->
@@ -129,28 +139,28 @@ get_header();
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
-                        <span>تنظیم تخصصی لوایح و دفاع مستدل در محاکم</span>
+                        <span>پاسخگویی سریع و حرفه‌ای به درخواست‌های <?php echo esc_html($client_term); ?></span>
                     </div>
                     <div class="hero-value-item">
                         <svg class="w-4 h-4 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
-                        <span>حفظ اسرار تجاری و ۱۰۰٪ محرمانگی اسناد</span>
+                        <span>حفظ اسرار تجاری و ۱۰۰٪ محرمانگی اطلاعات و اسناد</span>
                     </div>
                     <div class="hero-value-item">
                         <svg class="w-4 h-4 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
-                        <span>امکان تقسیط حق‌الوکاله متناسب با مراحل دادرسی</span>
+                        <span>شفافیت کامل در برآورد تعرفه‌ها و مراحل کار</span>
                     </div>
                     <div class="hero-value-item">
                         <svg class="w-4 h-4 text-[#D4AF37] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
-                        <span>سامانه هوشمند گزارش لحظه‌ای وضعیت پرونده</span>
+                        <span>سامانه هوشمند استعلام لحظه‌ای وضعیت <?php echo esc_html($case_term); ?></span>
                     </div>
                 </div>
 
@@ -163,7 +173,7 @@ get_header();
                             <line x1="8" y1="2" x2="8" y2="6"></line>
                             <line x1="3" y1="10" x2="21" y2="10"></line>
                         </svg>
-                        <span>رزرو وقت مشاوره تخصصی با وکیل</span>
+                        <span><?php echo $cta_primary; ?></span>
                     </a>
 
                     <a href="#tracking" class="btn-navy-hero">
@@ -171,7 +181,7 @@ get_header();
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                        <span>استعلام برخط پرونده قضایی</span>
+                        <span><?php echo $cta_secondary; ?></span>
                     </a>
                 </div>
 
@@ -262,17 +272,23 @@ get_header();
 <section id="services" class="py-20 bg-sr-bg-alt relative">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-3xl mx-auto space-y-4 mb-12">
+        <?php
+        $services_header_badge = ($preset && $preset['id'] !== 'lawyer') ? esc_html($preset['badge']) : 'حوزه‌های تخصصی وکالت و داوری';
+        $services_header_title = ($preset && $preset['id'] !== 'lawyer') ? 'خدمات تخصصی ' . esc_html($preset['name']) : 'خدمات حقوقی با استانداردهای بین‌المللی';
+        $services_header_desc = ($preset && $preset['id'] !== 'lawyer') ? esc_html($preset['site_tagline']) : 'تمرکز بر تسلط علمی، تنظیم قراردادهای بازدارنده و دفاع قاطعانه از حقوق شما در محاکم دادگستری و مراجع داوری.';
+        ?>
+        <div class="text-center max-w-3xl mx-auto space-y-4 mb-12">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/30">
                 <svg class="w-3.5 h-3.5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
                 </svg>
-                <span>حوزه‌های تخصصی وکالت و داوری</span>
+                <span><?php echo $services_header_badge; ?></span>
             </div>
             <h2 class="text-3xl sm:text-4xl font-bold font-serif text-sr-primary">
-                خدمات حقوقی با استانداردهای بین‌المللی
+                <?php echo $services_header_title; ?>
             </h2>
             <p class="text-sm sm:text-base text-sr-muted">
-                تمرکز بر تسلط علمی، تنظیم قراردادهای بازدارنده و دفاع قاطعانه از حقوق شما در محاکم دادگستری و مراجع داوری.
+                <?php echo $services_header_desc; ?>
             </p>
 
             <!-- فیلترهای خدمات -->

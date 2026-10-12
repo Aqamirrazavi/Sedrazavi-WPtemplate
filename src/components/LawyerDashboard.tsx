@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CASES_INITIAL_DATA, SERVICES_DATA } from '../data/mockData';
+import { CASES_INITIAL_DATA, SERVICES_DATA, ATTORNEY_INFO } from '../data/mockData';
 import { CaseItem } from '../types/theme';
 import { FrontendCommentsModeration } from './FrontendCommentsModeration';
 import { ClientPortalView } from './ClientPortalView';
@@ -32,6 +32,7 @@ import {
   LawyerSiteProfile,
   getStoredLawyerProfile,
 } from '../utils/lawyerCustomizationStorage';
+import { usePresetConfig } from '../hooks/usePresetConfig';
 import {
   Scale,
   Plus,
@@ -63,6 +64,8 @@ import {
   HardDrive,
   Activity,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Calculator,
   UserCheck,
   Code,
@@ -73,6 +76,11 @@ import {
   BookOpen,
   Users,
   Settings,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Wrench,
+  ExternalLink,
+  LogOut,
 } from 'lucide-react';
 
 export type AdminSubTabKey =
@@ -122,8 +130,31 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
   onSwitchToAdminPortal,
   serverContext,
 }) => {
+  const { preset, modularSettings } = usePresetConfig();
   const [portalMode, setPortalMode] = useState<'attorney' | 'client'>(initialPortalMode);
-  const [activeSubTab, setActiveSubTab] = useState<AdminSubTabKey>('dashboard');
+  const [activeCategory, setActiveCategory] = useState<'docket' | 'comms' | 'finance' | 'branding' | 'system'>('docket');
+  const [activeSubTab, setActiveSubTabState] = useState<AdminSubTabKey>('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showToolsDropdown, setShowToolsDropdown] = useState(false);
+
+  const setActiveSubTab = (tab: AdminSubTabKey) => {
+    setActiveSubTabState(tab);
+    if (['dashboard', 'associates-delegation'].includes(tab)) setActiveCategory('docket');
+    else if (['clients', 'bookings', 'emails', 'comments'].includes(tab)) setActiveCategory('comms');
+    else if (['invoices', 'calculators'].includes(tab)) setActiveCategory('finance');
+    else if (['content', 'banner', 'contact-cards', 'instagram'].includes(tab)) setActiveCategory('branding');
+    else if (['appearance', 'customizer', 'system-status', 'backup', 'logs', 'react-php-generator'].includes(tab)) setActiveCategory('system');
+  };
+
+  const handleSelectCategory = (cat: 'docket' | 'comms' | 'finance' | 'branding' | 'system') => {
+    setActiveCategory(cat);
+    if (cat === 'docket') setActiveSubTabState('dashboard');
+    else if (cat === 'comms') setActiveSubTabState('clients');
+    else if (cat === 'finance') setActiveSubTabState('invoices');
+    else if (cat === 'branding') setActiveSubTabState('content');
+    else if (cat === 'system') setActiveSubTabState('appearance');
+  };
+
   const [isAdminActingAsLawyer, setIsAdminActingAsLawyer] = useState<boolean>(() => {
     if (typeof isAdminActingAsLawyerProp === 'boolean') return isAdminActingAsLawyerProp;
     if (userRole === 'admin') return true;
@@ -277,383 +308,716 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             onBackToMainDashboard={() => setPortalMode('attorney')}
           />
         ) : (
-          <div className="space-y-8">
-        {/* Dashboard Title & Top Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#0B132B] dark:text-white">
-                میز کار و داشبورد مدیریت وکالت
-              </h1>
-              <span className="px-3 py-1 rounded-full bg-[#2A9D8F]/15 text-[#2A9D8F] text-xs font-bold">
-                پنل مدیریت وکیل
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-              مدیریت لحظه‌ای پرونده‌های قضایی، جلسات محاکم، نوبت‌های رزرو شده و دیدگاه‌های موکلین.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Real-time Notification System & Toast Alerts for Court Deadlines & Client Messages */}
-            <LawyerRealtimeToastNotifier
-              onSelectCase={(caseNum) => {
-                setSearchTerm(caseNum);
-                setActiveSubTab('dashboard');
-              }}
-            />
-
-            <button
-              onClick={() => setShowReactPhpGeneratorModal(true)}
-              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#0B132B] to-[#1C2541] hover:brightness-110 text-[#D4AF37] border border-[#D4AF37]/50 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-              title="مولد قالب فایل PHP شورت‌کدهای React همراه با wp_enqueue_script و wp_localize_script"
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
+            {/* Collapsible GitHub & Peycode Style Sidebar */}
+            <aside
+              className={`shrink-0 bg-white dark:bg-[#0B132B] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-200 overflow-hidden ${
+                sidebarCollapsed ? 'w-full lg:w-20' : 'w-full lg:w-64'
+              }`}
             >
-              <FileCode className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>مولد PHP شورت‌کدهای React</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#D4AF37] text-[#0B132B] font-bold">وردپرس</span>
-            </button>
+              {/* Sidebar Header */}
+              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                {!sidebarCollapsed ? (
+                  <div className="min-w-0 flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-sm shrink-0">
+                      ⚖️
+                    </div>
+                    <div className="min-w-0">
+                      <h2 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        {lawyerProfile?.lawyerName || ATTORNEY_INFO.name}
+                      </h2>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                        {preset.terms.expert || 'وکیل و مشاور'}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mx-auto w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-sm">
+                    ⚖️
+                  </div>
+                )}
 
-            <button
-              onClick={() => setShowExportModal(true)}
-              className="px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-[#AA820A] dark:text-[#F3E5AB] border border-[#D4AF37]/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-              title="استخراج کدهای آماده HTML و CSS برای ویجت‌های المنتور و گوتنبرگ وردپرس + راهنمای REST API"
-            >
-              <Code className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>استخراج HTML / CSS برای المنتور</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#D4AF37] text-[#0B132B] font-bold">ویجت</span>
-            </button>
-
-            <button
-              onClick={() => setShowManualAccountModal(true)}
-              className="px-3.5 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
-              title="ساخت اکانت برای موکل بدون نیاز به پیامک (با تولید پسورد تصادفی و تحویل در پیام‌رسان)"
-            >
-              <UserPlus className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>ساخت اکانت بدون SMS</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-600 text-white font-mono">پیام‌رسان</span>
-            </button>
-
-            <button
-              onClick={() => setShowPrintProfileModal(true)}
-              className="px-3.5 py-2 rounded-xl bg-[#D4AF37]/15 hover:bg-[#D4AF37]/25 text-[#AA820A] dark:text-[#F3E5AB] border border-[#D4AF37]/50 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-              title="چاپ کارت بیوگرافی رسمی و شناسنامه حرفه‌ای وکیل برای موکلین"
-            >
-              <Printer className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>چاپ پروفایل وکیل</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#0B132B] dark:bg-[#D4AF37] text-[#D4AF37] dark:text-[#0B132B] font-mono">Print</span>
-            </button>
-
-            <button
-              onClick={handleDownloadCaseloadCsv}
-              className="px-3.5 py-2 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-700 dark:text-blue-300 border border-blue-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-              title="دانلود فایل اکسل/CSV از فهرست پرونده‌های جاری، ماتریس حوزه‌های تخصصی و خلاصه جلسات موکلین"
-            >
-              <Download className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>دانلود داده‌ها</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-600 text-white font-mono">CSV</span>
-            </button>
-
-            <button
-              onClick={() => setShowPlaybookModal(true)}
-              className="px-3.5 py-2 rounded-xl bg-purple-600/10 hover:bg-purple-600/20 text-purple-700 dark:text-purple-300 border border-purple-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-              title="کتابچه راهنما و دستورالعمل جامع رتق و فتق کارهای وکیل، مدیریت موکلین و راهنمای طراح سایت"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-              <span>دستورالعمل و راهنمای مدیریت</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-600 text-white font-mono">SOP</span>
-            </button>
-
-            {activeSubTab === 'dashboard' && (
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="btn-gold text-xs sm:text-sm px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm"
-              >
-                <Plus className="w-4 h-4" />
-                <span>ثبت پرونده جدید</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Download Feedback Notification */}
-        {downloadNotification && (
-          <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between gap-2 shadow-sm">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-              <span>{downloadNotification}</span>
-            </div>
-            <button
-              onClick={() => setDownloadNotification(null)}
-              className="text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 p-1 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/50"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-
-        {/* Admin Acting as Managing Attorney Delegation Notice */}
-        {isAdminActingAsLawyer && (
-          <div className="p-4 rounded-3xl bg-gradient-to-r from-amber-500/15 via-[#D4AF37]/10 to-amber-500/15 border border-[#D4AF37]/50 text-xs text-gray-800 dark:text-[#F3E5AB] flex flex-wrap items-center justify-between gap-3 shadow-md">
-            <div className="flex items-center gap-3">
-              <span className="w-8 h-8 rounded-xl bg-[#D4AF37] text-[#0B132B] flex items-center justify-center font-black text-sm shrink-0 shadow-md">
-                🛡️
-              </span>
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <strong className="text-gray-900 dark:text-white font-bold text-xs sm:text-sm">
-                    حالت دسترسی مدیر کل سیستم (Admin Acting as Lead Attorney) فعال است
-                  </strong>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
-                    جانشینی قانونی
-                  </span>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 text-[11px] leading-relaxed">
-                  شما به عنوان ادمین سایت به تمامی اختیارات وکیل سرپرست دسترسی دارید تا در صورت غیاب وکیل، کارهای موکلان، ارجاع به وکلای شریک و اوقات دادرسی متوقف نماند.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {onSwitchToAdminPortal && (
                 <button
-                  type="button"
-                  onClick={onSwitchToAdminPortal}
-                  className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] font-bold text-xs hover:brightness-110 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  title={sidebarCollapsed ? 'باز کردن سایدبار' : 'جمع کردن سایدبار'}
                 >
-                  <Briefcase className="w-3.5 h-3.5" />
-                  <span>⚙️ پنل جامع ادمین سایت</span>
+                  {sidebarCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
                 </button>
+              </div>
+
+              {/* Sidebar Navigation Groups */}
+              <div className="p-2.5 space-y-4 max-h-[calc(100vh-220px)] overflow-y-auto">
+                {/* 1. Overview & Docket */}
+                <div>
+                  {!sidebarCollapsed && (
+                    <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                      میزکار و امور جاری
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => setActiveSubTab('dashboard')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'dashboard'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="کارتابل و پرونده‌ها"
+                    >
+                      <Briefcase className="w-4 h-4 shrink-0 text-[#D4AF37]" />
+                      {!sidebarCollapsed && <span>کارتابل و {preset.terms.cases}</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('associates-delegation')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'associates-delegation'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="همکاران و ارجاع"
+                    >
+                      <Users className="w-4 h-4 shrink-0 text-amber-500" />
+                      {!sidebarCollapsed && <span>همکاران و ارجاع</span>}
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Clients & Comms */}
+                <div>
+                  {!sidebarCollapsed && (
+                    <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                      ارتباط با {preset.terms.clients}
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => setActiveSubTab('clients')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'clients'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title={`مدیریت ${preset.terms.clients}`}
+                    >
+                      <UserCheck className="w-4 h-4 shrink-0 text-emerald-500" />
+                      {!sidebarCollapsed && <span>مدیریت {preset.terms.clients}</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('bookings')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'bookings'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="نوبت‌ها و جلسات"
+                    >
+                      <Calendar className="w-4 h-4 shrink-0 text-sky-500" />
+                      {!sidebarCollapsed && <span>نوبت‌ها و جلسات</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('emails')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'emails'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="صندوق پیام‌ها"
+                    >
+                      <MessageSquare className="w-4 h-4 shrink-0 text-indigo-500" />
+                      {!sidebarCollapsed && <span>صندوق پیام‌ها</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('comments')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'comments'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="دیدگاه‌ها و نظرات"
+                    >
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-teal-500" />
+                      {!sidebarCollapsed && <span>دیدگاه‌ها و نظرات</span>}
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3. Finance & Calculators */}
+                <div>
+                  {!sidebarCollapsed && (
+                    <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                      امور مالی و ابزارها
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => setActiveSubTab('invoices')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'invoices'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="صورتحساب‌ها و مالی"
+                    >
+                      <Scale className="w-4 h-4 shrink-0 text-amber-500" />
+                      {!sidebarCollapsed && <span>صورتحساب‌ها و مالی</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('calculators')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'calculators'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="میز محاسبات قضایی"
+                    >
+                      <Calculator className="w-4 h-4 shrink-0 text-[#D4AF37]" />
+                      {!sidebarCollapsed && <span>میز محاسبات</span>}
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4. Content & Website */}
+                <div>
+                  {!sidebarCollapsed && (
+                    <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                      محتوا و وب‌سایت
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => setActiveSubTab('content')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'content'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="مقالات و خدمات"
+                    >
+                      <FileText className="w-4 h-4 shrink-0 text-blue-500" />
+                      {!sidebarCollapsed && <span>مقالات و خدمات</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('banner')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'banner'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="بنر اسلایدر"
+                    >
+                      <Layers className="w-4 h-4 shrink-0 text-amber-500" />
+                      {!sidebarCollapsed && <span>بنر و اعلانات</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('contact-cards')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'contact-cards'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="تماس و نقشه"
+                    >
+                      <MapPin className="w-4 h-4 shrink-0 text-emerald-500" />
+                      {!sidebarCollapsed && <span>تماس و نقشه</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('instagram')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'instagram'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="اینستاگرام و رسانه"
+                    >
+                      <Instagram className="w-4 h-4 shrink-0 text-pink-500" />
+                      {!sidebarCollapsed && <span>گالری و اینستاگرام</span>}
+                    </button>
+                  </div>
+                </div>
+
+                {/* 5. System & Brand */}
+                <div>
+                  {!sidebarCollapsed && (
+                    <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                      تنظیمات و سیستم
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => setActiveSubTab('appearance')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'appearance'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="تنظیمات ظاهر"
+                    >
+                      <Palette className="w-4 h-4 shrink-0 text-pink-500" />
+                      {!sidebarCollapsed && <span>تنظیمات ظاهر</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('customizer')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'customizer'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="هویت برند"
+                    >
+                      <Sliders className="w-4 h-4 shrink-0 text-[#D4AF37]" />
+                      {!sidebarCollapsed && <span>هویت و برند</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('system-status')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'system-status'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="وضعیت سیستم"
+                    >
+                      <Server className="w-4 h-4 shrink-0 text-sky-500" />
+                      {!sidebarCollapsed && <span>وضعیت سیستم</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('backup')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'backup'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="پشتیبان‌گیری"
+                    >
+                      <HardDrive className="w-4 h-4 shrink-0 text-indigo-500" />
+                      {!sidebarCollapsed && <span>پشتیبان‌گیری</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('logs')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'logs'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="لاگ‌ها و دیباگ"
+                    >
+                      <Activity className="w-4 h-4 shrink-0 text-red-500" />
+                      {!sidebarCollapsed && <span>لاگ‌ها و دیباگ</span>}
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('react-php-generator')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'react-php-generator'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="شورت‌کدهای React"
+                    >
+                      <FileCode className="w-4 h-4 shrink-0 text-[#D4AF37]" />
+                      {!sidebarCollapsed && <span>شورت‌کدهای React</span>}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sidebar Footer */}
+              <div className="p-3 border-t border-slate-200 dark:border-slate-800 space-y-1">
+                {onSwitchToAdminPortal && (
+                  <button
+                    onClick={onSwitchToAdminPortal}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-xl transition-colors text-right"
+                    title="پنل جامع ادمین"
+                  >
+                    <Briefcase className="w-4 h-4 shrink-0" />
+                    {!sidebarCollapsed && <span>پنل جامع ادمین سایت</span>}
+                  </button>
+                )}
+                {onLogout && (
+                  <button
+                    onClick={onLogout}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-xl transition-colors text-right"
+                    title="خروج"
+                  >
+                    <LogOut className="w-4 h-4 shrink-0" />
+                    {!sidebarCollapsed && <span>خروج از پنل</span>}
+                  </button>
+                )}
+              </div>
+            </aside>
+
+            {/* Main Content Workspace */}
+            <main className="flex-1 min-w-0 w-full space-y-5">
+              {/* GitHub-style Clean Top Bar with Breadcrumbs & Actions */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-[#0B132B] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                    <span>داشبورد مدیریت</span>
+                    <span>/</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">
+                      {activeCategory === 'docket' && 'میزکار و امور جاری'}
+                      {activeCategory === 'comms' && `ارتباط با ${preset.terms.clients}`}
+                      {activeCategory === 'finance' && 'امور مالی و ابزارها'}
+                      {activeCategory === 'branding' && 'محتوا و وب‌سایت'}
+                      {activeCategory === 'system' && 'تنظیمات و سیستم'}
+                    </span>
+                  </div>
+                  <h1 className="text-lg sm:text-xl font-bold font-serif text-[#0B132B] dark:text-white">
+                    {activeSubTab === 'dashboard' && `کارتابل و ${preset.terms.cases}`}
+                    {activeSubTab === 'associates-delegation' && 'ارجاع پرونده به وکلای همکار'}
+                    {activeSubTab === 'clients' && `مدیریت حساب ${preset.terms.clients}`}
+                    {activeSubTab === 'bookings' && 'رزروها و تقویم نوبت‌ها'}
+                    {activeSubTab === 'emails' && 'صندوق پیام‌ها و فرم تماس'}
+                    {activeSubTab === 'comments' && 'نظارت بر دیدگاه‌ها'}
+                    {activeSubTab === 'invoices' && 'صورتحساب‌ها و درگاه‌های پرداخت'}
+                    {activeSubTab === 'calculators' && 'میز محاسبات قضایی و دیه'}
+                    {activeSubTab === 'content' && 'مدیریت محتوا و خدمات'}
+                    {activeSubTab === 'banner' && 'بنر اسلایدر متنی'}
+                    {activeSubTab === 'contact-cards' && 'اطلاعات تماس، تیم و نقشه'}
+                    {activeSubTab === 'instagram' && 'گالری و اینستاگرام'}
+                    {activeSubTab === 'appearance' && 'تنظیمات ظاهری و پالت رنگی'}
+                    {activeSubTab === 'customizer' && 'شخصی‌سازی هویت سایت'}
+                    {activeSubTab === 'system-status' && 'وضعیت سیستم و سرور'}
+                    {activeSubTab === 'backup' && 'پشتیبان‌گیری و دیتابیس'}
+                    {activeSubTab === 'logs' && 'لاگ‌ها و رویدادهای سیستم'}
+                    {activeSubTab === 'react-php-generator' && 'مولد PHP شورت‌کدهای React'}
+                  </h1>
+                </div>
+
+                {/* Top Action Buttons & Tool Dropdown */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <LawyerRealtimeToastNotifier
+                    onSelectCase={(caseNum) => {
+                      setSearchTerm(caseNum);
+                      setActiveSubTab('dashboard');
+                    }}
+                  />
+
+                  {/* Compact Tools Dropdown (Replaces messy buttons) */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowToolsDropdown(!showToolsDropdown)}
+                      className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                    >
+                      <Wrench className="w-3.5 h-3.5 text-amber-500" />
+                      <span>ابزارهای مدیریتی</span>
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showToolsDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {showToolsDropdown && (
+                      <div className="absolute left-0 mt-2 w-56 p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 text-right space-y-1">
+                        <button
+                          onClick={() => { setShowPrintProfileModal(true); setShowToolsDropdown(false); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                        >
+                          <Printer className="w-3.5 h-3.5 text-amber-500" />
+                          <span>چاپ بیوگرافی و پروفایل</span>
+                        </button>
+
+                        <button
+                          onClick={() => { handleDownloadCaseloadCsv(); setShowToolsDropdown(false); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                        >
+                          <Download className="w-3.5 h-3.5 text-blue-500" />
+                          <span>دانلود فایل داده‌ها (CSV)</span>
+                        </button>
+
+                        <button
+                          onClick={() => { setShowExportModal(true); setShowToolsDropdown(false); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                        >
+                          <Code className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>استخراج HTML / CSS المنتور</span>
+                        </button>
+
+                        <button
+                          onClick={() => { setShowManualAccountModal(true); setShowToolsDropdown(false); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                        >
+                          <UserPlus className="w-3.5 h-3.5 text-indigo-500" />
+                          <span>ساخت اکانت بدون پیامک</span>
+                        </button>
+
+                        <button
+                          onClick={() => { setShowPlaybookModal(true); setShowToolsDropdown(false); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                        >
+                          <BookOpen className="w-3.5 h-3.5 text-purple-500" />
+                          <span>دستورالعمل و راهنما (SOP)</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {activeSubTab === 'dashboard' && (
+                    <button
+                      onClick={() => setShowAddModal(true)}
+                      className="btn-gold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>ثبت {preset.terms.case} جدید</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Download Feedback Notification */}
+              {downloadNotification && (
+                <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between gap-2 shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                    <span>{downloadNotification}</span>
+                  </div>
+                  <button
+                    onClick={() => setDownloadNotification(null)}
+                    className="text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 p-1 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/50"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               )}
-              <button
-                type="button"
-                onClick={() => setActiveSubTab('associates-delegation')}
-                className="px-4 py-2 rounded-xl bg-[#0B132B] text-[#D4AF37] border border-[#D4AF37]/60 text-xs font-bold hover:bg-[#16213E] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
-              >
-                <Users className="w-3.5 h-3.5" />
-                <span>ارجاع پرونده به وکلای همکار</span>
-              </button>
-            </div>
-          </div>
-        )}
 
-        {/* Phase 3 Admin Subtabs Navigation Bar */}
-        <div className="p-1.5 rounded-2xl bg-white dark:bg-[#0B132B] border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => setActiveSubTab('dashboard')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'dashboard'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <Briefcase className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>۱. داشبورد و پرونده‌ها</span>
-          </button>
+              {/* Admin Acting as Managing Attorney Delegation Notice */}
+              {isAdminActingAsLawyer && (
+                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                      🛡️
+                    </span>
+                    <span className="font-semibold">
+                      حالت دسترسی جانشین مدیر سیستم فعال است؛ دسترسی کامل به کلیه ارجاعات و امور اجرایی برقرار می‌باشد.
+                    </span>
+                  </div>
+                  {onSwitchToAdminPortal && (
+                    <button
+                      type="button"
+                      onClick={onSwitchToAdminPortal}
+                      className="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-900 font-bold text-[11px] hover:brightness-110 transition-all flex items-center gap-1"
+                    >
+                      <span>ورود به پنل ادمین</span>
+                      <ChevronLeft className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              )}
 
-          <button
-            onClick={() => setActiveSubTab('associates-delegation')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'associates-delegation'
-                ? 'bg-gradient-to-r from-[#D4AF37] to-[#AA820A] text-[#0B132B] shadow-sm font-black'
-                : 'text-amber-600 dark:text-amber-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>۲. وکلای همکار و جانشینی</span>
-            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#0B132B] text-[#D4AF37] font-bold">ادمین</span>
-          </button>
+              {/* Secondary Clean Category Subtabs (Only 2-4 items max, GitHub style) */}
+              {activeCategory === 'docket' && (
+                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
+                  <button
+                    onClick={() => setActiveSubTab('dashboard')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                      activeSubTab === 'dashboard'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    ۱. کارتابل و خلاصه وضعیت
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('associates-delegation')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                      activeSubTab === 'associates-delegation'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    ۲. ارجاع به همکاران
+                  </button>
+                </div>
+              )}
 
-          <button
-            onClick={() => setActiveSubTab('content')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'content'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5 text-blue-500" />
-            <span>۲. محتوا (مقالات، خدمات، ویدئو)</span>
-          </button>
+              {activeCategory === 'comms' && (
+                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs overflow-x-auto">
+                  <button
+                    onClick={() => setActiveSubTab('clients')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'clients'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    مدیریت {preset.terms.clients}
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('bookings')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'bookings'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    تقویم نوبت‌ها
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('emails')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'emails'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    پیام‌ها و فرم تماس
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('comments')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'comments'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    نظرات و دیدگاه‌ها
+                  </button>
+                </div>
+              )}
 
-          <button
-            onClick={() => setActiveSubTab('bookings')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'bookings'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <Calendar className="w-3.5 h-3.5 text-emerald-500" />
-            <span>۳. رزروها و تقویم نوبت‌ها</span>
-          </button>
+              {activeCategory === 'finance' && (
+                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
+                  <button
+                    onClick={() => setActiveSubTab('invoices')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                      activeSubTab === 'invoices'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    صورتحساب‌ها و مالی
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('calculators')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                      activeSubTab === 'calculators'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    میز محاسبات قضایی
+                  </button>
+                </div>
+              )}
 
-          <button
-            onClick={() => setActiveSubTab('invoices')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'invoices'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <Scale className="w-3.5 h-3.5 text-amber-500" />
-            <span>۴. صورتحساب‌ها و درگاه‌های پرداخت</span>
-          </button>
+              {activeCategory === 'branding' && (
+                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs overflow-x-auto">
+                  <button
+                    onClick={() => setActiveSubTab('content')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'content'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    مقالات و خدمات
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('banner')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'banner'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    بنر و اعلانات
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('contact-cards')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'contact-cards'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    کارت‌های تماس و تیم
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('instagram')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'instagram'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    گالری اینستاگرام
+                  </button>
+                </div>
+              )}
 
-          <button
-            onClick={() => setActiveSubTab('emails')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'emails'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <MessageSquare className="w-3.5 h-3.5 text-indigo-500" />
-            <span>۵. صندوق پیام‌ها و فرم تماس</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('clients')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'clients'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>۶. مدیریت موکلین و سامانه ثنا / OTP</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('calculators')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'calculators'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <Calculator className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>۷. میز محاسبات قضایی، دیه و مهریه</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('appearance')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'appearance'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <Palette className="w-3.5 h-3.5 text-pink-500" />
-            <span>۸. تنظیمات ظاهری (پالت روز و شب)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('banner')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'banner'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5 text-amber-500" />
-            <span>۹. بنر اسلایدر متنی</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('contact-cards')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'contact-cards'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <MapPin className="w-3.5 h-3.5 text-emerald-500" />
-            <span>۱۰. تماس، تیم و نقشه</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('instagram')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'instagram'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <Instagram className="w-3.5 h-3.5 text-pink-600" />
-            <span>۱۱. اینستاگرام</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('system-status')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'system-status'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <Server className="w-3.5 h-3.5 text-sky-500" />
-            <span>۱۲. وضعیت سیستم</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('backup')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'backup'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <HardDrive className="w-3.5 h-3.5 text-indigo-500" />
-            <span>۱۳. پشتیبان‌گیری</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('logs')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'logs'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <Activity className="w-3.5 h-3.5 text-red-500" />
-            <span>۱۴. لاگ‌ها و دیباگ</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('comments')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'comments'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white border border-[#D4AF37]/50 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <MessageSquare className="w-3.5 h-3.5 text-teal-500" />
-            <span>۱۵. نظارت بر دیدگاه‌ها</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('customizer')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'customizer'
-                ? 'bg-[#D4AF37] text-[#0B132B] font-black shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <Sliders className="w-3.5 h-3.5 text-[#AA820A] dark:text-[#0B132B]" />
-            <span>۱۶. هویت کامل وکیل</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('react-php-generator')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-              activeSubTab === 'react-php-generator'
-                ? 'bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm font-bold'
-                : 'text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white'
-            }`}
-          >
-            <FileCode className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>۱۷. مولد PHP شورت‌کدهای React</span>
-          </button>
-        </div>
+              {activeCategory === 'system' && (
+                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs overflow-x-auto">
+                  <button
+                    onClick={() => setActiveSubTab('appearance')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'appearance'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    تنظیمات ظاهر
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('customizer')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'customizer'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    هویت سایت
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('system-status')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'system-status'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    وضعیت سیستم
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('backup')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'backup'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    پشتیبان‌گیری
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('logs')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'logs'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    لاگ‌ها
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('react-php-generator')}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                      activeSubTab === 'react-php-generator'
+                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    شورت‌کدهای React
+                  </button>
+                </div>
+              )}
 
         {/* Content Views */}
         {activeSubTab === 'associates-delegation' ? (
@@ -866,10 +1230,9 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
 
           </div>
         )}
+            </main>
           </div>
         )}
-
-      </div>
 
       {/* Add New Case Modal */}
       {showAddModal && (
@@ -988,6 +1351,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
           </div>
         </div>
       )}
+
       {/* Manual Client Account Creator Modal (Without SMS) */}
       <ManualAccountCreatorModal
         isOpen={showManualAccountModal}
@@ -1031,6 +1395,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
           setShowManualAccountModal(true);
         }}
       />
+      </div>
     </div>
   );
 };

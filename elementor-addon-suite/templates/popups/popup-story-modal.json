@@ -37,12 +37,12 @@
                   {
                     "story_title": "رونمایی از محصول",
                     "story_content": "معرفی ویژگی‌های کلیدی در نگارش جدید پلتفرم و امکانات شخصی‌سازی هوشمند.",
-                    "story_image": { "url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=300" }
+                    "story_image": { "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400' viewBox='0 0 300 400'%3E%3Crect width='300' height='400' fill='%231e293b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23cbd5e1' font-family='sans-serif' font-size='16'%3EStory Media 1%3C/text%3E%3C/svg%3E" }
                   },
                   {
                     "story_title": "گزارش پیشرفت",
                     "story_content": "ثبت رکورد رضایت ۹۸ درصدی کاربران در آخرین ارزیابی کیفی سه‌ماهه سوم.",
-                    "story_image": { "url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=300" }
+                    "story_image": { "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400' viewBox='0 0 300 400'%3E%3Crect width='300' height='400' fill='%230f172a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23cbd5e1' font-family='sans-serif' font-size='16'%3EStory Media 2%3C/text%3E%3C/svg%3E" }
                   }
                 ]
               }

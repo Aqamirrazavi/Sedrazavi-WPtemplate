@@ -481,6 +481,7 @@ $sedrazavi_essential_includes = [
     'inc/react-shortcodes.php',      // Extended shortcodes package & auto-enqueuing
     'inc/rest-api.php',              // Full REST API suite (cases, otp, bookings)
     'inc/setup.php',                 // Plugin dependency checker & core setup
+    'inc/preset-engine.php',         // Multi-industry preset engine & terminology
     'inc/seo-bridge.php',            // Dynamic SEO tags, OpenGraph, and Schema.org
     'inc/customizer-seo.php',        // Customizer SEO & Branding controls
     'inc/user-roles.php',            // Custom legal roles (client, secretary, intern)

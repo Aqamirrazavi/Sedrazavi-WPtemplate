@@ -26,7 +26,11 @@ import {
   Share2,
   Save,
   Check,
-  Phone
+  Phone,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ArrowRight,
+  ChevronLeft,
 } from 'lucide-react';
 import {
   ClientAccount,
@@ -36,6 +40,7 @@ import {
 } from '../utils/clientAccountsStorage';
 import { ClientPortalQuickAccessWidget } from './ClientPortalQuickAccessWidget';
 import { CaseInteractiveTimeline } from './timeline/CaseInteractiveTimeline';
+import { usePresetConfig } from '../hooks/usePresetConfig';
 
 interface ClientCase {
   id: string;

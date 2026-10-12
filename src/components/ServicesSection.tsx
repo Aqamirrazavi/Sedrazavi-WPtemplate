@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ServiceItem } from '../types/theme';
 import { ServiceDetailModal } from './ServiceDetailModal';
+import { usePresetConfig } from '../hooks/usePresetConfig';
 import { 
   ArrowLeft, 
   Sparkles, 
@@ -26,6 +27,24 @@ interface ServicesSectionProps {
 export type LegalCategoryType = 'all' | 'real-estate' | 'criminal' | 'family' | 'commercial';
 
 export const ServicesSection: React.FC<ServicesSectionProps> = ({ services, onBookService }) => {
+  const { preset } = usePresetConfig();
+  const isLawyerPreset = preset.id === 'lawyer';
+
+  const effectiveServices = useMemo(() => {
+    if (!isLawyerPreset && preset.services && preset.services.length > 0) {
+      return preset.services.map((s, idx) => ({
+        id: s.id || `srv-${idx}`,
+        slug: `service-${s.id || idx}`,
+        title: s.title,
+        summary: s.desc,
+        detailedDescription: s.desc,
+        iconName: s.iconName || 'scroll',
+        category: s.tag,
+        features: ['مشاوره تخصصی و تحلیل اولیه', 'قرارداد معتبر و گزارش‌دهی شفاف', 'پشتیبانی فنی و اختصاصی مستمر'],
+      } as unknown as ServiceItem));
+    }
+    return services;
+  }, [preset, services, isLawyerPreset]);
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [filterType, setFilterType] = useState<LegalCategoryType>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -68,7 +87,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ services, onBo
   };
 
   const filteredServices = useMemo(() => {
-    return services.filter((srv) => {
+    return effectiveServices.filter((srv) => {
       const matchCat = matchesCategory(srv, filterType);
       const query = searchQuery.trim().toLowerCase();
       const matchQuery = !query || 
@@ -77,17 +96,17 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ services, onBo
         (srv.detailedDescription && srv.detailedDescription.toLowerCase().includes(query));
       return matchCat && matchQuery;
     });
-  }, [services, filterType, searchQuery]);
+  }, [effectiveServices, filterType, searchQuery]);
 
   const categoryCounts = useMemo(() => {
     return {
-      all: services.length,
-      'real-estate': services.filter(s => matchesCategory(s, 'real-estate')).length,
-      criminal: services.filter(s => matchesCategory(s, 'criminal')).length,
-      family: services.filter(s => matchesCategory(s, 'family')).length,
-      commercial: services.filter(s => matchesCategory(s, 'commercial')).length,
+      all: effectiveServices.length,
+      'real-estate': effectiveServices.filter(s => matchesCategory(s, 'real-estate')).length,
+      criminal: effectiveServices.filter(s => matchesCategory(s, 'criminal')).length,
+      family: effectiveServices.filter(s => matchesCategory(s, 'family')).length,
+      commercial: effectiveServices.filter(s => matchesCategory(s, 'commercial')).length,
     };
-  }, [services]);
+  }, [effectiveServices]);
 
   return (
     <section id="services" className="py-20 bg-[#F4F6F9] dark:bg-[#070D1E] relative transition-colors duration-300">
@@ -97,15 +116,17 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ services, onBo
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 text-[#AA820A] dark:text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/30">
             <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-            حوزه‌های تخصصی وکالت و داوری
+            {isLawyerPreset ? 'حوزه‌های تخصصی وکالت و داوری' : preset.badge}
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-bold font-serif text-[#0B132B] dark:text-white">
-            خدمات حقوقی با استانداردهای بین‌المللی
+            {isLawyerPreset ? 'خدمات حقوقی با استانداردهای بین‌المللی' : `خدمات و راهکارهای تخصصی ${preset.name}`}
           </h2>
 
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-            تمرکز بر تسلط علمی، تنظیم قراردادهای بازدارنده و دفاع قاطعانه از حقوق شما در محاکم دادگستری و مراجع داوری.
+            {isLawyerPreset 
+              ? 'تمرکز بر تسلط علمی، تنظیم قراردادهای بازدارنده و دفاع قاطعانه از حقوق شما در محاکم دادگستری و مراجع داوری.'
+              : (preset.site_tagline || preset.hero_desc)}
           </p>
 
           {/* Advanced Search & Filter Bar */}
@@ -214,7 +235,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ services, onBo
 
         {/* Results Counter & Active Filters Indicator */}
         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-6 px-1">
-          <span>نمایش {filteredServices.length} از {services.length} خدمت تخصصی</span>
+          <span>نمایش {filteredServices.length} از {effectiveServices.length} خدمت تخصصی</span>
           {(filterType !== 'all' || searchQuery) && (
             <button
               onClick={() => { setFilterType('all'); setSearchQuery(''); }}

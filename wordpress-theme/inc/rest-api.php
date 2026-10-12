@@ -219,6 +219,14 @@ class SedRazavi_REST_API {
             'callback'            => array(__CLASS__, 'handle_lawyer_export_csv'),
             'permission_callback' => array(__CLASS__, 'check_lawyer_or_admin_permission'),
         ));
+
+        // 22. Newsletter Subscribe: wp-json/sedrazavi/v1/newsletter
+        // Decision: PUBLIC - Prospective client newsletter subscription (Rate limited)
+        register_rest_route(self::NAMESPACE, '/newsletter', array(
+            'methods'             => 'POST',
+            'callback'            => array(__CLASS__, 'handle_newsletter_subscribe'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -284,11 +292,7 @@ class SedRazavi_REST_API {
         }
 
         // Nonce verification if provided
-        $nonce = $request->get_header('x-wp-nonce');
-        if (!$nonce) {
-            $nonce = $request->get_param('_wpnonce');
-        }
-        if (!empty($nonce) && !wp_verify_nonce($nonce, 'wp_rest') && !wp_verify_nonce($nonce, 'sedrazavi_security_nonce')) {
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::verify_request_nonce($request)) {
             return new WP_REST_Response(array(
                 'success' => false,
                 'message' => 'کد امنیتی نانس نامعتبر است یا نشست شما منقضی شده است.',
@@ -297,17 +301,25 @@ class SedRazavi_REST_API {
 
         $params = $request->get_params();
 
-        $name    = isset($params['client_name']) ? sanitize_text_field(wp_unslash($params['client_name'])) : '';
-        $phone   = isset($params['client_phone']) ? sanitize_text_field(wp_unslash($params['client_phone'])) : '';
+        $name    = isset($params['client_name']) ? (class_exists('SedRazavi_Rate_Limiter') ? SedRazavi_Rate_Limiter::sanitize_strict_input($params['client_name']) : sanitize_text_field(wp_unslash($params['client_name']))) : '';
+        $raw_phone = isset($params['client_phone']) ? sanitize_text_field(wp_unslash($params['client_phone'])) : '';
+        $phone   = class_exists('SedRazavi_Rate_Limiter') ? SedRazavi_Rate_Limiter::normalize_iranian_phone($raw_phone) : $raw_phone;
         $service = isset($params['service_type']) ? sanitize_text_field(wp_unslash($params['service_type'])) : 'مشاوره حقوقی عمومی';
         $date    = isset($params['booking_date']) ? sanitize_text_field(wp_unslash($params['booking_date'])) : date('Y-m-d');
         $time    = isset($params['booking_time']) ? sanitize_text_field(wp_unslash($params['booking_time'])) : '10:00';
-        $notes   = isset($params['notes']) ? sanitize_textarea_field(wp_unslash($params['notes'])) : '';
+        $notes   = isset($params['notes']) ? (class_exists('SedRazavi_Rate_Limiter') ? SedRazavi_Rate_Limiter::sanitize_multiline_input($params['notes']) : sanitize_textarea_field(wp_unslash($params['notes']))) : '';
 
         if (empty($name) || empty($phone)) {
             return new WP_REST_Response(array(
                 'success' => false,
                 'message' => 'نام و شماره همراه متقاضی الزامی است.',
+            ), 400);
+        }
+
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::validate_iranian_phone($raw_phone)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'شماره همراه وارد شده نامعتبر است. لطفاً شماره معتبر با پیش‌شماره ۰۹ وارد فرمایید.',
             ), 400);
         }
 
@@ -839,14 +851,29 @@ class SedRazavi_REST_API {
             ), 429);
         }
 
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::verify_request_nonce($request)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'کد امنیتی نانس نامعتبر است یا نشست شما منقضی شده است.',
+            ), 403);
+        }
+
         $params = $request->get_params();
-        $phone  = isset($params['phone']) ? sanitize_text_field(wp_unslash($params['phone'])) : '';
-        $name   = isset($params['name']) ? sanitize_text_field(wp_unslash($params['name'])) : 'متقاضی';
+        $raw_phone = isset($params['phone']) ? sanitize_text_field(wp_unslash($params['phone'])) : '';
+        $phone  = class_exists('SedRazavi_Rate_Limiter') ? SedRazavi_Rate_Limiter::normalize_iranian_phone($raw_phone) : $raw_phone;
+        $name   = isset($params['name']) ? (class_exists('SedRazavi_Rate_Limiter') ? SedRazavi_Rate_Limiter::sanitize_strict_input($params['name']) : sanitize_text_field(wp_unslash($params['name']))) : 'متقاضی';
 
         if (empty($phone)) {
             return new WP_REST_Response(array(
                 'success' => false,
                 'message' => 'شماره تماس الزامی است.',
+            ), 400);
+        }
+
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::validate_iranian_phone($raw_phone)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'شماره همراه وارد شده نامعتبر است. فرمت صحیح: ۰۹۱۲۳۴۵۶۷۸۹',
             ), 400);
         }
 
@@ -900,12 +927,20 @@ class SedRazavi_REST_API {
         }
 
         $params = $request->get_params();
-        $phone  = isset($params['phone']) ? sanitize_text_field(wp_unslash($params['phone'])) : '';
+        $raw_phone = isset($params['phone']) ? sanitize_text_field(wp_unslash($params['phone'])) : '';
+        $phone  = class_exists('SedRazavi_Rate_Limiter') ? SedRazavi_Rate_Limiter::normalize_iranian_phone($raw_phone) : $raw_phone;
 
         if (empty($phone)) {
             return new WP_REST_Response(array(
                 'success' => false,
                 'message' => 'لطفاً شماره تلفن همراه را وارد فرمایید.',
+            ), 400);
+        }
+
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::validate_iranian_phone($raw_phone)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'شماره همراه وارد شده نامعتبر است. فرمت صحیح: ۰۹۱۲۳۴۵۶۷۸۹',
             ), 400);
         }
 
@@ -1470,6 +1505,50 @@ class SedRazavi_REST_API {
             'success'  => true,
             'filename' => "Caseload-Report-{$date}.csv",
             'csv_data' => $output,
+        ), 200);
+    }
+
+    /**
+     * 22. Handle Newsletter Subscribe
+     */
+    public static function handle_newsletter_subscribe($request) {
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('newsletter', 5, 600)) {
+            return new WP_REST_Response(array(
+                'success'      => false,
+                'rate_limited' => true,
+                'message'      => 'تعداد درخواست‌های ثبت در خبرنامه بیش از حد مجاز است. لطفاً دقایقی دیگر اقدام فرمایید.',
+            ), 429);
+        }
+
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::verify_request_nonce($request)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'کد امنیتی نانس نامعتبر است یا نشست شما منقضی شده است.',
+            ), 403);
+        }
+
+        $params = $request->get_params();
+        $email = isset($params['email']) ? sanitize_email(wp_unslash($params['email'])) : '';
+
+        if (empty($email) || !is_email($email)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'نشانی ایمیل معتبر الزامی است.',
+            ), 400);
+        }
+
+        $subscribers = get_option('sedrazavi_newsletter_subscribers', array());
+        if (!is_array($subscribers)) {
+            $subscribers = array();
+        }
+        if (!in_array($email, $subscribers, true)) {
+            $subscribers[] = $email;
+            update_option('sedrazavi_newsletter_subscribers', $subscribers);
+        }
+
+        return new WP_REST_Response(array(
+            'success' => true,
+            'message' => 'عضویت شما در خبرنامه حقوقی با موفقیت ثبت شد.',
         ), 200);
     }
 }

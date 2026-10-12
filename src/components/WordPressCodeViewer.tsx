@@ -30,6 +30,7 @@ import {
   SlidersHorizontal,
   Layout,
   Code2,
+  GitBranch,
 } from 'lucide-react';
 
 export const WordPressCodeViewer: React.FC = () => {
@@ -256,6 +257,18 @@ export const WordPressCodeViewer: React.FC = () => {
     }
   };
 
+  const handleGitHubDeployInfo = () => {
+    const info = `
+# دستورالعمل استقرار مستقیم از گیت‌هاب:
+۱. برای نصب پوسته: پوشه wordpress-theme را فشرده (ZIP) کرده و در پیشخوان وردپرس > نمایش > پوسته‌ها بارگذاری نمایید.
+۲. برای نصب افزونه: پوشه elementor-addon-suite را فشرده (ZIP) کرده و در افزونه‌ها > افزودن بارگذاری کنید.
+۳. افزونه ۱۰۰٪ خودکفا بوده و روی هر قالبی بدون نیاز به پوسته با شورت‌کدها یا المنتور اجرا می‌شود.
+    `.trim();
+    navigator.clipboard.writeText(info);
+    setDownloadSuccessMessage('دستورالعمل استقرار مستقیم از گیت‌هاب کپی شد. پوشه‌ها مستقیماً آماده زیپ و نصب هستند.');
+    setTimeout(() => setDownloadSuccessMessage(null), 6000);
+  };
+
   return (
     <div className="py-10 bg-[#F4F6F9] dark:bg-[#070D1E] min-h-screen font-persian transition-colors" dir="rtl">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8 max-w-7xl">
@@ -314,8 +327,8 @@ export const WordPressCodeViewer: React.FC = () => {
           </div>
         </div>
 
-        {/* 2. Unified 3 Master Download Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* 2. Unified 4 Master Download Cards (Theme, Addons, Suite, Duplicator) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
           {/* Card 1: Official Theme ZIP */}
           <div className="relative rounded-3xl p-6 bg-white dark:bg-[#0B132B] border border-[#D4AF37]/40 shadow-xl hover:shadow-2xl hover:border-[#D4AF37] transition-all flex flex-col justify-between space-y-5 group">
@@ -437,6 +450,44 @@ export const WordPressCodeViewer: React.FC = () => {
               <span>
                 {isZipping && activeDownloadType === 'suite' ? 'در حال آماده‌سازی...' : 'دانلود پکیج کامل (sedrazavi-complete-suite.zip)'}
               </span>
+            </button>
+          </div>
+
+          {/* Card 4: GitHub Repository & Direct Deployment */}
+          <div className="relative rounded-3xl p-6 bg-white dark:bg-[#0B132B] border border-[#58A6FF]/40 shadow-xl hover:shadow-2xl hover:border-[#58A6FF] transition-all flex flex-col justify-between space-y-5 group">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-[#388bfd1f] border border-[#388bfd55] flex items-center justify-center text-[#58A6FF]">
+                  <GitBranch className="w-6 h-6" />
+                </div>
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#388bfd1f] text-[#58A6FF] border border-[#388bfd55] font-mono">
+                  GitHub Direct
+                </span>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-[#58A6FF] transition-colors">
+                  استقرار مستقیم از مخزن گیت‌هاب (بدون زیپ)
+                </h3>
+                <span className="text-xs text-[#58A6FF] font-mono">/wordpress-theme + /elementor-addon-suite</span>
+              </div>
+
+              <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                نیازی به فایل‌های زیپ ساختگی یا داپلیکیتور نیست. ساختار مخزن به گونه‌ای مهندسی شده که پوشه افزونه و پوسته مستقیماً آماده زیپ و استقرار روی وردپرس هستند.
+              </p>
+
+              <div className="p-2.5 rounded-xl bg-gray-50 dark:bg-[#070D1E] border border-gray-100 dark:border-gray-800 text-[11px] text-gray-500 dark:text-gray-400">
+                <span className="font-bold text-[#3FB950]">استقلال کامل:</span> افزونه بدون پوسته و با شورت‌کدها روی هر قالب دیگری در دنیا کار می‌کند.
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGitHubDeployInfo}
+              className="w-full py-3 px-4 rounded-xl bg-[#238636] hover:bg-[#2ea043] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#238636]/25 transition-all cursor-pointer"
+            >
+              <Copy className="w-4 h-4" />
+              <span>کپی راهنمای استقرار سریع گیت‌هاب</span>
             </button>
           </div>
 

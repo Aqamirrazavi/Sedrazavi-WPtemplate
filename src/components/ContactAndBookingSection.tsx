@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ATTORNEY_INFO, SERVICES_DATA, CASES_INITIAL_DATA } from '../data/mockData';
 import { CaseItem } from '../types/theme';
 import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
+import { usePresetConfig } from '../hooks/usePresetConfig';
 import {
   Calendar,
   Phone,
@@ -32,6 +33,8 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
   profile,
   preselectedLawyer,
 }) => {
+  const { preset } = usePresetConfig();
+  const isLawyerPreset = preset.id === 'lawyer';
   const scenario = profile?.firmScenario?.currentScenario || 'senior_associates';
 
   // Booking Form State
@@ -126,15 +129,17 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 text-[#AA820A] dark:text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/30">
             <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-            ارتباط مستقیم و دریافت نوبت
+            {isLawyerPreset ? 'ارتباط مستقیم و دریافت نوبت' : `ارتباط مستقیم و ${preset.terms.booking}`}
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-bold font-serif text-[#0B132B] dark:text-white">
-            رزرو هوشمند وقت مشاوره و پیگیری پرونده
+            {isLawyerPreset ? 'رزرو هوشمند وقت مشاوره و پیگیری پرونده' : `${preset.terms.booking} و پیگیری هوشمند ${preset.terms.case}`}
           </h2>
 
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-            امکان رزرو نوبت مشاوره حضوری/آنلاین و استعلام وضعیت دادرسی در سامانه یکپارچه SedRazavi.
+            {isLawyerPreset 
+              ? 'امکان رزرو نوبت مشاوره حضوری/آنلاین و استعلام وضعیت دادرسی در سامانه یکپارچه SedRazavi.'
+              : `امکان ثبت آسان درخواست ${preset.terms.booking} و استعلام وضعیت برخط.`}
           </p>
         </div>
 
@@ -144,10 +149,10 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
           <div className="lg:col-span-7 bg-[#F4F6F9] dark:bg-gray-900/90 rounded-3xl p-6 sm:p-10 border border-gray-200 dark:border-gray-800 shadow-xl">
             <h3 className="text-xl font-bold font-serif text-[#0B132B] dark:text-white mb-2 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-[#D4AF37]" />
-              فرم آنلاین تعیین وقت مشاوره
+              {preset.terms.booking || 'فرم آنلاین تعیین وقت'}
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
-              اطلاعات شما با رعایت ۱۰۰٪ اصل محرمانگی در بایگانی دفتر حقوقی ثبت می‌گردد.
+              {isLawyerPreset ? 'اطلاعات شما با رعایت ۱۰۰٪ اصل محرمانگی در بایگانی دفتر حقوقی ثبت می‌گردد.' : 'اطلاعات شما با رعایت کامل اصل محرمانگی ثبت و بررسی می‌گردد.'}
             </p>
 
             {bookingSuccess ? (
@@ -448,10 +453,12 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
 
               <h3 className="text-lg sm:text-xl font-bold font-serif text-[#D4AF37] mb-2 flex items-center gap-2">
                 <Search className="w-5 h-5" />
-                سامانه استعلام آنلاین پرونده
+                {preset.terms.inquiry || 'سامانه استعلام آنلاین'}
               </h3>
               <p className="text-xs text-gray-400 mb-6">
-                موکلین محترم می‌توانند با وارد کردن شماره پرونده (مثال: ۱۴۰۳-۰۰۱) از آخرین وضعیت دادرسی مطلع شوند.
+                {isLawyerPreset 
+                  ? 'موکلین محترم می‌توانند با وارد کردن شماره پرونده (مثال: ۱۴۰۳-۰۰۱) از آخرین وضعیت دادرسی مطلع شوند.' 
+                  : `مخاطبان گرامی می‌توانند با وارد کردن کد ${preset.terms.case} از آخرین وضعیت مطلع شوند.`}
               </p>
 
               <form onSubmit={handleCaseSearch} className="space-y-3">
@@ -460,7 +467,7 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
                     type="text"
                     value={searchCaseNo}
                     onChange={(e) => setSearchCaseNo(e.target.value)}
-                    placeholder="شماره پرونده (مثال: ۱۴۰۳-۰۰۱)"
+                    placeholder={`شناسه یا شماره ${preset.terms.case} (مثال: ۱۴۰۳-۰۰۱)`}
                     className="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-gray-700 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#D4AF37]"
                   />
                   <button

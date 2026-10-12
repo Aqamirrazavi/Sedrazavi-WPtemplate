@@ -1,7 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ATTORNEY_INFO } from '../data/mockData';
 import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
-import { Calendar, Search, ShieldCheck, Award, CheckCircle2, ArrowLeft, Phone, MessageSquare, Sparkles } from 'lucide-react';
+import { usePresetConfig } from '../hooks/usePresetConfig';
+import { MotionsitesHeroCanvas } from './MotionsitesHeroCanvas';
+import { 
+  Calendar, 
+  Search, 
+  ShieldCheck, 
+  Award, 
+  CheckCircle2, 
+  ArrowLeft, 
+  Phone, 
+  MessageSquare, 
+  Sparkles,
+  Layers,
+  Sparkle
+} from 'lucide-react';
 
 interface HeroSectionProps {
   onOpenBooking: () => void;
@@ -18,6 +32,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onOpenOtpAuth,
   profile,
 }) => {
+  const { preset, changePreset } = usePresetConfig();
+  const [showcaseMode, setShowcaseMode] = useState<'motionsites' | 'woodmart'>(() => {
+    try {
+      const saved = localStorage.getItem('sedrazavi_hero_showcase_mode');
+      return (saved === 'motionsites' || saved === 'woodmart') ? saved : 'motionsites';
+    } catch {
+      return 'motionsites';
+    }
+  });
+
+  const handleToggleMode = (mode: 'motionsites' | 'woodmart') => {
+    setShowcaseMode(mode);
+    try {
+      localStorage.setItem('sedrazavi_hero_showcase_mode', mode);
+    } catch {}
+  };
+
   const scenario = profile?.firmScenario?.currentScenario || 'senior_associates';
   const lawyerName = profile?.lawyerName || ATTORNEY_INFO.name;
   const lawyerTitle = profile?.lawyerTitle || ATTORNEY_INFO.title;
@@ -25,86 +56,147 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const experienceYears = profile?.experienceYears || ATTORNEY_INFO.experienceYears;
   const subSlogan = profile?.subSlogan || ATTORNEY_INFO.subSlogan;
   const portraitImage = profile?.portraitImage || ATTORNEY_INFO.portraitImage;
+  const isLawyerPreset = preset.id === 'lawyer';
 
   return (
-    <section className="relative overflow-hidden pt-8 pb-16 md:py-20">
-      {/* Background ambient decorative shapes */}
-      <div className="absolute top-10 right-10 w-80 h-80 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 left-10 w-96 h-96 bg-[#0B132B]/5 dark:bg-[#1C2541]/40 rounded-full blur-3xl pointer-events-none" />
+    <section className="relative overflow-hidden pt-4 pb-16 md:py-16">
+      {/* Visual Showcase Mode Switcher Bar */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+        <div className="max-w-xl mx-auto flex items-center justify-between p-1.5 rounded-2xl bg-gray-100/80 dark:bg-gray-900/80 border border-gray-200 dark:border-gray-800 shadow-sm backdrop-blur-md">
+          <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium px-2">
+            <Layers className="w-4 h-4 text-amber-500" />
+            <span className="hidden sm:inline">سبک بصری ویترین:</span>
+          </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => handleToggleMode('motionsites')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 ${
+                showcaseMode === 'motionsites'
+                  ? 'bg-[#020204] text-amber-300 shadow-md border border-amber-400/30'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <Sparkle className="w-3.5 h-3.5" />
+              <span>سینمایی لوکس ۳D (Motionsites)</span>
+            </button>
+
+            <button
+              onClick={() => handleToggleMode('woodmart')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 ${
+                showcaseMode === 'woodmart'
+                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md border border-gray-300 dark:border-gray-700'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <span>ویترین مدرن وودمارت / پین‌ترست</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {showcaseMode === 'motionsites' ? (
+        <div className="w-full">
+          <MotionsitesHeroCanvas 
+            onBookConsultation={onOpenBooking}
+            onExplorePreset={(id) => {
+              const el = document.getElementById('services');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+          />
+        </div>
+      ) : (
+        <>
+          {/* Background ambient decorative shapes */}
+          <div className="absolute top-10 right-10 w-80 h-80 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-10 left-10 w-96 h-96 bg-[#0B132B]/5 dark:bg-[#1C2541]/40 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Left Column (Content & CTAs) */}
           <div className="lg:col-span-7 space-y-6 text-right">
             
             {/* Experience Pill - Dynamic according to Scenario */}
+            {/* Experience Pill - Dynamic according to Preset & Scenario */}
             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/30 text-[#0B132B] dark:text-[#F3E5AB] text-xs sm:text-sm font-semibold shadow-sm">
               <Award className="w-4 h-4 text-[#D4AF37]" />
-              {scenario === 'solo' && <span>{degree} • بیش از {experienceYears} سال سابقه وکالت فردی</span>}
-              {scenario === 'partners' && <span>دفتر همکاران و شرکای پایه یک دادگستری (Chambers) • استقلال پرونده‌ای</span>}
-              {scenario === 'senior_associates' && <span>کانون سرپرستی دکتر رضوی • نظارت مستقیم بر کارآموزان و لوایح</span>}
-              {scenario === 'enterprise' && <span>موسسه حقوقی بین‌المللی SedRazavi • ۵ دپارتمان تخصصی حقوقی</span>}
+              {!isLawyerPreset ? (
+                <span>{preset.badge} • {preset.hero_kicker}</span>
+              ) : (
+                <>
+                  {scenario === 'solo' && <span>{degree} • بیش از {experienceYears} سال سابقه وکالت فردی</span>}
+                  {scenario === 'partners' && <span>دفتر همکاران و شرکای پایه یک دادگستری (Chambers) • استقلال پرونده‌ای</span>}
+                  {scenario === 'senior_associates' && <span>کانون سرپرستی دکتر رضوی • نظارت مستقیم بر کارآموزان و لوایح</span>}
+                  {scenario === 'enterprise' && <span>موسسه حقوقی بین‌المللی SedRazavi • ۵ دپارتمان تخصصی حقوقی</span>}
+                </>
+              )}
             </div>
 
             {/* Main Headline */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-serif text-[#0B132B] dark:text-white leading-[1.25]">
-              {scenario === 'solo' && (
+              {!isLawyerPreset ? (
+                <span>{preset.hero_title}</span>
+              ) : (
                 <>
-                  عدالت با دقت،{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
-                    حرفه‌ای‌گری با تعهد
-                  </span>
-                </>
-              )}
-              {scenario === 'partners' && (
-                <>
-                  شورای شرکا؛{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
-                    هم‌افزایی وکلای پایه یک دادگستری
-                  </span>
-                </>
-              )}
-              {scenario === 'senior_associates' && (
-                <>
-                  دفاع راهبردی؛{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
-                    نظارت عالیه وکیل سرپرست بر پرونده‌ها
-                  </span>
-                </>
-              )}
-              {scenario === 'enterprise' && (
-                <>
-                  کنسرسیوم حقوقی؛{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
-                    خدمات جامع دپارتمانی و داوری تجاری
-                  </span>
+                  {scenario === 'solo' && (
+                    <>
+                      عدالت با دقت،{' '}
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
+                        حرفه‌ای‌گری با تعهد
+                      </span>
+                    </>
+                  )}
+                  {scenario === 'partners' && (
+                    <>
+                      شورای شرکا؛{' '}
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
+                        هم‌افزایی وکلای پایه یک دادگستری
+                      </span>
+                    </>
+                  )}
+                  {scenario === 'senior_associates' && (
+                    <>
+                      دفاع راهبردی؛{' '}
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
+                        نظارت عالیه وکیل سرپرست بر پرونده‌ها
+                      </span>
+                    </>
+                  )}
+                  {scenario === 'enterprise' && (
+                    <>
+                      کنسرسیوم حقوقی؛{' '}
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#AA820A] to-[#D4AF37]">
+                        خدمات جامع دپارتمانی و داوری تجاری
+                      </span>
+                    </>
+                  )}
                 </>
               )}
             </h1>
 
             {/* Sub-headline / Slogan */}
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed">
-              {subSlogan}
+              {!isLawyerPreset ? preset.hero_desc : subSlogan}
             </p>
 
             {/* Micro value props */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <CheckCircle2 className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
-                <span>تنظیم تخصصی لوایح و دفاع مستدل در محاکم</span>
+                <span>{!isLawyerPreset ? 'تضمین بالاترین استانداردهای کیفی و زمان‌بندی' : 'تنظیم تخصصی لوایح و دفاع مستدل در محاکم'}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <CheckCircle2 className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
-                <span>حفظ اسرار تجاری و ۱۰۰٪ محرمانگی اسناد</span>
+                <span>{!isLawyerPreset ? 'قرارداد رسمی و ۱۰۰٪ محرمانگی اطلاعات مشتریان' : 'حفظ اسرار تجاری و ۱۰۰٪ محرمانگی اسناد'}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <CheckCircle2 className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
-                <span>امکان تقسیط حق‌الوکاله متناسب با مراحل دادرسی</span>
+                <span>{!isLawyerPreset ? 'امکان پرداخت مرحله‌ای و فاکتور تفکیک‌شده پروژه' : 'امکان تقسیط حق‌الوکاله متناسب با مراحل دادرسی'}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <CheckCircle2 className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
-                <span>سامانه هوشمند گزارش لحظه‌ای وضعیت پرونده</span>
+                <span>{!isLawyerPreset ? `سامانه آنلاین پیگیری ${preset.terms.case}` : 'سامانه هوشمند گزارش لحظه‌ای وضعیت پرونده'}</span>
               </div>
             </div>
 
@@ -115,7 +207,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 className="btn-gold px-7 py-3.5 text-sm md:text-base flex items-center gap-2 rounded-2xl shadow-xl shadow-[#D4AF37]/30 hover:scale-[1.02] cursor-pointer"
               >
                 <Calendar className="w-5 h-5 text-white" />
-                <span>درخواست نوبت مشاوره حضوری</span>
+                <span>{preset.hero_cta_primary || 'درخواست نوبت مشاوره حضوری'}</span>
               </button>
 
               {onOpenQuickCallback && (
@@ -133,7 +225,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 className="px-4 py-3 text-sm md:text-base flex items-center gap-2 rounded-2xl text-gray-600 dark:text-gray-400 hover:text-[#0B132B] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/80 transition-all cursor-pointer"
               >
                 <Search className="w-4 h-4 text-[#D4AF37]" />
-                <span>استعلام پرونده</span>
+                <span>{preset.terms.inquiry || 'استعلام پرونده'}</span>
               </button>
             </div>
 
@@ -237,8 +329,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
           </div>
 
+          </div>
         </div>
-      </div>
+      </>
+      )}
     </section>
   );
 };
