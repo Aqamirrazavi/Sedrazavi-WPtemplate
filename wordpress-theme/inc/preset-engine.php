@@ -375,6 +375,186 @@ class SedRazavi_Preset_Engine {
                     array('label' => 'درخواست پردازش‌شده روزانه', 'value' => '+۵M'),
                 ),
             ),
+            'video_media' => array(
+                'id'                 => 'video_media',
+                'name'               => 'رسانه، استودیو و نمایش ویدئو',
+                'english_name'       => 'Media Studio & Video Showcase',
+                'badge'              => 'پلتفرم رسانه و ویدئو',
+                'site_title'         => 'آرشیو چندرسانه‌ای و استودیو تولید ویدئو',
+                'site_tagline'       => 'پخش ویدئوهای آموزشی، وبینارها، دوره‌ها و پادکست‌های تخصصی',
+                'hero_kicker'        => 'مرکز چندرسانه‌ای و استودیو تولید محتوا',
+                'hero_title'         => 'آرشیو جامع ویدئوها، وبینارهای زنده و مستندات آموزشی',
+                'hero_desc'          => 'دسترسی سریع به ویدئوهای باکیفیت، کاتالوگ‌های دانلودی و تحلیل‌های تخصصی با پشتیبانی از آپارات و پخش زنده.',
+                'hero_cta_primary'   => 'مشاهده جدیدترین ویدئوها',
+                'hero_cta_secondary' => 'دانلود کاتالوگ و فایل‌ها',
+                'accent_color'       => '#EF4444',
+                'accent_hover'       => '#DC2626',
+                'terms'              => array(
+                    'client'         => 'کاربر و تماشاگر',
+                    'clients'        => 'مخاطبان',
+                    'case'           => 'ویدئو / دوره',
+                    'cases'          => 'ویدئوها',
+                    'inquiry'        => 'جستجوی ویدئو و دوره‌ها',
+                    'booking'        => 'ثبت‌نام در کارگاه ویدئویی',
+                    'booking_btn'    => 'ورود به کلاس زنده ←',
+                    'fee'            => 'هزینه دوره یا اشتراک',
+                    'expert'         => 'مدرس و کارشناس محتوا',
+                ),
+                'services'           => array(
+                    array(
+                        'id'    => 'serv-1',
+                        'title' => 'تولید ویدئو و موشن‌گرافیک',
+                        'desc'  => 'سناریونویسی، تصویربرداری 4K، تدوین اختصاصی و ساخت انیمیشن‌های دوبعدی و سه‌بعدی.',
+                        'tag'   => 'تولید ویدئو',
+                    ),
+                    array(
+                        'id'    => 'serv-2',
+                        'title' => 'پخش زنده و لایو استریمینگ',
+                        'desc'  => 'زیرساخت اختصاصی وبینار، کلاس آنلاین و پخش زنده همایش‌ها بدون قطعی.',
+                        'tag'   => 'لایو استریم',
+                    ),
+                    array(
+                        'id'    => 'serv-3',
+                        'title' => 'پادکست و تولید صدای تخصصی',
+                        'desc'  => 'ضبط استودیویی، مسترینگ صدا و انتشار در پلتفرم‌های کست‌باکس و اسپاتیفای.',
+                        'tag'   => 'صوت و پادکست',
+                    ),
+                    array(
+                        'id'    => 'serv-4',
+                        'title' => 'سامانه اشتراک و پلیر محافظت‌شده',
+                        'desc'  => 'جلوگیری از ضبط صفحه، واترمارک متحرک اختصاصی برای هر کاربر و مدیریت پهنای باند.',
+                        'tag'   => 'سامانه پلیر',
+                    ),
+                ),
+                'stats'              => array(
+                    array('label' => 'ساعت ویدئوی تولیدشده', 'value' => '+۱,۲۰۰'),
+                    array('label' => 'تعداد تماشاگران فعال', 'value' => '+۴۵,۰۰۰'),
+                    array('label' => 'نرخ رضایت دوره‌ها', 'value' => '۹۸٪'),
+                ),
+            ),
+            'music_audio'        => array(
+                'id'                 => 'music_audio',
+                'name'               => 'رسانه موزیک، پادکست و صوت',
+                'badge'              => 'استودیو پادکست و قطعات صوتی',
+                'hero_title'         => 'آرشیو آثار صوتی، پادکست‌های تحلیلی و موسیقی',
+                'hero_subtitle'      => 'پخش آنلاین بدون وقفه با استریم بهینه، مشاهده متن و دانلود با کیفیت بالا',
+                'accent_color'       => '#EC4899',
+                'card_bg'            => '#1E1B4B',
+                'button_primary'     => '#EC4899',
+                'button_secondary'   => '#8B5CF6',
+                'cta_text'           => 'شنیدن آخرین اپیزود',
+                'terminology'        => array(
+                    'service'        => 'قطعه صوتی یا پادکست',
+                    'services'       => 'آرشیو صداها',
+                    'client'         => 'شنونده',
+                    'clients'        => 'مخاطبان',
+                    'case'           => 'پلی‌لیست',
+                    'cases'          => 'پلی‌لیست‌ها',
+                    'fee'            => 'حق اشتراک',
+                    'expert'         => 'گوینده و میزبان',
+                ),
+                'services'           => array(
+                    array(
+                        'id'    => 'mus-1',
+                        'title' => 'پادکست‌های تحلیلی و گفتگو',
+                        'desc'  => 'اپیزودهای هفتگی با بررسی موضوعات تخصصی و گفتگو با نخبگان.',
+                        'tag'   => 'پادکست هفتگی',
+                    ),
+                    array(
+                        'id'    => 'mus-2',
+                        'title' => 'کتاب‌های صوتی و روایت',
+                        'desc'  => 'روایت استاندارد کتاب‌های مدیریتی و حقوقی با گویندگی حرفه‌ای.',
+                        'tag'   => 'کتاب صوتی',
+                    ),
+                ),
+                'stats'              => array(
+                    array('label' => 'دقیقه پادکست منتشرشده', 'value' => '+۸,۴۰۰'),
+                    array('label' => 'شنوندگان ماهانه', 'value' => '+۶۲,۰۰۰'),
+                    array('label' => 'امتیاز کست‌باکس', 'value' => '۴.۹'),
+                ),
+            ),
+            'downloads_hub'      => array(
+                'id'                 => 'downloads_hub',
+                'name'               => 'مرکز دانلود نرم‌افزار، بازی و فایل',
+                'badge'              => 'مخزن رسمی دانلود و ابزارها',
+                'hero_title'         => 'دانلود مستقیم نرم‌افزارها، اپلیکیشن‌ها و بازی‌ها',
+                'hero_subtitle'      => 'سرورهای پرسرعت داخلی، اعتبارسنجی امنیتی ضد ویروس و راهنمای نصب جامع',
+                'accent_color'       => '#38BDF8',
+                'card_bg'            => '#0F172A',
+                'button_primary'     => '#38BDF8',
+                'button_secondary'   => '#0284C7',
+                'cta_text'           => 'مرور فایل‌های دانلودی',
+                'terminology'        => array(
+                    'service'        => 'فایل یا نرم‌افزار',
+                    'services'       => 'بسته‌های دانلودی',
+                    'client'         => 'کاربر',
+                    'clients'        => 'کاربران',
+                    'case'           => 'بسته نصبی',
+                    'cases'          => 'بسته‌ها',
+                    'fee'            => 'قیمت لایسنس',
+                    'expert'         => 'توسعه‌دهنده',
+                ),
+                'services'           => array(
+                    array(
+                        'id'    => 'dl-1',
+                        'title' => 'نرم‌افزارهای دسکتاپ ویندوز و مک',
+                        'desc'  => 'نسخه‌های تست‌شده، بدون تبلیغات مزاحم با کرک معتبر و راهنما.',
+                        'tag'   => 'دسکتاپ',
+                    ),
+                    array(
+                        'id'    => 'dl-2',
+                        'title' => 'اپلیکیشن‌های کاربردی موبایل',
+                        'desc'  => 'فایل‌های APK و PWA با آخرین به‌روزرسانی‌های امنیتی.',
+                        'tag'   => 'موبایل',
+                    ),
+                ),
+                'stats'              => array(
+                    array('label' => 'فایل‌های فعال', 'value' => '+۳,۵۰۰'),
+                    array('label' => 'دانلودهای ماهانه', 'value' => '+۱۲۰,۰۰۰'),
+                    array('label' => 'سرعت دانلود', 'value' => '۱۰Gbps'),
+                ),
+            ),
+            'wallpapers_gallery' => array(
+                'id'                 => 'wallpapers_gallery',
+                'name'               => 'گالری و دانلود عکس، والپیپر و وکتور',
+                'badge'              => 'استودیو طراحی گرافیک و والپیپر',
+                'hero_title'         => 'گالری عکس‌های باکیفیت، والپیپرهای ۴K و فایل‌های وکتور',
+                'hero_subtitle'      => 'پیش‌نمایش زنده در نمایشگرها، دانلود در رزولوشن‌های متنوع و دسترسی به سورس SVG',
+                'accent_color'       => '#F59E0B',
+                'card_bg'            => '#18181B',
+                'button_primary'     => '#F59E0B',
+                'button_secondary'   => '#D97706',
+                'cta_text'           => 'مشاهده گالری تصاویر',
+                'terminology'        => array(
+                    'service'        => 'تصویر یا والپیپر',
+                    'services'       => 'آلبوم‌ها',
+                    'client'         => 'علاقه‌مند گرافیک',
+                    'clients'        => 'بازدیدکنندگان',
+                    'case'           => 'مجموعه والپیپر',
+                    'cases'          => 'آلبوم‌های تصویری',
+                    'fee'            => 'قیمت فایل تجاری',
+                    'expert'         => 'عکاس و طراح',
+                ),
+                'services'           => array(
+                    array(
+                        'id'    => 'wall-1',
+                        'title' => 'والپیپرهای فوق‌عریض و ۴K',
+                        'desc'  => 'تصاویر با رزولوشن ۳۸۴۰ در ۲۱۶۰ مناسب دسکتاپ و مانیتورهای عریض.',
+                        'tag'   => 'والپیپر ۴K',
+                    ),
+                    array(
+                        'id'    => 'wall-2',
+                        'title' => 'وکتورهای لایه‌باز و ایلاستریتور',
+                        'desc'  => 'فایل‌های SVG و AI با امکان ویرایش نامحدود بدون افت کیفیت.',
+                        'tag'   => 'وکتور لایه‌باز',
+                    ),
+                ),
+                'stats'              => array(
+                    array('label' => 'تصاویر باکیفیت', 'value' => '+۱۵,۰۰۰'),
+                    array('label' => 'دانلود روزانه', 'value' => '+۸,۲۰۰'),
+                    array('label' => 'طراحان مشارکت‌کننده', 'value' => '+۴۵۰'),
+                ),
+            ),
         );
     }
 
@@ -440,19 +620,110 @@ class SedRazavi_Preset_Engine {
         return $default;
     }
 
+    const PALETTE_OPTION_KEY = 'sedrazavi_color_palette';
+    const VECTOR_BG_OPTION_KEY = 'sedrazavi_vector_background';
+
     /**
-     * Render dynamic CSS accent variables matching active preset
+     * Get available curated color palettes
+     */
+    public static function get_color_palettes() {
+        return array(
+            'royal-gold' => array(
+                'id'       => 'royal-gold',
+                'name'     => 'طلایی و سرمه‌ای سلطنتی (لوکس و حقوقی)',
+                'accent'   => '#D4AF37',
+                'hover'    => '#B8972E',
+                'bg_dark'  => '#070D1E',
+                'bg_light' => '#F9F6EE',
+                'card_bg'  => '#0F172A',
+            ),
+            'tech-indigo' => array(
+                'id'       => 'tech-indigo',
+                'name'     => 'نیلی و بنفش سایبر (مدرن و طراح سایت)',
+                'accent'   => '#6366F1',
+                'hover'    => '#4F46E5',
+                'bg_dark'  => '#0F172A',
+                'bg_light' => '#F8FAFC',
+                'card_bg'  => '#1E293B',
+            ),
+            'emerald-clean' => array(
+                'id'       => 'emerald-clean',
+                'name'     => 'سبز زمردی و زغالی (فروشگاه و سلامت)',
+                'accent'   => '#10B981',
+                'hover'    => '#059669',
+                'bg_dark'  => '#064E3B',
+                'bg_light' => '#F0FDF4',
+                'card_bg'  => '#022C22',
+            ),
+            'github-dark' => array(
+                'id'       => 'github-dark',
+                'name'     => 'تاریک گیت‌هاب پرایمر (برنامه‌نویسی و مهندسی)',
+                'accent'   => '#58A6FF',
+                'hover'    => '#1F6FEB',
+                'bg_dark'  => '#0D1117',
+                'bg_light' => '#F6F8FA',
+                'card_bg'  => '#161B22',
+            ),
+            'monochrome-minimal' => array(
+                'id'       => 'monochrome-minimal',
+                'name'     => 'خاکستری مینیمال (استارتاپ و شرکتی)',
+                'accent'   => '#71717A',
+                'hover'    => '#52525B',
+                'bg_dark'  => '#18181B',
+                'bg_light' => '#FAFAFA',
+                'card_bg'  => '#27272A',
+            ),
+        );
+    }
+
+    /**
+     * Get available vector background styles
+     */
+    public static function get_vector_backgrounds() {
+        return array(
+            'geometric-scales' => array(
+                'id'   => 'geometric-scales',
+                'name' => 'نقوش هندسی اسلامی و تذهیب وکیل',
+                'icon' => '⚖️',
+            ),
+            'circuit-tech' => array(
+                'id'   => 'circuit-tech',
+                'name' => 'خطوط مداری و سایبری طراح سایت',
+                'icon' => '💻',
+            ),
+            'matrix-topography' => array(
+                'id'   => 'matrix-topography',
+                'name' => 'ماتریکس و کانتورهای گیت‌هاب پرایمر',
+                'icon' => '🐙',
+            ),
+            'clean-glow' => array(
+                'id'   => 'clean-glow',
+                'name' => 'هاله نوری ملایم و مینیمال',
+                'icon' => '✨',
+            ),
+        );
+    }
+
+    /**
+     * Render dynamic CSS accent variables matching active preset and palette
      */
     public static function render_preset_css_variables() {
         $preset = self::get_active_preset();
-        $accent = !empty($preset['accent_color']) ? esc_attr($preset['accent_color']) : '#D4AF37';
-        $hover  = !empty($preset['accent_hover']) ? esc_attr($preset['accent_hover']) : '#B8972E';
+        $palettes = self::get_color_palettes();
+        $selected_palette = get_option(self::PALETTE_OPTION_KEY, 'royal-gold');
+        $palette = isset($palettes[$selected_palette]) ? $palettes[$selected_palette] : null;
+
+        $accent = !empty($palette['accent']) ? esc_attr($palette['accent']) : (!empty($preset['accent_color']) ? esc_attr($preset['accent_color']) : '#D4AF37');
+        $hover  = !empty($palette['hover']) ? esc_attr($palette['hover']) : (!empty($preset['accent_hover']) ? esc_attr($preset['accent_hover']) : '#B8972E');
+        $bg_dark = !empty($palette['bg_dark']) ? esc_attr($palette['bg_dark']) : '#070D1E';
 
         echo "<style id=\"sedrazavi-preset-theme-tokens\">\n";
         echo "  :root {\n";
         echo "    --sr-gold-accent: {$accent};\n";
         echo "    --sr-accent-hover: {$hover};\n";
         echo "    --sr-preset-accent: {$accent};\n";
+        echo "    --sr-theme-accent: {$accent};\n";
+        echo "    --sr-bg-body: {$bg_dark};\n";
         echo "  }\n";
         echo "</style>\n";
     }

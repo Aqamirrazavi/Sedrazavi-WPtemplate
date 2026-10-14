@@ -81,6 +81,18 @@ import { LawyerHeroSlider } from './components/LawyerHeroSlider';
 import { TextBannerSlider } from './components/TextBannerSlider';
 import { VectorBackgroundRenderer } from './components/VectorBackgroundRenderer';
 import { EmailOtpAuthComponent } from './components/auth/EmailOtpAuthComponent';
+import { WordPressDesignerLanding } from './components/wp-designer/WordPressDesignerLanding';
+import { FlexibleStoreShowcase } from './components/ecommerce/FlexibleStoreShowcase';
+import { VideoArchivePageView } from './components/media/VideoArchivePageView';
+import { PodcastPageView } from './components/media/PodcastPageView';
+import { PortfolioPageView } from './components/wp-designer/PortfolioPageView';
+import { SingleVideoView } from './components/media/SingleVideoView';
+import { GitHubSuiteDashboard } from './components/admin/GitHubSuiteDashboard';
+import { ThemePaletteModal } from './components/ThemePaletteModal';
+import { SetupWizardModal } from './components/admin/SetupWizardModal';
+import { GitHubSyncEngineModal } from './components/admin/GitHubSyncEngineModal';
+import { NoCodeClientPortalModal } from './components/client-suite/NoCodeClientPortalModal';
+import { FrontendQuickEditBar } from './components/client-suite/FrontendQuickEditBar';
 import { Scale, User, Briefcase, Lock, X } from 'lucide-react';
 import {
   LawyerSiteProfile,
@@ -114,6 +126,29 @@ export default function App() {
   const [userPhone, setUserPhone] = useState('');
   const [userName, setUserName] = useState('');
   const [selectedServiceToBook, setSelectedServiceToBook] = useState<string>('');
+
+  // Priority Archetype & No-Code / GitHub Sync State
+  const [activeArchetype, setActiveArchetype] = useState<'wp-designer' | 'lawyer' | 'ecommerce' | 'video-media'>('wp-designer');
+  const [isPaletteModalOpen, setIsPaletteModalOpen] = useState(false);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [isGitHubSyncOpen, setIsGitHubSyncOpen] = useState(false);
+  const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
+  const [isLiveEditActive, setIsLiveEditActive] = useState(false);
+  const [customClientData, setCustomClientData] = useState(() => {
+    try {
+      const stored = localStorage.getItem('uas_client_custom_content');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const handleSaveCustomClientData = (data: any) => {
+    setCustomClientData(data);
+    try {
+      localStorage.setItem('uas_client_custom_content', JSON.stringify(data));
+    } catch {}
+  };
 
   const handleLoginSuccess = (
     identifier: string,
@@ -255,6 +290,24 @@ export default function App() {
           setIsOtpModalOpen(true);
         }}
         onOpenQuickCallback={() => setIsQuickCallbackOpen(true)}
+        onOpenGitHubSync={() => setIsGitHubSyncOpen(true)}
+        onOpenClientPortal={() => setIsClientPortalOpen(true)}
+        onToggleQuickEdit={() => setIsLiveEditActive(!isLiveEditActive)}
+        onOpenPaletteModal={() => setIsPaletteModalOpen(true)}
+        onOpenWizard={() => setIsWizardOpen(true)}
+        activeArchetype={activeArchetype}
+        onSelectArchetype={(arch) => {
+          setActiveArchetype(arch);
+          setActiveView(
+            arch === 'wp-designer'
+              ? 'wp-designer'
+              : arch === 'ecommerce'
+              ? 'ecommerce-store'
+              : arch === 'video-media'
+              ? 'video-archive'
+              : 'preview'
+          );
+        }}
         isLoggedIn={isLoggedIn}
         userRole={userRole}
         currentUserPhone={userPhone}
@@ -290,7 +343,35 @@ export default function App() {
 
       {/* Main Content Area based on active view */}
       <main className="bg-legal-vector min-h-screen">
-        {activeView === 'preview' && (
+        {/* Archetype 1: WordPress Site Designer Gutenberg-First (Priority #1) */}
+        {(activeView === 'wp-designer' || (activeView === 'preview' && activeArchetype === 'wp-designer')) && (
+          <WordPressDesignerLanding
+            onOpenBookingModal={() => handleBookService('مشاوره اختصاصی طراحی سایت وردپرس با گوتنبرگ')}
+            onOpenQuickEdit={() => setIsClientPortalOpen(true)}
+            onOpenGitHubSync={() => setIsGitHubSyncOpen(true)}
+          />
+        )}
+
+        {/* Archetype 2: Flexible eCommerce Store with WoodMart & WooCommerce (Priority #2) */}
+        {(activeView === 'ecommerce-store' || (activeView === 'preview' && activeArchetype === 'ecommerce')) && (
+          <FlexibleStoreShowcase
+            onOpenQuickEdit={() => setIsClientPortalOpen(true)}
+            onOpenGitHubSync={() => setIsGitHubSyncOpen(true)}
+          />
+        )}
+
+        {/* Archetype 3: Video Media Showcase & Archive (Priority #3) */}
+        {(activeView === 'video-archive' || (activeView === 'preview' && activeArchetype === 'video-media')) && (
+          <VideoArchivePageView
+            onBackToHome={() => {
+              setActiveView('preview');
+              setActiveArchetype('lawyer');
+            }}
+          />
+        )}
+
+        {/* Archetype 4: Full Lawyer & Legal Suite (Priority #4) */}
+        {activeView === 'preview' && activeArchetype === 'lawyer' && (
           <div>
             {/* 0. Religious & Literary Text Banner Slider (SPEC Part 3 Section 4 & Part 4 Section 1) */}
             {lawyerProfile.showBannerSlider !== false && (
@@ -1461,6 +1542,48 @@ export default function App() {
         )}
 
         {activeView === 'code' && <WordPressCodeViewer />}
+
+        {activeView === 'github-suite' && (
+          <GitHubSuiteDashboard onBackToAdmin={() => setActiveView('dashboard')} />
+        )}
+
+        {activeView === 'video-archive' && (
+          <VideoArchivePageView
+            onBackToHome={() => {
+              setActiveView('preview');
+              setActiveArchetype('lawyer');
+            }}
+          />
+        )}
+
+        {activeView === 'single-video' && (
+          <SingleVideoView
+            onBackToArchive={() => setActiveView('video-archive')}
+            onBackToHome={() => {
+              setActiveView('preview');
+              setActiveArchetype('lawyer');
+            }}
+          />
+        )}
+
+        {activeView === 'podcast-hub' && (
+          <PodcastPageView
+            onBackToHome={() => {
+              setActiveView('preview');
+              setActiveArchetype('lawyer');
+            }}
+          />
+        )}
+
+        {activeView === 'portfolio-hub' && (
+          <PortfolioPageView
+            onBackToHome={() => {
+              setActiveView('preview');
+              setActiveArchetype('wp-designer');
+            }}
+            onRequestBrief={() => handleBookService('مشاوره و بریف اختصاصی پروژه وب')}
+          />
+        )}
           </React.Suspense>
         )}
       </main>
@@ -1553,6 +1676,82 @@ export default function App() {
       <HtmlCssExportModal
         isOpen={isHtmlCssExportOpen}
         onClose={() => setIsHtmlCssExportOpen(false)}
+      />
+
+      {/* GitHub Sync Engine Modal (3 scenarios & 4 archetypes) */}
+      <GitHubSyncEngineModal
+        isOpen={isGitHubSyncOpen}
+        onClose={() => setIsGitHubSyncOpen(false)}
+        activeArchetype={activeArchetype === 'video-media' ? 'wp-designer' : activeArchetype}
+        onSelectArchetype={(arch) => {
+          setActiveArchetype(arch);
+          setActiveView(arch === 'wp-designer' ? 'wp-designer' : arch === 'ecommerce' ? 'ecommerce-store' : 'preview');
+        }}
+      />
+
+      {/* No-Code Client Portal Modal (Simple Client Form Suite) */}
+      <NoCodeClientPortalModal
+        isOpen={isClientPortalOpen}
+        onClose={() => setIsClientPortalOpen(false)}
+        onToggleLiveEdit={() => setIsLiveEditActive(!isLiveEditActive)}
+        isLiveEditActive={isLiveEditActive}
+        customData={customClientData}
+        onSaveCustomData={handleSaveCustomClientData}
+      />
+
+      {/* Frontend Quick-Edit Floating Toolbar (Admin & Client In-Page Bar) */}
+      <FrontendQuickEditBar
+        isActive={isLiveEditActive}
+        onToggleActive={() => setIsLiveEditActive(false)}
+        onOpenPortal={() => setIsClientPortalOpen(true)}
+        onOpenGitHubSync={() => setIsGitHubSyncOpen(true)}
+        onOpenPaletteModal={() => setIsPaletteModalOpen(true)}
+        activeArchetype={activeArchetype}
+        onChangeArchetype={(arch) => {
+          setActiveArchetype(arch);
+          setActiveView(
+            arch === 'wp-designer'
+              ? 'wp-designer'
+              : arch === 'ecommerce'
+              ? 'ecommerce-store'
+              : arch === 'video-media'
+              ? 'video-archive'
+              : 'preview'
+          );
+        }}
+      />
+
+      {/* Theme Engine Color Palette & Vector Background Modal */}
+      <ThemePaletteModal
+        isOpen={isPaletteModalOpen}
+        onClose={() => setIsPaletteModalOpen(false)}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+      />
+
+      {/* 30-Second Quick Onboarding Setup Wizard Modal */}
+      <SetupWizardModal
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        currentPresetId={activeArchetype}
+        onApplyPreset={(presetId) => {
+          if (presetId === 'lawyer' || presetId === 'wp-designer' || presetId === 'ecommerce' || presetId === 'video-media') {
+            setActiveArchetype(presetId);
+          }
+          if (presetId === 'wp-designer' || presetId === 'web_agency') {
+            setActiveArchetype('wp-designer');
+            setActiveView('wp-designer');
+          } else if (presetId === 'corporate' || presetId === 'ecommerce') {
+            setActiveArchetype('ecommerce');
+            setActiveView('ecommerce-store');
+          } else if (presetId === 'video_media' || presetId === 'video-media') {
+            setActiveArchetype('video-media');
+            setActiveView('video-archive');
+          } else {
+            setActiveArchetype('lawyer');
+            setActiveView('preview');
+          }
+        }}
       />
 
       {/* GDPR / Cookie Consent Banner (Section 13) */}

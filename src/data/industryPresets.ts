@@ -36,7 +36,18 @@ export interface IndustryTerms {
 }
 
 export interface IndustryPreset {
-  id: 'lawyer' | 'web_agency' | 'engineering' | 'corporate' | 'doctor' | 'project_saas';
+  id:
+    | 'lawyer'
+    | 'web_agency'
+    | 'engineering'
+    | 'corporate'
+    | 'doctor'
+    | 'project_saas'
+    | 'video_media'
+    | 'music_audio'
+    | 'downloads_hub'
+    | 'wallpapers_gallery'
+    | string;
   name: string;
   english_name: string;
   badge: string;
@@ -431,6 +442,181 @@ export const INDUSTRY_PRESETS: Record<string, IndustryPreset> = {
       { label: 'نرخ پایداری سرویس (SLA)', value: '۹۹.۹۹٪' },
       { label: 'سازمان‌های فعال', value: '+۸۵۰' },
       { label: 'درخواست پردازش‌شده روزانه', value: '+۵M' },
+    ],
+  },
+
+  video_media: {
+    id: 'video_media',
+    name: 'رسانه تصویری، ویدئو و فیلم',
+    english_name: 'Video & Media Production Showcase',
+    badge: 'استودیو رسانه و تولید ویدئو',
+    icon: 'Video',
+    site_title: 'آرشیو رسانه‌ای، ویدئوها و تحلیل‌های تصویری',
+    site_tagline: 'تولید محتوای ویدئویی اختصاصی، وبینارهای زنده و مستندات تصویری',
+    hero_kicker: 'پلتفرم رسانه‌ای و ویدئو سنتر',
+    hero_title: 'آموزش‌های ویدئویی، مصاحبه‌های تخصصی و تحلیل‌های تصویری',
+    hero_desc: 'مشاهده آنلاین بدون قطعی، کیفیت‌های متنوع از ۱۰۸۰p تا ۴۸۰p و دسترسی به فایل‌های پیوست و اسلایدهای آموزشی.',
+    hero_cta_primary: 'مشاهده آرشیو ویدئوها',
+    hero_cta_secondary: 'ارسال سوژه یا درخواست تولید',
+    accent_color: '#F59E0B',
+    accent_hover: '#D97706',
+    terms: {
+      client: 'بیننده و دانش‌پذیر',
+      clients: 'مخاطبان ویدئویی',
+      case: 'پروژه ویدیویی',
+      cases: 'ویدئوها و وبینارها',
+      inquiry: 'استعلام دسترسی به دوره‌ها',
+      booking: 'درخواست شرکت در وبینار',
+      booking_btn: 'ثبت‌نام وبینار ←',
+      fee: 'شهریه دوره',
+      expert: 'مدرس و ارائه‌دهنده',
+    },
+    services: [
+      {
+        id: 'serv-1',
+        title: 'وبینارها و کارگاه‌های آنلاین',
+        desc: 'برگزاری کارگاه‌های زنده با پرسش و پاسخ مستقیم و صدور گواهی.',
+        tag: 'وبینار تخصصی',
+        iconName: 'Video',
+      },
+      {
+        id: 'serv-2',
+        title: 'تحلیل‌های تصویری پرونده‌ها',
+        desc: 'بررسی بصری کیس‌های حقوقی و چالش‌های قانونی روی نقشه و تخته.',
+        tag: 'تحلیل تصویری',
+        iconName: 'Play',
+      },
+    ],
+    stats: [
+      { label: 'ساعت محتوای ویدئویی', value: '+۱,۲۰۰' },
+      { label: 'بازدیدهای ثبت‌شده', value: '+۴۵۰K' },
+      { label: 'رضایت مخاطبان', value: '۹۹.۱٪' },
+    ],
+  },
+
+  music_audio: {
+    id: 'music_audio',
+    name: 'موزیک، پادکست و صوت',
+    english_name: 'Music & Podcast Audio Hub',
+    badge: 'استودیو پادکست و رسانه صوتی',
+    icon: 'Headphones',
+    site_title: 'مرکز پخش و دانلود قطعات صوتی و پادکست',
+    site_tagline: 'روایت‌های شنیدنی، تحلیل‌های صوتی و اپیزودهای هفتگی با کیفیت استودیویی',
+    hero_kicker: 'انتشار هفتگی پادکست',
+    hero_title: 'شنیدن پادکست‌های تخصصی، تحلیل‌های گفتگو و کتاب‌های صوتی',
+    hero_desc: 'استریم با حداقل مصرف دیتا، امکان دانلود فایل صوتی ۳۲۰kbps و مشاهده متن مکتوب هر اپیزود.',
+    hero_cta_primary: 'شنیدن آخرین اپیزود',
+    hero_cta_secondary: 'مشاهده کانال کست‌باکس',
+    accent_color: '#EC4899',
+    accent_hover: '#DB2777',
+    terms: {
+      client: 'شنونده',
+      clients: 'شنوندگان پادکست',
+      case: 'اپیزود صوتی',
+      cases: 'اپیزودها',
+      inquiry: 'استعلام دسترسی به پلی‌لیست',
+      booking: 'پیشنهاد سوژه گفتگو',
+      booking_btn: 'پیشنهاد موضوع ←',
+      fee: 'حق اشتراک حامیان',
+      expert: 'میزبان و گوینده',
+    },
+    services: [
+      {
+        id: 'serv-1',
+        title: 'پادکست تحلیلی و گفتگو',
+        desc: 'گفتگو با چهره‌های برجسته علمی و حقوقی در استودیوی ضبط صدا.',
+        tag: 'پادکست',
+        iconName: 'Headphones',
+      },
+    ],
+    stats: [
+      { label: 'اپیزودهای صوتی', value: '+۱۴۰' },
+      { label: 'شنوندگان ماهانه', value: '+۶۲K' },
+      { label: 'امتیاز در پلتفرم‌ها', value: '۴.۹' },
+    ],
+  },
+
+  downloads_hub: {
+    id: 'downloads_hub',
+    name: 'دانلود نرم‌افزار، بازی و فایل',
+    english_name: 'Software, Apps & Games Download Hub',
+    badge: 'مخزن رسمی دانلود و ابزارها',
+    icon: 'Download',
+    site_title: 'دانلود مستقیم نرم‌افزارها، بازی‌ها و ابزارهای تخصصی',
+    site_tagline: 'سرورهای داخلی پرسرعت، بسته‌های نصبی معتبر و تست‌شده بدون ویروس',
+    hero_kicker: 'مخزن نرم‌افزارهای کاربردی',
+    hero_title: 'دانلود مستقیم نرم‌افزارهای سازمانی، اپلیکیشن‌ها و فایل‌های کاربردی',
+    hero_desc: 'بررسی هش امنیتی SHA-256، نسخه‌های بدون تبلیغات و به‌روزرسانی‌های روزانه.',
+    hero_cta_primary: 'مشاهده همه نرم‌افزارها',
+    hero_cta_secondary: 'راهنمای نصب و فعال‌سازی',
+    accent_color: '#38BDF8',
+    accent_hover: '#0284C7',
+    terms: {
+      client: 'کاربر دانلود',
+      clients: 'کاربران',
+      case: 'بسته دانلودی',
+      cases: 'فایل‌ها و بسته‌ها',
+      inquiry: 'گزارش خرابی لینک دانلود',
+      booking: 'درخواست نرم‌افزار جدید',
+      booking_btn: 'ثبت درخواست فایل ←',
+      fee: 'قیمت لایسنس ویژه',
+      expert: 'مسئول فنی بسته‌ها',
+    },
+    services: [
+      {
+        id: 'serv-1',
+        title: 'نرم‌افزارهای دسکتاپ ویندوز و مک',
+        desc: 'بسته‌های بهینه‌شده با لینک مستقیم نیم‌بهاء و راهنمای نصب.',
+        tag: 'دسکتاپ',
+        iconName: 'Download',
+      },
+    ],
+    stats: [
+      { label: 'فایل‌های آماده دانلود', value: '+۳,۵۰۰' },
+      { label: 'دانلودهای روزانه', value: '+۱۸,۰۰۰' },
+      { label: 'نرخ سلامت لینک‌ها', value: '۱۰۰٪' },
+    ],
+  },
+
+  wallpapers_gallery: {
+    id: 'wallpapers_gallery',
+    name: 'عکس، والپیپر و پس‌زمینه',
+    english_name: 'Wallpapers & 4K Graphics Showcase',
+    badge: 'استودیو گرافیک و والپیپرهای ۴K',
+    icon: 'Image',
+    site_title: 'گالری و دانلود عکس‌های باکیفیت و والپیپرهای عریض',
+    site_tagline: 'آرشیو تصاویر هنری، تذهیب، تصاویر مینیمال و وکتورهای لایه‌باز SVG',
+    hero_kicker: 'گالری والپیپرهای باکیفیت ۴K',
+    hero_title: 'دانلود والپیپرهای اختصاصی، عکس‌های هنری و پس‌زمینه‌های برداری',
+    hero_desc: 'رزولوشن‌های مناسب موبایل، تبلت و مانیتورهای عریض ۴K با دانلود آنی بدون افت کیفیت.',
+    hero_cta_primary: 'مشاهده گالری تصاویر',
+    hero_cta_secondary: 'دریافت سورس‌های برداری',
+    accent_color: '#F59E0B',
+    accent_hover: '#D97706',
+    terms: {
+      client: 'علاقه‌مند گرافیک',
+      clients: 'بازدیدکنندگان',
+      case: 'آلبوم والپیپر',
+      cases: 'آلبوم‌ها',
+      inquiry: 'استعلام لایسنس تجاری',
+      booking: 'سفارش طراحی والپیپر سازمانی',
+      booking_btn: 'سفارش وکتور اختصاصی ←',
+      fee: 'لایسنس تجاری',
+      expert: 'طراح و عکاس',
+    },
+    services: [
+      {
+        id: 'serv-1',
+        title: 'والپیپرهای ۴K و Ultra-Wide',
+        desc: 'تصاویر با کنتراست دقیق و مناسب نمایشگرهای رتینا و اولد.',
+        tag: 'والپیپر ۴K',
+        iconName: 'Image',
+      },
+    ],
+    stats: [
+      { label: 'تصاویر باکیفیت', value: '+۱۵,۰۰۰' },
+      { label: 'دانلودهای موفق', value: '+۲۵۰K' },
+      { label: 'هنرمندان همراه', value: '+۴۵۰' },
     ],
   },
 };

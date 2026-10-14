@@ -1,0 +1,40 @@
+{
+  "version": "0.4",
+  "title": "UAS - فروشگاه آنلاین منعطف ووکامرس (Flexible eCommerce Store)",
+  "type": "section",
+  "content": [
+    {
+      "id": "uas_sec_store_showcase",
+      "elType": "section",
+      "settings": {
+        "layout": "full_width",
+        "padding": { "unit": "px", "top": "50", "right": "20", "bottom": "50", "left": "20" },
+        "background_background": "classic",
+        "background_color": "#064E3B"
+      },
+      "elements": [
+        {
+          "id": "uas_col_store_01",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_store_hero",
+              "elType": "widget",
+              "widgetType": "uas_hero",
+              "settings": {
+                "badge_text": "🛍️ ووکامرس پیشرفته و ادغام وودمارت",
+                "hero_title": "فروشگاه آنلاین منعطف با بالاترین سرعت و تجربه کاربری مدرن",
+                "hero_desc": "سبد خرید شناور بلادرنگ، فیلترهای AJAX هوشمند، درگاه‌های پرداخت متصل و سیستم رهگیری سفارش.",
+                "primary_btn_text": "مشاهده کاتالوگ محصولات",
+                "primary_btn_url": { "url": "#products", "is_external": false },
+                "secondary_btn_text": "پیشنهادات شگفت‌انگیز",
+                "secondary_btn_url": { "url": "#deals", "is_external": false }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

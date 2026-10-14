@@ -116,6 +116,24 @@ class GitHub_Admin {
             'sedrazavi-ecommerce',
             [$this, 'render_ecommerce_page']
         );
+
+        add_submenu_page(
+            $parent_slug,
+            esc_html__('همگام‌سازی ابری گیت‌هاب (GitHub Sync Hub)', 'universal-elementor-suite'),
+            esc_html__('GitHub Sync Hub', 'universal-elementor-suite'),
+            'manage_options',
+            'sedrazavi-sync',
+            [$this, 'render_github_sync_page']
+        );
+
+        add_submenu_page(
+            $parent_slug,
+            esc_html__('پیشخوان آسان کارفرما (No-Code Client Portal)', 'universal-elementor-suite'),
+            esc_html__('Client Content Hub', 'universal-elementor-suite'),
+            'manage_options',
+            'sedrazavi-client-hub',
+            [$this, 'render_client_hub_page']
+        );
     }
 
     /**
@@ -151,6 +169,12 @@ class GitHub_Admin {
                 </a>
                 <a href="<?php echo admin_url('admin.php?page=sedrazavi-ecommerce'); ?>" class="gh-tab <?php echo $active_tab === 'ecommerce' ? 'active' : ''; ?>">
                     <span class="gh-tab-icon">🛒</span> WooCommerce & WoodMart
+                </a>
+                <a href="<?php echo admin_url('admin.php?page=sedrazavi-sync'); ?>" class="gh-tab <?php echo $active_tab === 'sync' ? 'active' : ''; ?>">
+                    <span class="gh-tab-icon">🔄</span> GitHub Sync Hub
+                </a>
+                <a href="<?php echo admin_url('admin.php?page=sedrazavi-client-hub'); ?>" class="gh-tab <?php echo $active_tab === 'client-hub' ? 'active' : ''; ?>">
+                    <span class="gh-tab-icon">✏️</span> No-Code Client Hub
                 </a>
                 <a href="<?php echo admin_url('admin.php?page=sedrazavi-docs'); ?>" class="gh-tab <?php echo $active_tab === 'docs' ? 'active' : ''; ?>">
                     <span class="gh-tab-icon">📚</span> Docs & Shortcodes
@@ -516,6 +540,78 @@ class GitHub_Admin {
             </div>
         </div>
         <?php
+    }
+
+    /**
+     * 8. GitHub Cloud Sync Hub
+     */
+    public function render_github_sync_page() {
+        $engine = GitHub_Sync_Engine::instance();
+        $settings = $engine->get_settings();
+        ?>
+        <div class="wrap gh-wrap" dir="rtl">
+            <?php $this->render_header('sync'); ?>
+
+            <div class="gh-body">
+                <div class="gh-card">
+                    <div class="gh-card-header">
+                        <h3>مرکز همگام‌سازی ابری با مخزن گیت‌هاب (GitHub Sync Hub)</h3>
+                        <span class="gh-card-subtitle">پشتیبانی از ۳ سناریوی دریافت آنلاین/اختصاصی/آفلاین و استقرار خودکار اصناف روی سایت</span>
+                    </div>
+                    <div class="gh-card-body">
+                        <div class="gh-metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: 24px;">
+                            <div class="gh-metric-card" style="border-right: 4px solid #58A6FF;">
+                                <span class="gh-metric-title">سناریوی ۱: مخزن پیش‌فرض پروژه</span>
+                                <div class="gh-metric-value" style="font-size: 15px; color: #58A6FF; font-family: monospace;">Aqamirrazavi/Sedrazavi-WPtemplate</div>
+                                <span class="gh-metric-diff positive">دریافت آخرین پکیج‌ها با یک کلیک</span>
+                            </div>
+                            <div class="gh-metric-card" style="border-right: 4px solid #8957E5;">
+                                <span class="gh-metric-title">سناریوی ۲: مخزن اختصاصی کارفرما</span>
+                                <div class="gh-metric-value" style="font-size: 15px; color: #8957E5;">توکن شخصی گیت‌هاب (PAT)</div>
+                                <span class="gh-metric-diff positive">پشتیبانی از فورک‌ها و مخازن خصوصی</span>
+                            </div>
+                            <div class="gh-metric-card" style="border-right: 4px solid #238636;">
+                                <span class="gh-metric-title">سناریوی ۳: بسته محلی آفلاین</span>
+                                <div class="gh-metric-value" style="font-size: 15px; color: #238636;">Local Built-in Cache</div>
+                                <span class="gh-metric-diff positive">استقرار بدون نیاز به اینترنت بین‌الملل</span>
+                            </div>
+                        </div>
+
+                        <div style="background: #0D1117; border: 1px solid #30363D; border-radius: 10px; padding: 20px; margin-bottom: 24px;">
+                            <h4 style="color: #F0F6FC; margin: 0 0 16px 0;">انتخاب و استقرار صنف مورد نظر (۳ صنف اولویت‌دار):</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                                <div style="background: #161B22; border: 1px solid #30363D; border-radius: 8px; padding: 16px;">
+                                    <div style="font-size: 20px; margin-bottom: 8px;">💻</div>
+                                    <strong style="color: #58A6FF; display: block; margin-bottom: 6px;">طراح سایت وردپرس (Gutenberg-First)</strong>
+                                    <p style="font-size: 12px; color: #8B949E; line-height: 1.6; margin-bottom: 12px;">۱۳ سکشن استاندارد لندینگ، فرم ۵ مرحله‌ای بریف، جدول پکیج‌ها، نمونه‌کارها و بدون افزونه سنگین.</p>
+                                    <button type="button" class="button button-primary" style="background: #6366F1; border-color: #4F46E5;">استقرار صنف طراح سایت</button>
+                                </div>
+                                <div style="background: #161B22; border: 1px solid #30363D; border-radius: 8px; padding: 16px;">
+                                    <div style="font-size: 20px; margin-bottom: 8px;">⚖️</div>
+                                    <strong style="color: #D4AF37; display: block; margin-bottom: 6px;">دفتر وکالت و داوری حقوقی</strong>
+                                    <p style="font-size: 12px; color: #8B949E; line-height: 1.6; margin-bottom: 12px;">محاسبه‌گر دادگستری، پیگیری پرونده، گاوصندوق لوایح و مواعد قانونی دیوان عالی.</p>
+                                    <button type="button" class="button" style="background: #21262D; color: #C9D1D9; border-color: #30363D;">استقرار صنف وکالت</button>
+                                </div>
+                                <div style="background: #161B22; border: 1px solid #30363D; border-radius: 8px; padding: 16px;">
+                                    <div style="font-size: 20px; margin-bottom: 8px;">🛍️</div>
+                                    <strong style="color: #10B981; display: block; margin-bottom: 6px;">فروشگاه منعطف (WooCommerce + WoodMart)</strong>
+                                    <p style="font-size: 12px; color: #8B949E; line-height: 1.6; margin-bottom: 12px;">سازگار با ووکامرس، وودمارت، جت وو بیلدر، شاپ انجین با تسویه حساب سریع شاپرک.</p>
+                                    <button type="button" class="button" style="background: #21262D; color: #C9D1D9; border-color: #30363D;">استقرار صنف فروشگاه</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * 9. No-Code Client Hub (Redirect or Render)
+     */
+    public function render_client_hub_page() {
+        No_Code_Client_Suite::instance()->render_client_portal_page();
     }
 }
 

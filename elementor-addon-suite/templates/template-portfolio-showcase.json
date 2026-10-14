@@ -1,0 +1,40 @@
+{
+  "version": "0.4",
+  "title": "UAS - نمونه‌کارها و پروژه‌های طراحی وب (Portfolio & Case Studies)",
+  "type": "section",
+  "content": [
+    {
+      "id": "uas_sec_portfolio_showcase",
+      "elType": "section",
+      "settings": {
+        "layout": "full_width",
+        "padding": { "unit": "px", "top": "50", "right": "20", "bottom": "50", "left": "20" },
+        "background_background": "classic",
+        "background_color": "#0A0F1D"
+      },
+      "elements": [
+        {
+          "id": "uas_col_portfolio_01",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_portfolio_hero",
+              "elType": "widget",
+              "widgetType": "uas_hero",
+              "settings": {
+                "badge_text": "🚀 شوکیس پروژه‌ها و بنچمارک لایت‌هاوس",
+                "hero_title": "نمونه‌کارهای تخصصی طراحی سایت با امتیاز سرعت ۱۰۰",
+                "hero_desc": "معماری گوتنبرگ فرست، لودتایم زیر یک ثانیه و تطابق کامل با استانداردهای گوگل Core Web Vitals.",
+                "primary_btn_text": "ثبت بریف اختصاصی پروژه",
+                "primary_btn_url": { "url": "#brief-form", "is_external": false },
+                "secondary_btn_text": "بررسی بنچمارک سرعت",
+                "secondary_btn_url": { "url": "#metrics", "is_external": false }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

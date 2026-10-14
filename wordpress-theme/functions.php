@@ -508,6 +508,9 @@ $sedrazavi_essential_includes = [
     'inc/integrations.php',                  // WooCommerce, SEO breadcrumbs & cache hooks
     'inc/precedents-cpt.php',                // Supreme court precedents CPT & taxonomy
     'inc/ux-improvements.php',               // Client experience & skeleton loaders
+    'inc/class-github-sync.php',             // GitHub Real-Time Sync & Webhook Engine
+    'inc/class-demo-importer.php',           // One-click demo content and pages importer
+    'inc/class-setup-wizard.php',            // 30-Second Quick Setup Wizard in WP Admin
 ];
 
 foreach ($sedrazavi_essential_includes as $file_rel) {

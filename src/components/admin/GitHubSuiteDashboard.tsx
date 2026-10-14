@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   GitBranch, GitCommit, GitPullRequest, AlertCircle, CheckCircle2, 
   Copy, Check, Search, ShieldCheck, Terminal, BookOpen, Layers, 
-  ExternalLink, Sparkles
+  ExternalLink, Sparkles, RefreshCw, Download
 } from 'lucide-react';
 
 interface GitHubSuiteDashboardProps {
@@ -14,6 +14,31 @@ export const GitHubSuiteDashboard: React.FC<GitHubSuiteDashboardProps> = () => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [issueFilter, setIssueFilter] = useState<'all' | 'open' | 'closed'>('open');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedBranch, setSelectedBranch] = useState<'main' | 'themes' | 'plugin-suite'>('main');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatusMessage, setSyncStatusMessage] = useState<string | null>(null);
+  const [importingArchetype, setImportingArchetype] = useState<string | null>(null);
+  const [importSuccessMessage, setImportSuccessMessage] = useState<string | null>(null);
+
+  const handleTriggerSync = () => {
+    setIsSyncing(true);
+    setSyncStatusMessage(null);
+    setTimeout(() => {
+      setIsSyncing(false);
+      setSyncStatusMessage(`مخزن Aqamirrazavi/Sedrazavi-WPtemplate روی شاخه ${selectedBranch} با موفقیت همگام‌سازی شد.`);
+      setTimeout(() => setSyncStatusMessage(null), 5000);
+    }, 1200);
+  };
+
+  const handleImportDemo = (archetype: string, label: string) => {
+    setImportingArchetype(archetype);
+    setImportSuccessMessage(null);
+    setTimeout(() => {
+      setImportingArchetype(null);
+      setImportSuccessMessage(`محتوای نمونه صنف «${label}» (برگه‌ها، منوها و ویجت‌ها) در دیتابیس وردپرس بارگذاری و تنظیم شد.`);
+      setTimeout(() => setImportSuccessMessage(null), 6000);
+    }, 1500);
+  };
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -167,6 +192,104 @@ export const GitHubSuiteDashboard: React.FC<GitHubSuiteDashboardProps> = () => {
         {/* TAB 1: OVERVIEW */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
+            {/* Live GitHub Sync & Webhook Control Panel */}
+            <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-5 space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#30363D] pb-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <h3 className="text-sm font-bold text-[#F0F6FC] font-mono">
+                      Aqamirrazavi/Sedrazavi-WPtemplate
+                    </h3>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-[#21262D] text-[#58A6FF] border border-[#30363D]">
+                      مخزن رسمی متصل
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#8B949E]">
+                    مدیریت یکپارچگی گیت‌هاب، سوییچ بین شاخه‌ها و استقرار بدون واسطه بر روی دیتابیس وردپرس
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Branch selector */}
+                  <div className="flex items-center gap-1 bg-[#0D1117] p-1 rounded-lg border border-[#30363D] text-xs font-mono">
+                    {(['main', 'themes', 'plugin-suite'] as const).map((b) => (
+                      <button
+                        key={b}
+                        onClick={() => setSelectedBranch(b)}
+                        className={`px-2 py-1 rounded transition-colors ${
+                          selectedBranch === b ? 'bg-[#238636] text-white font-bold' : 'text-[#8B949E] hover:text-[#C9D1D9]'
+                        }`}
+                      >
+                        {b}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={handleTriggerSync}
+                    disabled={isSyncing}
+                    className="px-3.5 py-1.5 rounded-lg bg-[#21262D] hover:bg-[#30363D] border border-[#30363D] text-[#F0F6FC] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 text-[#58A6FF] ${isSyncing ? 'animate-spin' : ''}`} />
+                    <span>{isSyncing ? 'در حال همگام‌سازی...' : 'همگام‌سازی زنده گیت‌هاب'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Status messages */}
+              {syncStatusMessage && (
+                <div className="p-3 rounded-lg bg-[#23863626] border border-[#23863666] text-[#3FB950] text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{syncStatusMessage}</span>
+                </div>
+              )}
+
+              {/* Demo Content Importer Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <span className="text-xs text-[#C9D1D9] font-bold">
+                  ⚡ درون‌ریزی خودکار محتوای نمونه صنف در وردپرس:
+                </span>
+                <div className="flex items-center gap-2 flex-wrap text-xs">
+                  <button
+                    onClick={() => handleImportDemo('lawyer', 'وکالت')}
+                    disabled={Boolean(importingArchetype)}
+                    className="px-2.5 py-1 rounded-md bg-[#D4AF37]/20 hover:bg-[#D4AF37]/30 text-[#F3E5AB] border border-[#D4AF37]/40 cursor-pointer"
+                  >
+                    {importingArchetype === 'lawyer' ? 'در حال بارگذاری...' : '⚖️ وکالت'}
+                  </button>
+                  <button
+                    onClick={() => handleImportDemo('web_agency', 'طراح سایت')}
+                    disabled={Boolean(importingArchetype)}
+                    className="px-2.5 py-1 rounded-md bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 cursor-pointer"
+                  >
+                    {importingArchetype === 'web_agency' ? 'در حال بارگذاری...' : '💻 طراح سایت'}
+                  </button>
+                  <button
+                    onClick={() => handleImportDemo('ecommerce', 'فروشگاه')}
+                    disabled={Boolean(importingArchetype)}
+                    className="px-2.5 py-1 rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 cursor-pointer"
+                  >
+                    {importingArchetype === 'ecommerce' ? 'در حال بارگذاری...' : '🛍️ فروشگاه'}
+                  </button>
+                  <button
+                    onClick={() => handleImportDemo('video_media', 'مدیا سنتر')}
+                    disabled={Boolean(importingArchetype)}
+                    className="px-2.5 py-1 rounded-md bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 cursor-pointer"
+                  >
+                    {importingArchetype === 'video_media' ? 'در حال بارگذاری...' : '🎬 مدیا سنتر'}
+                  </button>
+                </div>
+              </div>
+
+              {importSuccessMessage && (
+                <div className="p-3 rounded-lg bg-[#388bfd26] border border-[#388bfd66] text-[#58A6FF] text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{importSuccessMessage}</span>
+                </div>
+              )}
+            </div>
+
             {/* Quick Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-4">

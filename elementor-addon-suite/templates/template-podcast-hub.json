@@ -1,0 +1,40 @@
+{
+  "version": "0.4",
+  "title": "UAS - مرکز پادکست و رسانه صوتی (Audio Podcast Hub)",
+  "type": "section",
+  "content": [
+    {
+      "id": "uas_sec_podcast_hub",
+      "elType": "section",
+      "settings": {
+        "layout": "full_width",
+        "padding": { "unit": "px", "top": "50", "right": "20", "bottom": "50", "left": "20" },
+        "background_background": "classic",
+        "background_color": "#070D1E"
+      },
+      "elements": [
+        {
+          "id": "uas_col_podcast_01",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_podcast_hero",
+              "elType": "widget",
+              "widgetType": "uas_hero",
+              "settings": {
+                "badge_text": "🎙️ رادیو و پادکست‌های اختصاصی",
+                "hero_title": "مرکز شنیداری و سخنرانی‌های صوتی تخصصی",
+                "hero_desc": "پخش برخط، کنترل سرعت پخش، دانلود مستقیم فایل MP3 و دریافت متن کامل سخنرانی با فرمت PDF.",
+                "primary_btn_text": "پخش آخرین اپیزود",
+                "primary_btn_url": { "url": "#latest-episode", "is_external": false },
+                "secondary_btn_text": "عضویت در پادگیرها",
+                "secondary_btn_url": { "url": "#subscribe", "is_external": false }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

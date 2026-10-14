@@ -95,6 +95,12 @@ final class Universal_Elementor_Addon_Suite {
         require_once UAS_PATH . 'includes/class-woocommerce-compatibility.php';
         \UniversalElementorSuite\WooCommerce_Compatibility::instance();
 
+        require_once UAS_PATH . 'includes/class-github-sync-engine.php';
+        \UniversalElementorSuite\GitHub_Sync_Engine::instance();
+
+        require_once UAS_PATH . 'includes/class-no-code-client-suite.php';
+        \UniversalElementorSuite\No_Code_Client_Suite::instance();
+
         if (is_admin()) {
             require_once UAS_PATH . 'includes/class-github-admin.php';
             \UniversalElementorSuite\GitHub_Admin::instance();

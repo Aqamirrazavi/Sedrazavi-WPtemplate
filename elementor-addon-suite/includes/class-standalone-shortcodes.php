@@ -71,6 +71,17 @@ class Standalone_Shortcodes {
             'sedrazavi_milestones'       => 'render_milestones',
             'sedrazavi_faq'              => 'render_faq',
             'sedrazavi_docs_hub'         => 'render_docs_hub',
+            'sedrazavi_wp_designer'      => 'render_wp_designer',
+            'sedrazavi_store_showcase'   => 'render_store_showcase',
+            'sedrazavi_video_hub'        => 'render_video_hub',
+            'sedrazavi_github_suite'     => 'render_github_suite',
+            'sedrazavi_music_player'     => 'render_music_player',
+            'sedrazavi_downloads_hub'    => 'render_downloads_hub',
+            'sedrazavi_wallpapers_gallery' => 'render_wallpapers_gallery',
+            'sedrazavi_design_tokens'    => 'render_design_tokens',
+            'sedrazavi_ajax_search'      => 'render_ajax_search',
+            'sedrazavi_case_prediction'  => 'render_case_prediction',
+            'sedrazavi_associate_referral' => 'render_associate_referral',
         ];
 
         foreach ($shortcodes as $tag => $callback) {
@@ -824,6 +835,223 @@ class Standalone_Shortcodes {
                     </div>
                 <?php endforeach; ?>
             </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render Gutenberg WordPress Designer showcase shortcode
+     */
+    public function render_wp_designer($atts = []) {
+        $a = shortcode_atts(['theme' => 'dark'], $atts);
+        ob_start();
+        ?>
+        <div class="uas-block-designer" dir="rtl" style="background:#0F172A;color:#FFFFFF;padding:32px 20px;border-radius:18px;border:1px solid #334155;">
+            <div style="text-align:center;max-width:800px;margin:0 auto;">
+                <span style="display:inline-block;padding:4px 12px;background:rgba(99,102,241,0.2);color:#818CF8;border-radius:9999px;font-size:12px;font-weight:bold;margin-bottom:12px;">⚡ گوتنبرگ فرست</span>
+                <h2 style="font-size:24px;font-weight:bold;margin:0 0 10px;">طراحی سایت وردپرس با گوتنبرگ؛ سریع، سبک و حرفه‌ای</h2>
+                <p style="font-size:14px;color:#94A3B8;margin-bottom:20px;">بدون افزونه‌های سنگین، با تمرکز بر سرعت زیر ۲ ثانیه و سئوی فنی دقیق.</p>
+                <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+                    <a href="#brief-form" style="display:inline-block;background:#6366F1;color:#FFF;padding:10px 22px;border-radius:10px;font-weight:bold;text-decoration:none;">مشاوره رایگان ۲۰ دقیقه‌ای</a>
+                    <a href="#portfolio" style="display:inline-block;background:rgba(255,255,255,0.08);color:#FFF;padding:10px 22px;border-radius:10px;text-decoration:none;">مشاهده نمونه‌کارها</a>
+                </div>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render Flexible eCommerce Store showcase shortcode
+     */
+    public function render_store_showcase($atts = []) {
+        $a = shortcode_atts(['cols' => '3'], $atts);
+        ob_start();
+        ?>
+        <div class="uas-block-store" dir="rtl" style="background:#070D1E;color:#FFFFFF;padding:32px 20px;border-radius:18px;border:1px solid #1E293B;">
+            <div style="text-align:center;max-width:700px;margin:0 auto 24px;">
+                <span style="display:inline-block;padding:4px 12px;background:rgba(16,185,129,0.2);color:#34D399;border-radius:9999px;font-size:12px;font-weight:bold;margin-bottom:12px;">🛍️ فروشگاه منعطف</span>
+                <h2 style="font-size:24px;font-weight:bold;margin:0 0 10px;">ویترین محصولات منتخب فروشگاهی</h2>
+                <p style="font-size:13px;color:#94A3B8;">سبد خرید سریع، درگاه شتاب و فیلتر ایجکس ویژگی‌ها</p>
+            </div>
+            <?php
+            if (class_exists('WooCommerce')) {
+                echo do_shortcode('[products limit="6" columns="' . esc_attr($a['cols']) . '"]');
+            } else {
+                echo '<div style="text-align:center;color:#94A3B8;font-size:13px;padding:20px;border:1px dashed #334155;border-radius:12px;">ووکامرس نصب نیست یا محصولی ثبت نشده است. شورت‌کد محصولات فعال است.</div>';
+            }
+            ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render Video Media Hub shortcode
+     */
+    public function render_video_hub($atts = []) {
+        ob_start();
+        ?>
+        <div class="uas-block-video-hub" dir="rtl" style="background:#0D1117;color:#F0F6FC;padding:32px 20px;border-radius:18px;border:1px solid #30363D;">
+            <div style="text-align:center;max-width:700px;margin:0 auto 24px;">
+                <span style="display:inline-block;padding:4px 12px;background:rgba(212,175,55,0.2);color:#D4AF37;border-radius:9999px;font-size:12px;font-weight:bold;margin-bottom:12px;">🎬 رسانه و مدیا</span>
+                <h2 style="font-size:24px;font-weight:bold;margin:0 0 10px;">آرشیو ویدئوها، وبینارها و تحلیل‌ها</h2>
+                <p style="font-size:13px;color:#8B949E;">مشاهده و دانلود ویدئوها با کیفیت‌های ۱۰۸۰p و ۷۲۰p</p>
+            </div>
+            <div style="max-width:800px;margin:0 auto;border-radius:14px;overflow:hidden;background:#161B22;border:1px solid #30363D;">
+                <video controls style="width:100%;display:block;max-height:450px;background:#000;" poster="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80">
+                    <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                    مرورگر شما از پخش ویدئو پشتیبانی نمی‌کند.
+                </video>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render GitHub Primer Suite shortcode
+     */
+    public function render_github_suite($atts = []) {
+        ob_start();
+        ?>
+        <div class="uas-block-github-suite" dir="rtl" style="background:#0D1117;color:#C9D1D9;padding:24px;border-radius:14px;border:1px solid #30363D;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:24px;">🐙</span>
+                    <div>
+                        <h3 style="font-size:15px;font-weight:bold;color:#F0F6FC;margin:0;">پیشخوان گیت‌هاب پرایمر</h3>
+                        <p style="font-size:11px;color:#8B949E;margin:0;">ماتریس فعالیت سالانه و رهگیری ایشوها</p>
+                    </div>
+                </div>
+                <span style="font-size:11px;color:#3FB950;font-weight:bold;background:rgba(35,134,54,0.2);padding:4px 10px;border-radius:9999px;">شاخه main فعال</span>
+            </div>
+            <?php echo $this->render_heatmap([]); ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render Music & Podcast Player shortcode
+     */
+    public function render_music_player($atts = []) {
+        ob_start();
+        ?>
+        <div class="uas-block-music" dir="rtl" style="background:#070D1E;color:#FFF;padding:24px;border-radius:16px;border:1px solid #1E293B;">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+                <span style="font-size:32px;">🎧</span>
+                <div>
+                    <h3 style="font-size:16px;font-weight:bold;margin:0 0 4px;">پخش‌کننده صوتی و پادکست</h3>
+                    <p style="font-size:12px;color:#94A3B8;margin:0;">امکان استریم و دانلود مستقیم با کیفیت‌های مختلف</p>
+                </div>
+            </div>
+            <audio controls style="width:100%;">
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render Downloads Hub shortcode
+     */
+    public function render_downloads_hub($atts = []) {
+        ob_start();
+        ?>
+        <div class="uas-block-downloads" dir="rtl" style="background:#0F172A;color:#FFF;padding:24px;border-radius:16px;border:1px solid #334155;">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;">
+                <span style="font-size:32px;">📦</span>
+                <div>
+                    <h3 style="font-size:16px;font-weight:bold;margin:0 0 4px;">مرکز دانلود نرم‌افزار و ابزارها</h3>
+                    <p style="font-size:12px;color:#94A3B8;margin:0;">دانلود فایل‌ها با لینک مستقیم و اعتبارسنجی امنیتی</p>
+                </div>
+            </div>
+            <div style="background:rgba(255,255,255,0.05);padding:14px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:13px;font-weight:bold;">نرم‌افزار جامع مدیریت پرونده‌ها v3.2.1</span>
+                <span style="font-size:12px;color:#38BDF8;font-weight:bold;">دانلود مستقیم ↓</span>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render Wallpapers & Gallery shortcode
+     */
+    public function render_wallpapers_gallery($atts = []) {
+        ob_start();
+        ?>
+        <div class="uas-block-wallpapers" dir="rtl" style="background:#070D1E;color:#FFF;padding:24px;border-radius:16px;border:1px solid #1E293B;">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;">
+                <span style="font-size:32px;">🖼️</span>
+                <div>
+                    <h3 style="font-size:16px;font-weight:bold;margin:0 0 4px;">گالری عکس، والپیپر و وکتور</h3>
+                    <p style="font-size:12px;color:#94A3B8;margin:0;">پیش‌نمایش باکیفیت و دانلود والپیپرهای ۴K</p>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+                <div style="background:#1E293B;height:120px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;">⚖️</div>
+                <div style="background:#312E81;height:120px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;">💻</div>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render Design Tokens shortcode
+     */
+    public function render_design_tokens($atts = []) {
+        ob_start();
+        ?>
+        <div class="uas-block-tokens" dir="rtl" style="background:#0F172A;color:#FFF;padding:24px;border-radius:16px;border:1px solid #334155;">
+            <h3 style="font-size:16px;font-weight:bold;margin:0 0 10px;">🎨 مخزن متغیرهای Design Tokens</h3>
+            <p style="font-size:12px;color:#94A3B8;">شامل متغیرهای طلایی، سرمه‌ای، انحناها و شعاع کارت‌های قالب</p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render Ajax Search shortcode
+     */
+    public function render_ajax_search($atts = []) {
+        ob_start();
+        ?>
+        <div class="uas-block-ajax-search" dir="rtl" style="background:#0F172A;color:#FFF;padding:24px;border-radius:16px;border:1px solid #334155;">
+            <h3 style="font-size:16px;font-weight:bold;margin:0 0 10px;">🔍 جستجوی آنی ایجکس</h3>
+            <input type="text" placeholder="جستجوی بلادرنگ در سایت..." style="width:100%;padding:10px 14px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid #475569;color:#FFF;" />
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render Case Outcome Prediction shortcode
+     */
+    public function render_case_prediction($atts = []) {
+        ob_start();
+        ?>
+        <div class="uas-block-prediction" dir="rtl" style="background:#070D1E;color:#FFF;padding:24px;border-radius:16px;border:1px solid #1E293B;">
+            <h3 style="font-size:16px;font-weight:bold;margin:0 0 10px;">📊 هوش آماری دادرسی و پیش‌بینی خروجی پرونده</h3>
+            <p style="font-size:12px;color:#94A3B8;">میانگین شانس پیروزی: ۸۴٪ · بررسی شده با ۴۲۰۰ دادنامه قطعی</p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render Associate Referral shortcode
+     */
+    public function render_associate_referral($atts = []) {
+        ob_start();
+        ?>
+        <div class="uas-block-referral" dir="rtl" style="background:#0F172A;color:#FFF;padding:24px;border-radius:16px;border:1px solid #334155;">
+            <h3 style="font-size:16px;font-weight:bold;margin:0 0 10px;">🤝 شبکه همکاری و ارجاع وکلای دادگستری</h3>
+            <p style="font-size:12px;color:#94A3B8;">دفتر کل ارجاعات فعال، وکالت توکیلی و تسهیم شفاف حق‌الوکاله</p>
         </div>
         <?php
         return ob_get_clean();

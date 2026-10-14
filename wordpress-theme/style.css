@@ -1419,3 +1419,74 @@ img {
 .bg-slate-800\/50 { background-color: rgba(30, 41, 59, 0.5) !important; }
 .bg-\[\#090d16\] { background-color: #090d16 !important; }
 .mx-2 { margin-left: 0.5rem !important; margin-right: 0.5rem !important; }
+.sedrazavi-video-archive-container { width: 100%; min-height: 80vh; position: relative; }
+.sedrazavi-designer-landing-wrapper { width: 100%; min-height: 100vh; position: relative; }
+.sedrazavi-designer-hero { width: 100%; position: relative; }
+.sedrazavi-btn-primary { display: inline-flex; transition: all 0.2s ease; }
+.sedrazavi-btn-secondary { display: inline-flex; transition: all 0.2s ease; }
+.sedrazavi-designer-proof { width: 100%; position: relative; }
+.sedrazavi-designer-values { width: 100%; position: relative; }
+.sedrazavi-designer-services { width: 100%; position: relative; }
+.sedrazavi-designer-portfolio { width: 100%; position: relative; }
+.sedrazavi-designer-process { width: 100%; position: relative; }
+.sedrazavi-designer-pricing { width: 100%; position: relative; }
+.sedrazavi-designer-brief { width: 100%; position: relative; }
+.sedrazavi-btn-submit { display: block; width: 100%; transition: all 0.2s ease; }
+.sedrazavi-github-suite-wrapper { width: 100%; min-height: 100vh; position: relative; }
+.sedrazavi-github-suite-header { width: 100%; position: relative; }
+.sedrazavi-github-heatmap-card { width: 100%; position: relative; }
+.sedrazavi-github-issues-card { width: 100%; position: relative; }
+.sedrazavi-store-wrapper { width: 100%; min-height: 100vh; position: relative; }
+.sedrazavi-store-hero { width: 100%; position: relative; }
+.sedrazavi-btn-store-primary { display: inline-flex; transition: all 0.2s ease; }
+.sedrazavi-store-features { width: 100%; position: relative; }
+.sedrazavi-store-catalog { width: 100%; position: relative; }
+.sedrazavi-store-grid { width: 100%; position: relative; }
+.sedrazavi-btn-store-cart { display: block; transition: all 0.2s ease; }
+.sedrazavi-ajax-search-wrapper { width: 100%; min-height: 100vh; position: relative; }
+.sedrazavi-ajax-search-header { width: 100%; position: relative; }
+.sedrazavi-search-input-card { width: 100%; position: relative; }
+.sedrazavi-referral-suite-wrapper { width: 100%; min-height: 100vh; position: relative; }
+.sedrazavi-referral-header { width: 100%; position: relative; }
+.sedrazavi-referral-ledger-card { width: 100%; position: relative; }
+.sedrazavi-prediction-suite-wrapper { width: 100%; min-height: 100vh; position: relative; }
+.sedrazavi-prediction-header { width: 100%; position: relative; }
+.sedrazavi-prediction-metrics-card { width: 100%; position: relative; }
+.sedrazavi-tokens-suite-wrapper { width: 100%; min-height: 100vh; position: relative; }
+.sedrazavi-tokens-header { width: 100%; position: relative; }
+.sedrazavi-tokens-grid { width: 100%; position: relative; }
+.sedrazavi-downloads-hub-wrapper { width: 100%; min-height: 100vh; position: relative; }
+.sedrazavi-downloads-header { width: 100%; position: relative; }
+.sedrazavi-downloads-grid { width: 100%; position: relative; }
+.sedrazavi-btn-download-file { display: inline-flex; transition: all 0.2s ease; }
+.sedrazavi-wallpapers-hub-wrapper { width: 100%; min-height: 100vh; position: relative; }
+.sedrazavi-wallpapers-header { width: 100%; position: relative; }
+.sedrazavi-wallpapers-grid { width: 100%; position: relative; }
+.sedrazavi-btn-download-img { display: inline-flex; transition: all 0.2s ease; }
+.sedrazavi-music-hub-wrapper { width: 100%; min-height: 100vh; position: relative; }
+.sedrazavi-music-header { width: 100%; position: relative; }
+.sedrazavi-music-player-card { width: 100%; position: relative; }
+.sedrazavi-music-playlist { width: 100%; position: relative; }
+.sedrazavi-btn-download-audio { display: inline-flex; transition: all 0.2s ease; }
+.sedrazavi-wizard-wrap { width: 100%; position: relative; }
+.sedrazavi-podcast-hub-page { width: 100%; min-height: 100vh; position: relative; }
+.hover\:bg-orange-500:hover { background-color: #f97316 !important; }
+.sedrazavi-btn-pill { display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+.hover\:bg-\[\#b8972e\]:hover { background-color: #b8972e !important; }
+.sedrazavi-portfolio-page { width: 100%; min-height: 100vh; position: relative; }
+.via-\[\#1E1B4B\] { --tw-gradient-via: #1E1B4B var(--tw-gradient-via-position); }
+.to-\[\#31104B\] { --tw-gradient-to: #31104B var(--tw-gradient-to-position); }
+.hover\:border-indigo-500\/40:hover { border-color: rgba(99, 102, 241, 0.4) !important; }
+.from-indigo-950 { --tw-gradient-from: #1e1b4b var(--tw-gradient-from-position); }
+.to-indigo-900 { --tw-gradient-to: #312e81 var(--tw-gradient-to-position); }
+.hover\:border-emerald-500\/40:hover { border-color: rgba(16, 185, 129, 0.4) !important; }
+.from-emerald-950 { --tw-gradient-from: #022c22 var(--tw-gradient-from-position); }
+.to-emerald-900 { --tw-gradient-to: #064e3b var(--tw-gradient-to-position); }
+.from-indigo-900\/40 { --tw-gradient-from: rgba(49, 46, 129, 0.4) var(--tw-gradient-from-position); }
+.via-purple-900\/30 { --tw-gradient-via: rgba(88, 28, 135, 0.3) var(--tw-gradient-via-position); }
+.to-indigo-900\/40 { --tw-gradient-to: rgba(49, 46, 129, 0.4) var(--tw-gradient-to-position); }
+.sedrazavi-single-video-page { width: 100%; min-height: 100vh; position: relative; }
+@media (min-width: 1024px) { .lg\:p-8 { padding: 2rem !important; } }
+.sedrazavi-video-cinema-frame { width: 100%; position: relative; }
+.sedrazavi-video-downloads-grid { width: 100%; position: relative; }
+.bg-\[\#070D1E\]\/60 { background-color: rgba(7, 13, 30, 0.6) !important; }
