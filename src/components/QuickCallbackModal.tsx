@@ -15,6 +15,7 @@ import {
 import { ATTORNEY_INFO } from '../data/mockData';
 import { normalizeIranPhone } from '../utils/clientAccountsStorage';
 import { isValidIranMobile } from '../utils/persianNumberHelper';
+import { useAdminNotifications } from '../context/NotificationContext';
 
 interface QuickCallbackModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export const QuickCallbackModal: React.FC<QuickCallbackModalProps> = ({
   onClose,
   onOpenOtpLogin,
 }) => {
+  const { notifyNewSubmission } = useAdminNotifications();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [clientName, setClientName] = useState('');
@@ -52,6 +54,16 @@ export const QuickCallbackModal: React.FC<QuickCallbackModalProps> = ({
       setIsSubmitting(false);
       const refId = 'CB-' + Math.floor(100000 + Math.random() * 900000);
       setSubmittedCode(refId);
+
+      // Trigger instant real-time notification for admin
+      notifyNewSubmission({
+        clientName: clientName || 'متقاضی تماس فوری',
+        phone: phoneNumber,
+        subject: briefNote || `درخواست تماس سریع (${legalTopic})`,
+        service: legalTopic,
+        source: 'quick_callback',
+        priority: 'high'
+      });
     }, 700);
   };
 

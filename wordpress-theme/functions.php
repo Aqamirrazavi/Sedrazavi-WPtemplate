@@ -511,6 +511,8 @@ $sedrazavi_essential_includes = [
     'inc/class-github-sync.php',             // GitHub Real-Time Sync & Webhook Engine
     'inc/class-demo-importer.php',           // One-click demo content and pages importer
     'inc/class-setup-wizard.php',            // 30-Second Quick Setup Wizard in WP Admin
+    'inc/scenario-controller.php',           // Universal Scenario Controller & Layout Archetypes
+    'inc/class-realtime-notifications.php',  // Real-Time Lead Notification & Sound Engine
 ];
 
 foreach ($sedrazavi_essential_includes as $file_rel) {

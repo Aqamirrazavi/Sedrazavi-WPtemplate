@@ -3,6 +3,7 @@ import { ATTORNEY_INFO, SERVICES_DATA, CASES_INITIAL_DATA } from '../data/mockDa
 import { CaseItem } from '../types/theme';
 import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
 import { usePresetConfig } from '../hooks/usePresetConfig';
+import { useAdminNotifications } from '../context/NotificationContext';
 import {
   Calendar,
   Phone,
@@ -33,6 +34,7 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
   profile,
   preselectedLawyer,
 }) => {
+  const { notifyNewSubmission } = useAdminNotifications();
   const { preset } = usePresetConfig();
   const isLawyerPreset = preset.id === 'lawyer';
   const scenario = profile?.firmScenario?.currentScenario || 'senior_associates';
@@ -73,6 +75,17 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
     setTimeout(() => {
       setBookingSubmitting(false);
       setBookingSuccess(true);
+
+      // Instant real-time alert with audio chime for admin
+      notifyNewSubmission({
+        clientName,
+        phone: clientPhone,
+        subject: `رزرو نوبت مشاوره (${preferredDate} ساعت ${preferredTime})`,
+        service: serviceType,
+        source: 'consultation_form',
+        priority: 'high'
+      });
+
       window.dispatchEvent(new CustomEvent('sedrazavi-show-toast', {
         detail: {
           title: 'ثبت موفق نوبت مشاوره',

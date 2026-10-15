@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 2,
+  "settings": {
+    "appearanceTools": true,
+    "color": {
+      "custom": true,
+      "customDuotone": false,
+      "customGradient": true,
+      "defaultGradients": false,
+      "defaultPalette": false,
+      "palette": [
+        {
+          "slug": "obsidian-bg",
+          "color": "#07090E",
+          "name": "Obsidian Background"
+        },
+        {
+          "slug": "slate-surface",
+          "color": "#0D111A",
+          "name": "Slate Surface"
+        },
+        {
+          "slug": "cyan-accent",
+          "color": "#22D3EE",
+          "name": "Neon Cyan Accent"
+        },
+        {
+          "slug": "gold-luxury",
+          "color": "#D4AF37",
+          "name": "Luxury Gold"
+        },
+        {
+          "slug": "emerald-status",
+          "color": "#10B981",
+          "name": "Emerald Status"
+        },
+        {
+          "slug": "light-canvas",
+          "color": "#F8FAFC",
+          "name": "Light Canvas"
+        }
+      ]
+    },
+    "layout": {
+      "contentSize": "1140px",
+      "wideSize": "1440px"
+    },
+    "typography": {
+      "customFontSize": true,
+      "fontStyle": true,
+      "fontWeight": true,
+      "lineHeight": true,
+      "textDecoration": true
+    }
+  },
+  "styles": {
+    "color": {
+      "background": "var(--wp--preset--color--obsidian-bg)",
+      "text": "#E2E8F0"
+    },
+    "typography": {
+      "fontFamily": "Vazirmatn, system-ui, -apple-system, sans-serif",
+      "lineHeight": "1.6"
+    }
+  }
+}

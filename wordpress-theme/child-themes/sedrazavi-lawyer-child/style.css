@@ -1,0 +1,16 @@
+/*
+Theme Name: SedRazavi Lawyer Child Theme
+Theme URI: https://github.com/sedrazavi/sedrazavi-theme
+Description: Child theme for SedRazavi Universal Suite, tailored specifically for legal practices, attorney offices, and arbitration courts.
+Author: Dr. Seyedeh Maryam Razavi
+Author URI: https://sedrazavi.ir
+Template: wordpress-theme
+Version: 1.0.0
+Text Domain: sedrazavi-lawyer-child
+*/
+
+/* Custom styles for Lawyer Child Theme */
+:root {
+  --primary-gold: #D4AF37;
+  --primary-navy: #0B132B;
+}

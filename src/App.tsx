@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Header, ThemeViewMode } from './components/Header';
 import { ToastProvider } from './context/ToastContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { CloudThemeCatalogModal } from './components/catalog/CloudThemeCatalogModal';
+import { FrontendLiveCustomizerBar } from './components/customizer/FrontendLiveCustomizerBar';
 import { StoryBar } from './components/StoryBar';
 import { HeroSection } from './components/HeroSection';
 import { TrustBadges } from './components/TrustBadges';
@@ -87,6 +90,7 @@ import { VideoArchivePageView } from './components/media/VideoArchivePageView';
 import { PodcastPageView } from './components/media/PodcastPageView';
 import { PortfolioPageView } from './components/wp-designer/PortfolioPageView';
 import { SingleVideoView } from './components/media/SingleVideoView';
+import { ScenarioSwitcherHub } from './components/scenarios/ScenarioSwitcherHub';
 import { GitHubSuiteDashboard } from './components/admin/GitHubSuiteDashboard';
 import { ThemePaletteModal } from './components/ThemePaletteModal';
 import { SetupWizardModal } from './components/admin/SetupWizardModal';
@@ -129,6 +133,7 @@ export default function App() {
 
   // Priority Archetype & No-Code / GitHub Sync State
   const [activeArchetype, setActiveArchetype] = useState<'wp-designer' | 'lawyer' | 'ecommerce' | 'video-media'>('wp-designer');
+  const [isCloudCatalogOpen, setIsCloudCatalogOpen] = useState(false);
   const [isPaletteModalOpen, setIsPaletteModalOpen] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isGitHubSyncOpen, setIsGitHubSyncOpen] = useState(false);
@@ -249,8 +254,9 @@ export default function App() {
   };
 
   return (
-    <ToastProvider>
-      <div className="min-h-screen bg-[#F4F6F9] dark:bg-[#070D1E] text-[#0B132B] dark:text-gray-100 transition-colors duration-300 font-persian relative">
+    <NotificationProvider>
+      <ToastProvider>
+        <div className="min-h-screen bg-[#F4F6F9] dark:bg-[#070D1E] text-[#0B132B] dark:text-gray-100 transition-colors duration-300 font-persian relative">
       {/* Dynamic SEO Title, Meta Description and Multi-Lawyer Schema.org Engine */}
       <DynamicSeoHead profile={lawyerProfile} />
 
@@ -295,6 +301,7 @@ export default function App() {
         onToggleQuickEdit={() => setIsLiveEditActive(!isLiveEditActive)}
         onOpenPaletteModal={() => setIsPaletteModalOpen(true)}
         onOpenWizard={() => setIsWizardOpen(true)}
+        onOpenCloudCatalog={() => setIsCloudCatalogOpen(true)}
         activeArchetype={activeArchetype}
         onSelectArchetype={(arch) => {
           setActiveArchetype(arch);
@@ -1584,6 +1591,14 @@ export default function App() {
             onRequestBrief={() => handleBookService('مشاوره و بریف اختصاصی پروژه وب')}
           />
         )}
+
+        {activeView === 'scenarios-hub' && (
+          <ScenarioSwitcherHub
+            onBackToHome={() => {
+              setActiveView('preview');
+            }}
+          />
+        )}
           </React.Suspense>
         )}
       </main>
@@ -1754,9 +1769,39 @@ export default function App() {
         }}
       />
 
+      {/* Cloud Presets & Child-Themes Catalog Store Modal */}
+      <CloudThemeCatalogModal
+        isOpen={isCloudCatalogOpen}
+        onClose={() => setIsCloudCatalogOpen(false)}
+        onApplyPreset={(presetId) => {
+          if (presetId === 'law-core') {
+            setActiveArchetype('lawyer');
+            setActiveView('preview');
+          } else if (presetId === 'ecommerce-shop') {
+            setActiveArchetype('ecommerce');
+            setActiveView('ecommerce-store');
+          } else if (presetId === 'media-podcast-hub') {
+            setActiveArchetype('video-media');
+            setActiveView('video-archive');
+          } else if (presetId === 'creative-agency') {
+            setActiveArchetype('wp-designer');
+            setActiveView('wp-designer');
+          } else {
+            setActiveView('scenarios-hub');
+          }
+        }}
+      />
+
+      {/* Floating In-Page Live Customizer Bar */}
+      <FrontendLiveCustomizerBar
+        onSwitchScenario={(id) => setActiveView('scenarios-hub')}
+        onOpenCatalog={() => setIsCloudCatalogOpen(true)}
+      />
+
       {/* GDPR / Cookie Consent Banner (Section 13) */}
       <CookieConsentBanner />
     </div>
     </ToastProvider>
+    </NotificationProvider>
   );
 }

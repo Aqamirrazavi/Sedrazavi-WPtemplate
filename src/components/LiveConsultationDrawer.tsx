@@ -19,8 +19,8 @@ import {
   Building,
   Lock,
   ArrowRight
-} from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
+import { useAdminNotifications } from '../context/NotificationContext';
 
 interface LiveConsultationDrawerProps {
   isOpen: boolean;
@@ -95,6 +95,7 @@ export const LiveConsultationDrawer: React.FC<LiveConsultationDrawerProps> = ({
   onOpenCaseTracker,
 }) => {
   const [activeTab, setActiveTab] = useState<'triage' | 'channels' | 'chat'>('triage');
+  const { notifyNewSubmission } = useAdminNotifications();
 
   // Triage state
   const [triageStep, setTriageStep] = useState<number>(1);
@@ -159,6 +160,15 @@ export const LiveConsultationDrawer: React.FC<LiveConsultationDrawerProps> = ({
   const handleTriageSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setTriageSubmitted(true);
+
+    notifyNewSubmission({
+      clientName: 'متقاضی تریاژ حقوقی',
+      phone: clientMobile || 'ثبت نشده',
+      subject: `درخواست تریاژ پرونده (${selectedTopic.label}) - فوریت: ${urgencyLevel}`,
+      service: selectedTopic.category,
+      source: 'consultation_form',
+      priority: urgencyLevel === 'CRITICAL' ? 'high' : 'medium'
+    });
   };
 
   return (

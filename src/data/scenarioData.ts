@@ -1,0 +1,128 @@
+import { LayoutScenarioInfo, TrackItem, DenseDataRow, MetricCardData } from '../types/scenarios';
+
+export const SCENARIO_PRESETS: Record<string, LayoutScenarioInfo> = {
+  'bento-hud': {
+    id: 'bento-hud',
+    title: 'بنتوگرید HUD و مرکز چندرسانه‌ای',
+    subtitle: 'الهام‌گرفته از اسکرین‌شات ۱ (اتوموتیو دارک) و اسکرین‌شات ۳',
+    description: 'چیدمان ماژولار تایل‌های هوشمند با پلیر اسکراب صوتی، گیج دایره‌ای متریک، نقشه تعاملی و لانچر سریع ۴ دکمه‌ای.',
+    themeAesthetic: 'Dark Obsidian & Neon Cyan',
+    badge: 'سناریوی اول: Bento HUD',
+    iconName: 'LayoutGrid',
+  },
+  'dense-matrix': {
+    id: 'dense-matrix',
+    title: 'ماتریس داده‌های متراکم ۳ ستونه',
+    subtitle: 'الهام‌گرفته از اسکرین‌شات‌های ۲ (Neon Cheese)، ۴ (Betnomi) و ۶ (SportsBook)',
+    description: 'معماری سه ستونه شرکتی با سایدبار درختی دسته‌ها و شمارنده‌ها، جدول داده‌های متراکم با ارقام تبولار و کشوی ثبت اقدام سریع.',
+    themeAesthetic: 'Dark Slate & Cobalt Blue',
+    badge: 'سناریوی دوم: 3-Column Matrix',
+    iconName: 'Table',
+  },
+  'hybrid-executive': {
+    id: 'hybrid-executive',
+    title: 'هایبرید تشریفاتی مدرن',
+    subtitle: 'الهام‌گرفته از اسکرین‌شات ۳ (Mandate)',
+    description: 'بستر فوق‌العاده تمیز روشن با کارت کانونی مشکی عمیق، رادار توزیع ریسک/پرونده‌ها و صف تایید اقدامات بدون واسطه.',
+    themeAesthetic: 'Light Canvas & Obsidian Focal',
+    badge: 'سناریوی سوم: Hybrid Executive',
+    iconName: 'ShieldCheck',
+  },
+};
+
+export const MOCK_TRACKS: TrackItem[] = [
+  {
+    id: 'tr-01',
+    title: 'تحلیل ابعاد حقوقی قراردادهای هوشمند و بلاک‌چین',
+    artistOrHost: 'دکتر سیده مریم رضوی · پادکست دادبان',
+    duration: '28:45',
+    category: 'حقوق فناوری',
+    plays: '4,820',
+  },
+  {
+    id: 'tr-02',
+    title: 'استراتژی‌های دفاع در دعاوی داوری بین‌المللی اتاق پاریس',
+    artistOrHost: 'دکتر علیرضا فرهمند · پرونده‌های ویژه',
+    duration: '42:10',
+    category: 'داوری تجاری',
+    plays: '7,150',
+  },
+  {
+    id: 'tr-03',
+    title: 'مسئولیت مدنی مدیران شرکت‌های سهامی عام و بورس',
+    artistOrHost: 'کارگاه تحلیلی دیوان عالی کشور',
+    duration: '35:20',
+    category: 'حقوق شرکت‌ها',
+    plays: '3,290',
+  },
+];
+
+export const MOCK_DENSE_ROWS: DenseDataRow[] = [
+  {
+    id: 'd-101',
+    code: 'SR-1403/982',
+    title: 'داوری ارزی بازرگانی بین‌المللی تجهیزات نیروگاهی',
+    clientOrEntity: 'شرکت پترو فرآیند کیش',
+    category: 'داوری تجاری',
+    status: 'active',
+    priority: 'high',
+    date: '۱۴۰۳/۰۷/۲۴',
+    assignedTo: 'دکتر رضوی',
+    progress: 85,
+  },
+  {
+    id: 'd-102',
+    code: 'SR-1403/984',
+    title: 'ابطال رای هیات تشخیص مطالبات مالیاتی مودیان بزرگ',
+    clientOrEntity: 'صنایع فولاد کاسپین',
+    category: 'دعاوی مالیاتی',
+    status: 'in-review',
+    priority: 'high',
+    date: '۱۴۰۳/۰۷/۲۲',
+    assignedTo: 'دکتر دادخواه',
+    progress: 60,
+  },
+  {
+    id: 'd-103',
+    code: 'SR-1403/990',
+    title: 'دفاعیه پرونده نقض علائم تجاری و مالکیت صنعتی',
+    clientOrEntity: 'هلدینگ دارویی سلامت',
+    category: 'مالکیت فکری',
+    status: 'pending',
+    priority: 'medium',
+    date: '۱۴۰۳/۰۷/۲۰',
+    assignedTo: 'مهندس رستمی',
+    progress: 35,
+  },
+  {
+    id: 'd-104',
+    code: 'SR-1403/1004',
+    title: 'تجدیدنظرخواهی رای کمیسیون ماده ۱۰۰ شهرداری',
+    clientOrEntity: 'برج‌سازان پارس',
+    category: 'حقوق املاک',
+    status: 'resolved',
+    priority: 'low',
+    date: '۱۴۰۳/۰۷/۱۵',
+    assignedTo: 'دکتر رضوی',
+    progress: 100,
+  },
+  {
+    id: 'd-105',
+    code: 'SR-1403/1012',
+    title: 'تنظیم لایحه دفاعیه کیفری جرایم اقتصادی بانکی',
+    clientOrEntity: 'گروه سرمایه‌گذاری سپهر',
+    category: 'جرایم اقتصادی',
+    status: 'active',
+    priority: 'high',
+    date: '۱۴۰۳/۰۷/۱۰',
+    assignedTo: 'دکتر کمالی',
+    progress: 75,
+  },
+];
+
+export const MOCK_RADAR_METRICS: MetricCardData[] = [
+  { id: 'm1', title: 'پرونده‌های فعال سطح ۱ (Critical)', value: '41', change: '+3 این ماه', trend: 'up', meta: 'نیازمند مداخله مستقیم' },
+  { id: 'm2', title: 'شاخص موفقیت دادرسی‌ها', value: '94.6%', change: '+1.8% فصل جاری', trend: 'up', meta: 'مستند به احکام قطعی' },
+  { id: 'm3', title: 'میانگین زمان صدور رای', value: '3 ماه و 20 روز', change: '-28 روز تسریع', trend: 'up', meta: 'بهبود بهره‌وری فرآیند' },
+  { id: 'm4', title: 'پایش مستندات معتبر', value: '318 از 412', change: '84 پرونده تکمیل‌شده', trend: 'neutral', meta: 'پوشش کامل لوایح' },
+];

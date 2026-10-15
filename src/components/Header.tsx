@@ -58,7 +58,9 @@ import {
   Film,
   Wand2,
   Headphones,
+  LayoutGrid,
 } from 'lucide-react';
+import { AdminRealtimeNotificationBell } from './notifications/AdminRealtimeNotificationBell';
 import { ATTORNEY_INFO } from '../data/mockData';
 import { useDesignTokens } from '../context/DesignTokensContext';
 import { LawyerSiteProfile } from '../utils/lawyerCustomizationStorage';
@@ -120,6 +122,7 @@ export type ThemeViewMode =
   | 'podcast-hub'
   | 'portfolio-hub'
   | 'single-video'
+  | 'scenarios-hub'
   | 'github-suite';
 
 interface HeaderProps {
@@ -142,6 +145,7 @@ interface HeaderProps {
   onToggleQuickEdit?: () => void;
   onOpenPaletteModal?: () => void;
   onOpenWizard?: () => void;
+  onOpenCloudCatalog?: () => void;
   activeArchetype?: 'lawyer' | 'wp-designer' | 'ecommerce' | 'video-media';
   onSelectArchetype?: (archetype: 'lawyer' | 'wp-designer' | 'ecommerce' | 'video-media') => void;
   isLoggedIn?: boolean;
@@ -171,6 +175,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleQuickEdit,
   onOpenPaletteModal,
   onOpenWizard,
+  onOpenCloudCatalog,
   activeArchetype = 'wp-designer',
   onSelectArchetype,
   isLoggedIn,
@@ -288,6 +293,20 @@ export const Header: React.FC<HeaderProps> = ({
 
             {!isExecutiveBarCollapsed ? (
               <div className="flex items-center gap-2 flex-wrap text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setActiveView('scenarios-hub')}
+                  className={`px-2.5 py-1 rounded-lg font-black transition-all flex items-center gap-1 cursor-pointer border ${
+                    activeView === 'scenarios-hub'
+                      ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-md shadow-cyan-500/30'
+                      : 'bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/40'
+                  }`}
+                  title="سناریوهای چندگانه اینترفیس بر اساس ۶ تصویر مرجع (Bento HUD / Dense Matrix / Hybrid)"
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  <span>سناریوهای چیدمان (HUD/Matrix/Hybrid)</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => setActiveView('github-suite')}
@@ -687,6 +706,16 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       <span className="font-bold">پیشخوان گیت‌هاب پرایمر (page-github-suite.php)</span>
                       <GitBranch className="w-3.5 h-3.5 text-[#3FB950]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveView('scenarios-hub');
+                        setPagesDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs hover:bg-cyan-500/10 hover:text-cyan-400 transition-colors"
+                    >
+                      <span className="font-bold">سناریوهای چیدمان (page-scenarios.php)</span>
+                      <LayoutGrid className="w-3.5 h-3.5 text-cyan-400" />
                     </button>
                     <button
                       onClick={() => {
@@ -1477,6 +1506,41 @@ export const Header: React.FC<HeaderProps> = ({
                   <span>تماس فوری</span>
                 </button>
               )}
+
+              {/* Real-time Admin Notification Bell with Sound & Lead Alert Drawer */}
+              <AdminRealtimeNotificationBell
+                onOpenActionDrawer={() => setActiveView('scenarios-hub')}
+              />
+
+              {/* Cloud Presets & Child-Themes Catalog Store Button */}
+              {onOpenCloudCatalog && (
+                <button
+                  type="button"
+                  onClick={onOpenCloudCatalog}
+                  className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 text-xs font-bold transition-all cursor-pointer shrink-0"
+                  title="کاتالوگ ابری چایلدتم‌ها و پکیج‌های اصناف"
+                >
+                  <Package className="w-4 h-4 text-cyan-400" />
+                  <span className="hidden xl:inline">کاتالوگ اصناف</span>
+                  <span className="text-[9px] bg-cyan-500/20 px-1.5 py-0.5 rounded font-mono">Store</span>
+                </button>
+              )}
+
+              {/* Multi-Scenario Framework Button */}
+              <button
+                type="button"
+                onClick={() => setActiveView('scenarios-hub')}
+                className={`hidden md:inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-xl border text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                  activeView === 'scenarios-hub'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 border-cyan-400 shadow-md shadow-cyan-500/20'
+                    : 'bg-slate-900/10 dark:bg-slate-900/80 hover:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700/80'
+                }`}
+                title="سامانه چندسناریویی چیدمان (بنتو HUD، ماتریس ۳ ستون و Mandate)"
+              >
+                <LayoutGrid className="w-4 h-4 text-cyan-500 dark:text-cyan-400" />
+                <span className="hidden xl:inline">سناریوهای چیدمان</span>
+                <span className="text-[9px] bg-cyan-400/20 text-cyan-700 dark:text-cyan-300 px-1 rounded font-mono">3 Mod</span>
+              </button>
 
               {/* Login / Portal Button with Role Awareness */}
               {isLoggedIn ? (
