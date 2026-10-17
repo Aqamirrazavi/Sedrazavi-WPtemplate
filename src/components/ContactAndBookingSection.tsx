@@ -80,7 +80,7 @@ export const ContactAndBookingSection: React.FC<ContactAndBookingSectionProps> =
       notifyNewSubmission({
         clientName,
         phone: clientPhone,
-        subject: `رزرو نوبت مشاوره (${preferredDate} ساعت ${preferredTime})`,
+        subject: `رزرو نوبت مشاوره (${selectedDate} ساعت ${selectedTime})`,
         service: serviceType,
         source: 'consultation_form',
         priority: 'high'

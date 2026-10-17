@@ -21,6 +21,12 @@ export interface CaseItem {
   clientPhone: string;
   caseType: 'کیفری' | 'خانواده' | 'تجاری' | 'ملکی' | 'ارث' | 'کار و بیمه';
   registrationDate: string;
+  lastActivityDate?: string;
+  lastActivitySummary?: string;
+  priority?: 'urgent' | 'high' | 'normal';
+  assignedAssociate?: string;
+  branchName?: string;
+  financialValue?: string;
   status: 'در حال بررسی' | 'در جریان' | 'بسته شده' | 'به رأی نهایی رسیده';
   nextCourtSession: string;
   documentsCount: number;

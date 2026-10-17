@@ -19,6 +19,7 @@ import {
   Building,
   Lock,
   ArrowRight
+} from 'lucide-react';
 import { ATTORNEY_INFO } from '../data/mockData';
 import { useAdminNotifications } from '../context/NotificationContext';
 

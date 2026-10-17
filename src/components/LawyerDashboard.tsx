@@ -23,6 +23,8 @@ import { HtmlCssExportModal } from './HtmlCssExportModal';
 import { ReactShortcodeGeneratorModal } from './ReactShortcodeGeneratorModal';
 import { AdminReactShortcodesTab } from './admin/AdminReactShortcodesTab';
 import { KeyPracticeAreasRadarChart } from './KeyPracticeAreasRadarChart';
+import { AdvancedCaseFilterSuite } from './cases/AdvancedCaseFilterSuite';
+import { WordPressPackagingAndStudioTab } from './admin/WordPressPackagingAndStudioTab';
 import { LawyerPrintBioCard } from './LawyerPrintBioCard';
 import { LawyerAdminPlaybookModal } from './admin/LawyerAdminPlaybookModal';
 import { LawyerRealtimeToastNotifier } from './notifications/LawyerRealtimeToastNotifier';
@@ -80,6 +82,7 @@ import {
   PanelLeftOpen,
   Wrench,
   ExternalLink,
+  Package,
   LogOut,
 } from 'lucide-react';
 
@@ -101,7 +104,8 @@ export type AdminSubTabKey =
   | 'logs'
   | 'comments'
   | 'customizer'
-  | 'react-php-generator';
+  | 'react-php-generator'
+  | 'wp-packaging-studio';
 
 interface LawyerDashboardProps {
   initialPortalMode?: 'attorney' | 'client';
@@ -143,7 +147,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
     else if (['clients', 'bookings', 'emails', 'comments'].includes(tab)) setActiveCategory('comms');
     else if (['invoices', 'calculators'].includes(tab)) setActiveCategory('finance');
     else if (['content', 'banner', 'contact-cards', 'instagram'].includes(tab)) setActiveCategory('branding');
-    else if (['appearance', 'customizer', 'system-status', 'backup', 'logs', 'react-php-generator'].includes(tab)) setActiveCategory('system');
+    else if (['appearance', 'customizer', 'system-status', 'backup', 'logs', 'react-php-generator', 'wp-packaging-studio'].includes(tab)) setActiveCategory('system');
   };
 
   const handleSelectCategory = (cat: 'docket' | 'comms' | 'finance' | 'branding' | 'system') => {
@@ -180,7 +184,6 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
 
   const [cases, setCases] = useState<CaseItem[]>(CASES_INITIAL_DATA);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('همه');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showManualAccountModal, setShowManualAccountModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -217,7 +220,10 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
       clientName: newClientName,
       clientPhone: newClientPhone,
       caseType: newCaseType,
-      registrationDate: '۱۴۰۳/۰۶/۰۱',
+      registrationDate: '۱۴۰۳/۰۶/۱۷',
+      lastActivityDate: '۱۴۰۳/۰۶/۱۷',
+      lastActivitySummary: 'ثبت پرونده و مدارک اولیه در داکت اختصاصی',
+      priority: 'normal',
       status: 'در حال بررسی',
       nextCourtSession: newNextSession || 'در انتظار تعیین وقت شعبه',
       documentsCount: 4,
@@ -236,19 +242,6 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
       setCases(cases.filter((c) => c.id !== id));
     }
   };
-
-  const filteredCases = cases.filter((c) => {
-    const matchesSearch =
-      c.clientName.includes(searchTerm) ||
-      c.caseNumber.includes(searchTerm) ||
-      c.clientPhone.includes(searchTerm) ||
-      c.caseType.includes(searchTerm);
-
-    const matchesStatus =
-      selectedStatusFilter === 'همه' || c.status === selectedStatusFilter;
-
-    return matchesSearch && matchesStatus;
-  });
 
   // Calculate status counts for donut chart
   const statusCounts = {
@@ -629,6 +622,19 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
                       <FileCode className="w-4 h-4 shrink-0 text-[#D4AF37]" />
                       {!sidebarCollapsed && <span>شورت‌کدهای React</span>}
                     </button>
+
+                    <button
+                      onClick={() => setActiveSubTab('wp-packaging-studio')}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-right ${
+                        activeSubTab === 'wp-packaging-studio'
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                      title="پکیجینگ زیپ و استودیوی اصناف"
+                    >
+                      <Package className="w-4 h-4 shrink-0 text-cyan-500" />
+                      {!sidebarCollapsed && <span>پکیجینگ زیپ و اصناف</span>}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -693,6 +699,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
                     {activeSubTab === 'backup' && 'پشتیبان‌گیری و دیتابیس'}
                     {activeSubTab === 'logs' && 'لاگ‌ها و رویدادهای سیستم'}
                     {activeSubTab === 'react-php-generator' && 'مولد PHP شورت‌کدهای React'}
+                    {activeSubTab === 'wp-packaging-studio' && 'پکیجینگ زیپ وردپرس، افزونه هسته و چایلد‌تم‌ها'}
                   </h1>
                 </div>
 
@@ -1072,6 +1079,8 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
           />
         ) : activeSubTab === 'react-php-generator' ? (
           <AdminReactShortcodesTab onOpenModal={() => setShowReactPhpGeneratorModal(true)} />
+        ) : activeSubTab === 'wp-packaging-studio' ? (
+          <WordPressPackagingAndStudioTab />
         ) : (
           <div className="space-y-8">
             {/* Onboarding & Customization Wizard Banner for Purchasing Attorneys */}
@@ -1110,123 +1119,15 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
             {/* Key Practice Areas Radar Chart */}
             <KeyPracticeAreasRadarChart />
 
-        {/* Case Management Table */}
-        <div className="bg-white dark:bg-[#0B132B] rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
-          
-          {/* Table Header Controls */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-lg font-bold font-serif text-[#0B132B] dark:text-white">
-                لیست پرونده‌های حقوقی و کیفری
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                مشاهده، ویرایش وضعیت دادرسی و جستجوی لحظه‌ای بر اساس نام موکل یا شماره پرونده.
-              </p>
-            </div>
-
-            {/* Search & Filter Bar */}
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="جستجو در پرونده‌ها..."
-                  className="pl-4 pr-9 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-xs focus:outline-none focus:border-[#D4AF37] dark:text-white w-48 sm:w-64"
-                />
-                <Search className="w-4 h-4 text-gray-400 absolute right-3 top-2.5" />
-              </div>
-
-              <select
-                value={selectedStatusFilter}
-                onChange={(e) => setSelectedStatusFilter(e.target.value)}
-                className="px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-xs focus:outline-none focus:border-[#D4AF37] dark:text-white font-medium"
-              >
-                <option value="همه">همه وضعیت‌ها</option>
-                <option value="در حال بررسی">در حال بررسی</option>
-                <option value="در جریان">در جریان</option>
-                <option value="به رأی نهایی رسیده">به رأی نهایی رسیده</option>
-                <option value="بسته شده">بسته شده</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-right text-xs sm:text-sm">
-              <thead className="bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 border-y border-gray-200 dark:border-gray-800">
-                <tr>
-                  <th className="py-3.5 px-4 font-bold">شماره پرونده</th>
-                  <th className="py-3.5 px-4 font-bold">نام موکل</th>
-                  <th className="py-3.5 px-4 font-bold">موضوع دعوا</th>
-                  <th className="py-3.5 px-4 font-bold">وضعیت فعلی</th>
-                  <th className="py-3.5 px-4 font-bold">جلسه بعدی دادگاه</th>
-                  <th className="py-3.5 px-4 font-bold">اسناد</th>
-                  <th className="py-3.5 px-4 font-bold text-center">عملیات</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {filteredCases.map((c) => (
-                  <tr key={c.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
-                    <td className="py-4 px-4 font-mono font-bold text-[#D4AF37]">
-                      {c.caseNumber}
-                    </td>
-                    <td className="py-4 px-4 font-bold text-gray-900 dark:text-white">
-                      <div>{c.clientName}</div>
-                      <div className="text-[11px] text-gray-400 font-mono font-normal">{c.clientPhone}</div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold">
-                        {c.caseType}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span
-                        className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold ${
-                          c.status === 'به رأی نهایی رسیده' || c.status === 'بسته شده'
-                            ? 'bg-emerald-500/15 text-emerald-600'
-                            : c.status === 'در جریان'
-                            ? 'bg-blue-500/15 text-blue-600'
-                            : 'bg-amber-500/15 text-amber-600'
-                        }`}
-                      >
-                        {c.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-xs text-gray-600 dark:text-gray-300">
-                      {c.nextCourtSession}
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="flex items-center gap-1 text-gray-500 text-xs">
-                        <FileText className="w-3.5 h-3.5 text-[#D4AF37]" />
-                        {c.documentsCount} سند
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => alert(`یادداشت پرونده ${c.caseNumber}:\n\n${c.notes}`)}
-                          className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-[#D4AF37] hover:border-[#D4AF37]"
-                          title="مشاهده یادداشت‌ها"
-                        >
-                          <FileText className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteCase(c.id)}
-                          className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-red-500 hover:border-red-500"
-                          title="حذف پرونده"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-        </div>
+            {/* Advanced Case Filtering, Search & Categorization Suite */}
+            <AdvancedCaseFilterSuite
+              cases={cases}
+              onCasesChange={(updated) => setCases(updated)}
+              onOpenAddCaseModal={() => setShowAddModal(true)}
+              onDeleteCase={handleDeleteCase}
+              externalSearchTerm={searchTerm}
+              onSearchTermChange={setSearchTerm}
+            />
 
           </div>
         )}

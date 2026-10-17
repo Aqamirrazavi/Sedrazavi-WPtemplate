@@ -102,6 +102,7 @@ import {
   LawyerSiteProfile,
   getStoredLawyerProfile,
 } from './utils/lawyerCustomizationStorage';
+import { setActivePreset } from './data/industryPresets';
 
 import {
   SERVICES_DATA,
@@ -1775,15 +1776,27 @@ export default function App() {
         onClose={() => setIsCloudCatalogOpen(false)}
         onApplyPreset={(presetId) => {
           if (presetId === 'law-core') {
+            setActivePreset('lawyer');
             setActiveArchetype('lawyer');
             setActiveView('preview');
           } else if (presetId === 'ecommerce-shop') {
+            setActivePreset('corporate');
             setActiveArchetype('ecommerce');
             setActiveView('ecommerce-store');
+          } else if (presetId === 'medical-health') {
+            setActivePreset('doctor');
+            setActiveArchetype('lawyer');
+            setActiveView('preview');
+          } else if (presetId === 'corporate-enterprise') {
+            setActivePreset('corporate');
+            setActiveArchetype('lawyer');
+            setActiveView('preview');
           } else if (presetId === 'media-podcast-hub') {
+            setActivePreset('video_media');
             setActiveArchetype('video-media');
             setActiveView('video-archive');
           } else if (presetId === 'creative-agency') {
+            setActivePreset('web_agency');
             setActiveArchetype('wp-designer');
             setActiveView('wp-designer');
           } else {

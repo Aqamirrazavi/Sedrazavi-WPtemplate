@@ -5,6 +5,7 @@ import {
   Video, Play, Pause, ExternalLink, Calculator
 } from 'lucide-react';
 import { ActionDrawerMode } from '../../types/scenarios';
+import { useAdminNotifications } from '../../context/NotificationContext';
 
 interface UniversalActionDrawerProps {
   isOpen: boolean;
@@ -19,12 +20,19 @@ export const UniversalActionDrawer: React.FC<UniversalActionDrawerProps> = ({
   mode,
   onModeChange,
 }) => {
+  const { notifyNewSubmission } = useAdminNotifications();
   const [activeTab, setActiveTab] = useState<'track' | 'booking' | 'calc'>('track');
   const [caseCode, setCaseCode] = useState('');
   const [phone, setPhone] = useState('');
   const [claimAmount, setClaimAmount] = useState('500000000');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [trackResult, setTrackResult] = useState<any>(null);
+
+  // Booking Tab State
+  const [bookingTopic, setBookingTopic] = useState('داوری بازرگانی بین‌المللی');
+  const [bookingName, setBookingName] = useState('');
+  const [bookingPhone, setBookingPhone] = useState('');
+  const [bookingSuccess, setBookingSuccess] = useState(false);
 
   if (!isOpen && mode !== 'in-page') return null;
 
@@ -42,7 +50,38 @@ export const UniversalActionDrawer: React.FC<UniversalActionDrawerProps> = ({
         progress: 85,
         court: 'شعبه ویژه داوری مرکز اتاق بازرگانی ایران',
       });
+
+      // Alert admin of online case inquiry
+      notifyNewSubmission({
+        clientName: phone || 'موکل پیگیری‌کننده',
+        phone: phone || 'استعلام با کد پرونده',
+        subject: `استعلام آنلاین پرونده (${caseCode || 'SR-1403/982'})`,
+        service: 'پیگیری آنلاین پرونده',
+        source: 'case_tracker',
+        priority: 'normal'
+      });
     }, 700);
+  };
+
+  const handleBookingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bookingName || !bookingPhone) return;
+
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setBookingSuccess(true);
+
+      // Alert admin instantly with audio chime
+      notifyNewSubmission({
+        clientName: bookingName,
+        phone: bookingPhone,
+        subject: `درخواست نوبت مشاوره از کشوی اکشن (${bookingTopic})`,
+        service: bookingTopic,
+        source: 'consultation_form',
+        priority: 'high'
+      });
+    }, 600);
   };
 
   const calculatedFee = Math.round(Number(claimAmount || 0) * 0.05);
@@ -199,31 +238,76 @@ export const UniversalActionDrawer: React.FC<UniversalActionDrawerProps> = ({
         )}
 
         {activeTab === 'booking' && (
-          <div className="space-y-4 text-xs">
-            <div className="space-y-1.5">
-              <label className="text-slate-300 font-semibold">موضوع مشاوره تخصصی</label>
-              <select className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
-                <option>داوری بازرگانی بین‌المللی</option>
-                <option>دعاوی مالیاتی و دیوان عدالت</option>
-                <option>جرایم اقتصادی و بانکی</option>
-                <option>قراردادهای تجاری و فناوری</option>
-              </select>
+          bookingSuccess ? (
+            <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-3 animate-in fade-in">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <h4 className="text-sm font-bold text-white">درخواست نوبت با موفقیت ثبت شد</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                درخواست شما برای موضوع «{bookingTopic}» به وکیل اطلاع داده شد. به زودی با شماره {bookingPhone} تماس برقرار خواهد شد.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setBookingSuccess(false);
+                  setBookingName('');
+                  setBookingPhone('');
+                }}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-bold transition-colors cursor-pointer"
+              >
+                ثبت درخواست دیگر
+              </button>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-slate-300 font-semibold">نام و نام‌خانوادگی</label>
-              <input type="text" placeholder="نام متقاضی" className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-slate-300 font-semibold">شماره تماس مستقیم</label>
-              <input type="tel" placeholder="0912xxxxxxx" dir="ltr" className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs" />
-            </div>
-            <button
-              type="button"
-              className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg transition-all"
-            >
-              ثبت اولیه وقت مشاوره حضوری/آنلاین
-            </button>
-          </div>
+          ) : (
+            <form onSubmit={handleBookingSubmit} className="space-y-4 text-xs">
+              <div className="space-y-1.5">
+                <label className="text-slate-300 font-semibold">موضوع مشاوره تخصصی</label>
+                <select
+                  value={bookingTopic}
+                  onChange={(e) => setBookingTopic(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-cyan-500"
+                >
+                  <option>داوری بازرگانی بین‌المللی</option>
+                  <option>دعاوی مالیاتی و دیوان عدالت</option>
+                  <option>جرایم اقتصادی و بانکی</option>
+                  <option>قراردادهای تجاری و فناوری</option>
+                  <option>دعاوی ملکی و سرقفلی</option>
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-slate-300 font-semibold">نام و نام‌خانوادگی *</label>
+                <input
+                  type="text"
+                  required
+                  value={bookingName}
+                  onChange={(e) => setBookingName(e.target.value)}
+                  placeholder="نام متقاضی"
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-slate-300 font-semibold">شماره تماس مستقیم *</label>
+                <input
+                  type="tel"
+                  required
+                  value={bookingPhone}
+                  onChange={(e) => setBookingPhone(e.target.value)}
+                  placeholder="0912xxxxxxx"
+                  dir="ltr"
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <Send className="w-4 h-4" />
+                <span>{isSubmitting ? 'در حال ثبت...' : 'ثبت اولیه وقت مشاوره حضوری/آنلاین'}</span>
+              </button>
+            </form>
+          )
         )}
 
         {activeTab === 'calc' && (
