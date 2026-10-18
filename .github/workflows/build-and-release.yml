@@ -1,4 +1,4 @@
-name: Build & Package SedRazavi WordPress Theme
+name: Build, Test & Package SedRazavi OS Suite
 
 on:
   push:
@@ -8,49 +8,78 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build React Bundle & Package WordPress Theme
+  build-and-package:
+    name: Build Bundle & Package Complete Ecosystem
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun Environment
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
-          cache: 'npm'
+          bun-version: latest
 
       - name: Install Dependencies
-        run: npm ci || npm install
+        run: bun install
 
-      - name: Lint & Typecheck
-        run: npm run lint
+      - name: TypeScript Check
+        run: bun run lint
 
-      - name: Build React Assets
-        run: npm run build
+      - name: Build React & Web Assets
+        run: bun run build
 
-      - name: Validate WordPress Theme Structure
+      - name: Validate Theme & Plugin Integrity
         run: |
-          test -f wordpress-theme/style.css || exit 1
-          test -f wordpress-theme/functions.php || exit 1
-          test -f wordpress-theme/header.php || exit 1
-          test -f wordpress-theme/footer.php || exit 1
-          test -f wordpress-theme/index.php || exit 1
-          test -f wordpress-theme/inc/react-shortcodes.php || exit 1
-          test -f wordpress-theme/assets/dist/index.js || exit 1
-          test -f wordpress-theme/assets/dist/index.css || exit 1
-          echo "Theme file structure is 100% valid."
+          test -f wordpress-theme/style.css || { echo "Missing theme style.css"; exit 1; }
+          test -f wordpress-theme/functions.php || { echo "Missing theme functions.php"; exit 1; }
+          test -f wordpress-theme/header.php || { echo "Missing theme header.php"; exit 1; }
+          test -f wordpress-theme/footer.php || { echo "Missing theme footer.php"; exit 1; }
+          test -f wordpress-theme/app-dist/index.js || { echo "Missing app-dist/index.js"; exit 1; }
+          test -f wordpress-theme/app-dist/index.css || { echo "Missing app-dist/index.css"; exit 1; }
+          test -f sedrazavi-companion/sedrazavi-companion.php || { echo "Missing companion plugin"; exit 1; }
+          test -f sedrazavi-companion/includes/class-license-manager.php || { echo "Missing license manager"; exit 1; }
+          echo "All theme and companion plugin core files are present and valid."
 
-      - name: Create Theme ZIP Archive
+      - name: Create Production ZIP Packages
         run: |
-          cd wordpress-theme && zip -r ../sedrazavi-theme.zip ./* -x ".*"
-          echo "Created sedrazavi-theme.zip successfully"
+          mkdir -p release-artifacts
+          
+          # 1. Package Parent Theme
+          cd wordpress-theme
+          zip -r ../release-artifacts/sedrazavi-theme.zip ./* -x ".*" -x "child-themes/*"
+          cd ..
+          
+          # 2. Package Companion Plugin
+          cd sedrazavi-companion
+          zip -r ../release-artifacts/sedrazavi-companion.zip ./* -x ".*"
+          cd ..
+          
+          # 3. Package Child Themes
+          cd wordpress-theme/child-themes
+          zip -r ../../release-artifacts/sedrazavi-child-themes.zip ./* -x ".*"
+          cd ../..
+          
+          # 4. Package Complete All-in-One Suite
+          mkdir -p /tmp/suite-build
+          cp release-artifacts/sedrazavi-theme.zip /tmp/suite-build/1-sedrazavi-parent-theme.zip
+          cp release-artifacts/sedrazavi-companion.zip /tmp/suite-build/2-sedrazavi-companion-plugin.zip
+          cp release-artifacts/sedrazavi-child-themes.zip /tmp/suite-build/3-all-child-themes.zip
+          cat << 'EOF' > /tmp/suite-build/INSTALL_GUIDE_FA.txt
+          راهنمای نصب پکیج جامع وردپرس SedRazavi OS 5.0:
+          ۱. ابتدا فایل 1-sedrazavi-parent-theme.zip را از بخش نمایش > پوسته‌ها آپلود و نصب کنید.
+          ۲. افزونه 2-sedrazavi-companion-plugin.zip را از بخش افزونه‌ها > افزودن نصب و فعال فرمایید.
+          ۳. از پوشه 3-all-child-themes.zip، چایلدتم متناسب با صنف مدنظر (agency-designer, corporate-pro, store-modern, legal-firm) را فعال کنید.
+          EOF
+          cd /tmp/suite-build && zip -r ../../release-artifacts/sedrazavi-complete-suite.zip ./*
+          cd -
+          
+          echo "All 4 ZIP artifacts built successfully."
 
-      - name: Upload Theme Artifact
+      - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: sedrazavi-wordpress-theme
-          path: sedrazavi-theme.zip
-          retention-days: 14
+          name: sedrazavi-production-suite
+          path: release-artifacts/*
+          retention-days: 30

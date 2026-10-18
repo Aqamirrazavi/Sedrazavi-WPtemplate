@@ -123,7 +123,8 @@ export type ThemeViewMode =
   | 'portfolio-hub'
   | 'single-video'
   | 'scenarios-hub'
-  | 'github-suite';
+  | 'github-suite'
+  | 'multi-niche-hub';
 
 interface HeaderProps {
   activeView: ThemeViewMode;
@@ -318,6 +319,19 @@ export const Header: React.FC<HeaderProps> = ({
                   title="پیشخوان گیت‌هاب پرایمر با ماتریس فعالیت و ایشوها"
                 >
                   <span>🐙 پیشخوان گیت‌هاب</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveView('multi-niche-hub')}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all flex items-center gap-1 cursor-pointer border ${
+                    activeView === 'multi-niche-hub'
+                      ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-500/30'
+                      : 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border-blue-500/40'
+                  }`}
+                  title="اکوسیستم اصناف: اسپات‌پلیر LMS، اشتراک ویژه VIP، باکس دانلود و تحریریه"
+                >
+                  <span>🎓 اصناف چندمنظوره (LMS/VIP/Soft98)</span>
                 </button>
 
                 {onOpenPaletteModal && (

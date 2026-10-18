@@ -96,6 +96,7 @@ import { ThemePaletteModal } from './components/ThemePaletteModal';
 import { SetupWizardModal } from './components/admin/SetupWizardModal';
 import { GitHubSyncEngineModal } from './components/admin/GitHubSyncEngineModal';
 import { MasterAgencyArchitectureModal } from './components/admin/MasterAgencyArchitectureModal';
+import { MultiNicheShowcaseSuite } from './components/multiniche/MultiNicheShowcaseSuite';
 import { NoCodeClientPortalModal } from './components/client-suite/NoCodeClientPortalModal';
 import { FrontendQuickEditBar } from './components/client-suite/FrontendQuickEditBar';
 import { Scale, User, Briefcase, Lock, X } from 'lucide-react';
@@ -1603,6 +1604,13 @@ export default function App() {
             }}
           />
         )}
+
+        {activeView === 'multi-niche-hub' && (
+          <MultiNicheShowcaseSuite
+            onBackToHome={() => setActiveView('preview')}
+            onOpenDashboard={() => setActiveView('dashboard')}
+          />
+        )}
           </React.Suspense>
         )}
       </main>
@@ -1839,6 +1847,10 @@ export default function App() {
         onOpenPaymentAdapter={() => {
           setIsMasterArchitectureOpen(false);
           setActiveView('payment-adapter');
+        }}
+        onOpenMultiNicheHub={() => {
+          setIsMasterArchitectureOpen(false);
+          setActiveView('multi-niche-hub');
         }}
       />
 

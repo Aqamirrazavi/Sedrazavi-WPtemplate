@@ -16,8 +16,8 @@ if (!defined('ABSPATH')) {
 class SedRazavi_GitHub_Shield {
 
     private static $instance = null;
-    const REPO = 'sedrazavi/sedrazavi-theme';
-    const GITHUB_API_URL = 'https://api.github.com/repos/sedrazavi/sedrazavi-theme/releases/latest';
+    const REPO = 'Aqamirrazavi/Sedrazavi-WPtemplate';
+    const GITHUB_API_URL = 'https://api.github.com/repos/Aqamirrazavi/Sedrazavi-WPtemplate/releases/latest';
 
     public static function get_instance() {
         if (null === self::$instance) {

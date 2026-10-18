@@ -32,6 +32,7 @@ interface MasterAgencyArchitectureModalProps {
   activeChildTheme?: string;
   onSelectChildTheme?: (themeSlug: string) => void;
   onOpenPaymentAdapter?: () => void;
+  onOpenMultiNicheHub?: () => void;
 }
 
 export const MasterAgencyArchitectureModal: React.FC<MasterAgencyArchitectureModalProps> = ({
@@ -40,8 +41,9 @@ export const MasterAgencyArchitectureModal: React.FC<MasterAgencyArchitectureMod
   activeChildTheme = 'agency-designer',
   onSelectChildTheme,
   onOpenPaymentAdapter,
+  onOpenMultiNicheHub,
 }) => {
-  const [activeTab, setActiveTab] = useState<'child-themes' | 'drm-license' | 'github-shield' | 'payment-engine' | 'layout-presets'>('child-themes');
+  const [activeTab, setActiveTab] = useState<'child-themes' | 'drm-license' | 'github-shield' | 'payment-engine' | 'layout-presets' | 'multi-niche'>('child-themes');
   const [currentTheme, setCurrentTheme] = useState(activeChildTheme);
   const [licenseKey, setLicenseKey] = useState('SR-VIP-2026-ARCHITECT-MASTER');
   const [licenseStatus, setLicenseStatus] = useState<'valid' | 'invalid' | 'dev'>('valid');
@@ -206,6 +208,7 @@ export const MasterAgencyArchitectureModal: React.FC<MasterAgencyArchitectureMod
             { id: 'github-shield', label: 'محافظ آپدیت گیت‌هاب', icon: RefreshCw },
             { id: 'payment-engine', label: 'درگاه‌های پرداخت دوگانه', icon: CreditCard },
             { id: 'layout-presets', label: 'پیکربندی هدر و وکتور', icon: Sliders },
+            { id: 'multi-niche', label: 'اصناف چندمنظوره (LMS, VIP, Soft98)', icon: Sparkles },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -547,6 +550,73 @@ export const MasterAgencyArchitectureModal: React.FC<MasterAgencyArchitectureMod
                       <div className="text-[10px] text-gray-500 mt-1">{v.desc}</div>
                     </button>
                   ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: MULTI-NICHE SPECIALIZED ENGINES */}
+          {activeTab === 'multi-niche' && (
+            <div className="space-y-6">
+              <div className="p-5 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex flex-wrap items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-blue-300">ماژول‌های تخصصی اصناف (SpotPlayer LMS, VIP, Soft98, News)</h3>
+                  <p className="text-xs text-slate-400">
+                    این ۵ ماژول درون افزونه <code>sedrazavi-companion</code> پیاده‌سازی شده‌اند و بدون دستکاری در پوسته اصلی، هر زمان که کارفرما نیاز به فروش دوره، اشتراک ویژه یا باکس دانلود داشته باشد فعال می‌شوند.
+                  </p>
+                </div>
+                {onOpenMultiNicheHub && (
+                  <button
+                    onClick={() => {
+                      onClose();
+                      onOpenMultiNicheHub();
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-600/30 shrink-0"
+                  >
+                    ورود به استودیو و تست زنده ۵ ماژول
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-gray-900 border border-gray-800 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-white">
+                    <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+                    <span>ماژول دوره‌ها و وب‌هوک اسپات‌پلیر (LMS Bridge)</span>
+                  </div>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    تولید خودکار لایسنس اسپات‌پلیر روی سفارشات ووکامرس، پخش‌کننده ویدیویی با واترمارک متحرک شماره موبایل کاربر جهت حفاظت از ویدیوها در برابر فیلم‌برداری صفحه.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-gray-900 border border-gray-800 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-white">
+                    <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                    <span>پی‌وال اشتراک VIP و لینک‌های دانلودی موقت</span>
+                  </div>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    پلن‌های ۱ ماهه، ۳ ماهه و سالانه، شورتکد قفل محتوا [sedrazavi_vip_guard]، و لینک‌های دانلود با توکن منقضی‌شونده ۲ ساعته جهت جلوگیری از فاش شدن لینک مستقیم سرور.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-gray-900 border border-gray-800 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-white">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>جعبه دانلود حرفه‌ای سبک Soft98</span>
+                  </div>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    سرورهای مستقیم و کمکی، کپی آسان رمز فایل فشرده با یک کلیک، بج‌های سیستم‌عامل (ویندوز، مک، لینوکس، اندروید) و دکمه ایجکس گزارش خرابی لینک.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-gray-900 border border-gray-800 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-white">
+                    <span className="w-2 h-2 rounded-full bg-rose-400"></span>
+                    <span>تحریریه خبری و تخمین زمان مطالعه</span>
+                  </div>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    تیکر متحرک اخبار فوری، تخمین هوشمند زمان مطالعه مقالات بر اساس کلمات فارسی، و نوار اسکرول پیشرفت مطالعه در سربرگ برگه.
+                  </p>
                 </div>
               </div>
             </div>

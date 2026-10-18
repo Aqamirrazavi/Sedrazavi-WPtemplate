@@ -26,6 +26,13 @@ require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-github-sync.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-component-hub.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-payment-engine.php';
 
+// Multi-Niche Specialized Architecture Modules
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-course-lms-bridge.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-vip-membership-paywall.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-soft98-download-box.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-magazine-editorial.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-dynamic-client-dashboard.php';
+
 /**
  * Initialize Companion Subsystems
  */
@@ -34,6 +41,13 @@ function sedrazavi_companion_init() {
     SedRazavi_GitHub_Shield::get_instance();
     SedRazavi_Component_Hub::get_instance();
     SedRazavi_Unified_Payment_Engine::get_instance();
+
+    // Multi-Niche Services
+    SedRazavi_Course_LMS_Bridge::get_instance();
+    SedRazavi_VIP_Paywall::get_instance();
+    SedRazavi_Soft98_Download_Box::get_instance();
+    SedRazavi_Magazine_Editorial::get_instance();
+    SedRazavi_Dynamic_Client_Dashboard::get_instance();
 }
 add_action('plugins_loaded', 'sedrazavi_companion_init');
 
