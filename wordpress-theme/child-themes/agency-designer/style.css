@@ -1,0 +1,28 @@
+/*
+Theme Name: SedRazavi Agency Designer Child Theme
+Theme URI: https://github.com/sedrazavi/sedrazavi-theme
+Description: The ultra-fast, high-converting portfolio and agency landing child theme for web designers, digital architects, and creative developers. Features zero-reload offcanvas drawers, project cost estimator, and native Gutenberg block patterns.
+Author: Dr. Seyedeh Maryam Razavi
+Author URI: https://sedrazavi.ir
+Template: wordpress-theme
+Version: 5.0.0
+Text Domain: sedrazavi-child-agency
+*/
+
+:root {
+  --sr-primary-accent: #3B82F6;
+  --sr-surface-bg: #0B0F19;
+  --sr-canvas-text: #F8FAFC;
+  --sr-card-bg: rgba(17, 24, 39, 0.75);
+  --sr-border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Agency Designer custom micro-interactions */
+.agency-glow-border {
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.15);
+}
+
+.designer-hero-gradient {
+  background: radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.15), transparent 70%);
+}

@@ -472,8 +472,18 @@ if (!function_exists('enqueue_react_assets')) {
 }
 
 /**
- * 7. Safe Modules Inclusions (Guaranteed Loading of Handlers & Bridge)
+ * 7. Universal Modular Inclusions (Clean Separation of Concerns)
  */
+function sedrazavi_is_legal_module_enabled() {
+    $active_archetype = get_option('sedrazavi_active_archetype', 'agency-designer');
+    $current_theme = function_exists('get_stylesheet') ? get_stylesheet() : '';
+    if (strpos($current_theme, 'legal') !== false || strpos($current_theme, 'lawyer') !== false || $active_archetype === 'legal-firm' || $active_archetype === 'lawyer') {
+        return true;
+    }
+    return false;
+}
+
+// Universal Framework Core (Loaded for all niches: Agency, Corporate, Store, Legal)
 $sedrazavi_essential_includes = [
     'register-react-shortcodes.php', // Universal [react_component name="..."] shortcodes
     'inc/wp-rest-auth.php',          // Secure REST API authentication & nonces
@@ -484,36 +494,40 @@ $sedrazavi_essential_includes = [
     'inc/preset-engine.php',         // Multi-industry preset engine & terminology
     'inc/seo-bridge.php',            // Dynamic SEO tags, OpenGraph, and Schema.org
     'inc/customizer-seo.php',        // Customizer SEO & Branding controls
-    'inc/user-roles.php',            // Custom legal roles (client, secretary, intern)
     'inc/manifest-bridge.php',       // PWA & Idempotent Page Setup
     'inc/meta-boxes.php',            // Native Page Meta Boxes
     'inc/theme-options.php',         // Theme options & customizer styles
     'inc/security.php',              // Security headers, rate limiting, and sanitization
-    'inc/case-management.php',       // Case management CPT & taxonomy
-    'inc/booking.php',               // Consultation booking subsystem
+    'inc/booking.php',               // General consultation & brief booking subsystem
     'inc/elementor-widgets.php',      // Custom Elementor widgets bridge
+    'inc/advanced-backup.php',       // Version control & snapshot backup manager
+    'inc/class-sedrazavi-elementor.php', // Elementor category & widget hooks
+    'inc/class-sedrazavi-security.php',  // Security hardening & MIME filtering
+    'inc/class-sedrazavi-updater.php',   // GitHub auto-updater engine
+    'inc/dashboard.php',                 // Admin top-level dashboard menu & stats
+    'inc/educational-tour.php',          // Admin onboarding interactive tours
+    'inc/integrations.php',              // WooCommerce, SEO breadcrumbs & cache hooks
+    'inc/ux-improvements.php',           // Client experience & skeleton loaders
+    'inc/class-github-sync.php',         // GitHub Real-Time Sync & Webhook Engine
+    'inc/class-demo-importer.php',       // One-click demo content and pages importer
+    'inc/class-setup-wizard.php',        // 30-Second Quick Setup Wizard in WP Admin
+    'inc/scenario-controller.php',       // Universal Scenario Controller & Layout Archetypes
+    'inc/class-realtime-notifications.php', // Real-Time Lead Notification & Sound Engine
+    'inc/class-cloud-catalog.php',       // Cloud Preset Catalog & Child-Theme Factory
+];
+
+// Legal Modules (Decoupled & Isolated for legal-firm child theme only)
+$sedrazavi_legal_exclusive_includes = [
+    'inc/case-management.php',               // Case management CPT & taxonomy
+    'inc/user-roles.php',                    // Custom legal roles (client, secretary, intern)
     'inc/class-sedrazavi-calculators.php',   // Judicial tariffs & calculation suite
     'inc/class-sedrazavi-client-portal.php', // Client portal subsystem
     'inc/class-sedrazavi-dashboard.php',     // Admin dashboard helpers
     'inc/arbitration-cpt.php',               // Arbitration cases CPT
     'inc/corporate-international.php',       // Corporate quorum & incoterms 2020
     'inc/legal-vault-deadlines.php',         // Judicial deadlines & vault
-    'inc/advanced-backup.php',               // Version control & snapshot backup manager
     'inc/analytics-reports.php',             // Legal analytics & KPI reporting
-    'inc/class-sedrazavi-elementor.php',     // Elementor category & widget hooks
-    'inc/class-sedrazavi-security.php',      // Security hardening & MIME filtering
-    'inc/class-sedrazavi-updater.php',       // GitHub auto-updater engine
-    'inc/dashboard.php',                     // Admin top-level dashboard menu & stats
-    'inc/educational-tour.php',              // Admin onboarding interactive tours
-    'inc/integrations.php',                  // WooCommerce, SEO breadcrumbs & cache hooks
     'inc/precedents-cpt.php',                // Supreme court precedents CPT & taxonomy
-    'inc/ux-improvements.php',               // Client experience & skeleton loaders
-    'inc/class-github-sync.php',             // GitHub Real-Time Sync & Webhook Engine
-    'inc/class-demo-importer.php',           // One-click demo content and pages importer
-    'inc/class-setup-wizard.php',            // 30-Second Quick Setup Wizard in WP Admin
-    'inc/scenario-controller.php',           // Universal Scenario Controller & Layout Archetypes
-    'inc/class-realtime-notifications.php',  // Real-Time Lead Notification & Sound Engine
-    'inc/class-cloud-catalog.php',           // Cloud Preset Catalog & Child-Theme Factory
 ];
 
 foreach ($sedrazavi_essential_includes as $file_rel) {
@@ -522,3 +536,14 @@ foreach ($sedrazavi_essential_includes as $file_rel) {
         require_once $full_path;
     }
 }
+
+// Only load legal baggage if explicitly active
+if (sedrazavi_is_legal_module_enabled()) {
+    foreach ($sedrazavi_legal_exclusive_includes as $file_rel) {
+        $full_path = SEDRAZAVI_THEME_DIR . '/' . $file_rel;
+        if (file_exists($full_path)) {
+            require_once $full_path;
+        }
+    }
+}
+

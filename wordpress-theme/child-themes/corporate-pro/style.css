@@ -1,0 +1,22 @@
+/*
+Theme Name: SedRazavi Corporate Pro Child Theme
+Theme URI: https://github.com/sedrazavi/sedrazavi-theme
+Description: Enterprise, multinational, and corporate child theme for SedRazavi Framework. Features multi-column mega menus, international governance modules, and trust signals.
+Author: Dr. Seyedeh Maryam Razavi
+Author URI: https://sedrazavi.ir
+Template: wordpress-theme
+Version: 5.0.0
+Text Domain: sedrazavi-child-corporate
+*/
+
+:root {
+  --sr-primary-accent: #0284C7;
+  --sr-secondary-accent: #0F172A;
+  --sr-surface-bg: #0F172A;
+  --sr-canvas-text: #F1F5F9;
+}
+
+.corporate-header-nav {
+  backdrop-filter: blur(16px);
+  background: rgba(15, 23, 42, 0.85);
+}

@@ -22,7 +22,10 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
 }
 ?>
 
-<footer id="colophon" class="site-footer bg-sr-bg text-sr-primary pt-16 pb-8 border-t border-sr-border relative overflow-hidden">
+<?php
+$footer_archetype = isset($_GET['footer_style']) ? sanitize_text_field($_GET['footer_style']) : get_option('sedrazavi_footer_style', 'modern-cards');
+?>
+<footer id="colophon" class="site-footer footer-archetype-<?php echo esc_attr($footer_archetype); ?> bg-sr-bg text-sr-primary pt-16 pb-8 border-t border-sr-border relative overflow-hidden" data-footer-archetype="<?php echo esc_attr($footer_archetype); ?>">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-sr-border-subtle">
             

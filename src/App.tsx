@@ -95,6 +95,7 @@ import { GitHubSuiteDashboard } from './components/admin/GitHubSuiteDashboard';
 import { ThemePaletteModal } from './components/ThemePaletteModal';
 import { SetupWizardModal } from './components/admin/SetupWizardModal';
 import { GitHubSyncEngineModal } from './components/admin/GitHubSyncEngineModal';
+import { MasterAgencyArchitectureModal } from './components/admin/MasterAgencyArchitectureModal';
 import { NoCodeClientPortalModal } from './components/client-suite/NoCodeClientPortalModal';
 import { FrontendQuickEditBar } from './components/client-suite/FrontendQuickEditBar';
 import { Scale, User, Briefcase, Lock, X } from 'lucide-react';
@@ -138,6 +139,8 @@ export default function App() {
   const [isPaletteModalOpen, setIsPaletteModalOpen] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isGitHubSyncOpen, setIsGitHubSyncOpen] = useState(false);
+  const [isMasterArchitectureOpen, setIsMasterArchitectureOpen] = useState(false);
+  const [activeChildTheme, setActiveChildTheme] = useState('agency-designer');
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
   const [isLiveEditActive, setIsLiveEditActive] = useState(false);
   const [customClientData, setCustomClientData] = useState(() => {
@@ -1809,6 +1812,34 @@ export default function App() {
       <FrontendLiveCustomizerBar
         onSwitchScenario={(id) => setActiveView('scenarios-hub')}
         onOpenCatalog={() => setIsCloudCatalogOpen(true)}
+        onOpenArchitecture={() => setIsMasterArchitectureOpen(true)}
+      />
+
+      {/* Master Architecture & DRM License Modal (SedRazavi OS 5.0) */}
+      <MasterAgencyArchitectureModal
+        isOpen={isMasterArchitectureOpen}
+        onClose={() => setIsMasterArchitectureOpen(false)}
+        activeChildTheme={activeChildTheme}
+        onSelectChildTheme={(theme) => {
+          setActiveChildTheme(theme);
+          if (theme === 'agency-designer') {
+            setActiveArchetype('wp-designer');
+            setActiveView('wp-designer');
+          } else if (theme === 'corporate-pro') {
+            setActiveArchetype('lawyer');
+            setActiveView('corporate-suite');
+          } else if (theme === 'store-modern') {
+            setActiveArchetype('ecommerce');
+            setActiveView('ecommerce-store');
+          } else if (theme === 'legal-firm') {
+            setActiveArchetype('lawyer');
+            setActiveView('preview');
+          }
+        }}
+        onOpenPaymentAdapter={() => {
+          setIsMasterArchitectureOpen(false);
+          setActiveView('payment-adapter');
+        }}
       />
 
       {/* GDPR / Cookie Consent Banner (Section 13) */}

@@ -1,0 +1,22 @@
+/*
+Theme Name: SedRazavi Legal Firm Child Theme
+Theme URI: https://github.com/sedrazavi/sedrazavi-theme
+Description: The specialized legal suite child theme for law firms, judicial consultants, attorneys, and arbitration courts. Integrates case tracking, judicial fee calculators, and client portals.
+Author: Dr. Seyedeh Maryam Razavi
+Author URI: https://sedrazavi.ir
+Template: wordpress-theme
+Version: 5.0.0
+Text Domain: sedrazavi-child-legal
+*/
+
+:root {
+  --primary-gold: #D4AF37;
+  --primary-navy: #0B132B;
+  --gold-glow: rgba(212, 175, 55, 0.25);
+}
+
+.legal-badge-verified {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #D4AF37;
+}

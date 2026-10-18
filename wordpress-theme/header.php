@@ -103,8 +103,11 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
     </div>
 </div>
 
-<!-- سربرگ اصلی شیشه‌ای و چسبان (Main Sticky Glass Header) -->
-<header id="masthead" class="site-header">
+<?php
+$header_archetype = isset($_GET['header_style']) ? sanitize_text_field($_GET['header_style']) : get_option('sedrazavi_header_style', 'frosted-glass');
+?>
+<!-- سربرگ اصلی چندمنظوره (Dynamic Multi-Archetype Header) -->
+<header id="masthead" class="site-header header-archetype-<?php echo esc_attr($header_archetype); ?>" data-header-archetype="<?php echo esc_attr($header_archetype); ?>">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         
         <!-- هویت بصری و برندینگ رسمی (Logo & Identity) -->
