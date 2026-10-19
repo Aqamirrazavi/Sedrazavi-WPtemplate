@@ -2,6 +2,8 @@
 namespace UniversalElementorSuite\Widgets;
 
 use Elementor\Controls_Manager;
+use Elementor\Group_Control_Typography;
+use Elementor\Group_Control_Box_Shadow;
 use UniversalElementorSuite\Universal_Widget_Base;
 
 if (!defined('ABSPATH')) {
@@ -9,7 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * SpotPlayer LMS Course Video & Curriculum Elementor Widget
+ * SpotPlayer LMS Course Video & Curriculum Elementor Widget with Visual Controls
  */
 class Universal_SpotPlayer_Course_Widget extends Universal_Widget_Base {
 
@@ -30,6 +32,7 @@ class Universal_SpotPlayer_Course_Widget extends Universal_Widget_Base {
     }
 
     protected function register_controls() {
+        // --- CONTENT SECTION ---
         $this->start_controls_section(
             'section_content',
             [
@@ -76,6 +79,71 @@ class Universal_SpotPlayer_Course_Widget extends Universal_Widget_Base {
         );
 
         $this->end_controls_section();
+
+        // --- STYLE SECTION ---
+        $this->start_controls_section(
+            'section_style_player',
+            [
+                'label' => esc_html__('استایل پلیر و دوره‌ها', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_STYLE,
+            ]
+        );
+
+        $this->add_control(
+            'player_bg_color',
+            [
+                'label'     => esc_html__('رنگ پس‌زمینه قاب پلیر', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::COLOR,
+                'default'   => '#0b132b',
+                'selectors' => [
+                    '{{WRAPPER}} .uas-spotplayer-custom' => 'background-color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'accent_color',
+            [
+                'label'     => esc_html__('رنگ نشان‌ها و دکمه پخش', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::COLOR,
+                'default'   => '#3b82f6',
+                'selectors' => [
+                    '{{WRAPPER}} .uas-spotplayer-custom .badge' => 'background-color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->add_group_control(
+            Group_Control_Typography::get_type(),
+            [
+                'name'     => 'title_typography',
+                'label'    => esc_html__('تایپوگرافی عنوان دوره', 'universal-elementor-suite'),
+                'selector' => '{{WRAPPER}} .uas-spotplayer-custom h3',
+            ]
+        );
+
+        $this->add_responsive_control(
+            'border_radius',
+            [
+                'label'      => esc_html__('گردی لبه‌ها (Border Radius)', 'universal-elementor-suite'),
+                'type'       => Controls_Manager::DIMENSIONS,
+                'size_units' => ['px', '%'],
+                'selectors'  => [
+                    '{{WRAPPER}} .uas-spotplayer-custom' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->add_group_control(
+            Group_Control_Box_Shadow::get_type(),
+            [
+                'name'     => 'box_shadow',
+                'label'    => esc_html__('سایه قاب پلیر', 'universal-elementor-suite'),
+                'selector' => '{{WRAPPER}} .uas-spotplayer-custom',
+            ]
+        );
+
+        $this->end_controls_section();
     }
 
     protected function render() {
@@ -84,13 +152,18 @@ class Universal_SpotPlayer_Course_Widget extends Universal_Widget_Base {
         $lesson = $settings['lesson_title'];
         $video_url = $settings['video_url'];
         $watermark = $settings['show_watermark'] === 'yes';
-
-        echo do_shortcode(sprintf(
-            '[sedrazavi_lesson_player course="%s" lesson="%s" video_url="%s" watermark="%s"]',
-            esc_attr($title),
-            esc_attr($lesson),
-            esc_url($video_url),
-            $watermark ? 'yes' : 'no'
-        ));
+        ?>
+        <div class="uas-spotplayer-custom uas-widget-container" dir="rtl" style="border: 1px solid rgba(255,255,255,0.1); overflow: hidden; padding: 20px; border-radius: 16px;">
+            <?php
+            echo do_shortcode(sprintf(
+                '[sedrazavi_lesson_player course="%s" lesson="%s" video_url="%s" watermark="%s"]',
+                esc_attr($title),
+                esc_attr($lesson),
+                esc_url($video_url),
+                $watermark ? 'yes' : 'no'
+            ));
+            ?>
+        </div>
+        <?php
     }
 }

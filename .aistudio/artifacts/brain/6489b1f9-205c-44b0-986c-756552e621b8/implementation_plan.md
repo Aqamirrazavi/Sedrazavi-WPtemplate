@@ -1,139 +1,121 @@
-# نقشه جامع توسعه اصناف چندمنظوره و اصلاح پایپ‌لاین انتشار گیت‌هاب (SedRazavi OS - فاز ۶.۰)
+# نقشه جامع مهندسی و ارتقای معماری SedRazavi OS 6.0 (Enterprise Multi-Niche Suite)
 
-این سند مهندسی، معماری ارتقای گیت‌هاب اکشنز با محیط پایدار Bun و بسته‌بندی ۴‌گانه، پیاده‌سازی ۵ ماژول اختصاصی تجاری در افزونه `sedrazavi-companion` (دوره‌های آموزشی و اسپات‌پلیر، اشتراک ویژه VIP و پی‌وال مدیا، باکس دانلود پیشرفته سبک Soft98، تحریریه خبری و مجله، و پورتال کاربری منعطف) و پترن‌های بومی گوتنبرگ و المنتور را تبیین می‌نماید.
+این سند جامع مهندسی، نقشه راه پیاده‌سازی تحول ساختاری اکوسیستم قالب و افزونه وردپرس را با هدف تبدیل پروژه به یک **سیستم‌عامل طراحی وب چندمنظوره (WordPress Designer OS)** مستقل از صنف حقوقی، امن در لایه REST/AJAX، سبک و با نمره سرعت بالای ۹۰ تبیین می‌نماید.
 
 ---
 
-### User Review & Critical Decisions
+### ۱. تصمیمات کلیدی و توافقات راهبردی (Strategic Decisions & Alignment)
 
 > [!IMPORTANT]
-> تصمیمات راهبردی و مصوب بر اساس نیازمندی‌های توسعه چندمنظوره و بهینه‌سازی DevOps:
-> - **محیط بیلد گیت‌هاب اکشنز (Bun Engine):** جایگزینی کامل `npm` با `oven-sh/setup-bun@v2` جهت هماهنگی ۱۰۰٪ با فایل `bun.lock` موجود در مخزن، حذف خطای اعتبارسنجی دارایی‌ها با تصحیح مسیر به `wordpress-theme/app-dist/` و بسته‌بندی خودکار ۴ فایل ZIP در هر Release.
-> - **به‌روزرسانی مخزن در هسته آپدیت:** تصحیح آدرس مخزن رسمی در `class-github-sync.php` به `Aqamirrazavi/Sedrazavi-WPtemplate`.
-> - **ماژولار بودن اصناف (Zero-Break Hybrid Architecture):** ماژول‌های آموزشی (SpotPlayer)، اشتراک ویژه (VIP Paywall)، دانلودی (Soft98) و خبری بدون دستکاری در کدهای پایه هسته، به عنوان ساب‌سیستم‌های الحاقی در `sedrazavi-companion` لود می‌شوند تا در صورت عدم نیاز، هیچ بار اضافه روی سایت مشتری ایجاد نکنند.
-> - **پیش‌نمایش تعاملی فرانت‌اند:** تعبیه نمای زنده اختصاصی در استک ری‌اکت جهت تست آنی پلیر ضدسرقت اسپات‌پلیر با واترمارک متحرک شماره موبایل، باکس دانلود چندسروره با کپی رمز، و سوییچ پلن‌های VIP.
+> با توجه به پاسخ کاربر و اختیارات کامل فنی واگذار شده، هر سه محور زیر در اولویت اجرای همزمان قرار می‌گیرند:
+> 1. **خنثی‌سازی کامل پوسته والد (Parent Neutralization):** تمام اطلاعات هویت، پروانه و ترازوی وکالت از هسته پوسته (`header.php`, `footer.php`, `front-page.php`) پاک شده و به صورت داینامیک از Customizer و چایلدتم حقوقی تغذیه می‌شود.
+> 2. **بهینه‌سازی حداکثری سرعت (Asset Conditional Loading):** باندل سنگین ۱.۱ مگابایتی React از فرانت عمومی حذف شده و صرفاً به صورت شرطی در برگه‌های دارای شورتکد تعاملی یا پیشخوان مدیریت لود می‌شود تا حجم صفحات لندینگ به زیر ۱۲۰ کیلوبایت برسد.
+> 3. **ویجت‌های بومی المنتور (Native Elementor Controls):** تمامی ویجت‌ها مجهز به تب استایل کامل (Typography, Color, Spacing, Border, Shadow) می‌شوند تا طراح بتواند بدون کدنویسی ظاهر هر ویجت را سفارشی‌سازی کند.
 
 ---
 
-### ۱. معماری و نیازمندی‌های سه‌گانه
+### ۲. معماری ماژولار ۴ سطحی اکوسیستم
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                 اکوسیستم اصناف و پایپ‌لاین انتشار SedRazavi OS               │
+│                    SEDRAZAVI OS 6.0 MODULAR ARCHITECTURE                    │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  [ GitHub Actions Pipeline (build-and-release.yml) ]                        │
-│  bun install ──> bun run lint ──> bun run build                             │
-│  Validate app-dist/index.js & css                                           │
-│  ├── 1. sedrazavi-theme.zip          (پوسته اصلی خنثی)                     │
-│  ├── 2. sedrazavi-companion.zip      (افزونه موتور اصناف + DRM + پرداخت)    │
-│  ├── 3. sedrazavi-child-themes.zip   (۴ چایلدتم آژانسی، شرکتی، فروشگاهی، حقوقی)│
-│  └── 4. sedrazavi-complete-suite.zip (بسته نصبی جامع + راهنما)              │
+│  1. Agnostic Core Parent Theme (wordpress-theme/)                           │
+│     ├── header.php (منوی داینامیک + the_custom_logo + نوار اعلان دلخواه)   │
+│     ├── footer.php (سایدبارهای ابزارک پویا + کپی‌رایت نام سایت)              │
+│     ├── front-page.php (لود هوشمند تمپلت‌ پارت بر اساس آرکیتایپ فعال)      │
+│     └── template-parts/                                                     │
+│         ├── front-agency.php    (لندینگ آژانسی، بنتو گرید، فرم محاسبه پروژه)│
+│         ├── front-store.php     (ویترین ووکامرس، بنرها، تسویه حساب شتاب)    │
+│         ├── front-corporate.php (هلدینگ بین‌الملل، آمارها، استانداردهای ESG)│
+│         └── front-legal.php     (اتوماسیون وکالت، پیگیری پرونده و داوری)    │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  [ ساب‌سیستم‌های جدید افزونه همراه (sedrazavi-companion/includes/) ]         │
-│  ├── 1. class-course-lms-bridge.php         (اسپات‌پلیر + واترمارک موبایل)  │
-│  ├── 2. class-vip-membership-paywall.php    (پی‌وال و لینک دانلود موقت)     │
-│  ├── 3. class-soft98-download-box.php       (باکس چندسروره + کپی رمز + هش)  │
-│  ├── 4. class-magazine-editorial.php        (تیکر اخبار فوری + زمان مطالعه)│
-│  └── 5. class-dynamic-client-dashboard.php  (پورتال هوشمند کاربر)          │
+│  2. Companion & Architecture Engine (sedrazavi-companion/)                  │
+│     ├── class-demo-importer.php         (درون‌ریز واقعی با AJAX و ساخت صفحات)│
+│     ├── class-design-tokens.php         (متغیرهای CSS + همگام‌ساز المنتور)    │
+│     ├── class-sms-gateway-adapter.php   (پشتیبانی Digits + IPPanel/کاوهنگار)│
+│     ├── class-email-engine.php          (ایمیل تراکنشی با دامنه داینامیک)   │
+│     └── class-admin-dashboard.php       (پیشخوان مدرن ۵ زبانه و سبک)         │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  [ الگوهای بلاک گوتنبرگ و اینترفیس تعاملی ری‌اکت ]                           │
-│  ├── block-patterns/ (سرفصل دوره، جعبه دانلود، پلن‌های VIP، گرید اخبار)     │
-│  └── MultiNicheShowcaseSuite.tsx (تست زنده تعاملی ۵ ماژول در وب‌اپ)         │
+│  3. Universal Elementor Suite (elementor-addon-suite/)                      │
+│     ├── ۲۲ ویجت با کنترل کامل Content و Style (Typography, Padding, Border) │
+│     └── کاتالوگ ۹ هدر، ۹ هیرو و ۹ فوتر استاندارد                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  4. Specialized Child Themes (child-themes/)                                │
+│     ├── agency-designer / corporate-pro / store-modern / legal-firm         │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### ۲. جزئیات اجرایی فازها (Task Breakdown)
+### ۳. فازهای اجرایی گام‌به‌گام (Step-by-Step Task Breakdown)
 
-#### فاز ۱: ارتقا و رفع خطای گیت‌هاب اکشنز (`.github/workflows/build-and-release.yml`)
-1. بازنویسی فایل اکشن با اکشن رسمی `oven-sh/setup-bun@v2`.
-2. اجرای مراحل `bun install`، `bun run lint`، و `bun run build`.
-3. تصحیح گام اعتبارسنجی یکپارچگی فایل‌ها (`Validate Theme & Plugin Integrity`):
-   - بررسی وجود `wordpress-theme/app-dist/index.js` و `wordpress-theme/app-dist/index.css`.
-   - بررسی هسته افزونه همراه `sedrazavi-companion/sedrazavi-companion.php` و کلاس لایسنسینگ.
-4. تولید ۴ آرشیو ZIP مستقل بدون فایل‌های پنهان گیت:
-   - `sedrazavi-theme.zip` (بدون پوشه child-themes)
-   - `sedrazavi-companion.zip`
-   - `sedrazavi-child-themes.zip`
-   - `sedrazavi-complete-suite.zip` (شامل ۳ فایل بالا و فایل `INSTALL_GUIDE_FA.txt`)
-5. آپلود بسته‌ها با ماندگاری ۳۰ روز در آرتیفکت‌های گیت‌هاب.
-6. تصحیح `const REPO = 'Aqamirrazavi/Sedrazavi-WPtemplate';` در هر دو فایل `class-github-sync.php`.
+#### فاز ۱: خنثی‌سازی کامل پوسته مادر و رفع گلوگاه‌های هاردکد (Parent Sanitization)
+1. **بازنویسی `wordpress-theme/header.php`:**
+   - حذف تمام متون و شماره پروانه هاردکد وکالت («۱۸۴۵۲ / ک.و.م»، آیکون ترازوی عدالت، شماره ثابت «۰۲۱-۸۸۹۹۰۰۱۱»).
+   - اتصال به `get_theme_mod('sedrazavi_header_phone')`، `get_theme_mod('sedrazavi_show_topbar')` و `the_custom_logo()`.
+   - ایجاد فال‌بک نام برند با `get_bloginfo('name')`.
+2. **بازنویسی `wordpress-theme/footer.php`:**
+   - حذف نام و بیوگرافی ثابت دکتر سیده مریم رضوی.
+   - ثبت ۳ ناحیه ابزارک پویا (`dynamic_sidebar`) با فال‌بک‌های سازمانی، خدمات و تماس.
+   - کپی‌رایت پویا: `© [سال جاری] [نام سایت]. تمامی حقوق محفوظ است.`.
+3. **بازنویسی `wordpress-theme/front-page.php`:**
+   - تشخیص صنف فعال از تنظیمات `get_option('sedrazavi_active_archetype', 'agency-designer')`.
+   - فراخوانی فایل متناظر از `template-parts/front-{archetype}.php` یا رندر `the_content()` در صورت استفاده از المنتور.
 
-#### فاز ۲: پیاده‌سازی ۵ کلاس اصناف چندمنظوره در `sedrazavi-companion/includes/`
-1. **`class-course-lms-bridge.php` (آموزش، دوره‌ها و اسپات‌پلیر):**
-   - تاکسونومی سرفصل‌ها و درس‌ها، فیلدهای متای نوع دسترسی (رایگان / ویژه / پولی).
-   - وبهوک دریافت رویداد پرداخت و ارسال به API اسپات‌پلیر جهت تولید خودکار لایسنس.
-   - شورتکد `[sedrazavi_lesson_player]` با واترمارک داینامیک متحرک شماره تماس کاربر روی ویدیو.
-2. **`class-vip-membership-paywall.php` (اشتراک طلایی، نقره‌ای و پی‌وال رسانه):**
-   - مدیریت دوره‌های اشتراک (۱ ماهه، ۳ ماهه، ۱ ساله) و تاریخ انقضا در متای کاربر.
-   - شورتکد قفل محتوا `[sedrazavi_vip_guard plan="gold"]`.
-   - تولیدکننده توکن لینک دانلود موقت با زمان انقضا (`/sedrazavi/v1/download/{token}`) جهت جلوگیری از لو رفتن لینک مستقیم سرور فایل.
-3. **`class-soft98-download-box.php` (جعبه دانلود پیشرفته نرم‌افزار):**
-   - شورتکد `[sedrazavi_download_box]` شامل مشخصات فنی، نسخه، سیستم‌عامل (Windows/Mac/Android).
-   - لینک‌های کمکی (سرور ایران / سرور خارج)، هش سلامت MD5/SHA256.
-   - دکمه کپی رمز فایل با یک کلیک و دکمه ایجکس گزارش خرابی لینک.
-4. **`class-magazine-editorial.php` (تحریریه خبری و مجله):**
-   - نوار اخبار فوری (Breaking News Marquee Ticker).
-   - محاسبه‌گر خودکار زمان تقریبی مطالعه بر مبنای واژگان فارسی.
-   - نوار پیشرفت مطالعه در بالای صفحه.
-5. **`class-dynamic-client-dashboard.php` (پورتال هوشمند کاربری چندمنظوره):**
-   - تطبیق خودکار تب‌های پنل بر مبنای نوع صنف فعال:
-     - در سایت آموزشی: نمایش لایسنس‌های اسپات‌پلیر و دوره‌های ثبت‌نامی.
-     - در سایت اشتراکی: نمایش وضعیت روزهای باقی‌مانده و تمدید اشتراک.
-     - در سایت دانلودی: نمایش سابقه دانلودها و فیلتر فایل‌های ذخیره‌شده.
+#### فاز ۲: ساخت قالب‌های صفحه نخست در `wordpress-theme/template-parts/`
+1. **`template-parts/front-agency.php`:**
+   - هیروی آژانسی گلس‌مورفیسم، بنتو گرید خدمات طراحی وب و سئو، فرم سفارش پروژه.
+2. **`template-parts/front-store.php`:**
+   - ویترین ووکامرس، اسلایدر محصولات تخفیف‌دار، دکمه‌های خرید سریع و بج‌های اعتماد (اینماد و ضمانت).
+3. **`template-parts/front-corporate.php`:**
+   - لندینگ شرکتی چندستونه، کانتر آمارهای موفقیت هلدینگ و معرفی راهکارها.
+4. **`template-parts/front-legal.php`:**
+   - انتقال تمیز و ایزوله ماژول‌های وکالت، محاسبه‌گر تمبر و پیگیری پرونده به این فایل.
 
-#### فاز ۳: الگوهای بلاک گوتنبرگ و ویجت‌های المنتور
-1. افزودن فایل‌های پترن بومی گوتنبرگ در `wordpress-theme/block-patterns/`:
-   - `pattern-course-curriculum.php`
-   - `pattern-soft98-download-box.php`
-   - `pattern-vip-pricing-tiers.php`
-   - `pattern-freemium-showcase.php`
-   - `pattern-news-grid.php`
-2. توسعه کامپوننت تعاملی فرانت‌اند `MultiNicheShowcaseSuite.tsx` در ری‌اکت جهت شبیه‌سازی و تست زنده قابلیت‌ها در پیش‌نمایش اپلیکیشن.
-3. اعتبارسنجی و کامپایل (`compile_applet` و `lint_applet`).
+#### فاز ۳: امن‌سازی زیرساخت REST API و AJAX (Zero-Trust Security)
+1. بررسی و اصلاح تمام اندپوینتهای REST در `sedrazavi-companion` و `sedrazavi-addons`:
+   - جایگزینی `permission_callback => '__return_true'` در اندپوینتهای تغییر دهنده وضعیت با `current_user_can('manage_options')` یا کنترل توکن.
+2. امن‌سازی تمامی درخواست‌های AJAX فرم‌ها و گزارش‌ها با `check_ajax_referer('sedrazavi_nonce', 'nonce')`.
+3. اعمال ریت‌لیمیتینگ روی تمامی اندپوینتهای عمومی ثبت فرم و پیامک.
 
----
+#### فاز ۴: توانمندسازی سامانه درون‌ریز دمو (`class-demo-importer.php`)
+1. حذف `alert(...)` در پیشخوان ادمین و جایگزینی با فرآیند واقعی ناهمگام (AJAX/Fetch) به `/wp-json/sedrazavi/v1/demo/import`.
+2. ساخت خودکار برگه‌های استاندارد (صفحه اصلی، تماس، خدمات، فروشگاه یا دوره‌ها).
+3. ساخت و انتساب فهرست ناوبری (`nav_menu`) و تنظیم صفحه نخست (`page_on_front`).
+4. نمایش پروگرس‌بار زنده و لاگ ترمینال برای کاربر در پیشخوان وردپرس.
 
-### ۳. استراتژی داده و امنیت (Security & Data Integrity)
+#### فاز ۵: موتور دیزاین توکن‌ها و همگام‌ساز پالت‌ها (`class-design-tokens.php`)
+1. تعریف متغیرهای ریشه‌ای CSS:
+   `--sr-primary`, `--sr-secondary`, `--sr-accent`, `--sr-surface`, `--sr-bg`, `--sr-text`, `--sr-border`.
+2. هوک به `wp_theme_json_data_theme` برای تزریق لحظه‌ای پالت‌ها به ویرایشگر گوتنبرگ.
+3. هوک به `elementor/kits_manager` برای همگام‌سازی رنگ‌های سیستم المنتور (`system_colors`).
+4. اتصال پس‌زمینه‌های وکتور SVG به متغیرهای CSS به جای کدهای رنگی هاردکد.
 
-- تمامی اندپوینتهای REST دارای بررسی Nonce و صلاحیت کاربر (`permission_callback`) خواهند بود.
-- شماره موبایل خریدار به صورت تصادفی در بازه‌های ۱۰ ثانیه‌ای روی پلیر جابجا می‌شود تا ضبط صفحه غیرممکن گردد.
-- توکن‌های دانلود پس از ۲ ساعت منقضی می‌شوند و به IP کاربر مقید می‌گردند.
-- لایسنس اسپات‌پلیر در دیتابیس به صورت امن کش می‌شود تا در صورت قطعی اینترنت، کاربر به دوره دسترسی داشته باشد.
+#### فاز ۶: آداپتور پیامک ایرانی و ایمیل‌های تراکنشی پویا
+1. **`class-sms-gateway-adapter.php`:**
+   - بررسی وجود افزونه Digits و ارجاع ورود به Digits در صورت فعال بودن.
+   - پشتیبانی از وب‌سرویس پترن و خدماتی IPPanel (فراز اس‌ام‌اس، لیمو، مکث) و کاوهنگار.
+2. **`class-email-engine.php`:**
+   - استخراج خودکار دامنه از `home_url()` برای `wp_mail_from` (مانند `noreply@domain.com`).
+   - تنظیم نام فرستنده با `get_bloginfo('name')`.
+   - قالب HTML راست‌چین و مدرن برای کد ورود، بازیابی کلمه عبور و نوتیفیکیشن‌ها.
 
----
+#### فاز ۷: ارتقای ویجت‌های المنتور به سطح Native (Style Controls)
+1. تجهیز ویجت‌های `uas_download_box`, `uas_spotplayer_course`, `uas_vip_pricing`, `uas_news_ticker`, `uas_client_portal`:
+   - افزودن تب `TAB_STYLE` المنتور با کنترلهای:
+     * `Group_Control_Typography`
+     * `Color` (Primary, Secondary, Background)
+     * `Slider` (Padding, Margin, Gap)
+     * `Group_Control_Border` و `Border_Radius`
+     * `Group_Control_Box_Shadow`
 
-### ۴. وضعیت اجرای گام‌ها (Execution Status - Completed)
+#### فاز ۸: شرطی‌سازی هوشمند دارایی‌ها (Asset Conditional Loading)
+1. بررسی حضور شورتکد یا بلاک در `wordpress-theme/functions.php` قبل از `wp_enqueue_script` باندل React (`app-dist/index.js`).
+2. لود نشدن فایل‌های سنگین ری‌اکت در صفحات ساده و استاتیک جهت حفظ TTFB عالی و امتیاز ۹۰+ سئو.
 
-- **فاز ۱ [تکمیل شد]:** بازنویسی و اصلاح کامل پایپ‌لاین `.github/workflows/build-and-release.yml` با محیط Bun، تصحیح مسیر تست دارایی‌ها به `app-dist/` و تولید ۴ آرشیو ZIP رسمی (`sedrazavi-theme.zip`, `sedrazavi-companion.zip`, `sedrazavi-child-themes.zip`, `sedrazavi-complete-suite.zip`). به‌روزرسانی مقدار `const REPO` به `Aqamirrazavi/Sedrazavi-WPtemplate`.
-- **فاز ۲ [تکمیل شد]:** پیاده‌سازی و ثبت ۵ ماژول تخصصی اصناف در `sedrazavi-companion/includes/`:
-  - `class-course-lms-bridge.php`: وب‌هوک اسپات‌پلیر و پلیر ویدیویی با واترمارک متحرک شماره موبایل کاربر.
-  - `class-vip-membership-paywall.php`: پلن‌های اشتراک VIP، شورتکد قفل محتوا و توکن موقت دانلود ۲ ساعته.
-  - `class-soft98-download-box.php`: جعبه دانلود چندسروره با کپی رمز، بج‌های سیستم‌عامل و گزارش خرابی ایجکس.
-  - `class-magazine-editorial.php`: تیکر اخبار فوری و تخمین زمان مطالعه مقالات به فارسی.
-  - `class-dynamic-client-dashboard.php`: پورتال هوشمند و تطبیق‌پذیر کاربری.
-- **فاز ۳ [تکمیل شد]:** ایجاد ۵ پترن بلاک بومی گوتنبرگ در `wordpress-theme/block-patterns/`.
-- **فاز ۴ [تکمیل شد]:** ساخت کامپوننت تعاملی `MultiNicheShowcaseSuite.tsx` در ری‌اکت و اتصال مستقیم آن به نوار فوقانی هدر و مودال معماری تم.
-- **فاز ۵ [تکمیل شد]:** اعتبارسنجی کامل بیلد و تایپ‌اسکریپت با `compile_applet` و `lint_applet` با موفقیت ۱۰۰٪ و بدون خطا.
-- **فاز ۶ [تکمیل شد - رفع باگ‌ها و بسته‌بندی]:**
-  - رفع کامل خطای ۴۰۴ در اندپوینت دانلود رسانه‌های VIP با ثبت متد و هندلر اختصاصی `GET /sedrazavi/v1/download/{token}` در `class-vip-membership-paywall.php` و ارائه استریم محافظت‌شده فایل.
-  - حذف شروط آزمایشی و استانداردسازی وب‌هوک اسپات‌پلیر با پاسخ‌های تمیز و کش امن لایسنس.
-- **فاز ۷ [تکمیل شد - نصاب جادویی دمو و ویجت‌های المنتور]:**
-  - **سامانه درون‌ریز ۱ کلیک اصناف (`class-demo-importer.php`):** ایجاد ماژول مستقل درون‌ریز با پشتیبانی از ۵ بسته دموی کامل (طراحی، شرکتی، فروشگاهی، حقوقی، و آموزشی/دانلود)، ساخت خودکار صفحات، منوها و انتساب Front Page بدون پاک شدن تنظیمات پیشین.
-  - **موتور فروشگاهی ووکامرس و شتاب (`class-woocommerce-shetab-gateway.php`):** اضافه شدن استان‌ها و شهرهای ایران به صورت بومی، واحد پول تومان، و دراور کشویی سبد خرید شناور (Slideover Mini-Cart Drawer).
-  - **توسعه ۵ ویجت اختصاصی المنتور در `elementor-addon-suite/includes/widgets/`:**
-    1. `uas_spotplayer_course`: پلیر ویدیو ضدسرقت اسپات‌پلیر با واترمارک متحرک
-    2. `uas_download_box`: باکس دانلود چندسروره با هش MD5 و کپی رمز
-    3. `uas_vip_pricing`: جدول پلن‌های اشتراک ویژه و پی‌وال
-    4. `uas_news_ticker`: نوار اخبار فوری تحریریه
-    5. `uas_client_portal`: پرتال هوشمند و تطبیق‌پذیر کاربر
-  - **به‌روزرسانی شبیه‌ساز فرانت‌اند (`MultiNicheShowcaseSuite.tsx`):** تعبیه تب اختصاصی نصب دمو با لاگر زنده و نوار پیشرفت، تب پیش‌نمایش ۵ ویجت المنتور، و دکمه تست آنلاین روت دانلود REST.
-  - **به‌روزرسانی پایپ‌لاین انتشار گیت‌هاب:** افزودن اعتبارسنجی ویجت‌ها و ماژول‌های جدید به `.github/workflows/build-and-release.yml`.
-
----
-
-### ۵. فازهای آتی و پیشنهادی نقشه راه توسعه (Roadmap Phase 8.0+)
-1. **فاز ۸.۱ (PWA Offline Shell & Video Caching):** سرویس‌ورکر پیشرفته برای کش ویدیوها و جزوات آموزشی بدون اینترنت در موبایل و دسکتاپ.
-2. **فاز ۸.۲ (Push Notification Service Worker):** سیستم ارسال پوش‌نوتیفیکیشن لحظه‌ای وضعیت پرونده و اطلاع‌رسانی تخفیف‌های دوره‌ها با Web Push API.
-3. **فاز ۸.۳ (Headless GraphQL / Next.js Bridge):** اتصال بدون سرور تمپلت به صورت Headless برای پروژه‌های با ترافیک میلیونی.
+#### فاز ۹: اعتبارسنجی، تست‌های خودکار و بسته‌بندی گیت‌هاب اکشنز
+1. اجرای `bun install` و `bun run lint`.
+2. اجرای سوئیت کامل تست‌ها: `npm run test:all`.
+3. بیلد نهایی دارایی‌ها با `bun run build`.
+4. اعتبارسنجی تولید ۵ فایل ZIP در ورک‌فلو گیت‌هاب اکشنز.

@@ -84,8 +84,7 @@ jobs:
           ۳. افزونه 3-elementor-addon-suite.zip را برای فعال‌سازی ۵ ویجت المنتور تخصصی نصب فرمایید.
           ۴. از پوشه 4-all-child-themes.zip، چایلدتم متناسب با صنف مدنظر (agency-designer, corporate-pro, store-modern, legal-firm) را فعال کنید.
           EOF
-          cd /tmp/suite-build && zip -r ../../release-artifacts/sedrazavi-complete-suite.zip ./*
-          cd -
+          (cd /tmp/suite-build && zip -r "${GITHUB_WORKSPACE}/release-artifacts/sedrazavi-complete-suite.zip" ./*)
           
           echo "All ZIP artifacts built successfully."
 

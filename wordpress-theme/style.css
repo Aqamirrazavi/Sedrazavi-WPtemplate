@@ -1537,3 +1537,51 @@ img {
 .sr-pattern-download-box { display: block; position: relative; margin-top: 1.5rem; margin-bottom: 1.5rem; }
 .sr-pattern-vip-tiers { display: block; position: relative; padding-top: 2rem; padding-bottom: 2rem; }
 
+/* Multi-Niche Specialized Agency, Corporate & Store Classes */
+.sr-agency-frontpage { display: block; position: relative; }
+.sr-store-frontpage { display: block; position: relative; }
+.sr-corporate-frontpage { display: block; position: relative; }
+.space-y-24 > :not([hidden]) ~ :not([hidden]) { --tw-space-y-reverse: 0; margin-top: calc(6rem * calc(1 - var(--tw-space-y-reverse))); margin-bottom: calc(6rem * var(--tw-space-y-reverse)); }
+.space-y-20 > :not([hidden]) ~ :not([hidden]) { --tw-space-y-reverse: 0; margin-top: calc(5rem * calc(1 - var(--tw-space-y-reverse))); margin-bottom: calc(5rem * var(--tw-space-y-reverse)); }
+@media (min-width: 640px) { .sm\:p-14 { padding: 3.5rem !important; } }
+.via-slate-950 { --tw-gradient-to: rgb(2 6 23 / 0); --tw-gradient-stops: var(--tw-gradient-from), #020617, var(--tw-gradient-to); }
+.to-blue-950\/40 { --tw-gradient-to: rgba(23, 37, 84, 0.4) !important; }
+.to-sky-950\/40 { --tw-gradient-to: rgba(8, 47, 73, 0.4) !important; }
+.-right-24 { right: -6rem !important; }
+.-bottom-24 { bottom: -6rem !important; }
+.-left-24 { left: -6rem !important; }
+.from-blue-400 { --tw-gradient-from: #60a5fa !important; --tw-gradient-to: rgb(96 165 250 / 0) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
+.to-indigo-300 { --tw-gradient-to: #a5b4fc !important; }
+.to-blue-300 { --tw-gradient-to: #93c5fd !important; }
+.shadow-blue-600\/25 { box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.25), 0 4px 6px -4px rgba(37, 99, 235, 0.25) !important; }
+.shadow-sky-600\/25 { box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.25), 0 4px 6px -4px rgba(2, 132, 199, 0.25) !important; }
+.shadow-sky-600\/30 { box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.3), 0 4px 6px -4px rgba(2, 132, 199, 0.3) !important; }
+.hover\:border-blue-500\/40:hover { border-color: rgba(59, 130, 246, 0.4) !important; }
+.hover\:border-sky-500\/40:hover { border-color: rgba(14, 165, 233, 0.4) !important; }
+.bg-indigo-600\/20 { background-color: rgba(79, 70, 229, 0.2) !important; }
+.bg-emerald-600\/20 { background-color: rgba(5, 150, 105, 0.2) !important; }
+.bg-sky-500\/15 { background-color: rgba(14, 165, 233, 0.15) !important; }
+.bg-blue-500\/15 { background-color: rgba(59, 130, 246, 0.15) !important; }
+.bg-sky-500\/10 { background-color: rgba(14, 165, 233, 0.1) !important; }
+.border-sky-500\/30 { border-color: rgba(14, 165, 233, 0.3) !important; }
+.text-sky-400 { color: #38bdf8 !important; }
+.bg-sky-400 { background-color: #38bdf8 !important; }
+.bg-sky-600 { background-color: #0284c7 !important; }
+.hover\:bg-sky-500:hover { background-color: #0ea5e9 !important; }
+.border-emerald-900\/40 { border-color: rgba(6, 78, 59, 0.4) !important; }
+.to-emerald-950\/50 { --tw-gradient-to: rgba(2, 44, 34, 0.5) !important; }
+.shadow-emerald-600\/30 { box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3), 0 4px 6px -4px rgba(5, 150, 105, 0.3) !important; }
+
+/* Dynamic Header and Footer Agnostic Utilities */
+.custom-footer-logo { display: inline-block; max-width: 180px; }
+.custom-logo-wrap { display: flex; align-items: center; max-height: 48px; }
+.custom-logo-wrap img, .custom-footer-logo img { max-height: 42px; width: auto; object-fit: contain; }
+.focus\:border-sr-gold:focus { border-color: var(--sr-gold-accent) !important; }
+.placeholder\:text-sr-muted::placeholder { color: var(--sr-text-muted) !important; }
+.left-1\.5 { left: 0.375rem !important; }
+.top-1\.5 { top: 0.375rem !important; }
+.bg-sr-gold { background-color: var(--sr-gold-accent) !important; }
+.hover\:bg-sr-gold-hover:hover { background-color: var(--sr-gold-accent-hover) !important; }
+.text-sr-text-inverted { color: var(--sr-text-inverted) !important; }
+.from-sky-400 { --tw-gradient-from: #38bdf8 !important; --tw-gradient-to: rgb(56 189 248 / 0) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
+

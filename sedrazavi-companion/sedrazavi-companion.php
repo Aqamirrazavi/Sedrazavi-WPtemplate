@@ -34,6 +34,10 @@ require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-magazine-editorial.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-dynamic-client-dashboard.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-demo-importer.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-woocommerce-shetab-gateway.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-design-tokens.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-sms-gateway-adapter.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-email-engine.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-admin-dashboard.php';
 
 /**
  * Initialize Companion Subsystems
@@ -52,6 +56,10 @@ function sedrazavi_companion_init() {
     SedRazavi_Dynamic_Client_Dashboard::get_instance();
     SedRazavi_Demo_Importer::get_instance();
     SedRazavi_WooCommerce_Shetab_Gateway::get_instance();
+    SedRazavi_Design_Tokens::get_instance();
+    SedRazavi_SMS_Gateway_Adapter::get_instance();
+    SedRazavi_Email_Engine::get_instance();
+    SedRazavi_Admin_Dashboard::get_instance();
 }
 add_action('plugins_loaded', 'sedrazavi_companion_init');
 

@@ -370,7 +370,32 @@ if (!function_exists('enqueue_react_assets')) {
             }
         }
 
-        // 6.4. Production Build Path Detection for Minified JS (Single official target: app-dist)
+        // 6.4. Conditional check: load React engine only when required by components or templates
+        global $post;
+        $needs_react = false;
+
+        if (is_front_page() || is_home()) {
+            $needs_react = true;
+        } elseif (is_a($post, 'WP_Post')) {
+            if (has_shortcode($post->post_content, 'react_component') ||
+                has_shortcode($post->post_content, 'sedrazavi_dashboard') ||
+                has_shortcode($post->post_content, 'sedrazavi_calculator') ||
+                has_shortcode($post->post_content, 'sedrazavi_client_portal') ||
+                has_shortcode($post->post_content, 'multi-niche-showcase') ||
+                strpos($post->post_content, 'sedrazavi-app-mount') !== false) {
+                $needs_react = true;
+            }
+        }
+
+        if (is_admin() || (current_user_can('manage_options') && isset($_GET['preview']))) {
+            $needs_react = true;
+        }
+
+        if (!$needs_react) {
+            return;
+        }
+
+        // 6.5. Production Build Path Detection for Minified JS (Single official target: app-dist)
         $candidate_js_dirs = [
             'app-dist/index.js',
         ];

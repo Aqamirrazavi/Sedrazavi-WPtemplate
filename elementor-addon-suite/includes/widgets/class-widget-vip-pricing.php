@@ -2,6 +2,8 @@
 namespace UniversalElementorSuite\Widgets;
 
 use Elementor\Controls_Manager;
+use Elementor\Group_Control_Typography;
+use Elementor\Group_Control_Box_Shadow;
 use UniversalElementorSuite\Universal_Widget_Base;
 
 if (!defined('ABSPATH')) {
@@ -9,7 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * VIP Membership Tiers & Media Paywall Elementor Widget
+ * VIP Membership Tiers & Media Paywall Elementor Widget with Visual Style Tab
  */
 class Universal_VIP_Pricing_Widget extends Universal_Widget_Base {
 
@@ -30,6 +32,7 @@ class Universal_VIP_Pricing_Widget extends Universal_Widget_Base {
     }
 
     protected function register_controls() {
+        // --- CONTENT SECTION ---
         $this->start_controls_section(
             'section_content',
             [
@@ -60,7 +63,7 @@ class Universal_VIP_Pricing_Widget extends Universal_Widget_Base {
         $this->add_control(
             'show_quarterly',
             [
-                'label'        => esc_html__('نمایش پلن ۳ ماهه (پیشنهاد ویژه)', 'universal-elementor-suite'),
+                'label'        => esc_html__('نمایش پلن ۳ ماهه (پیشنهادی)', 'universal-elementor-suite'),
                 'type'         => Controls_Manager::SWITCHER,
                 'default'      => 'yes',
                 'return_value' => 'yes',
@@ -70,10 +73,75 @@ class Universal_VIP_Pricing_Widget extends Universal_Widget_Base {
         $this->add_control(
             'show_yearly',
             [
-                'label'        => esc_html__('نمایش پلن ۱ ساله VIP طلایی', 'universal-elementor-suite'),
+                'label'        => esc_html__('نمایش پلن ۱ ساله طلایی', 'universal-elementor-suite'),
                 'type'         => Controls_Manager::SWITCHER,
                 'default'      => 'yes',
                 'return_value' => 'yes',
+            ]
+        );
+
+        $this->end_controls_section();
+
+        // --- STYLE SECTION ---
+        $this->start_controls_section(
+            'section_style_pricing',
+            [
+                'label' => esc_html__('استایل و رنگ‌بندی جدول قیمت', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_STYLE,
+            ]
+        );
+
+        $this->add_control(
+            'card_bg_color',
+            [
+                'label'     => esc_html__('رنگ پس‌زمینه کارت‌ها', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::COLOR,
+                'default'   => '#0f172a',
+                'selectors' => [
+                    '{{WRAPPER}} .uas-vip-pricing-custom' => 'background-color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'vip_accent_color',
+            [
+                'label'     => esc_html__('رنگ برجسته پلن طلایی و دکمه‌ها', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::COLOR,
+                'default'   => '#f59e0b',
+                'selectors' => [
+                    '{{WRAPPER}} .uas-vip-pricing-custom .badge-gold' => 'background-color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->add_group_control(
+            Group_Control_Typography::get_type(),
+            [
+                'name'     => 'header_typography',
+                'label'    => esc_html__('تایپوگرافی عنوان', 'universal-elementor-suite'),
+                'selector' => '{{WRAPPER}} .uas-vip-pricing-custom h3',
+            ]
+        );
+
+        $this->add_responsive_control(
+            'card_border_radius',
+            [
+                'label'      => esc_html__('گردی لبه‌ها (Border Radius)', 'universal-elementor-suite'),
+                'type'       => Controls_Manager::DIMENSIONS,
+                'size_units' => ['px', '%'],
+                'selectors'  => [
+                    '{{WRAPPER}} .uas-vip-pricing-custom' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->add_group_control(
+            Group_Control_Box_Shadow::get_type(),
+            [
+                'name'     => 'pricing_shadow',
+                'label'    => esc_html__('سایه کارت‌های اشتراک', 'universal-elementor-suite'),
+                'selector' => '{{WRAPPER}} .uas-vip-pricing-custom',
             ]
         );
 
@@ -83,10 +151,15 @@ class Universal_VIP_Pricing_Widget extends Universal_Widget_Base {
     protected function render() {
         $settings = $this->get_settings_for_display();
         $title = $settings['header_title'];
-
-        echo do_shortcode(sprintf(
-            '[sedrazavi_vip_pricing_table title="%s"]',
-            esc_attr($title)
-        ));
+        ?>
+        <div class="uas-vip-pricing-custom uas-widget-container" dir="rtl" style="border: 1px solid rgba(255,255,255,0.1); padding: 24px; border-radius: 16px;">
+            <?php
+            echo do_shortcode(sprintf(
+                '[sedrazavi_vip_pricing title="%s"]',
+                esc_attr($title)
+            ));
+            ?>
+        </div>
+        <?php
     }
 }
