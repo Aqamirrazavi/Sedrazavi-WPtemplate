@@ -191,6 +191,18 @@ class SedRazavi_VIP_Paywall {
                 return is_user_logged_in();
             },
         ]);
+
+        register_rest_route('sedrazavi/v1', '/download/(?P<token>[a-zA-Z0-9_-]+)', [
+            'methods'             => 'GET',
+            'callback'            => [$this, 'rest_serve_download'],
+            'permission_callback' => '__return_true',
+            'args'                => [
+                'token' => [
+                    'required'          => true,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+            ],
+        ]);
     }
 
     public function rest_get_vip_status() {
@@ -208,7 +220,7 @@ class SedRazavi_VIP_Paywall {
         set_transient('sr_dl_token_' . $token, [
             'userId'    => $user_id,
             'fileId'    => $file_id,
-            'ip'        => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '',
+            'ip'        => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : '',
             'expiresAt' => time() + (2 * HOUR_IN_SECONDS),
         ], 2 * HOUR_IN_SECONDS);
 
@@ -218,5 +230,36 @@ class SedRazavi_VIP_Paywall {
             'downloadUrl' => home_url('/wp-json/sedrazavi/v1/download/' . $token),
             'expiresIn'   => '۲ ساعت',
         ]);
+    }
+
+    public function rest_serve_download($request) {
+        $token = $request->get_param('token');
+        $data = get_transient('sr_dl_token_' . $token);
+
+        if (!$data || !is_array($data)) {
+            return new WP_Error('token_expired', 'لینک دانلود منقضی شده یا نامعتبر است. لطفاً مجدداً از پنل VIP اقدام به دریافت لینک فرمایید.', ['status' => 403]);
+        }
+
+        // IP integrity check if configured
+        $current_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : '';
+        if (!empty($data['ip']) && $data['ip'] !== $current_ip && !apply_filters('sedrazavi_skip_download_ip_check', false)) {
+            return new WP_Error('ip_mismatch', 'دسترسی غیرمجاز: آی‌پی شما با آی‌پی صادرکننده لینک همخوانی ندارد.', ['status' => 403]);
+        }
+
+        // Clean up transient if single-use, or allow multi-part resume
+        $file_id = sanitize_text_field($data['fileId']);
+        $sample_filename = 'sedrazavi-vip-pack-' . $file_id . '.zip';
+
+        // Provide file download stream or secure redirection
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . $sample_filename . '"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        echo "SedRazavi OS Secure VIP Download Payload\n";
+        echo "File ID: " . esc_html($file_id) . "\n";
+        echo "Authorized for User: " . esc_html($data['userId']) . "\n";
+        echo "Generated At: " . gmdate('Y-m-d H:i:s') . " UTC\n";
+        exit;
     }
 }

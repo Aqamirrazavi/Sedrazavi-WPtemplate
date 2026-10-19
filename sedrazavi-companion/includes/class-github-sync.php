@@ -86,7 +86,7 @@ class SedRazavi_GitHub_Shield {
         if (false === $remote_release) {
             $remote_release = [
                 'version'     => '5.0.0',
-                'download_url'=> 'https://github.com/sedrazavi/sedrazavi-theme/archive/refs/tags/v5.0.0.zip',
+                'download_url'=> 'https://github.com/Aqamirrazavi/Sedrazavi-WPtemplate/archive/refs/tags/v5.0.0.zip',
                 'notes'       => 'Master Architectural Decoupling & Multi-Niche Child Themes Edition',
             ];
             set_transient('sedrazavi_github_release_cache', $remote_release, 12 * HOUR_IN_SECONDS);

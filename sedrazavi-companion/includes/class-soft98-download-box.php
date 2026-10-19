@@ -115,8 +115,29 @@ class SedRazavi_Soft98_Download_Box {
                         </div>
                     </div>
 
-                    <!-- Broken link reporter -->
-                    <button type="button" class="text-rose-400 hover:text-rose-300 text-[11px] flex items-center gap-1 transition-colors" onclick="fetch('<?php echo admin_url('admin-ajax.php?action=sedrazavi_report_broken_link'); ?>').then(()=>alert('گزارش خرابی لینک ثبت شد. متشکریم!'));">
+                    <!-- Broken link reporter with nonce and rate-limiting -->
+                    <?php $nonce = wp_create_nonce('sedrazavi_nonce'); ?>
+                    <button type="button" class="text-rose-400 hover:text-rose-300 text-[11px] flex items-center gap-1 transition-colors" onclick="
+                        var btn = this;
+                        btn.disabled = true;
+                        btn.innerText = 'در حال ثبت...';
+                        var data = new FormData();
+                        data.append('action', 'sedrazavi_report_broken_link');
+                        data.append('nonce', '<?php echo esc_js($nonce); ?>');
+                        data.append('post_id', '<?php echo esc_js(get_the_ID() ?: 0); ?>');
+                        data.append('link_url', '<?php echo esc_js($atts['direct_url']); ?>');
+                        fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: data })
+                            .then(function(r) { return r.json(); })
+                            .then(function(res) {
+                                if (res.success) {
+                                    btn.innerText = '✅ گزارش ثبت شد';
+                                } else {
+                                    btn.innerText = '⚠️ ' + (res.data && res.data.message ? res.data.message : 'خطا');
+                                }
+                            }).catch(function() {
+                                btn.innerText = 'خطا در ارتباط';
+                            });
+                    ">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                         <span>گزارش خرابی لینک</span>
                     </button>
@@ -128,6 +149,54 @@ class SedRazavi_Soft98_Download_Box {
     }
 
     public function ajax_report_broken_link() {
-        wp_send_json_success(['message' => 'گزارش خرابی دریافت شد.']);
+        // 1. Nonce check
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
+        if (!wp_verify_nonce($nonce, 'sedrazavi_nonce')) {
+            wp_send_json_error(['message' => 'کد امنیتی نامعتبر است (Invalid Nonce)'], 403);
+        }
+
+        // 2. IP Rate Limit: Max 3 reports per hour per IP
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+        $rate_key = 'sr_broken_report_' . md5($ip);
+        $attempts = (int) get_transient($rate_key);
+
+        if ($attempts >= 3) {
+            wp_send_json_error(['message' => 'محدودیت ارسال: شما حداکثر ۳ گزارش در هر ساعت مجاز به ارسال هستید.'], 429);
+        }
+
+        set_transient($rate_key, $attempts + 1, HOUR_IN_SECONDS);
+
+        // 3. Sanitize inputs
+        $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+        $link_url = isset($_POST['link_url']) ? esc_url_raw($_POST['link_url']) : '';
+
+        $report_entry = [
+            'timestamp' => current_time('mysql'),
+            'ip'        => $ip,
+            'link'      => $link_url,
+            'userAgent' => isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(substr($_SERVER['HTTP_USER_AGENT'], 0, 150)) : '',
+        ];
+
+        // 4. Store in post meta or global option
+        if ($post_id > 0) {
+            $existing_logs = get_post_meta($post_id, '_sedrazavi_broken_links_log', true) ?: [];
+            $existing_logs[] = $report_entry;
+            update_post_meta($post_id, '_sedrazavi_broken_links_log', $existing_logs);
+        }
+
+        $global_logs = get_option('_sedrazavi_recent_broken_links', []) ?: [];
+        array_unshift($global_logs, array_merge($report_entry, ['postId' => $post_id]));
+        if (count($global_logs) > 50) {
+            $global_logs = array_slice($global_logs, 0, 50);
+        }
+        update_option('_sedrazavi_recent_broken_links', $global_logs);
+
+        // 5. Trigger email or admin notification filter
+        do_action('sedrazavi_broken_link_reported', $post_id, $link_url, $report_entry);
+
+        wp_send_json_success([
+            'message' => 'گزارش خرابی لینک با موفقیت ثبت شد و به مدیر سایت اطلاع‌رسانی گردید.',
+            'logged'  => true,
+        ]);
     }
 }

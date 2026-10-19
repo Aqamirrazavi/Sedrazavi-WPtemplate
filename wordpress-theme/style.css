@@ -1525,3 +1525,15 @@ img {
 .dashicons { font-family: dashicons; }
 .dashicons-bell:before { content: "\f168"; }
 .ab-label { display: inline-block; vertical-align: middle; }
+
+/* WordPress Native Gutenberg & Multi-Niche Block Pattern Styling */
+.wp-block-group { display: block; position: relative; box-sizing: border-box; }
+.alignfull { width: 100vw; max-width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); }
+.alignwide { width: 100%; max-width: 1280px; margin-left: auto; margin-right: auto; }
+.has-text-align-center { text-align: center !important; }
+.sr-pattern-curriculum { border-radius: 1.5rem; background-color: #0f172a; border: 1px solid #1e293b; padding: 1.5rem; }
+.sr-pattern-freemium-showcase { display: block; position: relative; padding-top: 1.5rem; padding-bottom: 1.5rem; }
+.sr-pattern-news-grid { display: block; position: relative; }
+.sr-pattern-download-box { display: block; position: relative; margin-top: 1.5rem; margin-bottom: 1.5rem; }
+.sr-pattern-vip-tiers { display: block; position: relative; padding-top: 2rem; padding-bottom: 2rem; }
+

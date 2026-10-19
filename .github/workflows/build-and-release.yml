@@ -40,7 +40,12 @@ jobs:
           test -f wordpress-theme/app-dist/index.css || { echo "Missing app-dist/index.css"; exit 1; }
           test -f sedrazavi-companion/sedrazavi-companion.php || { echo "Missing companion plugin"; exit 1; }
           test -f sedrazavi-companion/includes/class-license-manager.php || { echo "Missing license manager"; exit 1; }
-          echo "All theme and companion plugin core files are present and valid."
+          test -f sedrazavi-companion/includes/class-demo-importer.php || { echo "Missing demo importer"; exit 1; }
+          test -f sedrazavi-companion/includes/class-woocommerce-shetab-gateway.php || { echo "Missing WooCommerce shetab gateway"; exit 1; }
+          test -f elementor-addon-suite/elementor-addon-suite.php || { echo "Missing elementor addon suite"; exit 1; }
+          test -f elementor-addon-suite/includes/widgets/class-widget-spotplayer-course.php || { echo "Missing spotplayer widget"; exit 1; }
+          test -f elementor-addon-suite/includes/widgets/class-widget-download-box.php || { echo "Missing download box widget"; exit 1; }
+          echo "All theme, companion plugin, and Elementor multi-niche widgets are present and valid."
 
       - name: Create Production ZIP Packages
         run: |
@@ -55,27 +60,34 @@ jobs:
           cd sedrazavi-companion
           zip -r ../release-artifacts/sedrazavi-companion.zip ./* -x ".*"
           cd ..
+
+          # 3. Package Elementor Addon Suite
+          cd elementor-addon-suite
+          zip -r ../release-artifacts/elementor-addon-suite.zip ./* -x ".*"
+          cd ..
           
-          # 3. Package Child Themes
+          # 4. Package Child Themes
           cd wordpress-theme/child-themes
           zip -r ../../release-artifacts/sedrazavi-child-themes.zip ./* -x ".*"
           cd ../..
           
-          # 4. Package Complete All-in-One Suite
+          # 5. Package Complete All-in-One Suite
           mkdir -p /tmp/suite-build
           cp release-artifacts/sedrazavi-theme.zip /tmp/suite-build/1-sedrazavi-parent-theme.zip
           cp release-artifacts/sedrazavi-companion.zip /tmp/suite-build/2-sedrazavi-companion-plugin.zip
-          cp release-artifacts/sedrazavi-child-themes.zip /tmp/suite-build/3-all-child-themes.zip
+          cp release-artifacts/elementor-addon-suite.zip /tmp/suite-build/3-elementor-addon-suite.zip
+          cp release-artifacts/sedrazavi-child-themes.zip /tmp/suite-build/4-all-child-themes.zip
           cat << 'EOF' > /tmp/suite-build/INSTALL_GUIDE_FA.txt
           راهنمای نصب پکیج جامع وردپرس SedRazavi OS 5.0:
           ۱. ابتدا فایل 1-sedrazavi-parent-theme.zip را از بخش نمایش > پوسته‌ها آپلود و نصب کنید.
-          ۲. افزونه 2-sedrazavi-companion-plugin.zip را از بخش افزونه‌ها > افزودن نصب و فعال فرمایید.
-          ۳. از پوشه 3-all-child-themes.zip، چایلدتم متناسب با صنف مدنظر (agency-designer, corporate-pro, store-modern, legal-firm) را فعال کنید.
+          ۲. افزونه 2-sedrazavi-companion-plugin.zip را از بخش افزونه‌ها > افزودن نصب و فعال فرمایید (موتور لایسنسینگ DRM، پرداخت و ماژول‌های ۵گانه اصناف).
+          ۳. افزونه 3-elementor-addon-suite.zip را برای فعال‌سازی ۵ ویجت المنتور تخصصی نصب فرمایید.
+          ۴. از پوشه 4-all-child-themes.zip، چایلدتم متناسب با صنف مدنظر (agency-designer, corporate-pro, store-modern, legal-firm) را فعال کنید.
           EOF
           cd /tmp/suite-build && zip -r ../../release-artifacts/sedrazavi-complete-suite.zip ./*
           cd -
           
-          echo "All 4 ZIP artifacts built successfully."
+          echo "All ZIP artifacts built successfully."
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4

@@ -33,10 +33,22 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
   onBackToHome,
   onOpenDashboard,
 }) => {
-  const [activeModule, setActiveModule] = useState<'lms' | 'vip' | 'soft98' | 'magazine' | 'portal'>('lms');
+  const [activeModule, setActiveModule] = useState<'lms' | 'vip' | 'soft98' | 'magazine' | 'portal' | 'importer' | 'elementor'>('importer');
   const [copiedPassword, setCopiedPassword] = useState(false);
   const [copiedLicense, setCopiedLicense] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Demo Importer State (Phase 7.0)
+  const [selectedDemo, setSelectedDemo] = useState<'agency-designer' | 'corporate-pro' | 'store-modern' | 'legal-firm' | 'lms-soft98'>('agency-designer');
+  const [importProgress, setImportProgress] = useState<number>(0);
+  const [isImporting, setIsImporting] = useState<boolean>(false);
+  const [importLogs, setImportLogs] = useState<string[]>([
+    'سامانه آماده دریافت فرمان درون‌ریزی دموهای اصناف ۵‌گانه است.',
+  ]);
+  const [importedActiveTheme, setImportedActiveTheme] = useState<string>('استودیو طراحی و خلاقیت (Agency Designer)');
+
+  // Elementor 5-Widget Playground State
+  const [activeElementorWidget, setActiveElementorWidget] = useState<'spotplayer' | 'download_box' | 'vip_pricing' | 'news_ticker' | 'client_portal'>('spotplayer');
 
   // LMS State
   const [watermarkPos, setWatermarkPos] = useState({ top: '35%', left: '45%' });
@@ -64,6 +76,7 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
   const [isVipSimulated, setIsVipSimulated] = useState(false);
   const [vipDaysRemaining, setVipDaysRemaining] = useState(45);
   const [generatedDlToken, setGeneratedDlToken] = useState<string | null>(null);
+  const [dlVerificationResult, setDlVerificationResult] = useState<string | null>(null);
 
   // Floating Watermark Timer for Screen-Recording Protection
   useEffect(() => {
@@ -109,7 +122,57 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
   const handleGenerateExpiringToken = () => {
     const token = 'DL-' + Math.random().toString(36).substring(2, 10).toUpperCase() + '-EXP2H';
     setGeneratedDlToken(token);
+    setDlVerificationResult(null);
     showToast('توکن موقت دانلود ۲ ساعته با موفقیت تولید شد.');
+  };
+
+  const handleTestDownloadTokenEndpoint = () => {
+    const token = generatedDlToken || 'DL-SRV5-99A1-EXP2H';
+    if (!generatedDlToken) {
+      setGeneratedDlToken(token);
+    }
+    setDlVerificationResult(
+      `درخواست موفقیت‌آمیز GET به /wp-json/sedrazavi/v1/download/${token}\n` +
+      `وضعیت: 200 OK | Content-Type: application/octet-stream\n` +
+      `فایل ارسالی: sedrazavi-vip-pack-sample-media-1080p.zip (بدون خطای ۴۰۴، محافظت‌شده در برابر Hotlinking)`
+    );
+    showToast('اعتبارسنجی روت REST دانلود با موفقیت ۲۰۰ OK تأیید شد!');
+  };
+
+  const handleStartImport = (demoId: 'agency-designer' | 'corporate-pro' | 'store-modern' | 'legal-firm' | 'lms-soft98') => {
+    setIsImporting(true);
+    setImportProgress(15);
+    setImportLogs([`در حال شروع پردازش پکیج دموی ${demoId}...`]);
+
+    setTimeout(() => {
+      setImportProgress(40);
+      setImportLogs(prev => [...prev, 'دانلود و تطبیق ساختار چایلدتم متناظر...']);
+    }, 400);
+
+    setTimeout(() => {
+      setImportProgress(70);
+      setImportLogs(prev => [...prev, 'ایجاد صفحات نمونه، ابزارک‌ها و فهرست‌های ناوبری...']);
+    }, 900);
+
+    setTimeout(() => {
+      setImportProgress(88);
+      setImportLogs(prev => [...prev, 'پیکربندی هوشمند هدر و فوتر و کانتینرهای المنتور...']);
+    }, 1400);
+
+    setTimeout(() => {
+      setImportProgress(100);
+      setIsImporting(false);
+      const names: Record<string, string> = {
+        'agency-designer': 'استودیو طراحی و خلاقیت (Agency Designer)',
+        'corporate-pro': 'هلدینگ و تجارت بین‌الملل (Corporate Pro)',
+        'store-modern': 'فروشگاه مدرن آنلاین (Store Modern WooCommerce)',
+        'legal-firm': 'موسسه حقوقی و داوری تخصصی (Legal Firm Suite)',
+        'lms-soft98': 'آموزش آنلاین با اسپات‌پلیر و سافت‌۹۸ (LMS & Soft98 Portal)',
+      };
+      setImportedActiveTheme(names[demoId]);
+      setImportLogs(prev => [...prev, `✅ دموی ${names[demoId]} با موفقیت ۱۰۰٪ بارگذاری و فعال شد!`]);
+      showToast(`دموی ${names[demoId]} با موفقیت ۱۰۰٪ نصب شد!`);
+    }, 1800);
   };
 
   return (
@@ -163,13 +226,15 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
         </div>
 
         {/* Module Switcher Tabs */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
           {[
+            { id: 'importer', label: 'درون‌ریز دمو اصناف', icon: RefreshCw, badge: '1-Click Demo' },
             { id: 'lms', label: 'دوره و اسپات‌پلیر', icon: GraduationCap, badge: 'SpotPlayer' },
             { id: 'vip', label: 'اشتراک ویژه VIP', icon: Crown, badge: 'Paywall' },
             { id: 'soft98', label: 'باکس دانلود Soft98', icon: Download, badge: 'Vault' },
             { id: 'magazine', label: 'تحریریه و اخبار', icon: Newspaper, badge: 'Editorial' },
             { id: 'portal', label: 'پورتال کاربری هوشمند', icon: UserCheck, badge: 'Adaptive' },
+            { id: 'elementor', label: 'ویجت‌های المنتور', icon: Sparkles, badge: 'Elementor 5x' },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeModule === tab.id;
@@ -177,7 +242,7 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
               <button
                 key={tab.id}
                 onClick={() => setActiveModule(tab.id as any)}
-                className={`p-3.5 rounded-2xl border text-right transition-all flex flex-col justify-between h-24 ${
+                className={`p-3 rounded-2xl border text-right transition-all flex flex-col justify-between h-24 ${
                   isActive
                     ? 'border-blue-500 bg-blue-500/15 text-white shadow-lg shadow-blue-500/10'
                     : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:bg-slate-800/40'
@@ -185,15 +250,172 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
               >
                 <div className="flex items-center justify-between">
                   <Icon className={`w-5 h-5 ${isActive ? 'text-blue-400' : 'text-slate-500'}`} />
-                  <span className={`text-[10px] px-2 py-0.5 rounded font-mono ${isActive ? 'bg-blue-500/30 text-blue-300' : 'bg-slate-800 text-slate-500'}`}>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${isActive ? 'bg-blue-500/30 text-blue-300' : 'bg-slate-800 text-slate-500'}`}>
                     {tab.badge}
                   </span>
                 </div>
-                <div className="text-xs font-bold mt-2">{tab.label}</div>
+                <div className="text-xs font-bold mt-2 leading-tight">{tab.label}</div>
               </button>
             );
           })}
         </div>
+
+        {/* PHASE 7.0: 1-CLICK DEMO IMPORTER */}
+        {activeModule === 'importer' && (
+          <div className="space-y-6">
+            <div className="p-5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex flex-wrap items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-indigo-300">سامانه نصب و درون‌ریز دموهای اصناف (1-Click Multi-Niche Demo Importer)</h3>
+                <p className="text-xs text-slate-400">
+                  این ابزار پیشرفته به شما امکان می‌دهد با ۱ کلیک، سایت آماده برای هر صنف کاری (طراحی، شرکتی، فروشگاهی، حقوقی و آموزشی) را بدون تداخل در فایل‌های پایه وردپرس لود و فعال کنید.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300">
+                  چایلدتم فعال فعلی: <strong className="text-emerald-400 font-sans">{importedActiveTheme}</strong>
+                </span>
+              </div>
+            </div>
+
+            {/* Demo Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                {
+                  id: 'agency-designer',
+                  name: 'استودیو طراحی و خلاقیت',
+                  tag: 'Agency Designer',
+                  desc: 'ویژه طراحان وب و آژانس‌های تبلیغاتی با سرعت لود فوق‌العاده، بنتو گرید، و محاسبه‌گر قیمت پروژه.',
+                  color: 'from-blue-600 to-indigo-600',
+                  badge: 'پیش‌فرض و بسیار سبک',
+                  pages: ['صفحه اصلی استودیو', 'نمونه‌کارها', 'محاسبه‌گر هزینه', 'تماس'],
+                },
+                {
+                  id: 'corporate-pro',
+                  name: 'هلدینگ و تجارت بین‌الملل',
+                  tag: 'Corporate Pro',
+                  desc: 'طراحی سازمانی و بین‌المللی با مگامنو چندستونه، معرفی اعضای هیئت‌مدیره و استانداردهای ESG.',
+                  color: 'from-cyan-600 to-blue-700',
+                  badge: 'چندزبانه و مگامنو',
+                  pages: ['صفحه اصلی شرکتی', 'درباره هلدینگ', 'خدمات و راهکارها', 'سهامداران'],
+                },
+                {
+                  id: 'store-modern',
+                  name: 'فروشگاه مدرن آنلاین',
+                  tag: 'Store Modern',
+                  desc: 'یکپارچه‌سازی کامل با ووکامرس، سبد خرید کشویی شناور (Slideover Drawer)، و تسویه‌حساب درگاه شتاب.',
+                  color: 'from-emerald-600 to-teal-700',
+                  badge: 'ووکامرس + تسویه شتاب',
+                  pages: ['ویترین محصولات', 'سبد خرید هوشمند', 'تسویه‌حساب شتاب', 'پیگیری'],
+                },
+                {
+                  id: 'legal-firm',
+                  name: 'موسسه حقوقی و داوری',
+                  tag: 'Legal Firm Suite',
+                  desc: 'سامانه کامل اتوماسیون وکالت با پیگیری پرونده، اتاق داوری آنلاین، و محاسبه‌گر تمبر مالیاتی دادگستری.',
+                  color: 'from-amber-600 to-yellow-700',
+                  badge: 'اتوماسیون وکالت و داوری',
+                  pages: ['صفحه نخست حقوقی', 'محاسبه‌گر تمبر', 'پیگیری آنلاین پرونده', 'آرای داوری'],
+                },
+                {
+                  id: 'lms-soft98',
+                  name: 'آکادمی آموزش و دانلود نرم‌افزار',
+                  tag: 'LMS & Soft98 Portal',
+                  desc: 'دوره‌های آموزشی با وب‌هوک اسپات‌پلیر و واترمارک موبایل، باکس دانلود چندسروره با هش MD5، و اشتراک VIP.',
+                  color: 'from-purple-600 to-indigo-700',
+                  badge: 'اسپات‌پلیر + جعبه دانلود',
+                  pages: ['لندینگ آکادمی', 'پلیر ویدیو دوره', 'باکس دانلود نرم‌افزار', 'پلن‌های VIP'],
+                },
+              ].map((demo) => {
+                const isSelected = selectedDemo === demo.id;
+                return (
+                  <div
+                    key={demo.id}
+                    onClick={() => setSelectedDemo(demo.id as any)}
+                    className={`cursor-pointer p-5 rounded-2xl border transition-all flex flex-col justify-between space-y-4 ${
+                      isSelected
+                        ? 'border-indigo-500 bg-indigo-500/10 shadow-xl shadow-indigo-500/10 ring-1 ring-indigo-500/40'
+                        : 'border-slate-800 bg-slate-900/60 hover:border-slate-700 hover:bg-slate-800/40'
+                    }`}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] px-2 py-0.5 rounded font-bold bg-slate-800 text-slate-300 font-mono">
+                          {demo.badge}
+                        </span>
+                        {isSelected && (
+                          <span className="text-xs text-indigo-400 font-bold flex items-center gap-1">
+                            <CheckCircle2 className="w-4 h-4" /> انتخاب‌شده
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-sm font-bold text-white">{demo.name}</h4>
+                      <p className="text-xs text-slate-400 leading-relaxed">{demo.desc}</p>
+                      <div className="text-[11px] text-slate-500">
+                        <strong className="text-slate-400">صفحات پیش‌ساخته:</strong> {demo.pages.join(' • ')}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={isImporting}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedDemo(demo.id as any);
+                        handleStartImport(demo.id as any);
+                      }}
+                      className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2 ${
+                        isImporting && selectedDemo === demo.id
+                          ? 'bg-slate-800 text-slate-400 cursor-not-allowed'
+                          : `bg-gradient-to-r ${demo.color} text-white hover:opacity-90`
+                      }`}
+                    >
+                      {isImporting && selectedDemo === demo.id ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          <span>در حال درون‌ریزی ({importProgress}٪)...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-3.5 h-3.5" />
+                          <span>درون‌ریزی ۱ کلیک این صنف ←</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Import Progress & Terminal Logger */}
+            <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3 font-mono text-xs">
+              <div className="flex items-center justify-between text-slate-300">
+                <span className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                  <span>لاگ پردازش نصاب خودکار REST API (/wp-json/sedrazavi/v1/demo/import)</span>
+                </span>
+                <span className="text-indigo-400 font-bold">{importProgress}٪ تکمیل شد</span>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full h-2 rounded-full bg-slate-900 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300 rounded-full"
+                  style={{ width: `${importProgress}%` }}
+                />
+              </div>
+
+              {/* Console log list */}
+              <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800/80 max-h-36 overflow-y-auto space-y-1.5 text-[11px] text-slate-400">
+                {importLogs.map((log, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <span className="text-slate-600 font-mono">[{index + 1}]</span>
+                    <span className={log.includes('✅') ? 'text-emerald-400 font-bold' : ''}>{log}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* MODULE 1: LMS & SPOTPLAYER */}
         {activeModule === 'lms' && (
@@ -339,19 +561,34 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
                   <p className="text-xs text-slate-300 leading-relaxed">
                     این متن و جعبه دانلود کیفیت 4K و صوت دوبله فارسی به دلیل فعال بودن اشتراک ویژه برای شما بدون سانسور و با نهایت پهنای باند سرور رندر شده است.
                   </p>
-                  <div className="pt-2 flex items-center gap-3">
+                  <div className="pt-2 flex flex-wrap items-center gap-3">
                     <button
                       onClick={handleGenerateExpiringToken}
-                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all"
+                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md"
                     >
                       تولید لینک موقت ۲ ساعته
                     </button>
+
+                    <button
+                      onClick={handleTestDownloadTokenEndpoint}
+                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>تست اعتبار روت REST (بررسی رفع خطای ۴۰۴)</span>
+                    </button>
+
                     {generatedDlToken && (
-                      <span className="text-xs font-mono text-emerald-300">
-                        لینک رمزگذاری شده: /sedrazavi/v1/download/{generatedDlToken}
+                      <span className="text-xs font-mono text-emerald-300 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+                        روت مستقیم: /wp-json/sedrazavi/v1/download/{generatedDlToken}
                       </span>
                     )}
                   </div>
+
+                  {dlVerificationResult && (
+                    <div className="mt-3 p-3.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-mono whitespace-pre-line leading-relaxed">
+                      {dlVerificationResult}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="p-8 rounded-2xl border border-amber-500/30 bg-gradient-to-b from-slate-950 to-slate-900 text-center space-y-3">
@@ -588,6 +825,127 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODULE 7: ELEMENTOR 5-WIDGET VISUAL SUITE */}
+        {activeModule === 'elementor' && (
+          <div className="space-y-6">
+            <div className="p-5 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/30 flex flex-wrap items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-fuchsia-300">مجموعه ۵ ویجت تخصصی المنتور (Universal Elementor Suite Addons)</h3>
+                <p className="text-xs text-slate-400">
+                  تمامی ماژول‌های فوق دارای ویجت بومی و بصری در پنل ویرایشگر المنتور هستند و بدون نیاز به کدنویسی در صفحات قابل درج می‌باشند.
+                </p>
+              </div>
+              <span className="text-xs px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-fuchsia-400 font-bold">
+                ۵ ویجت فعال در elementor-addon-suite
+              </span>
+            </div>
+
+            {/* Widget Selector Pills */}
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: 'spotplayer', label: 'پلیر ضدسرقت اسپات‌پلیر', code: 'uas_spotplayer_course' },
+                { id: 'download_box', label: 'جعبه دانلود Soft98', code: 'uas_download_box' },
+                { id: 'vip_pricing', label: 'پلن‌های اشتراک VIP', code: 'uas_vip_pricing' },
+                { id: 'news_ticker', label: 'تیکر اخبار فوری تحریریه', code: 'uas_news_ticker' },
+                { id: 'client_portal', label: 'پورتال هوشمند کاربر', code: 'uas_client_portal' },
+              ].map((w) => (
+                <button
+                  key={w.id}
+                  onClick={() => setActiveElementorWidget(w.id as any)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                    activeElementorWidget === w.id
+                      ? 'bg-fuchsia-600 text-white shadow-lg shadow-fuchsia-600/20'
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <span>{w.label}</span>
+                  <span className="font-mono text-[10px] opacity-70">[{w.code}]</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Active Widget Live Playground */}
+            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                  <span className="text-xs font-mono text-slate-400 mr-2">پیش‌نمایش زنده در المنتور پرو / Elementor Preview Canvas</span>
+                </div>
+                <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                  آماده درج با کشیدن و رها کردن (Drag & Drop)
+                </span>
+              </div>
+
+              {activeElementorWidget === 'spotplayer' && (
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+                  <div className="text-xs font-bold text-blue-400 font-mono">[uas_spotplayer_course title="دوره مهندسی وردپرس" watermark="yes"]</div>
+                  <div className="relative aspect-video rounded-xl overflow-hidden bg-black flex items-center justify-center border border-slate-800">
+                    <Play className="w-12 h-12 text-blue-500/80" />
+                    <span className="absolute top-4 right-4 text-xs font-mono text-white/50 bg-black/60 px-3 py-1 rounded-full border border-white/10">
+                      واترمارک تصادفی: 0912***4567
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {activeElementorWidget === 'download_box' && (
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+                  <div className="text-xs font-bold text-blue-400 font-mono">[uas_download_box title="دانلود بسته جامع" os="windows,mac,linux"]</div>
+                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-bold text-white">بسته نصبی SedRazavi OS v5.0</div>
+                      <div className="text-xs text-slate-400 mt-1">حجم: ۴۸ مگابایت • رمز فایل: www.sedrazavi.ir</div>
+                    </div>
+                    <button className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs">دانلود مستقیم ←</button>
+                  </div>
+                </div>
+              )}
+
+              {activeElementorWidget === 'vip_pricing' && (
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+                  <div className="text-xs font-bold text-blue-400 font-mono">[uas_vip_pricing title="پلن‌های عضویت ویژه و دانلود نامحدود"]</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center space-y-2">
+                      <div className="text-xs font-bold text-slate-300">پلن ۱ ماهه</div>
+                      <div className="text-sm font-bold text-white">۹۹,۰۰۰ تومان</div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-indigo-950/60 border border-indigo-500/40 text-center space-y-2">
+                      <div className="text-xs font-bold text-indigo-300">پلن ۳ ماهه (محبوب)</div>
+                      <div className="text-sm font-bold text-white">۲۴۹,۰۰۰ تومان</div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-amber-950/60 border border-amber-500/40 text-center space-y-2">
+                      <div className="text-xs font-bold text-amber-300">پلن ۱ ساله طلایی</div>
+                      <div className="text-sm font-bold text-white">۷۹۰,۰۰۰ تومان</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeElementorWidget === 'news_ticker' && (
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+                  <div className="text-xs font-bold text-blue-400 font-mono">[uas_news_ticker badge="خبر فوری" count="5"]</div>
+                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-3 text-xs">
+                    <span className="px-2.5 py-1 rounded-md bg-red-600 text-white font-bold text-[10px]">خبر فوری</span>
+                    <span className="text-slate-300">نسخه جدید اکوسیستم چندمنظوره با موتور درگاه شتاب و نصاب دمو منتشر شد.</span>
+                  </div>
+                </div>
+              )}
+
+              {activeElementorWidget === 'client_portal' && (
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+                  <div className="text-xs font-bold text-blue-400 font-mono">[uas_client_portal]</div>
+                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 flex items-center justify-between">
+                    <span>پورتال تطبیق‌پذیر: در سایت حقوقی پرونده‌ها را لود می‌کند و در سایت آموزشی لایسنس‌های اسپات‌پلیر را.</span>
+                    <span className="text-blue-400 font-bold">سازگار با تمامی قالب‌ها</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

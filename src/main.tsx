@@ -113,6 +113,7 @@ const GovernmentTendersGuaranteesSuite = createLazySuite(() => import('./compone
 const ContractAuditAnalyzer = createLazySuite(() => import('./components/legal-ai/ContractAuditAnalyzer').then(m => ({ default: m.ContractAuditAnalyzer })), 'ممیزی هوشمند قراردادها');
 const PetitionGeneratorModal = createLazySuite(() => import('./components/legal-odr/PetitionGeneratorModal').then(m => ({ default: m.PetitionGeneratorModal })), 'سامانه تنظیم دادخواست عدل‌ایران');
 const VirtualHearingRoom = createLazySuite(() => import('./components/legal-odr/VirtualHearingRoom').then(m => ({ default: m.VirtualHearingRoom })), 'تالار دادگاه مجازی و استماع');
+const MultiNicheShowcase = createLazySuite(() => import('./components/multiniche/MultiNicheShowcaseSuite').then(m => ({ default: m.MultiNicheShowcaseSuite })), 'اکوسیستم اصناف چندمنظوره');
 
 // Expose React & ReactDOM globally for WordPress integration
 if (typeof window !== 'undefined') {
@@ -182,6 +183,8 @@ if (typeof window !== 'undefined') {
     ContractAuditAnalyzer,
     PetitionGeneratorModal,
     VirtualHearingRoom,
+    MultiNicheShowcase,
+    MultiNicheShowcaseSuite: MultiNicheShowcase,
   };
 
   /**

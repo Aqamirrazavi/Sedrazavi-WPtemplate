@@ -547,3 +547,40 @@ if (sedrazavi_is_legal_module_enabled()) {
     }
 }
 
+/**
+ * 8. Native Gutenberg Block Patterns Registration
+ */
+add_action('init', function() {
+    if (!function_exists('register_block_pattern_category') || !function_exists('register_block_pattern')) {
+        return;
+    }
+
+    register_block_pattern_category('sedrazavi-patterns', [
+        'label' => __('الگوهای اختصاصی SedRazavi OS', 'sedrazavi'),
+    ]);
+
+    $patterns_dir = SEDRAZAVI_THEME_DIR . '/patterns';
+    if (is_dir($patterns_dir)) {
+        $files = glob($patterns_dir . '/*.php');
+        if (!empty($files)) {
+            foreach ($files as $file) {
+                $slug = basename($file, '.php');
+                $content = file_get_contents($file);
+                
+                $title = ucwords(str_replace(['pattern-', '-'], ['', ' '], $slug));
+                if (preg_match('/Title:\s*(.+)$/m', $content, $m)) {
+                    $title = trim($m[1]);
+                }
+                
+                $raw_pattern = preg_replace('/<\?php.*?\?>/s', '', $content);
+
+                register_block_pattern('sedrazavi/' . $slug, [
+                    'title'       => $title,
+                    'categories'  => ['sedrazavi-patterns'],
+                    'content'     => trim($raw_pattern),
+                ]);
+            }
+        }
+    }
+});
+

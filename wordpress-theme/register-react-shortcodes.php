@@ -70,6 +70,8 @@ class SedRazavi_React_Shortcode_Registrar {
         'TestimonialsSlider'            => 'اسلایدر نظرات و رضایت‌نامه موکلین (Testimonials Slider)',
         'ContactAndBookingSection'      => 'فرم نوبت‌دهی مشاوره و تماس (Contact & Booking Section)',
         'ArticlesSection'               => 'آرشیو مقالات و یادداشت‌های تحلیلی (Articles Section)',
+        'MultiNicheShowcase'            => 'اکوسیستم اصناف چندمنظوره (Multi-Niche Showcase)',
+        'DemoImporterSuite'             => 'سامانه درون‌ریز دموهای اصناف (1-Click Demo Importer)',
     ];
 
     /**
@@ -80,6 +82,12 @@ class SedRazavi_React_Shortcode_Registrar {
         add_shortcode('react_component', [__CLASS__, 'render_universal_react_component']);
 
         // Dedicated shortcut shortcodes
+        add_shortcode('sedrazavi_multi_niche_showcase', function($atts) {
+            return self::render_universal_react_component(array_merge((array)$atts, ['name' => 'MultiNicheShowcase']));
+        });
+        add_shortcode('sedrazavi_demo_importer', function($atts) {
+            return self::render_universal_react_component(array_merge((array)$atts, ['name' => 'DemoImporterSuite']));
+        });
         add_shortcode('sedrazavi_dashboard', [__CLASS__, 'render_dashboard_shortcut']);
         add_shortcode('sedrazavi_timeline', [__CLASS__, 'render_timeline_shortcut']);
         add_shortcode('sedrazavi_firm_milestones', [__CLASS__, 'render_milestones_shortcut']);

@@ -224,6 +224,72 @@ function sedrazavi_render_dynamic_seo_tags() {
         );
     }
 
+    // 5. Dynamic Course Schema.org Generator
+    if (is_singular() && (get_post_type() === 'course' || get_post_meta(get_the_ID(), '_spotplayer_course_id', true))) {
+        $schema_graph['@graph'][] = array(
+            '@type'        => 'Course',
+            '@id'          => $canonical_url . '#course',
+            'name'         => $page_title,
+            'description'  => $meta_desc,
+            'provider'     => array(
+                '@type'  => 'Organization',
+                'name'   => $site_name,
+                'sameAs' => home_url('/'),
+            ),
+            'hasCourseInstance' => array(
+                '@type'          => 'CourseInstance',
+                'courseMode'     => 'online',
+                'courseWorkload' => 'PT20H',
+            ),
+        );
+    }
+
+    // 6. Dynamic SoftwareApplication Schema.org Generator (Soft98 Style)
+    if (is_singular() && (has_shortcode(get_post()->post_content, 'sedrazavi_download_box') || get_post_type() === 'download')) {
+        $schema_graph['@graph'][] = array(
+            '@type'               => 'SoftwareApplication',
+            '@id'                 => $canonical_url . '#software',
+            'name'                => $page_title,
+            'operatingSystem'     => 'Windows, macOS, Linux, Android',
+            'applicationCategory' => 'UtilitiesApplication',
+            'offers'              => array(
+                '@type'         => 'Offer',
+                'price'         => '0',
+                'priceCurrency' => 'IRR',
+            ),
+        );
+    }
+
+    // 7. Dynamic NewsArticle Schema.org Generator with Reading Time
+    if (is_singular() && in_array(get_post_type(), array('post', 'article', 'news'), true)) {
+        $reading_minutes = 5;
+        if (class_exists('SedRazavi_Magazine_Editorial')) {
+            $reading_minutes = SedRazavi_Magazine_Editorial::get_instance()->calculate_reading_time(get_post()->post_content);
+        }
+        $schema_graph['@graph'][] = array(
+            '@type'            => 'NewsArticle',
+            '@id'              => $canonical_url . '#newsarticle',
+            'headline'         => $page_title,
+            'description'      => $meta_desc,
+            'datePublished'    => get_the_date('c'),
+            'dateModified'     => get_the_modified_date('c'),
+            'timeRequired'     => 'PT' . max(1, (int)$reading_minutes) . 'M',
+            'mainEntityOfPage' => $canonical_url,
+            'author'           => array(
+                '@type' => 'Person',
+                'name'  => get_the_author() ?: $site_name,
+            ),
+            'publisher'        => array(
+                '@type' => 'Organization',
+                'name'  => $site_name,
+                'logo'  => array(
+                    '@type' => 'ImageObject',
+                    'url'   => $logo_url,
+                ),
+            ),
+        );
+    }
+
     echo wp_json_encode($schema_graph, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     ?>
     </script>

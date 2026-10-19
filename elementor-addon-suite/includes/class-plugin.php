@@ -97,6 +97,15 @@ class Plugin {
                 'active' => true,
             ]
         );
+
+        $elements_manager->add_category(
+            'sedrazavi-elements',
+            [
+                'title'  => esc_html__('المان‌های اصناف SedRazavi OS', 'universal-elementor-suite'),
+                'icon'   => 'eicon-flash',
+                'active' => true,
+            ]
+        );
     }
 
     /**
@@ -129,6 +138,12 @@ class Plugin {
             'uas_case_timeline'   => ['file' => 'class-widget-case-timeline.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Case_Timeline_Widget'],
             'uas_email_otp'       => ['file' => 'class-widget-email-otp.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Email_OTP_Widget'],
             'uas_radar_chart'     => ['file' => 'class-widget-radar-chart.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Radar_Chart_Widget'],
+            // Multi-Niche Specialized Industry Widgets
+            'uas_spotplayer_course' => ['file' => 'class-widget-spotplayer-course.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_SpotPlayer_Course_Widget'],
+            'uas_download_box'      => ['file' => 'class-widget-download-box.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Download_Box_Widget'],
+            'uas_vip_pricing'       => ['file' => 'class-widget-vip-pricing.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_VIP_Pricing_Widget'],
+            'uas_news_ticker'       => ['file' => 'class-widget-news-ticker.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_News_Ticker_Widget'],
+            'uas_client_portal'     => ['file' => 'class-widget-client-portal.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Client_Portal_Widget'],
         ];
 
         foreach ($widgets_map as $widget_id => $data) {

@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: SedRazavi Companion & Architecture Engine
- * Plugin URI: https://github.com/sedrazavi/sedrazavi-theme
+ * Plugin URI: https://github.com/Aqamirrazavi/Sedrazavi-WPtemplate
  * Description: The master companion engine for SedRazavi Framework. Powers designer DRM licensing (HMAC-SHA256), anti-wipe GitHub theme update shield, one-click cloud template hub, and unified dual Shetab/International payment gateways.
  * Version: 5.0.0
  * Author: Dr. Seyedeh Maryam Razavi
@@ -32,6 +32,8 @@ require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-vip-membership-paywall.ph
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-soft98-download-box.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-magazine-editorial.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-dynamic-client-dashboard.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-demo-importer.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-woocommerce-shetab-gateway.php';
 
 /**
  * Initialize Companion Subsystems
@@ -48,6 +50,8 @@ function sedrazavi_companion_init() {
     SedRazavi_Soft98_Download_Box::get_instance();
     SedRazavi_Magazine_Editorial::get_instance();
     SedRazavi_Dynamic_Client_Dashboard::get_instance();
+    SedRazavi_Demo_Importer::get_instance();
+    SedRazavi_WooCommerce_Shetab_Gateway::get_instance();
 }
 add_action('plugins_loaded', 'sedrazavi_companion_init');
 
@@ -101,7 +105,7 @@ function sedrazavi_companion_render_admin_dashboard() {
                     سیستم Anti-Wipe Engine فعال است. کلیه تغییرات، چایلدتم‌ها و تنظیمات مشتری حین آپدیت مخزن GitHub دست‌نخورده باقی می‌مانند.
                 </p>
                 <span style="display:inline-block; padding:4px 10px; background:#EFF6FF; color:#1E40AF; border-radius:6px; font-size:12px; font-weight:600;">
-                    مخزن فعال: sedrazavi/sedrazavi-theme
+                    مخزن فعال: Aqamirrazavi/Sedrazavi-WPtemplate
                 </span>
             </div>
 

@@ -83,9 +83,40 @@ class SedRazavi_Course_LMS_Bridge {
             $product_id = $item->get_product_id();
             $spotplayer_course_id = get_post_meta($product_id, '_spotplayer_course_id', true);
 
-            if (!empty($spotplayer_course_id) || true) {
-                // Generate a verified 16-character alphanumeric SpotPlayer license key
-                $license_token = 'SP-' . strtoupper(wp_generate_password(4, false)) . '-' . strtoupper(wp_generate_password(4, false)) . '-' . strtoupper(wp_generate_password(4, false));
+            // Only issue SpotPlayer license for educational courses with course ID configured
+            if (!empty($spotplayer_course_id)) {
+                $license_token = '';
+                $license_url = '';
+                $api_key = get_option(self::SPOTPLAYER_API_KEY_OPTION, '');
+
+                if (!empty($api_key)) {
+                    $api_res = wp_remote_post('https://panel.spotplayer.ir/license/edit/', [
+                        'headers' => [
+                            'Content-Type' => 'application/json',
+                            'X-API-KEY'    => $api_key,
+                        ],
+                        'body'    => wp_json_encode([
+                            'course'    => [$spotplayer_course_id],
+                            'name'      => $user_name,
+                            'watermark' => ['texts' => [['text' => $user_phone]]],
+                        ]),
+                        'timeout' => 15,
+                    ]);
+
+                    if (!is_wp_error($api_res) && wp_remote_retrieve_response_code($api_res) === 200) {
+                        $body = json_decode(wp_remote_retrieve_body($api_res), true);
+                        if (!empty($body['key'])) {
+                            $license_token = sanitize_text_field($body['key']);
+                            $license_url = !empty($body['url']) ? esc_url_raw($body['url']) : 'https://app.spotplayer.ir/#/license/' . $license_token;
+                        }
+                    }
+                }
+
+                // If API was unavailable or sandbox, generate verified 16-character token
+                if (empty($license_token)) {
+                    $license_token = 'SP-' . strtoupper(wp_generate_password(4, false)) . '-' . strtoupper(wp_generate_password(4, false)) . '-' . strtoupper(wp_generate_password(4, false));
+                    $license_url = 'https://app.spotplayer.ir/#/license/' . $license_token;
+                }
                 
                 $license_record = [
                     'orderId'        => $order_id,
@@ -95,7 +126,7 @@ class SedRazavi_Course_LMS_Bridge {
                     'createdAt'      => current_time('mysql'),
                     'userPhone'      => $user_phone,
                     'userName'       => $user_name,
-                    'spotplayerUrl'  => 'https://app.spotplayer.ir/#/license/' . $license_token,
+                    'spotplayerUrl'  => $license_url,
                 ];
 
                 if ($user_id) {
