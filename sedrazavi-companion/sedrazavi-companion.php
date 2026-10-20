@@ -38,6 +38,19 @@ require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-design-tokens.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-sms-gateway-adapter.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-email-engine.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-admin-dashboard.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-notification-router.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-seo-engine.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-diagnostic.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-white-label.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-snapshot-engine.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-vector-patterns.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-role-manager.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-modern-comments.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-mega-menu.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-woocommerce-kit.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-audit-logger.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-plugin-compatibility.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-instant-search.php';
 
 /**
  * Initialize Companion Subsystems
@@ -60,6 +73,19 @@ function sedrazavi_companion_init() {
     SedRazavi_SMS_Gateway_Adapter::get_instance();
     SedRazavi_Email_Engine::get_instance();
     SedRazavi_Admin_Dashboard::get_instance();
+    SedRazavi_Notification_Router::get_instance();
+    SedRazavi_SEO_Engine::get_instance();
+    SedRazavi_Diagnostic_Doctor::get_instance();
+    SedRazavi_White_Label::get_instance();
+    SedRazavi_Snapshot_Engine::get_instance();
+    SedRazavi_Vector_Patterns::get_instance();
+    SedRazavi_Role_Manager::get_instance();
+    SedRazavi_Modern_Comments::get_instance();
+    SedRazavi_Mega_Menu_Engine::get_instance();
+    SedRazavi_WooCommerce_Kit::get_instance();
+    SedRazavi_Audit_Logger::get_instance();
+    SedRazavi_Plugin_Compatibility::get_instance();
+    SedRazavi_Instant_Search::get_instance();
 }
 add_action('plugins_loaded', 'sedrazavi_companion_init');
 

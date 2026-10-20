@@ -1,0 +1,23 @@
+/*
+Theme Name: SedRazavi News & Editorial Child Theme
+Theme URI: https://github.com/Aqamirrazavi/Sedrazavi-WPtemplate
+Description: High-traffic news portal, breaking news magazine, and editorial publishing child theme with reading time estimators, breaking news tickers, and author boxes.
+Author: Dr. Seyedeh Maryam Razavi
+Author URI: https://sedrazavi.ir
+Template: sedrazavi-theme
+Version: 6.0.0
+Text Domain: sedrazavi-child-news
+*/
+
+:root {
+  --sr-primary-accent: #E11D48;
+  --sr-secondary-accent: #BE123C;
+  --sr-surface-bg: #0B0F17;
+  --sr-card-bg: rgba(17, 24, 39, 0.9);
+  --sr-news-red: #F43F5E;
+}
+
+.news-badge-breaking {
+  background: linear-gradient(135deg, #E11D48, #FB7185);
+  color: #FFFFFF;
+}

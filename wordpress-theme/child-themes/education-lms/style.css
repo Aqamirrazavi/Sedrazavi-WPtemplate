@@ -1,0 +1,24 @@
+/*
+Theme Name: SedRazavi Education & LMS Child Theme
+Theme URI: https://github.com/Aqamirrazavi/Sedrazavi-WPtemplate
+Description: High-performance online academy, education, and LMS child theme with SpotPlayer DRM, course curriculums, and VIP membership paywall integration.
+Author: Dr. Seyedeh Maryam Razavi
+Author URI: https://sedrazavi.ir
+Template: sedrazavi-theme
+Version: 6.0.0
+Text Domain: sedrazavi-child-education
+*/
+
+:root {
+  --sr-primary-accent: #8B5CF6;
+  --sr-secondary-accent: #6D28D9;
+  --sr-surface-bg: #090D1A;
+  --sr-card-bg: rgba(17, 24, 39, 0.85);
+  --sr-edu-gold: #F59E0B;
+}
+
+.edu-badge-enrolled {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: #C4B5FD;
+}

@@ -149,7 +149,42 @@ async function packageCompanion() {
   return buffer;
 }
 
-async function packageCompleteSuite(themeBuffer, addonsBuffer, companionBuffer) {
+async function packageChildThemes() {
+  const childThemesDir = path.join(themeDir, 'child-themes');
+  if (!fs.existsSync(childThemesDir)) return {};
+
+  const childEntries = fs.readdirSync(childThemesDir);
+  const childBuffers = {};
+
+  for (const entry of childEntries) {
+    const entryPath = path.join(childThemesDir, entry);
+    if (!fs.statSync(entryPath).isDirectory()) continue;
+
+    const childZipSlug = `sedrazavi-child-${entry}`;
+    const zip = new JSZip();
+    const patterns = loadDistignore(entryPath);
+    await addDirectoryToZip(zip, entryPath, entryPath, entry, patterns);
+
+    const buffer = await zip.generateAsync({
+      type: 'nodebuffer',
+      compression: 'DEFLATE',
+      compressionOptions: { level: 9 },
+    });
+
+    const outPath = path.resolve(`${childZipSlug}.zip`);
+    fs.writeFileSync(outPath, buffer);
+    if (fs.existsSync(publicDir)) {
+      fs.writeFileSync(path.join(publicDir, `${childZipSlug}.zip`), buffer);
+    }
+    const sizeKb = (buffer.length / 1024).toFixed(1);
+    console.log(`Successfully generated ${childZipSlug}.zip (${sizeKb} KB)`);
+    childBuffers[entry] = { slug: childZipSlug, buffer };
+  }
+
+  return childBuffers;
+}
+
+async function packageCompleteSuite(themeBuffer, addonsBuffer, companionBuffer, childBuffers = {}) {
   console.log('Packaging complete suite zip...');
   const zip = new JSZip();
 
@@ -159,11 +194,17 @@ async function packageCompleteSuite(themeBuffer, addonsBuffer, companionBuffer) 
   }
   zip.file('3-افزونه-المنتور-sedrazavi-addons.zip', addonsBuffer);
 
+  // Add individual child themes
+  const childFolder = zip.folder('4-چایلدتم‌های-تخصصی-اصناف');
+  for (const [name, data] of Object.entries(childBuffers)) {
+    childFolder.file(`${data.slug}.zip`, data.buffer);
+  }
+
   const guide = `================================================================================
-پکیج جامع سیستم عامل وردپرس SedRazavi OS v5.0 - راهنمای نصب استاندارد
+پکیج جامع سیستم عامل وردپرس SedRazavi OS v6.0 - راهنمای نصب استاندارد
 ================================================================================
 
-مرحله اول: نصب پوسته اصلی (Theme)
+مرحله اول: نصب پوسته اصلی (Parent Theme)
 ----------------------------------------
 ۱. در پیشخوان وردپرس به مسیر «نمایش > پوسته‌ها > افزودن پوسته تازه > بارگذاری پوسته» بروید.
 ۲. فایل «1-پوسته-قالب-sedrazavi-theme.zip» را انتخاب و روی «نصب» کلیک فرمایید.
@@ -177,6 +218,16 @@ async function packageCompleteSuite(themeBuffer, addonsBuffer, companionBuffer) 
 مرحله سوم: نصب ویجت‌های المنتور (Elementor Addon Suite)
 ----------------------------------------
 ۱. فایل «3-افزونه-المنتور-sedrazavi-addons.zip» را از بخش افزونه‌ها نصب و فعال نمایید.
+
+مرحله چهارم (اختیاری): فعال‌سازی چایلدتم متناسب با صنف شما
+----------------------------------------
+از پوشه «4-چایلدتم‌های-تخصصی-اصناف»، چایلدتم مورد نظر را انتخاب و در مسیر «نمایش > پوسته‌ها» نصب کنید:
+- sedrazavi-child-agency-designer.zip (مخصوص آژانس دیجیتال و طراحان)
+- sedrazavi-child-legal-firm.zip (مخصوص دفاتر وکالت و حقوقی)
+- sedrazavi-child-corporate-pro.zip (مخصوص شرکت‌های تجاری و سازمانی)
+- sedrazavi-child-store-modern.zip (مخصوص فروشگاه‌های آنلاین ووکامرس)
+- sedrazavi-child-clinic-medical.zip (مخصوص کلینیک‌های پزشکی و سلامت)
+- sedrazavi-child-education-lms.zip (مخصوص آکادمی و دوره‌های آنلاین)
 
 سازگاری و نیازمندی‌ها:
 - وردپرس نسخه ۵.۸ تا ۶.۷+
@@ -204,7 +255,8 @@ async function main() {
   const themeBuf = await packageTheme();
   const addonsBuf = await packageAddons();
   const companionBuf = await packageCompanion();
-  await packageCompleteSuite(themeBuf, addonsBuf, companionBuf);
+  const childBufs = await packageChildThemes();
+  await packageCompleteSuite(themeBuf, addonsBuf, companionBuf, childBufs);
 }
 
 main().catch(console.error);

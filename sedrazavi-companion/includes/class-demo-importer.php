@@ -175,22 +175,45 @@ class SedRazavi_Demo_Importer {
                 break;
         }
 
-        // 3. Create Sample Starter Pages if not existing
+        // 3. Create Sample Starter Pages with Native Elementor JSON Templates
         $imported_pages = [];
+        $template_map = [
+            'صفحه اصلی استودیو'              => 'template-designer-landing',
+            'نمونه‌کارها و کیس‌استادی‌ها'     => 'template-portfolio-showcase',
+            'محاسبه‌گر هزینه خدمات'          => 'template-pricing-table',
+            'تماس با ما'                      => 'template-faq-accordion',
+            'صفحه نخست شرکتی'                 => 'template-hero-section',
+            'درباره هلدینگ'                   => 'template-features-grid',
+            'خدمات و راهکارها'                => 'template-features-grid',
+            'پورتال سهامداران'                => 'template-pricing-table',
+            'دفاتر بین‌الملل'                 => 'template-faq-accordion',
+            'ویترین اصلی فروشگاه'             => 'template-store-showcase',
+            'سبد خرید هوشمند'                 => 'template-store-showcase',
+            'تسویه حساب فوری'                 => 'template-pricing-table',
+            'پیگیری سفارش'                    => 'template-faq-accordion',
+            'سامانه دفتر وکالت'               => 'template-hero-section',
+            'استعلام پرونده موکلین'           => 'template-features-grid',
+            'محاسبه‌گر هزینه دادرسی'         => 'template-pricing-table',
+            'رزرو آنلاین نوبت مشاوره'        => 'template-faq-accordion',
+            'صفحه آکادمی و دوره‌ها'           => 'template-video-archive',
+            'پلیر تحت وب لایسنس‌دار'          => 'template-single-video-player',
+            'جعبه‌های دانلود نرم‌افزار'       => 'template-features-grid',
+            'پلن‌های عضویت ویژه VIP'          => 'template-pricing-table',
+        ];
+
         foreach ($demo['pages'] as $page_title) {
             $existing_page = get_page_by_title($page_title);
+            $template_slug = isset($template_map[$page_title]) ? $template_map[$page_title] : 'template-designer-landing';
+
             if (!$existing_page) {
-                $page_content = "<!-- SedRazavi OS Starter Layout: {$demo['name']} -->\n";
-                $page_content .= "[react_component name=\"multi-niche-showcase\"]\n";
-                
-                $page_id = wp_insert_post([
-                    'post_title'   => $page_title,
-                    'post_content' => $page_content,
-                    'post_status'  => 'publish',
-                    'post_type'    => 'page',
-                ]);
+                $page_id = $this->create_native_elementor_page($page_title, $template_slug, $demo);
                 $imported_pages[] = ['id' => $page_id, 'title' => $page_title];
             } else {
+                // If page exists, update its Elementor metadata if empty
+                $has_elem_data = get_post_meta($existing_page->ID, '_elementor_data', true);
+                if (empty($has_elem_data)) {
+                    $this->inject_elementor_metadata($existing_page->ID, $template_slug);
+                }
                 $imported_pages[] = ['id' => $existing_page->ID, 'title' => $page_title];
             }
         }
@@ -402,5 +425,81 @@ class SedRazavi_Demo_Importer {
         });
         </script>
         <?php
+    }
+
+    /**
+     * Create a page with native Elementor JSON template and Gutenberg fallback
+     */
+    private function create_native_elementor_page($page_title, $template_slug = '', $demo = []) {
+        $elementor_data = $this->resolve_template_json_data($template_slug);
+
+        // Fallback Gutenberg content when Elementor is not present
+        $fallback_content = "<!-- wp:group {\"layout\":{\"type\":\"constrained\"}} -->\n";
+        $fallback_content .= "<div class=\"wp-block-group sr-starter-page-content\">\n";
+        $fallback_content .= "<h2>" . esc_html($page_title) . "</h2>\n";
+        $fallback_content .= "<p>" . esc_html($demo['description'] ?? 'صفحه نمونه آماده استودیو SedRazavi OS.') . "</p>\n";
+        $fallback_content .= "<!-- wp:pattern {\"slug\":\"sedrazavi/pattern-bento-hud\"} /-->\n";
+        $fallback_content .= "</div>\n<!-- /wp:group -->";
+
+        $page_id = wp_insert_post([
+            'post_title'   => wp_strip_all_tags($page_title),
+            'post_content' => $fallback_content,
+            'post_status'  => 'publish',
+            'post_type'    => 'page',
+        ]);
+
+        if (!is_wp_error($page_id) && $page_id > 0) {
+            $this->inject_elementor_metadata($page_id, $template_slug, $elementor_data);
+        }
+
+        return $page_id;
+    }
+
+    /**
+     * Resolve JSON data for a given template slug
+     */
+    private function resolve_template_json_data($template_slug) {
+        $candidate_dirs = [
+            WP_PLUGIN_DIR . '/elementor-addon-suite/templates/',
+            SEDRAZAVI_COMPANION_DIR . 'templates/',
+            get_template_directory() . '/templates/',
+        ];
+
+        foreach ($candidate_dirs as $dir) {
+            $path = $dir . $template_slug . '.json';
+            if (file_exists($path)) {
+                $raw = file_get_contents($path);
+                $decoded = json_decode($raw, true);
+                if (isset($decoded['content']) && is_array($decoded['content'])) {
+                    return wp_slash(wp_json_encode($decoded['content']));
+                } elseif (is_array($decoded)) {
+                    return wp_slash(wp_json_encode($decoded));
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Inject Elementor metadata into a post
+     */
+    public function inject_elementor_metadata($post_id, $template_slug = '', $elementor_data = null) {
+        if ($elementor_data === null) {
+            $elementor_data = $this->resolve_template_json_data($template_slug);
+        }
+
+        update_post_meta($post_id, '_elementor_edit_mode', 'builder');
+        update_post_meta($post_id, '_elementor_template_type', 'wp-page');
+        update_post_meta($post_id, '_elementor_version', defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : '3.20.0');
+        update_post_meta($post_id, '_wp_page_template', 'elementor_header_footer');
+
+        if (!empty($elementor_data)) {
+            update_post_meta($post_id, '_elementor_data', $elementor_data);
+        }
+
+        if (class_exists('\Elementor\Plugin')) {
+            \Elementor\Plugin::$instance->files_manager->clear_cache();
+        }
     }
 }

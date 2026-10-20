@@ -1,0 +1,24 @@
+/*
+Theme Name: SedRazavi Clinic & Healthcare Child Theme
+Theme URI: https://github.com/Aqamirrazavi/Sedrazavi-WPtemplate
+Description: Modern healthcare, dental clinic, and medical consultation child theme. Features online visit booking, doctor roster, and before/after interactive treatment cards.
+Author: Dr. Seyedeh Maryam Razavi
+Author URI: https://sedrazavi.ir
+Template: sedrazavi-theme
+Version: 6.0.0
+Text Domain: sedrazavi-child-clinic
+*/
+
+:root {
+  --sr-primary-accent: #0EA5E9;
+  --sr-secondary-accent: #0284C7;
+  --sr-surface-bg: #0F172A;
+  --sr-card-bg: rgba(15, 23, 42, 0.85);
+  --sr-clinic-teal: #14B8A6;
+}
+
+.clinic-badge-verified {
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  color: #38BDF8;
+}

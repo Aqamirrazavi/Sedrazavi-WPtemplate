@@ -38,55 +38,26 @@ jobs:
           test -f wordpress-theme/footer.php || { echo "Missing theme footer.php"; exit 1; }
           test -f wordpress-theme/app-dist/index.js || { echo "Missing app-dist/index.js"; exit 1; }
           test -f wordpress-theme/app-dist/index.css || { echo "Missing app-dist/index.css"; exit 1; }
-          test -f sedrazavi-companion/sedrazavi-companion.php || { echo "Missing companion plugin"; exit 1; }
-          test -f sedrazavi-companion/includes/class-license-manager.php || { echo "Missing license manager"; exit 1; }
-          test -f sedrazavi-companion/includes/class-demo-importer.php || { echo "Missing demo importer"; exit 1; }
-          test -f sedrazavi-companion/includes/class-woocommerce-shetab-gateway.php || { echo "Missing WooCommerce shetab gateway"; exit 1; }
-          test -f elementor-addon-suite/elementor-addon-suite.php || { echo "Missing elementor addon suite"; exit 1; }
-          test -f elementor-addon-suite/includes/widgets/class-widget-spotplayer-course.php || { echo "Missing spotplayer widget"; exit 1; }
-          test -f elementor-addon-suite/includes/widgets/class-widget-download-box.php || { echo "Missing download box widget"; exit 1; }
+          test -f sedrazavi-companion/includes/class-snapshot-engine.php || { echo "Missing snapshot engine"; exit 1; }
+          test -f sedrazavi-companion/includes/class-vector-patterns.php || { echo "Missing vector patterns engine"; exit 1; }
+          test -f sedrazavi-companion/includes/class-role-manager.php || { echo "Missing role manager"; exit 1; }
+          test -f sedrazavi-companion/includes/class-modern-comments.php || { echo "Missing modern comments"; exit 1; }
+          test -f sedrazavi-companion/includes/class-mega-menu.php || { echo "Missing mega menu engine"; exit 1; }
+          test -f sedrazavi-companion/includes/class-woocommerce-kit.php || { echo "Missing woocommerce kit"; exit 1; }
+          test -f wordpress-theme/template-video.php || { echo "Missing template-video.php"; exit 1; }
+          test -f wordpress-theme/template-podcast.php || { echo "Missing template-podcast.php"; exit 1; }
           echo "All theme, companion plugin, and Elementor multi-niche widgets are present and valid."
+
+      - name: Run Complete Test Suite
+        run: bun run test:all
 
       - name: Create Production ZIP Packages
         run: |
           mkdir -p release-artifacts
-          
-          # 1. Package Parent Theme
-          cd wordpress-theme
-          zip -r ../release-artifacts/sedrazavi-theme.zip ./* -x ".*" -x "child-themes/*"
-          cd ..
-          
-          # 2. Package Companion Plugin
-          cd sedrazavi-companion
-          zip -r ../release-artifacts/sedrazavi-companion.zip ./* -x ".*"
-          cd ..
-
-          # 3. Package Elementor Addon Suite
-          cd elementor-addon-suite
-          zip -r ../release-artifacts/elementor-addon-suite.zip ./* -x ".*"
-          cd ..
-          
-          # 4. Package Child Themes
-          cd wordpress-theme/child-themes
-          zip -r ../../release-artifacts/sedrazavi-child-themes.zip ./* -x ".*"
-          cd ../..
-          
-          # 5. Package Complete All-in-One Suite
-          mkdir -p /tmp/suite-build
-          cp release-artifacts/sedrazavi-theme.zip /tmp/suite-build/1-sedrazavi-parent-theme.zip
-          cp release-artifacts/sedrazavi-companion.zip /tmp/suite-build/2-sedrazavi-companion-plugin.zip
-          cp release-artifacts/elementor-addon-suite.zip /tmp/suite-build/3-elementor-addon-suite.zip
-          cp release-artifacts/sedrazavi-child-themes.zip /tmp/suite-build/4-all-child-themes.zip
-          cat << 'EOF' > /tmp/suite-build/INSTALL_GUIDE_FA.txt
-          راهنمای نصب پکیج جامع وردپرس SedRazavi OS 5.0:
-          ۱. ابتدا فایل 1-sedrazavi-parent-theme.zip را از بخش نمایش > پوسته‌ها آپلود و نصب کنید.
-          ۲. افزونه 2-sedrazavi-companion-plugin.zip را از بخش افزونه‌ها > افزودن نصب و فعال فرمایید (موتور لایسنسینگ DRM، پرداخت و ماژول‌های ۵گانه اصناف).
-          ۳. افزونه 3-elementor-addon-suite.zip را برای فعال‌سازی ۵ ویجت المنتور تخصصی نصب فرمایید.
-          ۴. از پوشه 4-all-child-themes.zip، چایلدتم متناسب با صنف مدنظر (agency-designer, corporate-pro, store-modern, legal-firm) را فعال کنید.
-          EOF
-          (cd /tmp/suite-build && zip -r "${GITHUB_WORKSPACE}/release-artifacts/sedrazavi-complete-suite.zip" ./*)
-          
-          echo "All ZIP artifacts built successfully."
+          node scripts/package-theme.js
+          cp -f sedrazavi-*.zip release-artifacts/
+          ls -la release-artifacts/
+          echo "All ZIP artifacts built successfully with canonical WordPress directory structure."
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4
