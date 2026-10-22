@@ -59,6 +59,7 @@ import {
   Wand2,
   Headphones,
   LayoutGrid,
+  Monitor,
 } from 'lucide-react';
 import { AdminRealtimeNotificationBell } from './notifications/AdminRealtimeNotificationBell';
 import { ATTORNEY_INFO } from '../data/mockData';
@@ -147,6 +148,8 @@ interface HeaderProps {
   onOpenPaletteModal?: () => void;
   onOpenWizard?: () => void;
   onOpenCloudCatalog?: () => void;
+  onOpenSnapElement?: () => void;
+  onOpenPrototypes?: () => void;
   activeArchetype?: 'lawyer' | 'wp-designer' | 'ecommerce' | 'video-media';
   onSelectArchetype?: (archetype: 'lawyer' | 'wp-designer' | 'ecommerce' | 'video-media') => void;
   isLoggedIn?: boolean;
@@ -177,6 +180,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenPaletteModal,
   onOpenWizard,
   onOpenCloudCatalog,
+  onOpenSnapElement,
+  onOpenPrototypes,
   activeArchetype = 'wp-designer',
   onSelectArchetype,
   isLoggedIn,
@@ -333,6 +338,29 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                   <span>🎓 اصناف چندمنظوره (LMS/VIP/Soft98)</span>
                 </button>
+
+                {onOpenSnapElement && (
+                  <button
+                    type="button"
+                    onClick={onOpenSnapElement}
+                    className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 via-orange-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-white font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-500/20 border border-amber-400/40"
+                    title="هاب کامپوننت‌های SnapElement.com و معماری سید امیر حسین رضوی فردویی"
+                  >
+                    <span>⚡ SnapElement & تفنگ‌دار</span>
+                  </button>
+                )}
+
+                {onOpenPrototypes && (
+                  <button
+                    type="button"
+                    onClick={onOpenPrototypes}
+                    className="px-2.5 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-600 text-cyan-300 hover:text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-cyan-500/40"
+                    title="شبیه‌ساز ویوپورت چنددستگاهی (دسکتاپ، تبلت، موبایل)"
+                  >
+                    <Monitor className="w-3 h-3 text-cyan-400" />
+                    <span>شبیه‌ساز ریسپانسیو</span>
+                  </button>
+                )}
 
                 {onOpenPaletteModal && (
                   <button

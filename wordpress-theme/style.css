@@ -1616,3 +1616,80 @@ img {
 .w-4\/5 { width: 80% !important; }
 .sr-container { width: 100%; margin-left: auto; margin-right: auto; }
 .sr-editorial-header { display: block; position: relative; }
+
+/* SedRazavi Sovereign Master v15: Verification, Lead Tracking & SnapElement Layouts */
+.sr-verify-wrapper { display: block; position: relative; }
+.sr-verify-header { display: block; position: relative; }
+.sr-verify-card { display: block; position: relative; }
+.sr-verify-btn { display: inline-block; cursor: pointer; transition: all 0.2s ease; }
+.sr-verify-pgp { display: block; position: relative; }
+.sr-track-wrapper { display: block; position: relative; }
+.sr-track-header { display: block; position: relative; }
+.sr-track-details { display: block; position: relative; }
+.sr-track-cta-btn { display: inline-flex; cursor: pointer; transition: all 0.2s ease; }
+.sr-track-form-box { display: block; position: relative; }
+.sr-track-input { display: block; }
+.sr-track-submit { display: inline-block; cursor: pointer; }
+.sr-snap-component { display: block; position: relative; }
+.sr-gunslinger-badge { display: inline-block; }
+.sr-hero-heading { display: block; }
+.sr-hero-description { display: block; }
+
+.shadow-indigo-600\/30 { box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3), 0 4px 6px -4px rgba(79, 70, 229, 0.3) !important; }
+.focus\:border-indigo-500:focus { border-color: #6366f1 !important; }
+.text-orange-400 { color: #fb923c !important; }
+.border-orange-500\/30 { border-color: rgba(249, 115, 22, 0.3) !important; }
+.bg-orange-600 { background-color: #ea580c !important; }
+
+/* Dual-Mode Inquiry Gateway (GUI + CLI) */
+.sr-dual-gateway-section { display: block; position: relative; }
+.sr-dual-gateway-header { display: block; }
+.sr-mode-switcher-bar { display: flex; }
+.sr-mode-btn-gui { cursor: pointer; transition: all 0.2s ease; }
+.sr-mode-btn-cli { cursor: pointer; transition: all 0.2s ease; }
+.sr-gui-form-box { display: block; }
+.sr-ajax-inquiry-form { display: grid; }
+.sr-honeypot-field { display: none !important; }
+.sr-form-label { display: block; }
+.sr-form-input { display: block; }
+.sr-project-type-grid { display: grid; }
+.sr-type-card { display: flex; transition: all 0.2s ease; }
+.sr-form-textarea { display: block; }
+.sr-offline-indicator { display: flex; }
+.sr-ping-dot { display: inline-block; }
+.sr-submit-btn { display: inline-flex; justify-content: center; align-items: center; cursor: pointer; }
+.sr-cli-terminal-box { display: block; }
+.sr-terminal-topbar { display: flex; }
+.sr-terminal-output { display: block; }
+.sr-terminal-prompt-line { display: flex; }
+.sr-cli-input { background: transparent; }
+
+/* Interactive Prototype Viewport */
+.sr-prototypes-viewport-page { display: block; position: relative; }
+.sr-prototype-header { display: flex; }
+.sr-device-controls { display: flex; }
+.sr-device-btn { cursor: pointer; transition: all 0.2s ease; }
+.sr-btn-desktop { cursor: pointer; }
+.sr-btn-tablet { cursor: pointer; }
+.sr-btn-mobile { cursor: pointer; }
+.sr-viewport-frame-wrapper { display: flex; }
+.sr-browser-url-bar { display: flex; }
+.sr-frame-container { display: flex; }
+.sr-prototype-iframe { border: none; }
+
+/* Procedural Girih Vector Styles */
+.sr-girih-canvas-box { display: block; }
+.bg-sr-girih-eightfold { background-size: 80px 80px; }
+.bg-sr-girih-shamseh { background-size: contain; }
+.bg-sr-girih-karbandi { background-size: 100px 100px; }
+
+@media (min-width: 768px) {
+  .md\:text-sm { font-size: 0.875rem !important; line-height: 1.25rem !important; }
+}
+.shadow-cyan-600\/30 { box-shadow: 0 10px 15px -3px rgba(8, 145, 178, 0.3), 0 4px 6px -4px rgba(8, 145, 178, 0.3) !important; }
+.h-\[700px\] { height: 700px !important; }
+.from-indigo-600 { --tw-gradient-from: #4f46e5 !important; --tw-gradient-to: rgb(79 70 229 / 0) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
+.hover\:from-indigo-500:hover { --tw-gradient-from: #6366f1 !important; }
+.hover\:to-indigo-600:hover { --tw-gradient-to: #4f46e5 !important; }
+.bg-rose-500\/80 { background-color: rgba(244, 63, 94, 0.8) !important; }
+.max-h-\[350px\] { max-height: 350px !important; }

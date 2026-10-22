@@ -28,20 +28,26 @@ import {
   Award,
   Globe,
   Filter,
+  Terminal,
+  Monitor,
 } from 'lucide-react';
+import { DualInquiryGateway } from '../terminal/DualInquiryGateway';
 
 interface WordPressDesignerLandingProps {
   onOpenBookingModal?: () => void;
   onOpenQuickEdit?: () => void;
   onOpenGitHubSync?: () => void;
+  onOpenPrototypes?: () => void;
 }
 
 export const WordPressDesignerLanding: React.FC<WordPressDesignerLandingProps> = ({
   onOpenBookingModal,
   onOpenQuickEdit,
   onOpenGitHubSync,
+  onOpenPrototypes,
 }) => {
   // Active states
+  const [inquiryMode, setInquiryMode] = useState<'dual' | 'brief'>('dual');
   const [portfolioFilter, setPortfolioFilter] = useState<'all' | 'corporate' | 'store' | 'landing'>('all');
   const [currency, setCurrency] = useState<'toman' | 'usd'>('toman');
   const [testimonialLang, setTestimonialLang] = useState<'fa' | 'en'>('fa');
@@ -290,6 +296,17 @@ export const WordPressDesignerLanding: React.FC<WordPressDesignerLandingProps> =
                 <span>مشاهده نمونه‌کارها</span>
                 <Laptop className="w-5 h-5 text-[#818CF8]" />
               </button>
+
+              {onOpenPrototypes && (
+                <button
+                  type="button"
+                  onClick={onOpenPrototypes}
+                  className="w-full sm:w-auto px-6 py-4 rounded-xl bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-cyan-950/40"
+                >
+                  <Monitor className="w-5 h-5 text-cyan-400" />
+                  <span>شبیه‌ساز چنددستگاهی</span>
+                </button>
+              )}
             </div>
 
             {/* Trust Micro-Indicators */}
@@ -1084,21 +1101,55 @@ export const WordPressDesignerLanding: React.FC<WordPressDesignerLandingProps> =
         </div>
       </section>
 
-      {/* SECTION 12: 5-STEP BRIEF FORM */}
+      {/* SECTION 12: INQUIRY GATEWAY & 5-STEP BRIEF FORM */}
       <section id="brief-form-section" className="py-20 bg-[#0F172A] border-t border-[#1E293B]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
             <span className="text-xs font-bold text-[#10B981] uppercase tracking-wider bg-[#10B981]/10 px-3 py-1 rounded-full border border-[#10B981]/20">
-              ثبت آنلاین بریف پروژه
+              درگاه رسمی ثبت استعلام و سفارش پروژه
             </span>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white mt-4 mb-4">
-              ثبت بریف ۵ مرحله‌ای و برآورد هوشمند هزینه
+              ارزیابی هوشمند و ثبت سفارش طراحی وردپرس
             </h2>
-            <p className="text-[#9CA3AF] text-sm">
-              طی ۲ دقیقه نیازهای پروژه خود را مشخص کنید تا در کمتر از ۴۸ ساعت پیش‌فاکتور دقیق دریافت کنید.
+            <p className="text-[#9CA3AF] text-sm max-w-2xl mx-auto">
+              یکی از دو شیوه زیر را برای تعامل و ثبت بریف خود انتخاب فرمایید: ترمینال پیشرفته مهندسی یا فرم هدایت‌شده ۵ مرحله‌ای کارفرما.
             </p>
+
+            {/* Mode Switcher Tabs */}
+            <div className="inline-flex items-center gap-2 bg-[#111827] p-1.5 rounded-2xl border border-[#334155] mt-6 shadow-xl">
+              <button
+                type="button"
+                onClick={() => setInquiryMode('dual')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                  inquiryMode === 'dual'
+                    ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                    : 'text-[#9CA3AF] hover:text-white'
+                }`}
+              >
+                <Terminal className="w-4 h-4 text-cyan-300" />
+                <span>درگاه دوگانه (CLI یونیکس + فرم سایبرگلس)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setInquiryMode('brief')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                  inquiryMode === 'brief'
+                    ? 'bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white shadow-lg shadow-[#6366F1]/30'
+                    : 'text-[#9CA3AF] hover:text-white'
+                }`}
+              >
+                <FileCode2 className="w-4 h-4 text-emerald-400" />
+                <span>بریف گام‌به‌گام ۵ مرحله‌ای</span>
+              </button>
+            </div>
           </div>
 
+          {inquiryMode === 'dual' ? (
+            <div className="mt-4">
+              <DualInquiryGateway />
+            </div>
+          ) : (
           <div className="p-8 rounded-3xl bg-[#1E293B] border border-[#334155] shadow-2xl">
             {/* Step Indicators */}
             <div className="flex items-center justify-between mb-8 border-b border-[#334155] pb-4">
@@ -1358,6 +1409,7 @@ export const WordPressDesignerLanding: React.FC<WordPressDesignerLandingProps> =
               </div>
             )}
           </div>
+          )}
         </div>
       </section>
 

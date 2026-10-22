@@ -98,6 +98,8 @@ import { GitHubSyncEngineModal } from './components/admin/GitHubSyncEngineModal'
 import { MasterAgencyArchitectureModal } from './components/admin/MasterAgencyArchitectureModal';
 import { MultiNicheShowcaseSuite } from './components/multiniche/MultiNicheShowcaseSuite';
 import { NoCodeClientPortalModal } from './components/client-suite/NoCodeClientPortalModal';
+import { SnapElementHubModal } from './components/snapelement/SnapElementHubModal';
+import { PrototypeSimulatorModal } from './components/prototypes/PrototypeSimulatorModal';
 import { FrontendQuickEditBar } from './components/client-suite/FrontendQuickEditBar';
 import { Scale, User, Briefcase, Lock, X } from 'lucide-react';
 import {
@@ -143,6 +145,8 @@ export default function App() {
   const [isMasterArchitectureOpen, setIsMasterArchitectureOpen] = useState(false);
   const [activeChildTheme, setActiveChildTheme] = useState('agency-designer');
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
+  const [isSnapElementOpen, setIsSnapElementOpen] = useState(false);
+  const [isPrototypeSimulatorOpen, setIsPrototypeSimulatorOpen] = useState(false);
   const [isLiveEditActive, setIsLiveEditActive] = useState(false);
   const [customClientData, setCustomClientData] = useState(() => {
     try {
@@ -307,6 +311,7 @@ export default function App() {
         onOpenPaletteModal={() => setIsPaletteModalOpen(true)}
         onOpenWizard={() => setIsWizardOpen(true)}
         onOpenCloudCatalog={() => setIsCloudCatalogOpen(true)}
+        onOpenSnapElement={() => setIsSnapElementOpen(true)}
         activeArchetype={activeArchetype}
         onSelectArchetype={(arch) => {
           setActiveArchetype(arch);
@@ -1852,6 +1857,12 @@ export default function App() {
           setIsMasterArchitectureOpen(false);
           setActiveView('multi-niche-hub');
         }}
+      />
+
+      {/* SnapElement & Sovereign Master Suite Modal (v16.0) */}
+      <SnapElementHubModal
+        isOpen={isSnapElementOpen}
+        onClose={() => setIsSnapElementOpen(false)}
       />
 
       {/* GDPR / Cookie Consent Banner (Section 13) */}

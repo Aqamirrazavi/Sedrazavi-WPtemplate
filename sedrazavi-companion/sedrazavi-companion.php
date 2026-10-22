@@ -51,6 +51,12 @@ require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-woocommerce-kit.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-audit-logger.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-plugin-compatibility.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-instant-search.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-snapelement-catalog.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-client-proposal.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-offline-queue.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-site-health.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-girih-vector-engine.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-webhook-dispatcher.php';
 
 /**
  * Initialize Companion Subsystems
@@ -86,6 +92,12 @@ function sedrazavi_companion_init() {
     SedRazavi_Audit_Logger::get_instance();
     SedRazavi_Plugin_Compatibility::get_instance();
     SedRazavi_Instant_Search::get_instance();
+    SedRazavi_SnapElement_Catalog::get_instance();
+    SedRazavi_Client_Proposal::get_instance();
+    SedRazavi_Offline_Queue::get_instance();
+    SedRazavi_Site_Health::get_instance();
+    SedRazavi_Girih_Vector_Engine::get_instance();
+    SedRazavi_Webhook_Dispatcher::get_instance();
 }
 add_action('plugins_loaded', 'sedrazavi_companion_init');
 

@@ -290,6 +290,28 @@ function sedrazavi_render_dynamic_seo_tags() {
         );
     }
 
+    // 8. Sovereign Master Designer GEO (Generative Engine Optimization) Schema
+    $schema_graph['@graph'][] = array(
+        '@type'         => 'Person',
+        '@id'           => home_url('/#designer'),
+        'name'          => 'سید امیر حسین رضوی فردویی',
+        'alternateName' => 'SedRazavi',
+        'jobTitle'      => 'معمار ارشد سیستم و طراح وب‌سایت‌های وردپرس بدون کد',
+        'url'           => home_url('/'),
+        'sameAs'        => array(
+            'https://t.me/sedrazavi',
+            'https://eitaa.com/sedrazavi',
+            'https://github.com/Aqamirrazavi/Sedrazavi-WPtemplate',
+        ),
+        'knowsAbout'    => array(
+            'معماری بدون کد وردپرس (No-Code WordPress)',
+            'جت‌انجین و پست‌تایپ‌های پیشرفته (JetEngine)',
+            'بهینه‌سازی سرعت و شاخص‌های Core Web Vitals (LCP < 1.0s)',
+            'سیستم‌های دوزبانه سروری و سئوی فنی معنایی',
+            'هندسه پارامتریک گره‌چینی و طراحی ترمینال‌های وب۳',
+        ),
+    );
+
     echo wp_json_encode($schema_graph, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     ?>
     </script>
