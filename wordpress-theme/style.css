@@ -1693,3 +1693,102 @@ img {
 .hover\:to-indigo-600:hover { --tw-gradient-to: #4f46e5 !important; }
 .bg-rose-500\/80 { background-color: rgba(244, 63, 94, 0.8) !important; }
 .max-h-\[350px\] { max-height: 350px !important; }
+
+/* SedRazavi OS Library Catalog (v25.0) */
+.sr-lib-catalog-page { display: block; position: relative; }
+.sr-lib-header { display: flex; position: relative; }
+.sr-lib-badge { display: inline-block; }
+.sr-lib-title { display: block; }
+.sr-lib-subtitle { display: block; }
+.sr-lib-stats { display: flex; }
+.sr-lib-stat-num { display: block; }
+.sr-lib-stat-lbl { display: block; }
+.sr-lib-grid { display: grid; }
+.sr-lib-card { display: flex; transition: all 0.25s ease; }
+.sr-lib-card-top { display: flex; }
+.sr-lib-tag { display: inline-block; }
+.sr-lib-trust { display: inline-flex; }
+.sr-lib-pkg-title { display: block; }
+.sr-lib-pkg-desc { display: block; }
+.sr-lib-parity-box { display: block; }
+.sr-lib-card-footer { display: flex; }
+.sr-lib-meta { display: inline-block; }
+.sr-lib-install-btn { display: inline-flex; cursor: pointer; }
+.sr-lib-security-box { display: block; }
+
+/* Legal Intake & Appointments Workflow (Level B - P3) */
+.sr-intake-page { display: block; position: relative; }
+.sr-intake-header { display: block; position: relative; }
+.sr-intake-badge { display: inline-block; }
+.sr-intake-title { display: block; }
+.sr-intake-subtitle { display: block; }
+.sr-intake-alert { display: flex; }
+.sr-intake-card { display: block; }
+.sr-intake-form { display: block; }
+.sr-intake-group { display: block; }
+.sr-intake-label { display: block; }
+.sr-intake-input { display: block; }
+.sr-intake-select { display: block; }
+.sr-intake-radio-grid { display: grid; }
+.sr-intake-radio-item { display: flex; cursor: pointer; }
+.sr-intake-consent { display: flex; }
+.sr-intake-btn { display: inline-flex; cursor: pointer; }
+.sr-intake-triage-box { display: block; }
+.sr-intake-table-wrap { display: block; overflow-x: auto; }
+.sr-intake-table { width: 100%; border-collapse: collapse; }
+.sr-intake-status-tag { display: inline-block; }
+.sr-intake-urgency-tag { display: inline-block; }
+
+.focus\:border-emerald-500:focus { border-color: #10b981 !important; }
+.ml-1\.5 { margin-left: 0.375rem !important; }
+.hover\:from-emerald-500:hover { --tw-gradient-from: #10b981 !important; }
+.hover\:to-teal-500:hover { --tw-gradient-to: #14b8a6 !important; }
+.bg-cyan-950\/80 { background-color: rgba(8, 51, 68, 0.8) !important; }
+.border-cyan-800 { border-color: #155e75 !important; }
+
+/* Level C Client Portal & Matter Operations (P4) */
+.sr-portal-page { display: block; position: relative; }
+.sr-portal-header { display: flex; position: relative; }
+.sr-portal-badge { display: inline-block; }
+.sr-portal-title { display: block; }
+.sr-portal-subtitle { display: block; }
+.sr-portal-security-strip { display: flex; }
+.sr-portal-matter-card { display: block; }
+.sr-portal-matter-header { display: flex; }
+.sr-portal-matter-title { display: block; }
+.sr-portal-case-number { display: block; }
+.sr-portal-status-pill { display: inline-block; }
+.sr-portal-lawyer-badge { display: inline-flex; }
+.sr-portal-timeline { display: block; position: relative; }
+.sr-portal-timeline-step { display: block; position: relative; }
+.sr-portal-timeline-dot { display: block; }
+.sr-portal-timeline-date { display: block; }
+.sr-portal-timeline-text { display: block; }
+.sr-portal-vault-card { display: block; }
+.sr-portal-doc-item { display: flex; }
+.sr-portal-doc-meta { display: block; }
+.sr-portal-doc-btn { display: inline-flex; cursor: pointer; }
+.sr-portal-deadlines-card { display: block; }
+.sr-portal-deadline-item { display: flex; }
+.sr-portal-deadline-days { display: inline-flex; }
+.sr-portal-audit-box { display: flex; }
+
+.-right-\[7px\] { right: -7px !important; }
+.bg-indigo-600\/30 { background-color: rgba(79, 70, 229, 0.3) !important; }
+.bg-rose-950\/60 { background-color: rgba(76, 5, 25, 0.6) !important; }
+.hover\:bg-indigo-600:hover { background-color: #4f46e5 !important; }
+
+/* Ecosystem & Publisher Portal (P6) */
+.sr-ecosystem-wrapper { display: block; position: relative; }
+.sr-ecosystem-header { display: block; position: relative; }
+.sr-ecosystem-card { display: block; position: relative; }
+.sr-ecosystem-footer-note { display: flex; position: relative; }
+.bg-violet-500\/20 { background-color: rgba(139, 92, 246, 0.2) !important; }
+.text-violet-300 { color: #c4b5fd !important; }
+.text-violet-400 { color: #a78bfa !important; }
+.border-violet-500\/30 { border-color: rgba(139, 92, 246, 0.3) !important; }
+.bg-violet-400 { background-color: #a78bfa !important; }
+
+
+
+

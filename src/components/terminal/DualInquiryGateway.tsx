@@ -118,6 +118,26 @@ PGP Fingerprint: F67B 90A2 E834 1C5D B399 43E1 8DA2 7430 52C9 ED1F`,
 کد پیگیری اختصاصی: ${token}
 پیگیری زنده: https://sedrazavi.ir/track/?token=${token}`,
       });
+    } else if (lowerCmd === 'sedrazavi' || lowerCmd === 'mascot' || lowerCmd === 'cowboy') {
+      newHistory.push({
+        type: 'output',
+        text: `
+       ,-----.
+     ,'       \`.
+    /   __   __ \\
+   |   ( * ) ( - )|   <-- Winking Gunslinger Mascot: SedRazavi
+   |       >      |       "سریع‌ترین طراح و معمار وردپرس بدون کد"
+    \\   \\_____/  /        "شلیک به کندی و کدنویسی بی‌رویه!"
+     \`.         ,'
+   ---'---------'---   [⚡ LIVE STATUS: ACTIVE IN TEHRAN]
+      /|  _|_  |\\      [🛡️ IDENTITY: VERIFIED @sedrazavi]
+     / | |   | | \\     [🎯 SPECIALTY: ZERO-CODE ARCHITECTURE]
+    *  | |===| |  *
+       |_|   |_|
+  معمار ارشد: مهندس سید امیر حسین رضوی فردویی
+  شناسه رسمی در ایتا و تلگرام: @sedrazavi
+  امضای دیجیتال: F67B 90A2 E834 1C5D B399 43E1 8DA2 7430 52C9 ED1F`,
+      });
     } else if (lowerCmd === 'clear') {
       setHistory([]);
       setCommandInput('');

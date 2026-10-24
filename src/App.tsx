@@ -100,6 +100,13 @@ import { MultiNicheShowcaseSuite } from './components/multiniche/MultiNicheShowc
 import { NoCodeClientPortalModal } from './components/client-suite/NoCodeClientPortalModal';
 import { SnapElementHubModal } from './components/snapelement/SnapElementHubModal';
 import { PrototypeSimulatorModal } from './components/prototypes/PrototypeSimulatorModal';
+import { SedRazaviLibraryModal } from './components/library/SedRazaviLibraryModal';
+import { LegalIntakeAppointmentsModal } from './components/legal-intake/LegalIntakeAppointmentsModal';
+import { ClientMatterPortalModal } from './components/legal-portal/ClientMatterPortalModal';
+import { SystemDiagnosticsDoctorModal } from './components/diagnostics/SystemDiagnosticsDoctorModal';
+import { TacticalScopeConfiguratorModal } from './components/wp-designer/TacticalScopeConfiguratorModal';
+import { AdaptiveMessengerRouterModal } from './components/auth/AdaptiveMessengerRouterModal';
+import { EcosystemPublisherPortalModal } from './components/library/EcosystemPublisherPortalModal';
 import { FrontendQuickEditBar } from './components/client-suite/FrontendQuickEditBar';
 import { Scale, User, Briefcase, Lock, X } from 'lucide-react';
 import {
@@ -147,6 +154,13 @@ export default function App() {
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
   const [isSnapElementOpen, setIsSnapElementOpen] = useState(false);
   const [isPrototypeSimulatorOpen, setIsPrototypeSimulatorOpen] = useState(false);
+  const [isLibraryModalOpen, setIsLibraryModalOpen] = useState(false);
+  const [isLegalIntakeModalOpen, setIsLegalIntakeModalOpen] = useState(false);
+  const [isMatterPortalOpen, setIsMatterPortalOpen] = useState(false);
+  const [isSystemDoctorOpen, setIsSystemDoctorOpen] = useState(false);
+  const [isTacticalConfiguratorOpen, setIsTacticalConfiguratorOpen] = useState(false);
+  const [isAdaptiveMessengerOpen, setIsAdaptiveMessengerOpen] = useState(false);
+  const [isEcosystemPublisherOpen, setIsEcosystemPublisherOpen] = useState(false);
   const [isLiveEditActive, setIsLiveEditActive] = useState(false);
   const [customClientData, setCustomClientData] = useState(() => {
     try {
@@ -312,6 +326,14 @@ export default function App() {
         onOpenWizard={() => setIsWizardOpen(true)}
         onOpenCloudCatalog={() => setIsCloudCatalogOpen(true)}
         onOpenSnapElement={() => setIsSnapElementOpen(true)}
+        onOpenPrototypes={() => setIsPrototypeSimulatorOpen(true)}
+        onOpenLibrary={() => setIsLibraryModalOpen(true)}
+        onOpenLegalIntake={() => setIsLegalIntakeModalOpen(true)}
+        onOpenMatterPortal={() => setIsMatterPortalOpen(true)}
+        onOpenSystemDoctor={() => setIsSystemDoctorOpen(true)}
+        onOpenTacticalConfigurator={() => setIsTacticalConfiguratorOpen(true)}
+        onOpenAdaptiveMessenger={() => setIsAdaptiveMessengerOpen(true)}
+        onOpenEcosystemPublisher={() => setIsEcosystemPublisherOpen(true)}
         activeArchetype={activeArchetype}
         onSelectArchetype={(arch) => {
           setActiveArchetype(arch);
@@ -366,6 +388,7 @@ export default function App() {
             onOpenBookingModal={() => handleBookService('مشاوره اختصاصی طراحی سایت وردپرس با گوتنبرگ')}
             onOpenQuickEdit={() => setIsClientPortalOpen(true)}
             onOpenGitHubSync={() => setIsGitHubSyncOpen(true)}
+            onOpenPrototypes={() => setIsPrototypeSimulatorOpen(true)}
           />
         )}
 
@@ -1863,6 +1886,58 @@ export default function App() {
       <SnapElementHubModal
         isOpen={isSnapElementOpen}
         onClose={() => setIsSnapElementOpen(false)}
+      />
+
+      {/* Interactive Prototype Viewport Simulator Modal */}
+      <PrototypeSimulatorModal
+        isOpen={isPrototypeSimulatorOpen}
+        onClose={() => setIsPrototypeSimulatorOpen(false)}
+      />
+
+      {/* SedRazavi OS Library Catalog Modal (v25.0 Master Roadmap) */}
+      <SedRazaviLibraryModal
+        isOpen={isLibraryModalOpen}
+        onClose={() => setIsLibraryModalOpen(false)}
+      />
+
+      {/* Legal Intake & Appointments Workflow Modal (v25.0 Level B P3) */}
+      <LegalIntakeAppointmentsModal
+        isOpen={isLegalIntakeModalOpen}
+        onClose={() => setIsLegalIntakeModalOpen(false)}
+      />
+
+      {/* Legal Client Portal & Matter Operations Modal (v25.0 Level C P4) */}
+      <ClientMatterPortalModal
+        isOpen={isMatterPortalOpen}
+        onClose={() => setIsMatterPortalOpen(false)}
+      />
+
+      {/* 1-Click Diagnostics Doctor & Self-Healing Modal (v25.0 P5 & v17.0) */}
+      <SystemDiagnosticsDoctorModal
+        isOpen={isSystemDoctorOpen}
+        onClose={() => setIsSystemDoctorOpen(false)}
+      />
+
+      {/* Tactical Scope Configurator & Printable Spec Sheet (v15.0) */}
+      <TacticalScopeConfiguratorModal
+        isOpen={isTacticalConfiguratorOpen}
+        onClose={() => setIsTacticalConfiguratorOpen(false)}
+        onOpenInquiry={() => {
+          setIsTacticalConfiguratorOpen(false);
+          setIsQuickCallbackOpen(true);
+        }}
+      />
+
+      {/* Adaptive Deep-Link Messenger & Anti-Impersonation Verification (v15.0) */}
+      <AdaptiveMessengerRouterModal
+        isOpen={isAdaptiveMessengerOpen}
+        onClose={() => setIsAdaptiveMessengerOpen(false)}
+      />
+
+      {/* Ecosystem & Publisher Portal Modal (v25.0 P6) */}
+      <EcosystemPublisherPortalModal
+        isOpen={isEcosystemPublisherOpen}
+        onClose={() => setIsEcosystemPublisherOpen(false)}
       />
 
       {/* GDPR / Cookie Consent Banner (Section 13) */}

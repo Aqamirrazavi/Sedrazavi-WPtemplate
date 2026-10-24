@@ -1,6 +1,6 @@
 {
-  "summary": "طرح جامع اجرایی فاز به فاز برای پیاده‌سازی و ارتقای معماری SedRazavi OS بر اساس مشخصات نسخه ۸ تا ۱۷ و نتایج شفاف‌سازی کاربر:\n۱. موتور ایمپورتر بومی المنتور (تزریق مستقیم دیتای JSON به _elementor_data و ریست کش).\n۲. مرکز اعلانات و هاب رویدادها (جدول دیتابیس sr_notifications، زنگوله ادمین‌بار و وب‌هوک).\n۳. موتور سئوی بومی JSON-LD، اوپن‌گراف و بردکرامب بدون وابستگی به افزونه‌های ثالث.\n۴. ابزار عیب‌یابی خودکار (Self-Healing Diagnostic Doctor) و وایت‌لیبل آژانس.\n۵. بسته‌بندی ضدشکست بدون پوشه‌های تودرتو و تست خودکار CI/CD.",
-  "updatedAt": "2026-10-20T13:27:42.583619295Z",
-  "requestFeedback": true,
-  "userFacing": true
+  "summary":  "Master implementation plan updated to reflect full execution of SedRazavi OS v25.0 Phase P3 (Legal Intake & Appointments Workflow Engine Level B, Timezone-Aware Calendar, Concurrency Lock, WP Privacy Integration, and Staff Triage Queue).",
+  "updatedAt":  "2026-10-23T21:49:20.193957841Z",
+  "requestFeedback":  true,
+  "userFacing":  true
 }

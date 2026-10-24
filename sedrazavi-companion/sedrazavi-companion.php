@@ -57,6 +57,11 @@ require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-offline-queue.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-site-health.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-girih-vector-engine.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-webhook-dispatcher.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-sedrazavi-library-engine.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-legal-intake-appointments.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-legal-matter-portal.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-sedrazavi-diagnostics-doctor.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-sedrazavi-ecosystem-publisher.php';
 
 /**
  * Initialize Companion Subsystems
@@ -98,6 +103,11 @@ function sedrazavi_companion_init() {
     SedRazavi_Site_Health::get_instance();
     SedRazavi_Girih_Vector_Engine::get_instance();
     SedRazavi_Webhook_Dispatcher::get_instance();
+    SedRazavi_Library_Engine::get_instance();
+    SedRazavi_Legal_Intake_Appointments::get_instance();
+    SedRazavi_Legal_Matter_Portal::get_instance();
+    SedRazavi_Diagnostics_Doctor::get_instance();
+    SedRazavi_Ecosystem_Publisher::get_instance();
 }
 add_action('plugins_loaded', 'sedrazavi_companion_init');
 

@@ -60,6 +60,7 @@ import {
   Headphones,
   LayoutGrid,
   Monitor,
+  Stethoscope,
 } from 'lucide-react';
 import { AdminRealtimeNotificationBell } from './notifications/AdminRealtimeNotificationBell';
 import { ATTORNEY_INFO } from '../data/mockData';
@@ -150,6 +151,13 @@ interface HeaderProps {
   onOpenCloudCatalog?: () => void;
   onOpenSnapElement?: () => void;
   onOpenPrototypes?: () => void;
+  onOpenLibrary?: () => void;
+  onOpenLegalIntake?: () => void;
+  onOpenMatterPortal?: () => void;
+  onOpenSystemDoctor?: () => void;
+  onOpenTacticalConfigurator?: () => void;
+  onOpenAdaptiveMessenger?: () => void;
+  onOpenEcosystemPublisher?: () => void;
   activeArchetype?: 'lawyer' | 'wp-designer' | 'ecommerce' | 'video-media';
   onSelectArchetype?: (archetype: 'lawyer' | 'wp-designer' | 'ecommerce' | 'video-media') => void;
   isLoggedIn?: boolean;
@@ -182,6 +190,13 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenCloudCatalog,
   onOpenSnapElement,
   onOpenPrototypes,
+  onOpenLibrary,
+  onOpenLegalIntake,
+  onOpenMatterPortal,
+  onOpenSystemDoctor,
+  onOpenTacticalConfigurator,
+  onOpenAdaptiveMessenger,
+  onOpenEcosystemPublisher,
   activeArchetype = 'wp-designer',
   onSelectArchetype,
   isLoggedIn,
@@ -359,6 +374,90 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     <Monitor className="w-3 h-3 text-cyan-400" />
                     <span>شبیه‌ساز ریسپانسیو</span>
+                  </button>
+                )}
+
+                {onOpenLibrary && (
+                  <button
+                    type="button"
+                    onClick={onOpenLibrary}
+                    className="px-2.5 py-1 rounded-lg bg-indigo-500/20 hover:bg-indigo-600 text-indigo-300 hover:text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-indigo-500/40"
+                    title="کتابخانه مرکزی بسته‌ها و اکوسیستم SedRazavi OS v25.0"
+                  >
+                    <Package className="w-3 h-3 text-indigo-400" />
+                    <span>📚 کتابخانه مرکزی v25.0</span>
+                  </button>
+                )}
+
+                {onOpenLegalIntake && (
+                  <button
+                    type="button"
+                    onClick={onOpenLegalIntake}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-600 text-emerald-300 hover:text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-emerald-500/40"
+                    title="پذیرش، نوبت‌دهی هوشمند و کارتابل تریاژ وکالت (Level B - P3)"
+                  >
+                    <Calendar className="w-3 h-3 text-emerald-400" />
+                    <span>⚖️ تریاژ و نوبت‌دهی</span>
+                  </button>
+                )}
+
+                {onOpenMatterPortal && (
+                  <button
+                    type="button"
+                    onClick={onOpenMatterPortal}
+                    className="px-2.5 py-1 rounded-lg bg-indigo-500/20 hover:bg-indigo-600 text-indigo-300 hover:text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-indigo-500/40 shadow-sm"
+                    title="پرتال امن موکل، گاوصندوق اسناد و پایش سد Anti-IDOR (Level C - P4)"
+                  >
+                    <Shield className="w-3 h-3 text-indigo-400" />
+                    <span>🛡️ پرتال امن موکل (سطح C)</span>
+                  </button>
+                )}
+
+                {onOpenSystemDoctor && (
+                  <button
+                    type="button"
+                    onClick={onOpenSystemDoctor}
+                    className="px-2.5 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-600 text-cyan-300 hover:text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-cyan-500/40 shadow-sm"
+                    title="دکتر دیاگنوستیک و خودترمیمی هوشمند زیرساخت (P5 & v17.0)"
+                  >
+                    <Stethoscope className="w-3 h-3 text-cyan-400" />
+                    <span>🩺 دکتر دیاگنوستیک</span>
+                  </button>
+                )}
+
+                {onOpenTacticalConfigurator && (
+                  <button
+                    type="button"
+                    onClick={onOpenTacticalConfigurator}
+                    className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-amber-500/40 shadow-sm"
+                    title="کانفیگوراتور ماژولار مشخصات، پیش‌فاکتور چاپی و شبیه‌ساز سودآوری سرعت (v15.0)"
+                  >
+                    <Calculator className="w-3 h-3 text-amber-400" />
+                    <span>🎯 کانفیگوراتور و پیش‌فاکتور</span>
+                  </button>
+                )}
+
+                {onOpenAdaptiveMessenger && (
+                  <button
+                    type="button"
+                    onClick={onOpenAdaptiveMessenger}
+                    className="px-2.5 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-600 text-sky-300 hover:text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-sky-500/40 shadow-sm"
+                    title="هدایت تطبیقی به ایتا و تلگرام رسمی @sedrazavi با کد QR و اصالت‌سنجی"
+                  >
+                    <Phone className="w-3 h-3 text-sky-400" />
+                    <span>💬 ارتباط رسمی @sedrazavi</span>
+                  </button>
+                )}
+
+                {onOpenEcosystemPublisher && (
+                  <button
+                    type="button"
+                    onClick={onOpenEcosystemPublisher}
+                    className="px-2.5 py-1 rounded-lg bg-violet-500/20 hover:bg-violet-600 text-violet-300 hover:text-white font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-violet-500/40 shadow-sm"
+                    title="درگاه ناشران، ممیزی ۱۰ مرحله‌ای شرکا و فید ابطال بسته‌ها (فاز ۶ - P6 Ecosystem & Scale)"
+                  >
+                    <Globe2 className="w-3 h-3 text-violet-400" />
+                    <span>🌐 اکوسیستم ناشران (P6)</span>
                   </button>
                 )}
 
