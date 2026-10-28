@@ -1,0 +1,11 @@
+Risk_ID,Category,Title,Severity,Likelihood,Impact,Mitigation_Strategy,Status,Owner
+RSK-01,Privacy & Security,Confidential legal case data exposed via public CPT queries,P0,High,Critical,Hardened CPT case to private (publicly_queryable=false exclude_from_search=true show_in_rest=false) and separated public case_study,CLOSED,Security Lead
+RSK-02,Authentication & RBAC,REST nonce accepted as authorization to access confidential records,P0,High,Critical,Enforced is_user_logged_in and per-object ownership validation in check_case_access_permission,CLOSED,Backend Lead
+RSK-03,Access Control,REST options save allowed with nonce only without capability,P0,Medium,High,Enforced current_user_can('manage_options') in check_save_permissions,CLOSED,Security Lead
+RSK-04,Performance,Unconditional front-page loading of heavy monolithic React SPA,P1,High,High,Conditioned React asset enqueue on explicit shortcodes or authorized admin preview,CLOSED,Performance Lead
+RSK-05,Internationalization & SEO,Hardcoded RTL text direction breaks English/LTR locales,P1,Medium,Medium,Replaced static dir with dynamic is_rtl() ? 'rtl' : 'ltr',CLOSED,Frontend Lead
+RSK-06,SEO & Cache Poisoning,Unbounded query parameters for header/footer style preview,P1,Medium,Medium,Implemented strict archetype allowlist capability check and automatic noindex header,CLOSED,SEO Lead
+RSK-07,Architecture,Mismatched build manifest paths in react-shortcodes.php vs functions.php,P2,Low,Medium,Unified build manifest detection to prioritize canonical app-dist/index.js,CLOSED,DevOps Lead
+RSK-08,Security,DDoS and brute-force attacks on REST endpoints,P1,Medium,High,Deployed SedRazavi_Rate_Limiter with IP-based transient tracking and 429 status response,CLOSED,Security Lead
+RSK-09,Third-Party Dependency,External CDN outages or blocking of Google Fonts / FontAwesome,P1,Low,High,Zero-CDN architecture implemented with 100% self-hosted Vazirmatn and inline SVGs,CLOSED,Frontend Lead
+RSK-10,Compatibility,Flexbox/Grid container collision in Elementor 3.x,P2,Medium,Medium,Implemented responsive container queries and scoped CSS namespace to prevent overflow,CLOSED,Architect Lead

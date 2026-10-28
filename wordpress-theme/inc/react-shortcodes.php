@@ -38,11 +38,14 @@ function sedrazavi_register_react_assets() {
     $theme_dir_uri = get_template_directory_uri();
     $theme_dir_path = get_template_directory();
 
-    // مسیرهای محتمل فایل‌های کامپایل‌شده Vite
+    // مسیر رسمی و کانونیکال فایل‌های کامپایل‌شده (Single canonical target: app-dist)
     $js_bundle  = '';
     $css_bundle = '';
 
-    if (file_exists($theme_dir_path . '/dist/index.js')) {
+    if (file_exists($theme_dir_path . '/app-dist/index.js')) {
+        $js_bundle  = $theme_dir_uri . '/app-dist/index.js';
+        $css_bundle = $theme_dir_uri . '/app-dist/index.css';
+    } elseif (file_exists($theme_dir_path . '/dist/index.js')) {
         $js_bundle  = $theme_dir_uri . '/dist/index.js';
         $css_bundle = $theme_dir_uri . '/dist/index.css';
     } elseif (file_exists($theme_dir_path . '/public/app-dist/index.js')) {

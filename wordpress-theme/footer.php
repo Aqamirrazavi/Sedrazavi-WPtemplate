@@ -23,8 +23,23 @@ if ( function_exists('elementor_theme_do_location') && elementor_theme_do_locati
 ?>
 
 <?php
-$footer_archetype = isset($_GET['footer_style']) ? sanitize_text_field($_GET['footer_style']) : get_option('sedrazavi_footer_style', 'modern-cards');
-$footer_bio       = get_theme_mod('sedrazavi_footer_bio', get_bloginfo('description'));
+$allowed_footers  = ['modern-cards', 'minimal-dark', 'corporate-grid', 'compact-inline'];
+$footer_archetype = get_option('sedrazavi_footer_style', 'modern-cards');
+if (!in_array($footer_archetype, $allowed_footers, true)) {
+    $footer_archetype = 'modern-cards';
+}
+
+// Allow preview only for authorized staff or in customizer
+if (isset($_GET['footer_style']) && in_array($_GET['footer_style'], $allowed_footers, true)) {
+    if (current_user_can('edit_theme_options') || is_customize_preview()) {
+        $footer_archetype = sanitize_key($_GET['footer_style']);
+        if (!has_action('wp_head', 'wp_robots_no_robots')) {
+            add_action('wp_head', 'wp_robots_no_robots', 1);
+        }
+    }
+}
+
+$footer_bio = get_theme_mod('sedrazavi_footer_bio', get_bloginfo('description'));
 ?>
 <footer id="colophon" class="site-footer footer-archetype-<?php echo esc_attr($footer_archetype); ?> bg-sr-bg text-sr-primary pt-16 pb-8 border-t border-sr-border relative overflow-hidden" data-footer-archetype="<?php echo esc_attr($footer_archetype); ?>">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">

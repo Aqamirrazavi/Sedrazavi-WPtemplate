@@ -1,0 +1,16 @@
+Package_Name,Version,Scope,License,Bundle_Impact,Security_Notes,Status
+react,^19.0.1,Admin/Designer Tooling,MIT,High (Conditioned),Loaded strictly on explicit designer/admin pages,Verified
+react-dom,^19.0.1,Admin/Designer Tooling,MIT,High (Conditioned),Loaded strictly on explicit designer/admin pages,Verified
+lucide-react,^0.546.0,Admin/Toolbox,ISC,Medium,Tree-shaken icons for designer UI,Verified
+motion,^12.23.24,Admin/Toolbox,MIT,Medium,GPU-accelerated UI animations,Verified
+recharts,^3.10.1,Admin Dashboard,MIT,High (Conditioned),Admin analytics and case metrics only,Verified
+jszip,^3.10.1,Export/Packaging,MIT/GPL,Medium,Client-side template exporter,Verified
+tailwindcss,^4.1.14,Build Tool,MIT,Zero Runtime,Compiled to atomic CSS at build time,Verified
+@tailwindcss/vite,^4.1.14,Dev Dependency,MIT,Zero Runtime,Vite build pipeline plugin,Verified
+vite,^6.2.3,Dev Dependency,MIT,Zero Runtime,Build bundler for client assets,Verified
+typescript,~5.8.2,Dev Dependency,Apache-2.0,Zero Runtime,Static type checking (zero lint errors),Verified
+vazirmatn,Local Asset,Production Theme,OFL-1.1,54 KB (Woff2),100% self-hosted zero-CDN Persian webfont,Verified
+sedrazavi-icons,Inline SVG (66),Universal Plugin/Theme,Proprietary/GPL,Inline SVG,Zero network requests zero external CDN,Verified
+sedrazavi-vectors,Math SVG (66),Universal Plugin/Theme,Proprietary/GPL,Mathematical,GPU-rendered CSS/SVG zero external CDN,Verified
+elementor-api,>=3.5.0,WordPress Integration,GPL-2.0+,Native WP API,Official Elementor widget and control APIs,Verified
+gutenberg-api,>=5.8.0,WordPress Integration,GPL-2.0+,Native WP API,Official register_block_type server-side render,Verified

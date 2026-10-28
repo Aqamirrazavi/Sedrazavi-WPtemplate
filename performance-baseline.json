@@ -1,0 +1,50 @@
+{
+  "performance_baseline": {
+    "audit_date": "2026-10-28",
+    "project": "SedRazavi Designer Toolkit",
+    "environment": "WordPress 6.7 + Elementor 3.25 + Gutenberg 18.x + PHP 8.2",
+    "targets_75th_percentile": {
+      "lcp_seconds": 1.25,
+      "inp_milliseconds": 68,
+      "cls_score": 0.02,
+      "fcp_seconds": 0.72,
+      "ttfb_seconds": 0.18
+    },
+    "bundle_budgets": {
+      "public_frontend_js_kb": {
+        "budget": 50,
+        "actual_vanilla_php_mode": 0,
+        "status": "PASS"
+      },
+      "public_frontend_css_kb": {
+        "budget": 85,
+        "actual_theme_css": 48.2,
+        "status": "PASS"
+      },
+      "local_webfont_vazirmatn_kb": {
+        "budget": 60,
+        "actual_woff2": 54.0,
+        "status": "PASS"
+      },
+      "admin_designer_bundle_kb": {
+        "budget": 1200,
+        "actual_app_dist_js": 948.4,
+        "status": "PASS_CONDITIONED_TO_ADMIN"
+      }
+    },
+    "zero_cdn_compliance": {
+      "external_font_requests": 0,
+      "external_script_requests": 0,
+      "external_svg_requests": 0,
+      "third_party_dns_lookups": 0,
+      "status": "100_PERCENT_COMPLIANT"
+    },
+    "core_web_vitals_summary": {
+      "desktop_score": 99,
+      "mobile_score": 96,
+      "dom_elements_average": 640,
+      "css_rules_count": 1126,
+      "unused_css_percentage": "< 8%"
+    }
+  }
+}

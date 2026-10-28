@@ -59,29 +59,30 @@ class SedRazavi_API_Handlers {
     }
 
     /**
-     * Permission check: verified user, admin capability, or valid nonce
+     * Permission check: Requires manage_options or edit_theme_options capability AND valid nonce
+     * A nonce alone is NOT authorization; capability is strictly mandatory.
      */
     public static function check_save_permissions($request) {
-        // Allow in development / preview or when user has edit_posts or valid nonce
-        if (current_user_can('edit_posts') || current_user_can('manage_options')) {
-            return true;
+        // 1. Mandatory Capability check
+        if (!current_user_can('manage_options') && !current_user_can('edit_theme_options')) {
+            return new WP_Error(
+                'rest_forbidden_capability',
+                esc_html__('شما مجوز تغییر تنظیمات سراسری پوسته و مشخصات سازمانی را ندارید.', 'sedrazavi'),
+                ['status' => 403]
+            );
         }
 
-        // Check REST nonce header
-        $nonce = $request->get_header('x-wp-nonce');
-        if ($nonce && wp_verify_nonce($nonce, 'wp_rest')) {
-            return true;
+        // 2. Mandatory CSRF Nonce check
+        $nonce = $request->get_header('x-wp-nonce') ?: $request->get_header('X-WP-Nonce');
+        if (!$nonce || !wp_verify_nonce($nonce, 'wp_rest')) {
+            return new WP_Error(
+                'rest_invalid_nonce',
+                esc_html__('اعتبار نانس امنیتی نامعتبر یا منقضی شده است.', 'sedrazavi'),
+                ['status' => 403]
+            );
         }
 
-        // Allow demo updates only if explicitly enabled via SEDRAZAVI_ALLOW_MOCK_HEADERS
-        if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true) {
-            $mock_header = $request->get_header('x-sedrazavi-mock');
-            if ($mock_header) {
-                return true;
-            }
-        }
-
-        return false;
+        return true;
     }
 
     /**

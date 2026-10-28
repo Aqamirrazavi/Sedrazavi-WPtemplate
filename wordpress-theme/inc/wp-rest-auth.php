@@ -81,50 +81,90 @@ class SedRazavi_WP_REST_Auth {
     }
 
     /**
-     * Check if user is logged in or provides a valid REST nonce
+     * Strict Authentication Check: Must be authenticated WordPress user
+     * Nonce is NOT authentication.
      */
     public static function check_logged_in_permission($request = null) {
-        if (is_user_logged_in()) {
-            return true;
-        }
-
-        // Allow demo mock headers only if explicitly enabled in environment
-        if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && $request && $request->get_header('x-sedrazavi-mock')) {
-            return true;
-        }
-
-        $nonce = $request ? $request->get_header('X-WP-Nonce') : null;
-        if ($nonce && wp_verify_nonce($nonce, 'wp_rest')) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Strict Case Access Permission Check
-     * Ensures only lawyers/admins can view all cases, while clients can only view their own
-     */
-    public static function check_case_access_permission($request = null) {
         if (!is_user_logged_in()) {
-            // Check for valid preview mock header if explicitly allowed
-            if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && $request && $request->get_header('x-sedrazavi-mock')) {
-                return true;
-            }
             return new WP_Error(
-                'rest_forbidden',
-                esc_html__('جهت دسترسی به پرونده‌های محرمانه وکالت، لطفاً ابتدا وارد حساب کاربری خود شوید.', 'sedrazavi'),
+                'rest_not_logged_in',
+                esc_html__('احراز هویت الزامی است. لطفاً ابتدا وارد حساب کاربری خود شوید.', 'sedrazavi'),
                 ['status' => 401]
             );
         }
 
-        // Admins and lawyers have global docket access
+        // Verify CSRF nonce for state-changing or authenticated actions
+        $nonce = $request ? ($request->get_header('X-WP-Nonce') ?: $request->get_header('x-wp-nonce')) : null;
+        if ($nonce && !wp_verify_nonce($nonce, 'wp_rest')) {
+            return new WP_Error(
+                'rest_invalid_nonce',
+                esc_html__('اعتبار نانس امنیتی نامعتبر یا منقضی شده است.', 'sedrazavi'),
+                ['status' => 403]
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * Strict Case Access Permission & Ownership Check
+     * Enforces Role-Based Access Control (RBAC) + Per-Object Ownership validation.
+     * Lawyers and Administrators can access dossiers; clients can ONLY access their own records.
+     */
+    public static function check_case_access_permission($request = null) {
+        if (!is_user_logged_in()) {
+            return new WP_Error(
+                'rest_forbidden',
+                esc_html__('جهت دسترسی به پرونده‌های محرمانه وکالت، ورود به حساب کاربری معتبر الزامی است.', 'sedrazavi'),
+                ['status' => 401]
+            );
+        }
+
+        $current_user_id = get_current_user_id();
+
+        // 1. Staff with manage_options or edit_posts have global authorized access
         if (current_user_can('manage_options') || current_user_can('edit_posts')) {
             return true;
         }
 
-        // For clients, individual case ownership is verified inside the handler
-        return true;
+        // 2. For single case detail, enforce strict object ownership
+        if ($request) {
+            $case_id = sanitize_text_field($request->get_param('case_id') ?: $request->get_param('id'));
+            if (!empty($case_id)) {
+                // If numeric post ID, verify author / assigned client
+                if (is_numeric($case_id)) {
+                    $case_post = get_post(intval($case_id));
+                    if (!$case_post || ($case_post->post_author != $current_user_id && get_post_meta($case_post->ID, '_client_user_id', true) != $current_user_id)) {
+                        return new WP_Error(
+                            'rest_case_forbidden',
+                            esc_html__('شما اجازه دسترسی به این پرونده قضایی محرمانه را ندارید.', 'sedrazavi'),
+                            ['status' => 403]
+                        );
+                    }
+                } else {
+                    // String identifier mapping: ensure client can only query their designated dossier
+                    $client_allowed_dossier = get_user_meta($current_user_id, '_sedrazavi_assigned_case_id', true);
+                    if (!empty($client_allowed_dossier) && $client_allowed_dossier !== $case_id) {
+                        return new WP_Error(
+                            'rest_case_forbidden',
+                            esc_html__('دسترسی غیرمجاز: این پرونده متعلق به حساب کاربری شما نمی‌باشد.', 'sedrazavi'),
+                            ['status' => 403]
+                        );
+                    }
+                }
+            }
+        }
+
+        // 3. For list endpoints, only allow users who have read capability
+        if (current_user_can('read')) {
+            return true;
+        }
+
+        return new WP_Error(
+            'rest_forbidden',
+            esc_html__('مجوز کاربری شما برای مشاهده پرونده‌ها کافی نمی‌باشد.', 'sedrazavi'),
+            ['status' => 403]
+        );
     }
 
     /**

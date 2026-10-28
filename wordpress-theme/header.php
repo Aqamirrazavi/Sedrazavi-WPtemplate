@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 ?><!DOCTYPE html>
-<html <?php language_attributes(); ?> dir="rtl">
+<html <?php language_attributes(); ?> dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>">
 <head>
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -114,7 +114,21 @@ $header_cta_lnk = get_theme_mod('sedrazavi_header_cta_link', home_url('/#contact
 <?php endif; ?>
 
 <?php
-$header_archetype = isset($_GET['header_style']) ? sanitize_text_field($_GET['header_style']) : get_option('sedrazavi_header_style', 'frosted-glass');
+$allowed_headers  = ['frosted-glass', 'minimal-clean', 'dark-luxury', 'corporate-split', 'centered-brand'];
+$header_archetype = get_option('sedrazavi_header_style', 'frosted-glass');
+if (!in_array($header_archetype, $allowed_headers, true)) {
+    $header_archetype = 'frosted-glass';
+}
+
+// Allow preview only for authorized staff or in customizer
+if (isset($_GET['header_style']) && in_array($_GET['header_style'], $allowed_headers, true)) {
+    if (current_user_can('edit_theme_options') || is_customize_preview()) {
+        $header_archetype = sanitize_key($_GET['header_style']);
+        if (!has_action('wp_head', 'wp_robots_no_robots')) {
+            add_action('wp_head', 'wp_robots_no_robots', 1);
+        }
+    }
+}
 ?>
 <!-- سربرگ اصلی چندمنظوره (Dynamic Multi-Archetype Header) -->
 <header id="masthead" class="site-header header-archetype-<?php echo esc_attr($header_archetype); ?>" data-header-archetype="<?php echo esc_attr($header_archetype); ?>">

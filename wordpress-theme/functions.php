@@ -172,38 +172,84 @@ if (!function_exists('sedrazavi_register_custom_post_types')) {
             ]);
         }
 
-        // CPT 3: Client Cases & Docket Tracking ('case')
+        // CPT 3: Client Cases & Confidential Docket Tracking ('case')
+        // CRITICAL PRIVACY FIX: Private by default, excluded from search, sitemaps, and public permalinks
         if (!post_type_exists('case')) {
             $case_labels = [
-                'name'               => esc_html__('پرونده‌های قضایی', 'sedrazavi'),
-                'singular_name'      => esc_html__('پرونده قضایی', 'sedrazavi'),
-                'menu_name'          => esc_html__('کارتابل پرونده‌ها', 'sedrazavi'),
-                'add_new'            => esc_html__('ثبت پرونده جدید', 'sedrazavi'),
-                'add_new_item'       => esc_html__('ثبت پرونده قضایی موکل', 'sedrazavi'),
-                'edit_item'          => esc_html__('ویرایش پرونده', 'sedrazavi'),
-                'view_item'          => esc_html__('مشاهده پرونده', 'sedrazavi'),
-                'search_items'       => esc_html__('جستجوی پرونده‌ها', 'sedrazavi'),
+                'name'               => esc_html__('پرونده‌های محرمانه موکلان', 'sedrazavi'),
+                'singular_name'      => esc_html__('پرونده محرمانه', 'sedrazavi'),
+                'menu_name'          => esc_html__('کارتابل پرونده‌های محرمانه', 'sedrazavi'),
+                'add_new'            => esc_html__('ثبت پرونده محرمانه جدید', 'sedrazavi'),
+                'add_new_item'       => esc_html__('ثبت پرونده محرمانه موکل', 'sedrazavi'),
+                'edit_item'          => esc_html__('ویرایش پرونده محرمانه', 'sedrazavi'),
+                'view_item'          => esc_html__('مشاهده پرونده در پنل مدیریت', 'sedrazavi'),
+                'search_items'       => esc_html__('جستجوی پرونده‌ها در پنل مدیریت', 'sedrazavi'),
                 'not_found'          => esc_html__('پرونده‌ای یافت نشد', 'sedrazavi'),
             ];
 
             register_post_type('case', [
                 'labels'              => $case_labels,
-                'public'              => true,
-                'has_archive'         => true,
-                'rewrite'             => ['slug' => 'legal-cases'],
-                'menu_icon'           => 'dashicons-portfolio',
-                'supports'            => ['title', 'editor', 'custom-fields', 'revisions'],
-                'show_in_rest'        => true,
+                'public'              => false, // Confidential: not public
+                'publicly_queryable'  => false, // Prevent public frontend query
+                'exclude_from_search' => true,  // Exclude from public site search
+                'show_ui'             => true,  // Visible in WP Admin to staff
+                'show_in_menu'        => true,
+                'show_in_nav_menus'   => false,
+                'has_archive'         => false, // No public archive page
+                'rewrite'             => false, // No public permalink route
+                'query_var'           => false,
+                'menu_icon'           => 'dashicons-lock',
+                'supports'            => ['title', 'editor', 'custom-fields', 'revisions', 'author'],
+                'show_in_rest'        => false, // Disallow unauthenticated WP Core REST route
+                'capability_type'     => 'post',
             ]);
 
             register_taxonomy('case_type', ['case'], [
                 'labels'            => [
-                    'name'          => esc_html__('موضوعات دادرسی', 'sedrazavi'),
+                    'name'          => esc_html__('موضوعات دادرسی محرمانه', 'sedrazavi'),
                     'singular_name' => esc_html__('موضوع دعوا', 'sedrazavi'),
                 ],
                 'hierarchical'      => true,
+                'public'            => false,
+                'show_ui'           => true,
+                'show_in_rest'      => false,
+                'rewrite'           => false,
+            ]);
+        }
+
+        // CPT 4: Public Legal Precedents & Case Studies ('case_study')
+        // Clean, anonymized public records intended for marketing and legal education
+        if (!post_type_exists('case_study')) {
+            $case_study_labels = [
+                'name'               => esc_html__('نمونه‌پرونده‌ها و دعاوی موفق', 'sedrazavi'),
+                'singular_name'      => esc_html__('نمونه‌پرونده موفق', 'sedrazavi'),
+                'menu_name'          => esc_html__('دعاوی موفق (عمومی)', 'sedrazavi'),
+                'add_new'            => esc_html__('افزودن نمونه‌دعوای جدید', 'sedrazavi'),
+                'add_new_item'       => esc_html__('افزودن نمونه‌پرونده موفق عمومی', 'sedrazavi'),
+                'edit_item'          => esc_html__('ویرایش نمونه‌پرونده', 'sedrazavi'),
+                'view_item'          => esc_html__('مشاهده نمونه‌پرونده', 'sedrazavi'),
+                'search_items'       => esc_html__('جستجوی دعاوی موفق', 'sedrazavi'),
+                'not_found'          => esc_html__('موردی یافت نشد', 'sedrazavi'),
+            ];
+
+            register_post_type('case_study', [
+                'labels'              => $case_study_labels,
+                'public'              => true,
+                'has_archive'         => true,
+                'rewrite'             => ['slug' => 'case-studies'],
+                'menu_icon'           => 'dashicons-awards',
+                'supports'            => ['title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'],
+                'show_in_rest'        => true,
+            ]);
+
+            register_taxonomy('case_study_topic', ['case_study'], [
+                'labels'            => [
+                    'name'          => esc_html__('حوزه‌های دعاوی موفق', 'sedrazavi'),
+                    'singular_name' => esc_html__('حوزه دعوا', 'sedrazavi'),
+                ],
+                'hierarchical'      => true,
                 'show_in_rest'      => true,
-                'rewrite'           => ['slug' => 'case-topic'],
+                'rewrite'           => ['slug' => 'case-study-topic'],
             ]);
         }
     }
@@ -376,13 +422,12 @@ if (!function_exists('enqueue_react_assets')) {
             }
         }
 
-        // 6.4. Conditional check: load React engine only when required by components or templates
+        // 6.4. Conditional check: load React engine only when explicitly required by shortcodes or designer mount
+        // Standard Elementor or Gutenberg pages do NOT load the React SPA bundle, ensuring ultra-fast LCP and zero bloat
         global $post;
         $needs_react = false;
 
-        if (is_front_page() || is_home()) {
-            $needs_react = true;
-        } elseif (is_a($post, 'WP_Post')) {
+        if (is_a($post, 'WP_Post')) {
             if (has_shortcode($post->post_content, 'react_component') ||
                 has_shortcode($post->post_content, 'sedrazavi_dashboard') ||
                 has_shortcode($post->post_content, 'sedrazavi_calculator') ||
@@ -393,7 +438,8 @@ if (!function_exists('enqueue_react_assets')) {
             }
         }
 
-        if (is_admin() || (current_user_can('manage_options') && isset($_GET['preview']))) {
+        // Preview mode explicitly requested by authorized administrators/designers
+        if ((current_user_can('edit_theme_options') && isset($_GET['app_preview'])) || is_page('designer') || is_page('portal')) {
             $needs_react = true;
         }
 
