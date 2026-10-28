@@ -113,7 +113,6 @@ export const VectorBackgroundRenderer: React.FC<VectorBackgroundRendererProps> =
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Linear Gradient for strokes that directly inherits CSS variable colors */}
           <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="var(--sr-gold-primary, #D4AF37)" stopOpacity="0.8" />
             <stop offset="50%" stopColor="var(--sr-gold-secondary, #AA820A)" stopOpacity="0.4" />
@@ -143,80 +142,107 @@ export const VectorBackgroundRenderer: React.FC<VectorBackgroundRendererProps> =
   );
 };
 
-// Render dedicated geometric paths based on the 30 presets
+// Render dedicated geometric paths based on the 66 presets
 function renderPresetGeometry(preset: VectorBackgroundPreset, gradId: string) {
   const pId = preset.id;
 
-  // 1. Dynamic Flowing Waves
-  if (pId === 'dynamic-flowing-waves' || pId === 'aurora-ribbons' || pId === 'vortex-fluid-curves') {
+  // 1. Dynamic Flowing Waves, Auroras, Silk & Fluid Curves
+  if (
+    pId === 'dynamic-flowing-waves' ||
+    pId === 'aurora-ribbons' ||
+    pId === 'vortex-fluid-curves' ||
+    pId === 'sinusoidal-justice-stream' ||
+    pId === 'bezier-silk-strands' ||
+    pId === 'parabolic-light-echo' ||
+    pId === 'harmonic-resonance-waves' ||
+    pId === 'celestial-nebula-plasma' ||
+    pId === 'oceanic-depth-currents' ||
+    pId === 'aurora-borealis-law-stream' ||
+    pId === 'fluid-mercury-ribbons' ||
+    pId === 'cosmic-superstring-loops'
+  ) {
     return (
       <g className="sr-anim-wave-flow">
-        {[...Array(14)].map((_, i) => {
-          const yOff = 80 + i * 55;
-          const cpY1 = yOff - 90 + (i % 2 === 0 ? 50 : -40);
-          const cpY2 = yOff + 110 - (i % 3 === 0 ? 60 : 30);
+        {[...Array(16)].map((_, i) => {
+          const yOff = 60 + i * 50;
+          const cpY1 = yOff - 90 + (i % 2 === 0 ? 55 : -45);
+          const cpY2 = yOff + 115 - (i % 3 === 0 ? 65 : 30);
           return (
             <path
               key={i}
-              d={`M -100 ${yOff} C 320 ${cpY1}, 880 ${cpY2}, 1540 ${yOff + 40}`}
+              d={`M -80 ${yOff} C 360 ${cpY1}, 880 ${cpY2}, 1520 ${yOff - 30}`}
               fill="none"
               stroke={`url(#${gradId})`}
-              strokeWidth={i % 3 === 0 ? 1.8 : 1}
-              strokeOpacity={0.18 + (i % 5) * 0.08}
+              strokeWidth={i % 2 === 0 ? 1.6 : 0.9}
+              strokeOpacity={0.22 + (i % 5) * 0.07}
             />
           );
         })}
-        {/* Counter waves */}
-        {[...Array(8)].map((_, i) => {
-          const yOff = 200 + i * 75;
-          return (
-            <path
-              key={`c-${i}`}
-              d={`M -50 ${yOff} C 450 ${yOff + 160}, 950 ${yOff - 120}, 1500 ${yOff + 80}`}
-              fill="none"
-              stroke="var(--sr-gold-primary, #D4AF37)"
-              strokeWidth={1.2}
-              strokeOpacity={0.15 + (i % 4) * 0.06}
-            />
-          );
-        })}
+        {[...Array(6)].map((_, i) => (
+          <path
+            key={`cross-${i}`}
+            d={`M 1520 ${100 + i * 140} C 1000 ${250 + i * 80}, 450 ${50 + i * 120}, -80 ${200 + i * 130}`}
+            fill="none"
+            stroke="var(--sr-gold-secondary, #AA820A)"
+            strokeWidth={0.8}
+            strokeOpacity={0.15}
+            strokeDasharray="6 12"
+          />
+        ))}
       </g>
     );
   }
 
-  // 2. Topographic Elevation Contours / 3D Stacked Terrain
-  if (pId === 'topographic-elevation-contours' || pId === 'abstract-topography-3d' || pId === 'fluid-contour-blobs') {
+  // 2. Topographic Elevation Contours & Terrestrial Bathymetry
+  if (
+    pId === 'topographic-elevation-contours' ||
+    pId === 'cadastral-boundary-mesh' ||
+    pId === 'stratified-geological-folds' ||
+    pId === 'orbital-gravitational-field' ||
+    pId === 'geodetic-surveyor-triangulation' ||
+    pId === 'topographic-elevation-lines' ||
+    pId === 'seismic-wave-propagation' ||
+    pId === 'stratified-sediment-bedding' ||
+    pId === 'abstract-topography-3d' ||
+    pId === 'fluid-contour-blobs'
+  ) {
     return (
       <g className="sr-anim-contour-drift">
-        {[...Array(16)].map((_, i) => {
-          const rX = 220 + i * 65;
-          const rY = 140 + i * 45;
+        {[...Array(20)].map((_, i) => {
+          const radiusX = 140 + i * 62;
+          const radiusY = 90 + i * 44;
           return (
-            <path
+            <ellipse
               key={i}
-              d={`M ${1150 - rX} 350 C ${1150 - rX * 0.8} ${350 - rY * 0.9}, ${1150 + rX * 0.9} ${350 - rY * 1.2}, ${1150 + rX} 350 C ${1150 + rX * 1.1} ${350 + rY * 0.9}, ${1150 - rX * 0.9} ${350 + rY * 1.1}, ${1150 - rX} 350 Z`}
+              cx={720 + Math.sin(i * 0.5) * 60}
+              cy={450 + Math.cos(i * 0.4) * 45}
+              rx={radiusX}
+              ry={radiusY}
               fill="none"
               stroke={`url(#${gradId})`}
-              strokeWidth={i === 4 || i === 8 || i === 12 ? 2 : 1}
-              strokeOpacity={0.16 + (i % 4) * 0.07}
+              strokeWidth={i % 4 === 0 ? 1.8 : 0.8}
+              strokeOpacity={0.2 + (i % 4) * 0.08}
+              strokeDasharray={i % 5 === 0 ? '12 8 4 8' : undefined}
             />
           );
         })}
-        {/* Secondary topographic island on bottom left */}
-        {[...Array(10)].map((_, i) => {
-          const r = 90 + i * 50;
+        {[...Array(12)].map((_, i) => {
+          const angle = (i * Math.PI) / 6;
+          const x1 = 720 + Math.cos(angle) * 200;
+          const y1 = 450 + Math.sin(angle) * 160;
+          const x2 = 720 + Math.cos(angle) * 580;
+          const y2 = 450 + Math.sin(angle) * 420;
           return (
-            <ellipse
-              key={`island-${i}`}
-              cx={240}
-              cy={680}
-              rx={r * 1.3}
-              ry={r * 0.8}
-              fill="none"
-              stroke="var(--sr-gold-secondary, #AA820A)"
-              strokeWidth={1.1}
-              strokeOpacity={0.15 + (i % 3) * 0.08}
-              transform={`rotate(-18 240 680)`}
+            <line
+              key={`tick-${i}`}
+              x1={x1}
+              y1={y1}
+              x2={x2}
+              y2={y2}
+              stroke="var(--sr-gold-primary, #D4AF37)"
+              strokeWidth={0.7}
+              strokeOpacity={0.16}
+              strokeDasharray="3 9"
             />
           );
         })}
@@ -224,202 +250,243 @@ function renderPresetGeometry(preset: VectorBackgroundPreset, gradId: string) {
     );
   }
 
-  // 3. Guilloche Security Mesh & Fibonacci Spirals
-  if (pId === 'guilloche-security-mesh' || pId === 'golden-ratio-spirals' || pId === 'concentric-radar-rings') {
+  // 3. Guilloche Security Mesh, High-Security Banknote & Cryptographic Seals
+  if (
+    pId === 'guilloche-security-mesh' ||
+    pId === 'golden-ratio-spirals' ||
+    pId === 'sacred-geometry-flower' ||
+    pId === 'chladni-resonance-harmonics' ||
+    pId === 'guilloche-rosette-seal' ||
+    pId === 'hyperbolic-tessellation' ||
+    pId === 'spirograph-hypotrochoid-rosette' ||
+    pId === 'fibonacci-phyllotaxis-matrix' ||
+    pId === 'fractal-sierpinski-lattice' ||
+    pId === 'guilloche-currency-waves'
+  ) {
     return (
       <g className="sr-anim-guilloche-rotate" style={{ transformOrigin: '720px 450px' }}>
-        {[...Array(24)].map((_, i) => {
-          const angle = (i * 360) / 24;
+        {[...Array(32)].map((_, i) => {
+          const angle = (i * 360) / 32;
           return (
             <g key={i} transform={`rotate(${angle} 720 450)`}>
               <ellipse
                 cx={720}
                 cy={450}
-                rx={560}
-                ry={180}
+                rx={460}
+                ry={130}
                 fill="none"
                 stroke={`url(#${gradId})`}
-                strokeWidth={1}
-                strokeOpacity={0.14 + (i % 4) * 0.06}
+                strokeWidth={0.9}
+                strokeOpacity={0.25}
               />
               <path
-                d="M 280 450 Q 720 220 1160 450 T 280 450"
+                d="M 520 450 Q 720 280 920 450 Q 720 620 520 450 Z"
                 fill="none"
                 stroke="var(--sr-gold-primary, #D4AF37)"
-                strokeWidth={0.8}
-                strokeOpacity={0.12}
+                strokeWidth={0.6}
+                strokeOpacity={0.18}
               />
             </g>
           );
         })}
-        <circle cx={720} cy={450} r={90} fill="none" stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={1.5} strokeOpacity={0.4} />
-        <circle cx={720} cy={450} r={190} fill="none" stroke="var(--sr-gold-secondary, #AA820A)" strokeWidth={1} strokeOpacity={0.25} />
+        <circle cx={720} cy={450} r={180} fill="none" stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={1.5} strokeOpacity={0.4} strokeDasharray="8 6" />
+        <circle cx={720} cy={450} r={280} fill="none" stroke="var(--sr-gold-secondary, #AA820A)" strokeWidth={1} strokeOpacity={0.3} />
+        <circle cx={720} cy={450} r={80} fill="none" stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={2} strokeOpacity={0.5} />
       </g>
     );
   }
 
-  // 4. Justice Constellation & Neural Mesh & Quantum Field
-  if (pId === 'justice-constellation-nodes' || pId === 'neural-legal-brain' || pId === 'quantum-particle-field') {
+  // 4. Justice Constellation, Optical Nodes & Quantum Matrix
+  if (
+    pId === 'justice-constellation-nodes' ||
+    pId === 'synaptic-neural-web' ||
+    pId === 'quantum-probability-lattice' ||
+    pId === 'astrolabe-celestial-rings' ||
+    pId === 'blockchain-merkle-dag' ||
+    pId === 'quantum-entanglement-threads' ||
+    pId === 'neural-network-deep-learning' ||
+    pId === 'astronomical-armillary-sphere' ||
+    pId === 'particle-collider-tracks' ||
+    pId === 'sedrazavi-sovereign-emblem'
+  ) {
     const nodes = [
-      { x: 180, y: 150 }, { x: 340, y: 220 }, { x: 490, y: 120 }, { x: 620, y: 280 },
-      { x: 810, y: 190 }, { x: 970, y: 110 }, { x: 1150, y: 220 }, { x: 1320, y: 140 },
-      { x: 260, y: 440 }, { x: 420, y: 520 }, { x: 600, y: 410 }, { x: 740, y: 560 },
-      { x: 920, y: 430 }, { x: 1080, y: 510 }, { x: 1260, y: 390 }, { x: 190, y: 720 },
-      { x: 380, y: 780 }, { x: 580, y: 690 }, { x: 760, y: 810 }, { x: 960, y: 730 },
-      { x: 1160, y: 790 }, { x: 1330, y: 690 },
+      { x: 180, y: 180, r: 4 },
+      { x: 380, y: 140, r: 6 },
+      { x: 620, y: 220, r: 5 },
+      { x: 880, y: 160, r: 7 },
+      { x: 1140, y: 240, r: 4 },
+      { x: 1300, y: 190, r: 5 },
+      { x: 260, y: 460, r: 5 },
+      { x: 500, y: 410, r: 7 },
+      { x: 720, y: 450, r: 9 },
+      { x: 940, y: 420, r: 6 },
+      { x: 1200, y: 470, r: 5 },
+      { x: 190, y: 720, r: 6 },
+      { x: 420, y: 760, r: 5 },
+      { x: 680, y: 690, r: 7 },
+      { x: 960, y: 740, r: 5 },
+      { x: 1240, y: 710, r: 6 },
     ];
+
     return (
       <g className="sr-anim-mesh-pulse">
-        {/* Connecting lines */}
-        {nodes.map((node, i) => {
-          const next = nodes[(i + 1) % nodes.length];
-          const cross = nodes[(i + 4) % nodes.length];
-          return (
-            <React.Fragment key={i}>
-              <line
-                x1={node.x}
-                y1={node.y}
-                x2={next.x}
-                y2={next.y}
-                stroke={`url(#${gradId})`}
-                strokeWidth={1}
-                strokeOpacity={0.25}
-              />
-              <line
-                x1={node.x}
-                y1={node.y}
-                x2={cross.x}
-                y2={cross.y}
-                stroke="var(--sr-gold-primary, #D4AF37)"
-                strokeWidth={0.7}
-                strokeOpacity={0.15}
-              />
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r={i % 3 === 0 ? 4 : 2.5}
-                fill="var(--sr-gold-primary, #D4AF37)"
-                fillOpacity={0.7}
-              />
-            </React.Fragment>
-          );
-        })}
+        {nodes.map((node, i) =>
+          nodes.slice(i + 1, i + 4).map((target, j) => (
+            <line
+              key={`link-${i}-${j}`}
+              x1={node.x}
+              y1={node.y}
+              x2={target.x}
+              y2={target.y}
+              stroke={`url(#${gradId})`}
+              strokeWidth={0.9}
+              strokeOpacity={0.26}
+              strokeDasharray={j % 2 === 0 ? '4 8' : undefined}
+            />
+          ))
+        )}
+        {nodes.map((node, i) => (
+          <g key={`node-${i}`}>
+            <circle
+              cx={node.x}
+              cy={node.y}
+              r={node.r * 2.8}
+              fill="none"
+              stroke="var(--sr-gold-primary, #D4AF37)"
+              strokeWidth={0.7}
+              strokeOpacity={0.25}
+            />
+            <circle
+              cx={node.x}
+              cy={node.y}
+              r={node.r}
+              fill="var(--sr-gold-primary, #D4AF37)"
+              fillOpacity={0.8}
+            />
+          </g>
+        ))}
+        <circle cx={720} cy={450} r={140} fill="none" stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={1.2} strokeOpacity={0.35} strokeDasharray="6 6" />
       </g>
     );
   }
 
-  // 5. Cyber Matrix Circuit & Blockchain Ledger & Minimal Diagonal Rays
-  if (pId === 'cyber-matrix-circuit' || pId === 'blockchain-ledger-chain' || pId === 'minimal-diagonal-rays' || pId === 'geometric-prism-rays') {
+  // 5. Cyber Matrix, Circuitry, Binary Rain & Laser Grid
+  if (
+    pId === 'cyber-matrix-circuit' ||
+    pId === 'isometric-court-grid' ||
+    pId === 'cyber-wireframe-terrain' ||
+    pId === 'optical-fiber-bundle' ||
+    pId === 'binary-matrix-rain' ||
+    pId === 'cyber-neon-hex-grid' ||
+    pId === 'circuit-board-micro-traces' ||
+    pId === 'synthwave-laser-perspective' ||
+    pId === 'isometric-block-cityscape' ||
+    pId === 'cyber-hud-tactical-crosshairs'
+  ) {
     return (
       <g className="sr-anim-dash-travel">
-        {/* Grid rails and circuit conduits */}
-        {[...Array(18)].map((_, i) => {
-          const y = 50 + i * 50;
+        {[...Array(16)].map((_, i) => {
+          const y = 80 + i * 52;
           return (
             <path
-              key={i}
-              d={`M -50 ${y} L ${400 + (i % 4) * 80} ${y} L ${550 + (i % 4) * 80} ${y + 60} L 1500 ${y + 60}`}
+              key={`bus-h-${i}`}
+              d={`M 0 ${y} L 400 ${y} L 460 ${y + 40} L 980 ${y + 40} L 1040 ${y} L 1440 ${y}`}
               fill="none"
               stroke={`url(#${gradId})`}
-              strokeWidth={i % 4 === 0 ? 2 : 1}
-              strokeOpacity={0.22 + (i % 4) * 0.06}
+              strokeWidth={i % 3 === 0 ? 1.6 : 0.8}
+              strokeOpacity={0.25 + (i % 3) * 0.08}
             />
           );
         })}
-        {/* Diagonal high-speed bus lines */}
         {[...Array(12)].map((_, i) => {
-          const x = 100 + i * 110;
+          const x = 120 + i * 110;
           return (
-            <path
-              key={`diag-${i}`}
-              d={`M ${x} -50 L ${x + 500} 950`}
-              fill="none"
-              stroke="var(--sr-gold-secondary, #AA820A)"
-              strokeWidth={1.2}
-              strokeOpacity={0.16}
-            />
+            <g key={`tap-${i}`}>
+              <line x1={x} y1={120} x2={x + 80} y2={200} stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={1} strokeOpacity={0.28} />
+              <rect x={x + 75} y={195} width={10} height={10} fill="none" stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={1} strokeOpacity={0.4} />
+            </g>
+          );
+        })}
+        {[...Array(10)].map((_, i) => {
+          const y = 550 + i * 35;
+          return (
+            <line key={`floor-${i}`} x1={0} y1={y} x2={1440} y2={y} stroke="var(--sr-gold-secondary, #AA820A)" strokeWidth={0.9} strokeOpacity={0.2} />
           );
         })}
       </g>
     );
   }
 
-  // 6. Islamic Modern Linear Geometry & Hexagonal Matrix
-  if (pId === 'islamic-geometric-lines' || pId === 'hexagonal-honeycomb-lines' || pId === 'moroccan-arabesque-wire') {
+  // 6. Islamic Parametric: Shamseh, Muqarnas, Girih & Arabesque
+  if (
+    pId === 'islamic-geometric-lines' ||
+    pId === 'islamic-arabesque-lattice' ||
+    pId === 'persian-girih-decagram' ||
+    pId === 'muqarnas-vault-facets' ||
+    pId === 'islamic-star-polygon-interlace' ||
+    pId === 'persian-toranj-medallion' ||
+    pId === 'muqarnas-honeycomb-corbel'
+  ) {
     return (
       <g className="sr-anim-guilloche-rotate" style={{ transformOrigin: '720px 450px' }}>
         {[...Array(12)].map((_, i) => {
-          const angle = (i * 360) / 12;
+          const rot = (i * 360) / 12;
           return (
-            <g key={i} transform={`rotate(${angle} 720 450)`}>
+            <g key={`girih-${i}`} transform={`rotate(${rot} 720 450)`}>
               <polygon
-                points="720,100 840,320 1060,320 880,450 940,660 720,530 500,660 560,450 380,320 600,320"
+                points="720,200 755,360 840,410 770,450 720,450"
                 fill="none"
                 stroke={`url(#${gradId})`}
                 strokeWidth={1.2}
-                strokeOpacity={0.2}
+                strokeOpacity={0.3}
               />
-              <rect
-                x={520}
-                y={250}
-                width={400}
-                height={400}
+              <path
+                d="M 720 150 Q 770 210 820 280 T 720 380"
                 fill="none"
                 stroke="var(--sr-gold-primary, #D4AF37)"
-                strokeWidth={1}
-                strokeOpacity={0.15}
-                transform="rotate(45 720 450)"
+                strokeWidth={0.8}
+                strokeOpacity={0.22}
               />
             </g>
           );
         })}
+        <polygon points="720,180 880,260 940,450 880,640 720,720 560,640 500,450 560,260" fill="none" stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={1.2} strokeOpacity={0.35} />
+        <circle cx={720} cy={450} r={330} fill="none" stroke="var(--sr-gold-secondary, #AA820A)" strokeWidth={0.8} strokeOpacity={0.2} strokeDasharray="10 10" />
+        <circle cx={720} cy={450} r={120} fill="none" stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={1.6} strokeOpacity={0.45} />
       </g>
     );
   }
 
-  // 7. Isometric Grid & Architectural Courthouse Facade
-  if (pId === 'isometric-court-grid' || pId === 'architectural-facade' || pId === 'origami-faceted-lines') {
+  // 7. Architectural Pillars, Mathematical Tessellation & Law Chambers
+  if (
+    pId === 'architectural-perspective-grid' ||
+    pId === 'penrose-aperiodic-tiling' ||
+    pId === 'voronoi-polygonal-mesh' ||
+    pId === 'dodecahedron-holographic-wireframe' ||
+    pId === 'hexagonal-honeycomb-cellular'
+  ) {
     return (
-      <g className="sr-anim-gentle-float">
-        {/* Isometric perspective floor lines */}
-        {[...Array(22)].map((_, i) => {
-          const x = -200 + i * 85;
+      <g className="sr-anim-contour-drift">
+        {[...Array(16)].map((_, i) => {
+          const x = 90 + i * 85;
           return (
-            <React.Fragment key={i}>
-              <line
-                x1={x}
-                y1={0}
-                x2={x + 700}
-                y2={950}
-                stroke={`url(#${gradId})`}
-                strokeWidth={1}
-                strokeOpacity={0.18}
-              />
-              <line
-                x1={1640 - i * 85}
-                y1={0}
-                x2={940 - i * 85}
-                y2={950}
-                stroke="var(--sr-gold-secondary, #AA820A)"
-                strokeWidth={1}
-                strokeOpacity={0.18}
-              />
+            <React.Fragment key={`col-${i}`}>
+              <line x1={x} y1={80} x2={x} y2={820} stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={i % 2 === 0 ? 1.6 : 0.8} strokeOpacity={0.24} />
+              <circle cx={x} cy={100} r={6} fill="none" stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={1} strokeOpacity={0.3} />
+              <circle cx={x} cy={800} r={6} fill="none" stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={1} strokeOpacity={0.3} />
             </React.Fragment>
           );
         })}
-        {/* Classical pillars / structural upright lines */}
-        {[...Array(14)].map((_, i) => {
-          const x = 120 + i * 95;
+        {[...Array(6)].map((_, i) => {
+          const y = 140 + i * 110;
           return (
-            <line
-              key={`col-${i}`}
-              x1={x}
-              y1={200}
-              x2={x}
-              y2={850}
-              stroke="var(--sr-gold-primary, #D4AF37)"
-              strokeWidth={i % 2 === 0 ? 1.8 : 0.8}
-              strokeOpacity={0.22}
+            <path
+              key={`arch-${i}`}
+              d={`M 90 ${y} Q 720 ${y - 90} 1365 ${y}`}
+              fill="none"
+              stroke={`url(#${gradId})`}
+              strokeWidth={1.2}
+              strokeOpacity={0.26}
             />
           );
         })}
@@ -427,13 +494,18 @@ function renderPresetGeometry(preset: VectorBackgroundPreset, gradId: string) {
     );
   }
 
-  // 8. Soundwave Advocacy & Analytical Frequency Spectrum
-  if (pId === 'soundwave-advocacy' || pId === 'sound-frequency-spectrum') {
+  // 8. Soundwave Advocacy, Audio Spectrum & Resonance
+  if (
+    pId === 'soundwave-advocacy' ||
+    pId === 'sound-frequency-spectrum' ||
+    pId === 'radial-soundwave-mandala' ||
+    pId === 'lissajous-harmonic-curves'
+  ) {
     return (
       <g className="sr-anim-mesh-pulse">
-        {[...Array(48)].map((_, i) => {
-          const x = 40 + i * 29;
-          const height = 40 + Math.sin(i * 0.45) * 160 + (i % 5) * 35;
+        {[...Array(52)].map((_, i) => {
+          const x = 30 + i * 27;
+          const height = 45 + Math.sin(i * 0.42) * 175 + (i % 6) * 35;
           const y1 = 450 - height / 2;
           const y2 = 450 + height / 2;
           return (
@@ -444,30 +516,29 @@ function renderPresetGeometry(preset: VectorBackgroundPreset, gradId: string) {
               x2={x}
               y2={y2}
               stroke={`url(#${gradId})`}
-              strokeWidth={i % 3 === 0 ? 2.5 : 1.5}
+              strokeWidth={i % 3 === 0 ? 2.4 : 1.4}
               strokeOpacity={0.25 + (i % 4) * 0.08}
               strokeLinecap="round"
             />
           );
         })}
-        {/* Horizontal reference baseline */}
-        <line x1={0} y1={450} x2={1440} y2={450} stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={1} strokeOpacity={0.4} />
+        <line x1={0} y1={450} x2={1440} y2={450} stroke="var(--sr-gold-primary, #D4AF37)" strokeWidth={1.2} strokeOpacity={0.4} />
       </g>
     );
   }
 
-  // 9. Bezier Parallel Silk & DNA Helix & Signature Flourish
+  // 9. Default Universal Mathematical Silk & Ribbon Geometry
   return (
     <g className="sr-anim-wave-flow">
-      {[...Array(18)].map((_, i) => {
-        const offset = i * 40;
+      {[...Array(20)].map((_, i) => {
+        const offset = i * 38;
         return (
           <path
             key={i}
-            d={`M -100 ${150 + offset} Q 350 ${50 + offset * 1.2} 720 ${350 + offset * 0.8} T 1540 ${200 + offset * 1.1}`}
+            d={`M -100 ${120 + offset} Q 360 ${40 + offset * 1.15} 720 ${340 + offset * 0.82} T 1540 ${180 + offset * 1.08}`}
             fill="none"
             stroke={`url(#${gradId})`}
-            strokeWidth={1.2}
+            strokeWidth={1.1}
             strokeOpacity={0.2 + (i % 4) * 0.06}
           />
         );

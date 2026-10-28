@@ -14,7 +14,8 @@
     "test:css": "node scripts/test-css-coverage.cjs",
     "test:phase4": "node scripts/test-phase4-security-popups.cjs",
     "test:duplicator": "node scripts/test-phase5-phase6-duplicator.cjs",
-    "test:all": "node scripts/test-inc-completeness.cjs && node scripts/test-css-coverage.cjs && node scripts/test-phase4-security-popups.cjs && node scripts/test-phase5-phase6-duplicator.cjs",
+    "test:phase10": "node scripts/test-phase10-gutenberg-sovereign-audit.cjs",
+    "test:all": "node scripts/test-inc-completeness.cjs && node scripts/test-css-coverage.cjs && node scripts/test-phase4-security-popups.cjs && node scripts/test-phase5-phase6-duplicator.cjs && node scripts/test-phase10-gutenberg-sovereign-audit.cjs",
     "clean": "rm -rf dist public/app-dist wordpress-theme/app-dist server.js",
     "lint": "tsc --noEmit"
   },

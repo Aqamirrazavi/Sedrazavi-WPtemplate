@@ -101,6 +101,21 @@ final class Universal_Elementor_Addon_Suite {
         require_once UAS_PATH . 'includes/class-no-code-client-suite.php';
         \UniversalElementorSuite\No_Code_Client_Suite::instance();
 
+        require_once UAS_PATH . 'includes/class-sovereign-widgets-registry.php';
+        \UniversalElementorSuite\Sovereign_Widgets_Registry::instance();
+
+        require_once UAS_PATH . 'includes/class-sovereign-svg-icons.php';
+        \UniversalElementorSuite\Sovereign_Svg_Icons::instance();
+
+        require_once UAS_PATH . 'includes/class-sovereign-sections-bank.php';
+        \UniversalElementorSuite\Sovereign_Sections_Bank::instance();
+
+        require_once UAS_PATH . 'includes/class-sovereign-motion-presets.php';
+        \UniversalElementorSuite\Sovereign_Motion_Presets::instance();
+
+        require_once UAS_PATH . 'includes/class-gutenberg-blocks.php';
+        \UniversalElementorSuite\Gutenberg_Blocks::instance();
+
         if (is_admin()) {
             require_once UAS_PATH . 'includes/class-github-admin.php';
             \UniversalElementorSuite\GitHub_Admin::instance();

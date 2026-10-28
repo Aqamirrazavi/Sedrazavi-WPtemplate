@@ -107,6 +107,7 @@ import { SystemDiagnosticsDoctorModal } from './components/diagnostics/SystemDia
 import { TacticalScopeConfiguratorModal } from './components/wp-designer/TacticalScopeConfiguratorModal';
 import { AdaptiveMessengerRouterModal } from './components/auth/AdaptiveMessengerRouterModal';
 import { EcosystemPublisherPortalModal } from './components/library/EcosystemPublisherPortalModal';
+import { SovereignDesignerToolboxModal } from './components/admin/SovereignDesignerToolboxModal';
 import { FrontendQuickEditBar } from './components/client-suite/FrontendQuickEditBar';
 import { Scale, User, Briefcase, Lock, X } from 'lucide-react';
 import {
@@ -161,6 +162,12 @@ export default function App() {
   const [isTacticalConfiguratorOpen, setIsTacticalConfiguratorOpen] = useState(false);
   const [isAdaptiveMessengerOpen, setIsAdaptiveMessengerOpen] = useState(false);
   const [isEcosystemPublisherOpen, setIsEcosystemPublisherOpen] = useState(false);
+  const [isSovereignToolboxOpen, setIsSovereignToolboxOpen] = useState(false);
+  const [currentBgPresetId, setCurrentBgPresetId] = useState('dynamic-flowing-waves');
+  const [currentBgOpacity, setCurrentBgOpacity] = useState(0.65);
+  const [currentBgSpeed, setCurrentBgSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
+  const [currentBgMode, setCurrentBgMode] = useState<'animated' | 'static'>('animated');
+  const [currentBgBlendMode, setCurrentBgBlendMode] = useState<'normal' | 'multiply' | 'screen' | 'overlay' | 'soft-light'>('normal');
   const [isLiveEditActive, setIsLiveEditActive] = useState(false);
   const [customClientData, setCustomClientData] = useState(() => {
     try {
@@ -283,14 +290,14 @@ export default function App() {
       {/* Dynamic SEO Title, Meta Description and Multi-Lawyer Schema.org Engine */}
       <DynamicSeoHead profile={lawyerProfile} />
 
-      {/* 30 Animated & Static Abstract Vector Line Backgrounds (Adapts dynamically to the active backend theme palette) */}
+      {/* 66 Animated & Static Abstract Vector Line Backgrounds (Adapts dynamically to the active backend theme palette) */}
       <VectorBackgroundRenderer
-        presetId={lawyerProfile.appearance?.vectorBackground?.presetId || 'dynamic-flowing-waves'}
-        opacity={lawyerProfile.appearance?.vectorBackground?.opacity ?? 0.65}
-        speed={lawyerProfile.appearance?.vectorBackground?.speed || 'normal'}
-        mode={lawyerProfile.appearance?.vectorBackground?.mode || 'animated'}
-        isAnimated={lawyerProfile.appearance?.vectorBackground?.isAnimated ?? true}
-        blendMode={lawyerProfile.appearance?.vectorBackground?.blendMode || 'normal'}
+        presetId={currentBgPresetId || lawyerProfile.appearance?.vectorBackground?.presetId || 'dynamic-flowing-waves'}
+        opacity={currentBgOpacity ?? (lawyerProfile.appearance?.vectorBackground?.opacity ?? 0.65)}
+        speed={currentBgSpeed || lawyerProfile.appearance?.vectorBackground?.speed || 'normal'}
+        mode={currentBgMode || lawyerProfile.appearance?.vectorBackground?.mode || 'animated'}
+        isAnimated={currentBgMode === 'animated'}
+        blendMode={currentBgBlendMode || lawyerProfile.appearance?.vectorBackground?.blendMode || 'normal'}
       />
 
       {/* Sticky Header */}
@@ -334,6 +341,7 @@ export default function App() {
         onOpenTacticalConfigurator={() => setIsTacticalConfiguratorOpen(true)}
         onOpenAdaptiveMessenger={() => setIsAdaptiveMessengerOpen(true)}
         onOpenEcosystemPublisher={() => setIsEcosystemPublisherOpen(true)}
+        onOpenSovereignToolbox={() => setIsSovereignToolboxOpen(true)}
         activeArchetype={activeArchetype}
         onSelectArchetype={(arch) => {
           setActiveArchetype(arch);
@@ -389,6 +397,7 @@ export default function App() {
             onOpenQuickEdit={() => setIsClientPortalOpen(true)}
             onOpenGitHubSync={() => setIsGitHubSyncOpen(true)}
             onOpenPrototypes={() => setIsPrototypeSimulatorOpen(true)}
+            onOpenSovereignToolbox={() => setIsSovereignToolboxOpen(true)}
           />
         )}
 
@@ -1938,6 +1947,22 @@ export default function App() {
       <EcosystemPublisherPortalModal
         isOpen={isEcosystemPublisherOpen}
         onClose={() => setIsEcosystemPublisherOpen(false)}
+      />
+
+      {/* Sovereign 66+ Designer Toolbox Suite (66 Backgrounds + 72 Widgets) */}
+      <SovereignDesignerToolboxModal
+        isOpen={isSovereignToolboxOpen}
+        onClose={() => setIsSovereignToolboxOpen(false)}
+        activePresetId={currentBgPresetId}
+        onSelectBackgroundPreset={(presetId) => setCurrentBgPresetId(presetId)}
+        bgOpacity={currentBgOpacity}
+        onChangeBgOpacity={setCurrentBgOpacity}
+        bgSpeed={currentBgSpeed}
+        onChangeBgSpeed={setCurrentBgSpeed}
+        bgMode={currentBgMode}
+        onChangeBgMode={setCurrentBgMode}
+        bgBlendMode={currentBgBlendMode}
+        onChangeBgBlendMode={setCurrentBgBlendMode}
       />
 
       {/* GDPR / Cookie Consent Banner (Section 13) */}

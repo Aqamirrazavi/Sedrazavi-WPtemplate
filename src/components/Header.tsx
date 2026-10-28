@@ -158,6 +158,7 @@ interface HeaderProps {
   onOpenTacticalConfigurator?: () => void;
   onOpenAdaptiveMessenger?: () => void;
   onOpenEcosystemPublisher?: () => void;
+  onOpenSovereignToolbox?: () => void;
   activeArchetype?: 'lawyer' | 'wp-designer' | 'ecommerce' | 'video-media';
   onSelectArchetype?: (archetype: 'lawyer' | 'wp-designer' | 'ecommerce' | 'video-media') => void;
   isLoggedIn?: boolean;
@@ -197,6 +198,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenTacticalConfigurator,
   onOpenAdaptiveMessenger,
   onOpenEcosystemPublisher,
+  onOpenSovereignToolbox,
   activeArchetype = 'wp-designer',
   onSelectArchetype,
   isLoggedIn,
@@ -353,6 +355,17 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                   <span>🎓 اصناف چندمنظوره (LMS/VIP/Soft98)</span>
                 </button>
+
+                {onOpenSovereignToolbox && (
+                  <button
+                    type="button"
+                    onClick={onOpenSovereignToolbox}
+                    className="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 hover:from-amber-400 hover:to-yellow-200 text-neutral-950 font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-amber-500/25 border border-amber-300"
+                    title="جعبه‌ابزار ۶۶گانه طراح بدون کدنویسی وردپرس (۷۲ ویجت المنتور + ۶۶ وکتور بک‌گراند)"
+                  >
+                    <span>👑 جعبه‌ابزار ۶۶گانه طراح وردپرس</span>
+                  </button>
+                )}
 
                 {onOpenSnapElement && (
                   <button

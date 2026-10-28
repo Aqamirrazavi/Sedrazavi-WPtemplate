@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Code2,
   Zap,
@@ -30,14 +30,29 @@ import {
   Filter,
   Terminal,
   Monitor,
+  Palette,
+  Scissors,
+  Layout,
+  Crown,
+  Play,
+  Copy,
 } from 'lucide-react';
 import { DualInquiryGateway } from '../terminal/DualInquiryGateway';
+import { VECTOR_BACKGROUND_PRESETS } from '../../data/vectorBackgroundPresets';
+import { SOVEREIGN_WIDGETS_BANK } from '../../data/sovereignWidgetsBank';
+import {
+  SOVEREIGN_SHAPE_DIVIDERS,
+  SOVEREIGN_TRUST_BADGES,
+  SOVEREIGN_SECTION_BLUEPRINTS,
+  SOVEREIGN_MOTION_PRESETS,
+} from '../../data/sovereignAssetsBank';
 
 interface WordPressDesignerLandingProps {
   onOpenBookingModal?: () => void;
   onOpenQuickEdit?: () => void;
   onOpenGitHubSync?: () => void;
   onOpenPrototypes?: () => void;
+  onOpenSovereignToolbox?: () => void;
 }
 
 export const WordPressDesignerLanding: React.FC<WordPressDesignerLandingProps> = ({
@@ -45,6 +60,7 @@ export const WordPressDesignerLanding: React.FC<WordPressDesignerLandingProps> =
   onOpenQuickEdit,
   onOpenGitHubSync,
   onOpenPrototypes,
+  onOpenSovereignToolbox,
 }) => {
   // Active states
   const [inquiryMode, setInquiryMode] = useState<'dual' | 'brief'>('dual');
@@ -53,6 +69,20 @@ export const WordPressDesignerLanding: React.FC<WordPressDesignerLandingProps> =
   const [testimonialLang, setTestimonialLang] = useState<'fa' | 'en'>('fa');
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+
+  // Sovereign 66+ Assets Showcase State
+  const [activeAssetBank, setActiveAssetBank] = useState<
+    'backgrounds' | 'widgets' | 'dividers' | 'badges' | 'sections' | 'motions'
+  >('backgrounds');
+  const [assetSearchQuery, setAssetSearchQuery] = useState('');
+  const [copiedAssetId, setCopiedAssetId] = useState<string | null>(null);
+  const [playingMotionId, setPlayingMotionId] = useState<string | null>(null);
+
+  const handleCopyAsset = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedAssetId(id);
+    setTimeout(() => setCopiedAssetId(null), 2000);
+  };
 
   // Multi-step brief state
   const [briefStep, setBriefStep] = useState<number>(1);
@@ -305,6 +335,17 @@ export const WordPressDesignerLanding: React.FC<WordPressDesignerLandingProps> =
                 >
                   <Monitor className="w-5 h-5 text-cyan-400" />
                   <span>شبیه‌ساز چنددستگاهی</span>
+                </button>
+              )}
+
+              {onOpenSovereignToolbox && (
+                <button
+                  type="button"
+                  onClick={onOpenSovereignToolbox}
+                  className="w-full sm:w-auto px-6 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 font-black text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-amber-500/25 hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <Crown className="w-5 h-5 text-neutral-950" />
+                  <span>👑 جعبه‌ابزار ۶۶گانه طراح بدون کدنویسی</span>
                 </button>
               )}
             </div>
@@ -709,6 +750,572 @@ export const WordPressDesignerLanding: React.FC<WordPressDesignerLandingProps> =
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION: SOVEREIGN 66+ DESIGN ASSETS SHOWCASE (بانک دارایی‌های ۶۶گانه طراح بدون کدنویسی) */}
+      <section id="sovereign-assets-hub" className="py-24 bg-[#080d1a] border-t border-b border-amber-500/20 relative overflow-hidden">
+        {/* Decorative background glows */}
+        <div className="absolute top-0 right-1/3 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Section Header */}
+          <div className="text-center max-w-4xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-xs sm:text-sm text-amber-300 font-bold mb-4 shadow-sm">
+              <Crown className="w-4 h-4 text-amber-400" />
+              <span>جعبه‌ابزار جامع طراح بدون کدنویسی وردپرس (Sovereign 66+ Suite)</span>
+            </div>
+
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight mb-4">
+              بانک بزرگ <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-yellow-500">۴۰۲ دارایی و المان اختصاصی</span>
+            </h2>
+
+            <p className="text-[#9CA3AF] text-sm sm:text-base leading-relaxed max-w-3xl mx-auto font-normal">
+              حداقل ۶۶ مدل در هر دسته؛ توسعه‌یافته بر اساس نیازمندی‌های حرفه‌ای‌ترین طراحان وب وردپرس.
+              کاملاً واکنش‌گرا، بدون افت سرعت، با استانداردهای سئو، امنیت و سازگاری کامل با المنتور و گوتنبرگ.
+            </p>
+
+            {/* Quick Open Toolbox Button */}
+            {onOpenSovereignToolbox && (
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  onClick={onOpenSovereignToolbox}
+                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-950 font-black text-sm shadow-xl shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Crown className="w-4 h-4" />
+                  <span>باز کردن استودیوی زنده و کنترلر ۶۶گانه</span>
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* 6 Bank Selector Pills */}
+          <div className="flex items-center justify-center gap-2 flex-wrap mb-10">
+            {[
+              { id: 'backgrounds', label: 'وکتور پس‌زمینه (ثابت و متحرک)', count: 66, icon: Palette },
+              { id: 'widgets', label: 'ویجت و بلوک المنتور/گوتنبرگ', count: 72, icon: Layers },
+              { id: 'dividers', label: 'دیوایدر و کانتینر برش SVG', count: 66, icon: Scissors },
+              { id: 'badges', label: 'نشان و مهر اعتماد رسمی', count: 66, icon: Award },
+              { id: 'sections', label: 'بلوپرینت سکشن و بنر', count: 66, icon: Layout },
+              { id: 'motions', label: 'پریست موشن و انیمیشن', count: 66, icon: Zap },
+            ].map((tab) => {
+              const IconComp = tab.icon;
+              const isActive = activeAssetBank === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveAssetBank(tab.id as any)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer whitespace-nowrap ${
+                    isActive
+                      ? 'bg-amber-500 text-neutral-950 shadow-lg shadow-amber-500/25 scale-105'
+                      : 'bg-[#131d33] text-neutral-300 hover:text-white hover:bg-[#1a2744] border border-neutral-800'
+                  }`}
+                >
+                  <IconComp className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                  <span
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                      isActive ? 'bg-black/30 text-neutral-950' : 'bg-black/40 text-amber-400'
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search bar inside the bank */}
+          <div className="max-w-md mx-auto mb-10 relative">
+            <Search className="w-4 h-4 absolute right-3.5 top-3 text-neutral-500" />
+            <input
+              type="text"
+              placeholder={`جستجو در میان دارایی‌های ${
+                activeAssetBank === 'backgrounds'
+                  ? '۶۶ مدل پس‌زمینه'
+                  : activeAssetBank === 'widgets'
+                  ? '۷۲ ویجت'
+                  : activeAssetBank === 'dividers'
+                  ? '۶۶ دیوایدر'
+                  : activeAssetBank === 'badges'
+                  ? '۶۶ نشان اعتماد'
+                  : activeAssetBank === 'sections'
+                  ? '۶۶ سکشن آماده'
+                  : '۶۶ موشن'
+              }...`}
+              value={assetSearchQuery}
+              onChange={(e) => setAssetSearchQuery(e.target.value)}
+              className="w-full bg-[#111827] border border-neutral-700/80 rounded-xl pr-10 pl-4 py-2.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-amber-500"
+            />
+          </div>
+
+          {/* BANK 1: VECTOR BACKGROUNDS (66 MODELS) */}
+          {activeAssetBank === 'backgrounds' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {VECTOR_BACKGROUND_PRESETS.filter((p) => {
+                if (!assetSearchQuery) return true;
+                return (
+                  p.title.includes(assetSearchQuery) ||
+                  p.titleEn.toLowerCase().includes(assetSearchQuery.toLowerCase()) ||
+                  p.desc.includes(assetSearchQuery)
+                );
+              })
+                .slice(0, 12)
+                .map((bg) => (
+                  <div
+                    key={bg.id}
+                    className="p-5 rounded-2xl bg-[#0f172a]/90 border border-neutral-800 hover:border-amber-500/50 transition-all flex flex-col justify-between group shadow-lg"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-mono font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                          #{bg.number}
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300">
+                          {bg.category}
+                        </span>
+                      </div>
+
+                      <h4 className="text-base font-bold text-white mb-1 group-hover:text-amber-400 transition-colors">
+                        {bg.title}
+                      </h4>
+                      <p className="text-xs font-mono text-neutral-500 mb-2">{bg.titleEn}</p>
+                      <p className="text-xs text-neutral-400 leading-relaxed mb-4">{bg.desc}</p>
+                    </div>
+
+                    <div className="pt-3 border-t border-neutral-800 flex items-center justify-between">
+                      <span className="text-[10px] text-amber-400/80 font-mono">Zero-CPU & GPU</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyAsset(`.sedrazavi-bg-${bg.id} { /* Pattern #${bg.number} */ }`, bg.id)}
+                        className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                      >
+                        {copiedAssetId === bg.id ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-400">کپی شد</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>کپی CSS</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {/* BANK 2: WIDGETS & BLOCKS (72 MODELS) */}
+          {activeAssetBank === 'widgets' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {SOVEREIGN_WIDGETS_BANK.filter((w) => {
+                if (!assetSearchQuery) return true;
+                return (
+                  w.title.includes(assetSearchQuery) ||
+                  w.titleEn.toLowerCase().includes(assetSearchQuery.toLowerCase()) ||
+                  w.desc.includes(assetSearchQuery)
+                );
+              })
+                .slice(0, 12)
+                .map((widget) => (
+                  <div
+                    key={widget.id}
+                    className="p-5 rounded-2xl bg-[#0f172a]/90 border border-neutral-800 hover:border-amber-500/50 transition-all flex flex-col justify-between group shadow-lg"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-mono font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                          #{widget.number}
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
+                          {widget.badge}
+                        </span>
+                      </div>
+
+                      <h4 className="text-base font-bold text-white mb-1 group-hover:text-amber-400 transition-colors">
+                        {widget.title}
+                      </h4>
+                      <p className="text-xs font-mono text-neutral-500 mb-2">{widget.titleEn}</p>
+                      <p className="text-xs text-neutral-400 leading-relaxed mb-4">{widget.desc}</p>
+                    </div>
+
+                    <div className="pt-3 border-t border-neutral-800 flex items-center justify-between">
+                      <span className="text-[10px] text-cyan-400 font-mono">{widget.categoryLabel}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyAsset(widget.shortcode, widget.id)}
+                        className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                      >
+                        {copiedAssetId === widget.id ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-400">کپی شد</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>کپی شورت‌کد</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {/* BANK 3: SHAPE DIVIDERS (66 MODELS) */}
+          {activeAssetBank === 'dividers' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {SOVEREIGN_SHAPE_DIVIDERS.filter((d) => {
+                if (!assetSearchQuery) return true;
+                return (
+                  d.title.includes(assetSearchQuery) ||
+                  d.titleEn.toLowerCase().includes(assetSearchQuery.toLowerCase()) ||
+                  d.recommendedUse.includes(assetSearchQuery)
+                );
+              })
+                .slice(0, 12)
+                .map((div) => {
+                  const svgRaw = `<svg viewBox="${div.viewBox}" fill="currentColor" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-12 text-amber-500"><path d="${div.svgPath}" /></svg>`;
+
+                  return (
+                    <div
+                      key={div.id}
+                      className="p-5 rounded-2xl bg-[#0f172a]/90 border border-neutral-800 hover:border-amber-500/50 transition-all flex flex-col justify-between group shadow-lg"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs font-mono font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                            #{div.number}
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20">
+                            {div.categoryLabel}
+                          </span>
+                        </div>
+
+                        <h4 className="text-base font-bold text-white mb-1 group-hover:text-amber-400 transition-colors">
+                          {div.title}
+                        </h4>
+                        <p className="text-xs font-mono text-neutral-500 mb-2">{div.titleEn}</p>
+
+                        {/* Live SVG curve swatch */}
+                        <div className="my-3 p-2 rounded-xl bg-neutral-950 border border-neutral-800/80 flex items-center justify-center overflow-hidden">
+                          <svg
+                            viewBox={div.viewBox}
+                            fill="currentColor"
+                            preserveAspectRatio="none"
+                            className="w-full h-10 text-amber-400/90 group-hover:text-amber-300 transition-colors"
+                          >
+                            <path d={div.svgPath} />
+                          </svg>
+                        </div>
+
+                        <p className="text-xs text-neutral-400 leading-relaxed mb-4">
+                          <strong className="text-amber-400">کاربرد: </strong>
+                          {div.recommendedUse}
+                        </p>
+                      </div>
+
+                      <div className="pt-3 border-t border-neutral-800 flex items-center justify-between">
+                        <span className="text-[10px] text-neutral-500 font-mono">ارتفاع {div.height}px</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyAsset(svgRaw, div.id)}
+                          className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          {copiedAssetId === div.id ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="text-emerald-400">کپی شد</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>کپی SVG</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+
+          {/* BANK 4: TRUST BADGES (66 MODELS) */}
+          {activeAssetBank === 'badges' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {SOVEREIGN_TRUST_BADGES.filter((b) => {
+                if (!assetSearchQuery) return true;
+                return (
+                  b.label.includes(assetSearchQuery) ||
+                  b.labelEn.toLowerCase().includes(assetSearchQuery.toLowerCase()) ||
+                  b.tag.includes(assetSearchQuery) ||
+                  b.desc.includes(assetSearchQuery)
+                );
+              })
+                .slice(0, 12)
+                .map((badge) => {
+                  const badgeHtml = `<div class="sr-badge sr-badge-${badge.id}"><span class="sr-badge-icon">${badge.icon}</span><strong>${badge.label}</strong><small>${badge.tag}</small></div>`;
+
+                  return (
+                    <div
+                      key={badge.id}
+                      className="p-5 rounded-2xl bg-[#0f172a]/90 border border-neutral-800 hover:border-amber-500/50 transition-all flex flex-col justify-between group shadow-lg"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs font-mono font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                            #{badge.number}
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 font-bold border border-amber-500/30">
+                            {badge.categoryLabel}
+                          </span>
+                        </div>
+
+                        {/* Visual Emblem Preview */}
+                        <div className="p-3.5 rounded-xl bg-gradient-to-tr from-neutral-950 via-neutral-900 to-amber-950/20 border border-amber-500/30 mb-3 flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xl shrink-0">
+                            🛡️
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-xs font-black text-white group-hover:text-amber-400 transition-colors line-clamp-1">
+                              {badge.label}
+                            </h4>
+                            <p className="text-[11px] text-neutral-400 line-clamp-1 mt-0.5">{badge.labelEn}</p>
+                            <span className="inline-block mt-1 text-[9px] font-mono px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-300">
+                              {badge.tag}
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-neutral-400 leading-relaxed mb-4">{badge.desc}</p>
+                      </div>
+
+                      <div className="pt-3 border-t border-neutral-800 flex items-center justify-between">
+                        <span className="text-[10px] text-emerald-400 font-bold">تاییدیه رسمی</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyAsset(badgeHtml, badge.id)}
+                          className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          {copiedAssetId === badge.id ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="text-emerald-400">کپی شد</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>کپی نشان</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+
+          {/* BANK 5: SECTION BLUEPRINTS (66 MODELS) */}
+          {activeAssetBank === 'sections' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {SOVEREIGN_SECTION_BLUEPRINTS.filter((s) => {
+                if (!assetSearchQuery) return true;
+                return (
+                  s.title.includes(assetSearchQuery) ||
+                  s.titleEn.toLowerCase().includes(assetSearchQuery.toLowerCase()) ||
+                  s.desc.includes(assetSearchQuery)
+                );
+              })
+                .slice(0, 12)
+                .map((sec) => (
+                  <div
+                    key={sec.id}
+                    className="p-5 rounded-2xl bg-[#0f172a]/90 border border-neutral-800 hover:border-amber-500/50 transition-all flex flex-col justify-between group shadow-lg"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-mono font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                          #{sec.number}
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded font-mono bg-neutral-800 text-neutral-300">
+                          {sec.previewHeight}
+                        </span>
+                      </div>
+
+                      <h4 className="text-base font-bold text-white mb-1 group-hover:text-amber-400 transition-colors">
+                        {sec.title}
+                      </h4>
+                      <p className="text-xs font-mono text-neutral-500 mb-2">{sec.titleEn}</p>
+
+                      <div className="mb-2">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                          {sec.badge}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-neutral-400 leading-relaxed mb-4">{sec.desc}</p>
+                    </div>
+
+                    <div className="pt-3 border-t border-neutral-800 flex items-center justify-between">
+                      <span className="text-[10px] text-neutral-400 font-mono">
+                        {sec.recommendedWidgets.length} ویجت تلفیقی
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleCopyAsset(
+                            sec.recommendedWidgets.map((w) => `[sedrazavi_${w.toLowerCase()}]`).join('\n'),
+                            sec.id
+                          )
+                        }
+                        className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                      >
+                        {copiedAssetId === sec.id ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-400">کپی شد</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>کپی پکیج</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {/* BANK 6: MOTION PRESETS (66 MODELS) */}
+          {activeAssetBank === 'motions' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {SOVEREIGN_MOTION_PRESETS.filter((m) => {
+                if (!assetSearchQuery) return true;
+                return (
+                  m.name.includes(assetSearchQuery) ||
+                  m.nameEn.toLowerCase().includes(assetSearchQuery.toLowerCase()) ||
+                  m.recommendedUse.includes(assetSearchQuery)
+                );
+              })
+                .slice(0, 12)
+                .map((mot) => {
+                  const isPlaying = playingMotionId === mot.id;
+
+                  return (
+                    <div
+                      key={mot.id}
+                      className="p-5 rounded-2xl bg-[#0f172a]/90 border border-neutral-800 hover:border-amber-500/50 transition-all flex flex-col justify-between group shadow-lg"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs font-mono font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                            #{mot.number}
+                          </span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                            ۶۰ FPS
+                          </span>
+                        </div>
+
+                        <h4 className="text-base font-bold text-white mb-1 group-hover:text-amber-400 transition-colors">
+                          {mot.name}
+                        </h4>
+                        <p className="text-xs font-mono text-neutral-500 mb-2">{mot.nameEn}</p>
+
+                        {/* Interactive Animation Demo Box */}
+                        <div className="my-3 p-3 rounded-xl bg-neutral-950 border border-neutral-800 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`w-7 h-7 rounded-lg bg-amber-500 text-neutral-950 flex items-center justify-center font-bold text-xs transition-transform ${
+                                isPlaying ? 'scale-125 rotate-12 shadow-lg shadow-amber-500/50' : ''
+                              }`}
+                            >
+                              ⚡
+                            </div>
+                            <span className="text-[11px] font-mono text-neutral-300">.{mot.cssClass}</span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPlayingMotionId(mot.id);
+                              setTimeout(() => setPlayingMotionId(null), 1200);
+                            }}
+                            className="px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                          >
+                            <Play className="w-3 h-3 text-amber-400" />
+                            <span>تست موشن</span>
+                          </button>
+                        </div>
+
+                        <p className="text-xs text-neutral-400 leading-relaxed mb-4">{mot.recommendedUse}</p>
+                      </div>
+
+                      <div className="pt-3 border-t border-neutral-800 flex items-center justify-between">
+                        <span className="text-[10px] text-neutral-500 font-mono">{mot.typeLabel}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyAsset(mot.cssClass, mot.id)}
+                          className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          {copiedAssetId === mot.id ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="text-emerald-400">کپی شد</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>کپی کلاس</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+
+          {/* Bottom Card for Full Studio Access */}
+          <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-amber-500/10 via-neutral-900 to-amber-950/20 border border-amber-500/30 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500 text-neutral-950 flex items-center justify-center font-bold shadow-lg shadow-amber-500/30 shrink-0">
+                <Crown className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-base font-bold text-white">
+                  دسترسی به تمامی ۴۰۲ دارایی و ابزارهای تولید خودکار کد
+                </h4>
+                <p className="text-xs text-neutral-400 mt-0.5">
+                  برای سفارشی‌سازی شفافیت، سرعت انیمیشن، کپی شورت‌کدها و دانلود بسته کامل تمپلیت‌ها
+                </p>
+              </div>
+            </div>
+
+            {onOpenSovereignToolbox && (
+              <button
+                type="button"
+                onClick={onOpenSovereignToolbox}
+                className="w-full md:w-auto px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-black text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+              >
+                <span>مشاهده و کنترل کامل در مودال استودیو</span>
+                <ChevronRight className="w-4 h-4 rotate-180" />
+              </button>
+            )}
           </div>
         </div>
       </section>

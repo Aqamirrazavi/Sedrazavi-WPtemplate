@@ -77,6 +77,12 @@ if (!function_exists('sedrazavi_theme_setup')) {
         add_post_type_support('article', 'elementor');
         add_post_type_support('case', 'elementor');
 
+        // Gutenberg Block Editor Supports
+        add_theme_support('align-wide');
+        add_theme_support('wp-block-styles');
+        add_theme_support('responsive-embeds');
+        add_theme_support('editor-styles');
+
         // Navigation Menus
         register_nav_menus([
             'primary'  => esc_html__('منوی اصلی سربرگ (Primary Header)', 'sedrazavi'),
