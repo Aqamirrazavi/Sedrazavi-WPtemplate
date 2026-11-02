@@ -1,0 +1,187 @@
+/**
+ * Universal Floating CTA Dock Styles
+ */
+.uas-floating-cta-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  padding: 12px 16px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.uas-floating-cta-dock.uas-pos-bottom {
+  bottom: 0;
+}
+
+.uas-floating-cta-dock.uas-pos-top {
+  top: 0;
+  transform: translateY(-100%);
+}
+
+.uas-floating-cta-dock.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.uas-floating-cta-inner {
+  pointer-events: auto;
+  max-width: 1040px;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 12px 20px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: #ffffff;
+}
+
+.uas-floating-cta-text-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.uas-floating-cta-pulse-badge {
+  width: 10px;
+  height: 10px;
+  background-color: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: uas-pulse 1.8s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes uas-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.uas-floating-cta-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.4;
+}
+
+.uas-floating-cta-sub {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.uas-floating-cta-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.uas-floating-btn {
+  text-decoration: none !important;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.uas-btn-call {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.uas-btn-call:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.uas-btn-whatsapp {
+  background: #25d366;
+  color: #ffffff !important;
+}
+
+.uas-btn-whatsapp:hover {
+  background: #20ba59;
+}
+
+.uas-floating-primary-btn {
+  background: #6366f1;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.uas-floating-primary-btn:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+}
+
+.uas-floating-dismiss {
+  background: transparent;
+  border: 0;
+  color: #94a3b8;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.uas-floating-dismiss:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .uas-floating-cta-inner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .uas-floating-cta-text-wrap {
+    justify-content: center;
+  }
+
+  .uas-floating-cta-actions {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .uas-floating-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .uas-hide-sm {
+    display: none;
+  }
+}

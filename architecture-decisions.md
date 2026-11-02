@@ -103,3 +103,22 @@ Header and footer archetypes were switchable via `$_GET['header_style']` and `$_
 ### Consequences
 - **Positive:** Complete protection against search engine duplicate content penalties and cache poisoning.
 - **Trade-off:** Public visitors only see the official option chosen in theme settings.
+
+---
+
+## ADR 007: Modular Portable Capability Architecture (MPCA)
+
+### Context
+Monolithic themes and giant Elementor addons tightly couple frontend widgets with backend business logic, creating technical debt, vendor lock-in, and preventing the re-use of single features across diverse client sites. Users need to export, import, customize, and operate standalone features (e.g. portfolio systems, smart pricing, booking, and case tracking) across standard WordPress environments without requiring the entire SedRazavi ecosystem.
+
+### Decision
+Adopt the 6-Layer Modular Portable Capability Architecture (MPCA):
+1. **Layer Separation:** Split capabilities into UI (Elementor Widgets & Gutenberg Blocks), API Contracts (REST/AJAX with strict capability gates), Backend Services (Query, Form, Workflow), Data Model & Event Bus (CPTs, Taxonomies, Meta), Admin Management (Capability Registry, Package Manager, Health Diagnostics), and WordPress Core Infrastructure.
+2. **Native Elementor Controls:** Every Elementor widget must feature full 3-tab native sidebar controls (`TAB_CONTENT`, `TAB_STYLE`, `TAB_ADVANCED`), including typography, dimensions, color pickers, and repeaters, without relying on external off-canvas configuration screens.
+3. **Editable Native Templates:** Templates are packaged as native Flexbox/Container JSON structures that import directly into the Elementor library, editable with drag-and-drop, with graceful fallback if Elementor Pro is absent.
+4. **Independent Package Manifests:** Features are packaged with a standardized `manifest.json` describing required PHP, WordPress, Elementor versions, CPTs, and dependencies for standalone zip distribution and execution.
+
+### Consequences
+- **Positive:** Features can be extracted as standalone `.zip` plugins, installed on third-party WordPress sites, and operated independently.
+- **Trade-off:** Each capability must provide its own contract schemas, dependency declarations, and self-contained asset definitions.
+

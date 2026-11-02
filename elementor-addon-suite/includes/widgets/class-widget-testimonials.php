@@ -10,7 +10,13 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Universal Testimonials Carousel & Grid Widget
+ * Universal Testimonials & Social Proof Widget (MPCA Compliant)
+ *
+ * Testimonials grid and social proof cards with star ratings, avatar badges,
+ * and comprehensive 3-tab native Elementor sidebar controls.
+ *
+ * @package Universal_Elementor_Suite
+ * @author Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)
  */
 class Universal_Testimonials_Widget extends Universal_Widget_Base {
 
@@ -19,7 +25,7 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
     }
 
     public function get_title() {
-        return esc_html__('نظرات و رضایت مشتریان (کارت‌های مدرن)', 'universal-elementor-suite');
+        return esc_html__('نظرات و رضایت مشتریان (Social Proof Cards)', 'universal-elementor-suite');
     }
 
     public function get_icon() {
@@ -31,10 +37,11 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
     }
 
     protected function register_controls() {
+        // --- 1. TAB_CONTENT: Layout & Testimonials ---
         $this->start_controls_section(
             'section_content',
             [
-                'label' => esc_html__('نظرات مشتریان', 'universal-elementor-suite'),
+                'label' => esc_html__('نظرات و بازخورد مشتریان', 'universal-elementor-suite'),
                 'tab'   => Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -46,7 +53,7 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
                 'type'    => Controls_Manager::SELECT,
                 'default' => '2',
                 'options' => [
-                    '1' => esc_html__('۱ ستون', 'universal-elementor-suite'),
+                    '1' => esc_html__('۱ ستون (عریض)', 'universal-elementor-suite'),
                     '2' => esc_html__('۲ ستون', 'universal-elementor-suite'),
                     '3' => esc_html__('۳ ستون', 'universal-elementor-suite'),
                 ],
@@ -82,7 +89,7 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
             [
                 'label'   => esc_html__('متن بازخورد و نظر', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::TEXTAREA,
-                'default' => esc_html__('همکاری با این مجموعه یکی از بهترین تصمیمات توسعه تجاری ما بود. دقت بالا در جزئیات، پاسخگویی مستمر و اجرای به‌موقع پروژه‌ها فراتر از انتظار ما ظاهر شد.', 'universal-elementor-suite'),
+                'default' => esc_html__('همکاری با این مجموعه یکی از بهترین تصمیمات توسعه تجاری ما بود. سرعت پیاده‌سازی و کیفیت خروجی فراتر از انتظار ظاهر شد.', 'universal-elementor-suite'),
             ]
         );
 
@@ -103,7 +110,7 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
         $repeater->add_control(
             'avatar',
             [
-                'label'   => esc_html__('تصویر چهره / لوگو', 'universal-elementor-suite'),
+                'label'   => esc_html__('تصویر چهره یا لوگو', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
                     'url' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
@@ -121,14 +128,14 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
                     [
                         'author_name' => esc_html__('مهندس مریم کریمی', 'universal-elementor-suite'),
                         'author_role' => esc_html__('مدیر ارشد نوآوری گروه آروین', 'universal-elementor-suite'),
-                        'review_text' => esc_html__('همکاری با این مجموعه یکی از بهترین تصمیمات توسعه تجاری ما بود. دقت بالا در جزئیات، پاسخگویی مستمر و اجرای به‌موقع پروژه‌ها فراتر از انتظار ما ظاهر شد.', 'universal-elementor-suite'),
+                        'review_text' => esc_html__('همکاری با این مجموعه یکی از بهترین تصمیمات توسعه تجاری ما بود. سرعت پیاده‌سازی و کیفیت خروجی فراتر از انتظار ظاهر شد.', 'universal-elementor-suite'),
                         'rating'      => '5',
                         'avatar'      => ['url' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'],
                     ],
                     [
                         'author_name' => esc_html__('دکتر امیرحسین رضایی', 'universal-elementor-suite'),
                         'author_role' => esc_html__('مدیرعامل هلدینگ پایا', 'universal-elementor-suite'),
-                        'review_text' => esc_html__('سطح حرفه‌ای‌گری، شفافیت در ارائه گزارش‌های پیشرفت و تسلط تیم بر استانداردهای روز، اطمینان خاطر کامل را برای سهامداران به ارمغان آورد.', 'universal-elementor-suite'),
+                        'review_text' => esc_html__('سطح حرفه‌ای‌گری، شفافیت در ارائه گزارش‌های پیشرفت و تسلط تیم بر استانداردهای روز، اطمینان خاطر کامل را برای ما به ارمغان آورد.', 'universal-elementor-suite'),
                         'rating'      => '5',
                         'avatar'      => ['url' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'],
                     ],
@@ -139,26 +146,55 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
 
         $this->end_controls_section();
 
-        // Style Section
+        // --- 2. TAB_STYLE: Review Text Style ---
         $this->start_controls_section(
-            'section_style_cards',
+            'section_style_review',
             [
-                'label' => esc_html__('استایل و ظاهر', 'universal-elementor-suite'),
+                'label' => esc_html__('استایل متن نظر', 'universal-elementor-suite'),
                 'tab'   => Controls_Manager::TAB_STYLE,
             ]
         );
 
-        $this->add_control(
-            'card_bg',
+        $this->add_typography_and_color_controls('testi_review', esc_html__('متن نظر', 'universal-elementor-suite'), '.uas-testimonial-text', '#334155');
+
+        $this->end_controls_section();
+
+        // --- 3. TAB_STYLE: Author Meta Style ---
+        $this->start_controls_section(
+            'section_style_meta',
             [
-                'label'     => esc_html__('رنگ پس‌زمینه کارت', 'universal-elementor-suite'),
+                'label' => esc_html__('استایل نام و سمت نویسنده', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_STYLE,
+            ]
+        );
+
+        $this->add_typography_and_color_controls('testi_author', esc_html__('نام نویسنده', 'universal-elementor-suite'), '.uas-testimonial-name', '#0F172A');
+        $this->add_typography_and_color_controls('testi_role', esc_html__('سمت یا شرکت', 'universal-elementor-suite'), '.uas-testimonial-role', '#64748B');
+
+        $this->add_control(
+            'rating_star_color',
+            [
+                'label'     => esc_html__('رنگ ستاره‌های امتیاز', 'universal-elementor-suite'),
                 'type'      => Controls_Manager::COLOR,
-                'default'   => '#FFFFFF',
+                'default'   => '#F59E0B',
                 'selectors' => [
-                    '{{WRAPPER}} .uas-testimonial-card' => 'background-color: {{VALUE}};',
+                    '{{WRAPPER}} .uas-testimonial-rating' => 'color: {{VALUE}};',
                 ],
             ]
         );
+
+        $this->end_controls_section();
+
+        // --- 4. TAB_STYLE: Card Container Style ---
+        $this->start_controls_section(
+            'section_style_cards',
+            [
+                'label' => esc_html__('استایل کارت‌های نظرات', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_STYLE,
+            ]
+        );
+
+        $this->add_container_style_controls('testi_card', esc_html__('کارت بازخورد', 'universal-elementor-suite'), '.uas-testimonial-card');
 
         $this->end_controls_section();
     }

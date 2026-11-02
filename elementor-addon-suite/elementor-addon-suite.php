@@ -117,6 +117,16 @@ final class Universal_Elementor_Addon_Suite {
         require_once UAS_PATH . 'includes/class-gutenberg-blocks.php';
         \UniversalElementorSuite\Gutenberg_Blocks::instance();
 
+        // 2.1 Load Modular Portable Capability Architecture (MPCA) Core Services
+        require_once UAS_PATH . 'includes/class-capability-registry.php';
+        \UniversalElementorSuite\Capability_Registry::instance();
+
+        require_once UAS_PATH . 'includes/class-package-manager.php';
+        \UniversalElementorSuite\Package_Manager::instance();
+
+        require_once UAS_PATH . 'includes/class-contract-registry.php';
+        \UniversalElementorSuite\Contract_Registry::instance();
+
         if (is_admin()) {
             require_once UAS_PATH . 'includes/class-github-admin.php';
             \UniversalElementorSuite\GitHub_Admin::instance();

@@ -86,6 +86,15 @@ class Admin_Settings {
             'universal-elementor-templates',
             [$this, 'render_templates_page']
         );
+
+        add_submenu_page(
+            'universal-elementor-settings',
+            esc_html__('مرکز قابلیت‌ها و بسته‌های ماژولار (MPCA)', 'universal-elementor-suite'),
+            esc_html__('مرکز قابلیت‌ها و بسته‌ها (MPCA)', 'universal-elementor-suite'),
+            'manage_options',
+            'universal-elementor-packages',
+            [$this, 'render_packages_page']
+        );
     }
 
     /**
@@ -361,4 +370,203 @@ class Admin_Settings {
         </div>
         <?php
     }
+
+    /**
+     * Render Modular Portable Capability Architecture (MPCA) Page
+     */
+    public function render_packages_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('شما اجازه دسترسی به این صفحه را ندارید.', 'universal-elementor-suite'));
+        }
+
+        $capabilities = class_exists('\UniversalElementorSuite\Capability_Registry') 
+            ? \UniversalElementorSuite\Capability_Registry::instance()->get_capabilities() 
+            : [];
+            
+        $packages = class_exists('\UniversalElementorSuite\Package_Manager') 
+            ? \UniversalElementorSuite\Package_Manager::instance()->get_portable_packages() 
+            : [];
+
+        $contracts = class_exists('\UniversalElementorSuite\Contract_Registry')
+            ? \UniversalElementorSuite\Contract_Registry::instance()->get_contracts()
+            : [];
+        ?>
+        <div class="wrap uas-admin-wrap" style="max-width:1200px; margin:25px auto 40px; font-family:inherit; direction:rtl;">
+            <!-- Header Banner -->
+            <div style="background:linear-gradient(135deg, #0B132B 0%, #1C2541 100%); border-radius:16px; padding:32px 36px; color:#fff; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:28px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                    <div>
+                        <span style="background:rgba(99,102,241,0.25); color:#a5b4fc; border:1px solid rgba(99,102,241,0.4); font-size:12px; font-weight:700; padding:4px 12px; border-radius:30px; display:inline-block; margin-bottom:10px;">
+                            🏛️ Modular Portable Capability Architecture (MPCA)
+                        </span>
+                        <h1 style="color:#fff; font-size:24px; font-weight:800; margin:0 0 8px;">مرکز مدیریت قابلیت‌ها، پکیج‌های مستقل و قراردادهای API</h1>
+                        <p style="color:#94a3b8; font-size:13px; margin:0; max-width:760px; line-height:1.7;">
+                            جداسازی کامل منطق تجاری از رابط کاربری در ۶ لایه، ثبت خودکار قابلیت‌ها، مانیتورینگ قراردادهای REST/AJAX و استخراج بسته‌های مستقل (.zip) برای نصب روی هر وب‌سایت وردپرسی.
+                        </p>
+                    </div>
+                    <div style="text-align:left; background:rgba(255,255,255,0.06); padding:12px 20px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size:11px; color:#94a3b8;">نسخه استاندارد معماری</div>
+                        <div style="font-size:18px; font-weight:800; color:#38bdf8;">v6.0.0 Sovereign</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6-Layer Architecture Quick Status -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:28px;">
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; border-right:4px solid #3b82f6;">
+                    <div style="font-size:11px; color:#64748b; font-weight:700;">لایه ۱: رابط کاربری</div>
+                    <div style="font-size:15px; font-weight:800; color:#0f172a; margin-top:4px;">۷۲ ویجت + ۷ بلوک</div>
+                </div>
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; border-right:4px solid #10b981;">
+                    <div style="font-size:11px; color:#64748b; font-weight:700;">لایه ۲: قراردادها (Contracts)</div>
+                    <div style="font-size:15px; font-weight:800; color:#0f172a; margin-top:4px;"><?php echo count($contracts); ?> قرارداد امن</div>
+                </div>
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; border-right:4px solid #8b5cf6;">
+                    <div style="font-size:11px; color:#64748b; font-weight:700;">لایه ۳: سرویس‌های بک‌اند</div>
+                    <div style="font-size:15px; font-weight:800; color:#0f172a; margin-top:4px;">ایمپورت، کوئری، فرم</div>
+                </div>
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; border-right:4px solid #f59e0b;">
+                    <div style="font-size:11px; color:#64748b; font-weight:700;">لایه ۴: مدل داده و ایونت</div>
+                    <div style="font-size:15px; font-weight:800; color:#0f172a; margin-top:4px;">CPT محرمانه + پابلیک</div>
+                </div>
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; border-right:4px solid #ec4899;">
+                    <div style="font-size:11px; color:#64748b; font-weight:700;">لایه ۵: مدیریت و نظارت</div>
+                    <div style="font-size:15px; font-weight:800; color:#0f172a; margin-top:4px;">Capability Registry</div>
+                </div>
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; border-right:4px solid #06b6d4;">
+                    <div style="font-size:11px; color:#64748b; font-weight:700;">لایه ۶: زیرساخت وردپرس</div>
+                    <div style="font-size:15px; font-weight:800; color:#0f172a; margin-top:4px;">PHP <?php echo esc_html(PHP_VERSION); ?></div>
+                </div>
+            </div>
+
+            <!-- Tab Section 1: Registered Capabilities -->
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:24px; margin-bottom:28px; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                    <div>
+                        <h2 style="font-size:17px; font-weight:800; color:#0f172a; margin:0 0 4px;">فهرست قابلیت‌های ثبت‌شده (Capability Registry)</h2>
+                        <p style="font-size:12px; color:#64748b; margin:0;">ماژول‌های مستقلی که در چرخه هسته رجیستر شده‌اند و وابستگی‌ها را بررسی می‌کنند.</p>
+                    </div>
+                    <span style="font-size:12px; background:#f1f5f9; color:#475569; padding:4px 12px; border-radius:8px; font-weight:700;">
+                        تعداد: <?php echo count($capabilities); ?> قابلیت فعال
+                    </span>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table class="wp-list-table widefat fixed striped" style="border:1px solid #e2e8f0; border-radius:8px;">
+                        <thead>
+                            <tr style="background:#f8fafc;">
+                                <th style="font-weight:700; width:22%;">عنوان قابلیت</th>
+                                <th style="font-weight:700; width:15%;">شناسه سیستمی</th>
+                                <th style="font-weight:700; width:15%;">نوع بسته</th>
+                                <th style="font-weight:700; width:25%;">توضیحات و اجزا</th>
+                                <th style="font-weight:700; width:13%;">نیازمندی‌ها</th>
+                                <th style="font-weight:700; width:10%;">وضعیت</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($capabilities as $cap) : ?>
+                                <tr>
+                                    <td>
+                                        <strong><?php echo esc_html($cap['name']); ?></strong>
+                                        <div style="font-size:11px; color:#64748b; margin-top:2px;"><?php echo esc_html($cap['category']); ?></div>
+                                    </td>
+                                    <td><code><?php echo esc_html($cap['id']); ?></code></td>
+                                    <td>
+                                        <span style="display:inline-block; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700; background:#e0e7ff; color:#4338ca;">
+                                            <?php echo esc_html($cap['package_type']); ?>
+                                        </span>
+                                        <?php if (!empty($cap['portable'])) : ?>
+                                            <span style="display:inline-block; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:700; background:#dcfce7; color:#15803d; margin-top:2px;">
+                                                ✓ Portable
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="font-size:12px; color:#334155; line-height:1.6;">
+                                        <?php echo esc_html($cap['description']); ?>
+                                    </td>
+                                    <td style="font-size:11px; color:#475569;">
+                                        PHP: <?php echo esc_html($cap['dependencies']['php'] ?? '>=7.4'); ?><br>
+                                        Elementor: <?php echo esc_html($cap['dependencies']['elementor'] ?? 'آزاد'); ?>
+                                    </td>
+                                    <td>
+                                        <span style="font-size:11px; font-weight:700; color:#10b981; background:#ecfdf5; padding:3px 10px; border-radius:6px; display:inline-block;">
+                                            ✓ فعال و پایدار
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Section 2: Portable Packages Vault -->
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:24px; margin-bottom:28px; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                    <div>
+                        <h2 style="font-size:17px; font-weight:800; color:#0f172a; margin:0 0 4px;">بسته‌های مستقل و قابل حمل (Portable Packages)</h2>
+                        <p style="font-size:12px; color:#64748b; margin:0;">این قابلیت‌ها کاملاً خودکفا بوده و می‌توانند به صورت پلاگین یا پکیج مجزا بر روی هر وردپرس دیگری بدون نیاز به قالب مادر نصب شوند.</p>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:18px;">
+                    <?php foreach ($packages as $pkg) : ?>
+                        <div style="border:1px solid #e2e8f0; border-radius:12px; padding:18px; background:#fafafa; display:flex; flex-direction:column; justify-content:space-between;">
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                    <span style="font-size:10px; font-weight:700; background:#818cf8; color:#fff; padding:2px 8px; border-radius:4px;">
+                                        <?php echo esc_html($pkg['package_type']); ?>
+                                    </span>
+                                    <span style="font-size:11px; color:#10b981; font-weight:700;">✓ آماده استخراج</span>
+                                </div>
+                                <h3 style="font-size:14px; font-weight:700; color:#0f172a; margin:0 0 6px;">
+                                    <?php echo esc_html($pkg['name']); ?>
+                                </h3>
+                                <p style="font-size:12px; color:#64748b; margin:0 0 12px; line-height:1.6;">
+                                    <?php echo esc_html($pkg['description']); ?>
+                                </p>
+                            </div>
+                            <div style="border-top:1px solid #e2e8f0; padding-top:10px; margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                                <code style="font-size:11px;"><?php echo esc_html($pkg['id']); ?></code>
+                                <span style="font-size:11px; font-weight:600; color:#3b82f6;">مستقل و Zero-Lockin</span>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Tab Section 3: API Contracts & Security -->
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:24px; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+                <h2 style="font-size:17px; font-weight:800; color:#0f172a; margin:0 0 4px;">قراردادهای ارتباطی API و سطوح دسترسی (Contract Registry)</h2>
+                <p style="font-size:12px; color:#64748b; margin:0 0 18px;">تمامی تعاملات فرانت‌اند و بک‌اند با شروط احراز هویت، نانس و مجوزها محدود شده‌اند.</p>
+
+                <div style="overflow-x:auto;">
+                    <table class="wp-list-table widefat fixed striped" style="border:1px solid #e2e8f0; border-radius:8px;">
+                        <thead>
+                            <tr style="background:#f8fafc;">
+                                <th style="font-weight:700; width:20%;">شناسه قرارداد</th>
+                                <th style="font-weight:700; width:10%;">نوع</th>
+                                <th style="font-weight:700; width:25%;">مسیر / اکشن</th>
+                                <th style="font-weight:700; width:15%;">سطح دسترسی لازم</th>
+                                <th style="font-weight:700; width:30%;">هدف و اعتبارسنجی</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($contracts as $c_id => $contract) : ?>
+                                <tr>
+                                    <td><strong><?php echo esc_html($c_id); ?></strong></td>
+                                    <td><span style="background:#e2e8f0; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700;"><?php echo esc_html($contract['type']); ?></span></td>
+                                    <td><code><?php echo esc_html($contract['endpoint'] ?? $contract['action'] ?? '-'); ?></code></td>
+                                    <td><code style="color:#b91c1c;"><?php echo esc_html($contract['capability']); ?></code></td>
+                                    <td style="font-size:12px; color:#334155;"><?php echo esc_html($contract['description']); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
 }
+

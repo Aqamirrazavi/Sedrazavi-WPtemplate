@@ -10,7 +10,13 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Universal FAQ Accordion Widget with Optional Schema.org
+ * Universal High-Converting FAQ Accordion Widget (MPCA Compliant)
+ *
+ * Smart accordion with Google Schema.org FAQPage structured data injection,
+ * instant live search filter, and comprehensive 3-tab native Elementor sidebar controls.
+ *
+ * @package Universal_Elementor_Suite
+ * @author Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)
  */
 class Universal_Faq_Widget extends Universal_Widget_Base {
 
@@ -19,7 +25,7 @@ class Universal_Faq_Widget extends Universal_Widget_Base {
     }
 
     public function get_title() {
-        return esc_html__('آکاردئون پرسش‌های متداول هوشمند', 'universal-elementor-suite');
+        return esc_html__('آکاردئون هوشمند پرسش و پاسخ با اسکیما گوگل', 'universal-elementor-suite');
     }
 
     public function get_icon() {
@@ -35,10 +41,11 @@ class Universal_Faq_Widget extends Universal_Widget_Base {
     }
 
     protected function register_controls() {
+        // --- 1. TAB_CONTENT: General & Schema ---
         $this->start_controls_section(
             'section_content',
             [
-                'label' => esc_html__('پرسش و پاسخ‌ها', 'universal-elementor-suite'),
+                'label' => esc_html__('تنظیمات پرسش و پاسخ‌ها', 'universal-elementor-suite'),
                 'tab'   => Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -49,7 +56,26 @@ class Universal_Faq_Widget extends Universal_Widget_Base {
                 'label'       => esc_html__('تولید اسکیما ساختاریافته گوگل (FAQPage Schema)', 'universal-elementor-suite'),
                 'type'        => Controls_Manager::SWITCHER,
                 'default'     => 'yes',
-                'description' => esc_html__('بهبود سئو با نمایش سوالات در نتایج Rich Results موتورهای جستجو.', 'universal-elementor-suite'),
+                'description' => esc_html__('نمایش پرسش‌ها در نتایج غنی (Rich Snippets) جستجوی گوگل جهت افزایش CTR.', 'universal-elementor-suite'),
+            ]
+        );
+
+        $this->add_control(
+            'enable_search',
+            [
+                'label'       => esc_html__('فعال‌سازی فیلتر و جستجوی لحظه‌ای سوالات', 'universal-elementor-suite'),
+                'type'        => Controls_Manager::SWITCHER,
+                'default'     => 'yes',
+            ]
+        );
+
+        $this->add_control(
+            'search_placeholder',
+            [
+                'label'     => esc_html__('متن پیش‌فرض کادر جستجو', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::TEXT,
+                'default'   => esc_html__('جستجو میان سوالات متداول...', 'universal-elementor-suite'),
+                'condition' => ['enable_search' => 'yes'],
             ]
         );
 
@@ -60,7 +86,7 @@ class Universal_Faq_Widget extends Universal_Widget_Base {
             [
                 'label'       => esc_html__('پرسش', 'universal-elementor-suite'),
                 'type'        => Controls_Manager::TEXT,
-                'default'     => esc_html__('مدت زمان ارزیابی اولیه و تدوین طرح پیشنهادی چقدر است؟', 'universal-elementor-suite'),
+                'default'     => esc_html__('فرآیند استقرار و اجرای پروژه‌ها به چه صورت است؟', 'universal-elementor-suite'),
                 'label_block' => true,
             ]
         );
@@ -70,7 +96,7 @@ class Universal_Faq_Widget extends Universal_Widget_Base {
             [
                 'label'   => esc_html__('پاسخ جامع', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::TEXTAREA,
-                'default' => esc_html__('فرآیند ارزیابی اولیه، بررسی دقیق نیازمندی‌ها و ارائه طرح فنی و مالی معمولاً ظرف ۲ الی ۴ روز کاری انجام می‌پذیرد.', 'universal-elementor-suite'),
+                'default' => esc_html__('پس از عقد قرارداد و نیازسنجی، معماری سیستم بر پایه الگوهای ماژولار و امن وردپرس ظرف کمترین زمان اجرایی می‌گردد.', 'universal-elementor-suite'),
             ]
         );
 
@@ -93,10 +119,66 @@ class Universal_Faq_Widget extends Universal_Widget_Base {
                         'question' => esc_html__('پشتیبانی فنی و نگهداری دوره‌ای پس از تحویل پروژه به چه صورت است؟', 'universal-elementor-suite'),
                         'answer'   => esc_html__('تمامی پروژه‌ها همراه با ۶ ماه پشتیبانی جامع رایگان، مانیتورینگ آنلاین ۲۴/۷ و بسته‌های تکمیلی نگهداری سالانه ارائه می‌شوند.', 'universal-elementor-suite'),
                     ],
+                    [
+                        'question' => esc_html__('آیا قابلیت‌ها و ویجت‌ها به صورت مستقل روی سایر سایت‌ها قابل نصب هستند؟', 'universal-elementor-suite'),
+                        'answer'   => esc_html__('بله، به لطف معماری ماژولار MPCA، هر بسته و ویجت به صورت یک فایل مستقل ZIP قابل استخراج و نصب در هر وردپرس دیگری است.', 'universal-elementor-suite'),
+                    ],
                 ],
                 'title_field' => '{{{ question }}}',
             ]
         );
+
+        $this->end_controls_section();
+
+        // --- 2. TAB_STYLE: Question Title Style ---
+        $this->start_controls_section(
+            'section_style_questions',
+            [
+                'label' => esc_html__('استایل سوالات و تیترها', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_STYLE,
+            ]
+        );
+
+        $this->add_typography_and_color_controls('faq_q', esc_html__('پرسش', 'universal-elementor-suite'), '.uas-faq-question span', '#0F172A');
+
+        $this->add_control(
+            'faq_q_hover_color',
+            [
+                'label'     => esc_html__('رنگ پرسش در حالت باز یا هاور', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::COLOR,
+                'default'   => '#4F46E5',
+                'selectors' => [
+                    '{{WRAPPER}} .uas-faq-item.is-active .uas-faq-question span' => 'color: {{VALUE}};',
+                    '{{WRAPPER}} .uas-faq-question:hover span' => 'color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->end_controls_section();
+
+        // --- 3. TAB_STYLE: Answer Text Style ---
+        $this->start_controls_section(
+            'section_style_answers',
+            [
+                'label' => esc_html__('استایل پاسخ‌ها', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_STYLE,
+            ]
+        );
+
+        $this->add_typography_and_color_controls('faq_a', esc_html__('متن پاسخ', 'universal-elementor-suite'), '.uas-faq-answer p', '#475569');
+
+        $this->end_controls_section();
+
+        // --- 4. TAB_STYLE: Accordion Box Container ---
+        $this->start_controls_section(
+            'section_style_boxes',
+            [
+                'label' => esc_html__('استایل آیتم‌ها و کادرها', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_STYLE,
+            ]
+        );
+
+        $this->add_container_style_controls('faq_item', esc_html__('آیتم آکاردئون', 'universal-elementor-suite'), '.uas-faq-item');
 
         $this->end_controls_section();
     }
@@ -106,6 +188,12 @@ class Universal_Faq_Widget extends Universal_Widget_Base {
         $schema_items = [];
         ?>
         <div class="uas-faq-wrapper uas-widget-container" dir="rtl">
+            <?php if ($settings['enable_search'] === 'yes') : ?>
+                <div class="uas-faq-search-box">
+                    <input type="text" class="uas-faq-search-input" placeholder="<?php echo esc_attr($settings['search_placeholder']); ?>" />
+                </div>
+            <?php endif; ?>
+
             <div class="uas-faq-list">
                 <?php foreach ($settings['faqs_list'] as $idx => $item) :
                     if ($settings['enable_schema'] === 'yes') {
