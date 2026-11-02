@@ -1,0 +1,95 @@
+{
+  "version": "0.4",
+  "title": "UAS - برگه اصلی آژانس خلاقیت و طراحی وب (Creative Agency Showcase)",
+  "type": "page",
+  "content": [
+    {
+      "id": "uas_sec_agency_hero",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "background_background": "gradient",
+        "background_color": "#0B132B",
+        "background_color_b": "#1C2541",
+        "padding": { "unit": "px", "top": "100", "right": "20", "bottom": "90", "left": "20" }
+      },
+      "elements": [
+        {
+          "id": "uas_col_agency_hero",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_agency_hero",
+              "elType": "widget",
+              "widgetType": "uas_hero",
+              "settings": {
+                "badge_text": "استودیو طراحی خلاق و توسعه هویت برند",
+                "hero_title": "ما ایده‌های نوآورانه را به تجارب دیجیتال شگفت‌انگیز تبدیل می‌کنیم",
+                "hero_desc": "تیم ما متشکل از طراحان رابط کاربری، معماران سیستم‌های ابری و استراتژیست‌های برند است که مرزهای طراحی را به چالش می‌کشند.",
+                "primary_btn_text": "مشاهده پروژه‌های برگزیده",
+                "primary_btn_url": { "url": "#portfolio", "is_external": false },
+                "secondary_btn_text": "گفتگو درباره پروژه جدید",
+                "secondary_btn_url": { "url": "#contact", "is_external": false }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "uas_sec_agency_portfolio",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "padding": { "unit": "px", "top": "70", "right": "20", "bottom": "70", "left": "20" }
+      },
+      "elements": [
+        {
+          "id": "uas_col_agency_portfolio",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_agency_portfolio",
+              "elType": "widget",
+              "widgetType": "uas_posts_grid",
+              "settings": {
+                "title": "ویترین دستاوردها و نمونه‌کارهای شاخص",
+                "subtitle": "نگاهی به منتخبی از تجارب موفق طراحی محصول و نرم‌افزار"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "uas_sec_agency_cta",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "padding": { "unit": "px", "top": "50", "right": "20", "bottom": "70", "left": "20" }
+      },
+      "elements": [
+        {
+          "id": "uas_col_agency_cta",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_agency_cta",
+              "elType": "widget",
+              "widgetType": "uas_cta",
+              "settings": {
+                "title": "آماده‌اید پروژه بعدی خود را متحول کنید؟",
+                "subtitle": "همین امروز با مشاوران ارشد طراحی ما تماس بگیرید و مشاوره اولیه رایگان دریافت کنید.",
+                "button_text": "شروع همکاری حرفه‌ای",
+                "button_url": { "url": "#contact" }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -40,6 +40,42 @@
       });
     });
 
+    // Single Template Import AJAX
+    $('.uas-import-single-btn').on('click', function(e) {
+      e.preventDefault();
+      var $btn = $(this);
+      var slug = $btn.data('slug');
+      if (!slug) return;
+
+      var originalText = $btn.text();
+      $btn.prop('disabled', true).text('در حال درون‌ریزی...');
+
+      $.ajax({
+        url: uasAdminVars.ajaxUrl,
+        type: 'POST',
+        data: {
+          action: 'uas_import_single_template',
+          slug: slug,
+          nonce: uasAdminVars.nonce
+        },
+        success: function(response) {
+          if (response.success) {
+            $btn.css({'background': '#10B981', 'border-color': '#10B981'}).text('✓ افزوده شد!');
+            setTimeout(function() {
+              location.reload();
+            }, 800);
+          } else {
+            $btn.prop('disabled', false).text(originalText);
+            alert(response.data && response.data.message ? response.data.message : 'خطا در درون‌ریزی قالب.');
+          }
+        },
+        error: function() {
+          $btn.prop('disabled', false).text(originalText);
+          alert('خطای ارتباط با سرور.');
+        }
+      });
+    });
+
     // Toggle All Widgets
     $('#uas-btn-enable-all').on('click', function(e) {
       e.preventDefault();

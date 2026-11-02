@@ -68,6 +68,24 @@ class Admin_Settings {
             'dashicons-screenoptions',
             58
         );
+
+        add_submenu_page(
+            'universal-elementor-settings',
+            esc_html__('تنظیمات و ویجت‌ها', 'universal-elementor-suite'),
+            esc_html__('مدیریت ویجت‌ها', 'universal-elementor-suite'),
+            'manage_options',
+            'universal-elementor-settings',
+            [$this, 'render_settings_page']
+        );
+
+        add_submenu_page(
+            'universal-elementor-settings',
+            esc_html__('بانک قالب‌ها و Theme Builder', 'universal-elementor-suite'),
+            esc_html__('بانک قالب‌ها (۲۱+ الگو)', 'universal-elementor-suite'),
+            'manage_options',
+            'universal-elementor-templates',
+            [$this, 'render_templates_page']
+        );
     }
 
     /**
@@ -133,6 +151,9 @@ class Admin_Settings {
             'uas_case_timeline'   => ['name' => 'تایم‌لاین تعاملی پرونده موکل', 'icon' => 'eicon-history'],
             'uas_email_otp'       => ['name' => 'ورود با رمز یکبار مصرف ایمیل', 'icon' => 'eicon-lock-user'],
             'uas_radar_chart'     => ['name' => 'نمودار راداری حوزه‌های تخصصی', 'icon' => 'eicon-radar-chart'],
+            'uas_pricing_switcher'=> ['name' => 'جدول قیمت‌گذاری با سوییچر تخفیف (ویژه لندینگ)', 'icon' => 'eicon-table'],
+            'uas_fomo_countdown'  => ['name' => 'نوار فوریت و شمارش معکوس تخفیف FOMO', 'icon' => 'eicon-countdown'],
+            'uas_before_after'    => ['name' => 'اسلایدر مقایسه تصویری قبل و بعد (Before/After)', 'icon' => 'eicon-image-before-after'],
         ];
     }
 
@@ -257,6 +278,86 @@ class Admin_Settings {
 
                 <?php submit_button('ذخیره تغییرات تنظیمات', 'primary large', 'submit', true, ['style' => 'background: #0F172A; border-color: #0F172A; font-weight: 700;']); ?>
             </form>
+        </div>
+        <?php
+    }
+
+    /**
+     * Render Templates Bank & Theme Builder Hub Page
+     */
+    public function render_templates_page() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        require_once UAS_PATH . 'includes/class-template-importer.php';
+        $manifest = Template_Importer::get_templates_manifest();
+        ?>
+        <div class="wrap uas-admin-wrap" dir="rtl" style="max-width: 1300px; margin: 25px auto;">
+            <div class="uas-admin-header" style="display:flex; justify-content:space-between; align-items:center; background:#0B132B; padding:24px 30px; border-radius:16px; color:#fff; margin-bottom:28px;">
+                <div class="uas-admin-title-box">
+                    <h1 style="color:#fff; font-size:22px; font-weight:800; margin:0 0 8px;">بانک قالب‌های لندینگ‌پیج و Theme Builder المنتور پرو</h1>
+                    <p style="color:#94a3b8; font-size:13px; margin:0;">مجموعه ۲۱+ قالب استاندارد و پرسرعت جهت ساخت فوری صفحات فرود، هدر، فوتر، تک‌نوشته و آرشیو وبلاگ بدون نیاز به کدنویسی</p>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" id="uas-btn-reimport-templates" class="button" style="background:#8B5CF6; border:0; color:#fff; font-weight:700; padding:8px 18px; border-radius:8px; cursor:pointer;">
+                        ⚡ درون‌ریزی همه قالب‌ها به المنتور
+                    </button>
+                    <a href="<?php echo esc_url(admin_url('edit.php?post_type=elementor_library')); ?>" class="button button-secondary" style="background:#1C2541; border:1px solid #334155; color:#cbd5e1; font-weight:600; padding:8px 16px; border-radius:8px;">
+                        مشاهده الگوهای ذخیره‌شده المنتور
+                    </a>
+                </div>
+            </div>
+
+            <div id="uas-reimport-status" style="display:none; margin-bottom:20px;"></div>
+
+            <!-- Templates Grid -->
+            <div class="uas-templates-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(350px, 1fr)); gap:22px;">
+                <?php foreach ($manifest as $tpl) : 
+                    $type_label = 'سکشن (Section)';
+                    $type_color = '#3B82F6';
+                    if ($tpl['type'] === 'page') { $type_label = 'برگه فرود (Page)'; $type_color = '#10B981'; }
+                    elseif ($tpl['type'] === 'single-post') { $type_label = 'نوشته تکی (Single Post)'; $type_color = '#8B5CF6'; }
+                    elseif ($tpl['type'] === 'archive') { $type_label = 'آرشیو وبلاگ (Archive)'; $type_color = '#F59E0B'; }
+                    elseif ($tpl['type'] === 'header') { $type_label = 'سربرگ (Header)'; $type_color = '#EC4899'; }
+                    elseif ($tpl['type'] === 'footer') { $type_label = 'پابرگ (Footer)'; $type_color = '#6366F1'; }
+                    elseif ($tpl['type'] === 'popup') { $type_label = 'پاپ‌آپ تعاملی (Popup)'; $type_color = '#EF4444'; }
+                    elseif ($tpl['type'] === 'single-page') { $type_label = 'برگه ۴۰۴ (Error 404)'; $type_color = '#DC2626'; }
+                ?>
+                    <div class="uas-tpl-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:22px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 2px 6px rgba(0,0,0,0.03); transition:all 0.2s;">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <span style="font-size:11px; font-weight:700; color:#fff; background:<?php echo esc_attr($type_color); ?>; padding:3px 10px; border-radius:6px;">
+                                    <?php echo esc_html($type_label); ?>
+                                </span>
+                                <?php if ($tpl['is_imported']) : ?>
+                                    <span style="font-size:12px; font-weight:700; color:#10b981;">✓ موجود در کتابخانه</span>
+                                <?php else : ?>
+                                    <span style="font-size:12px; color:#94a3b8;">آماده نصب</span>
+                                <?php endif; ?>
+                            </div>
+                            <h3 style="font-size:15px; font-weight:700; color:#0f172a; margin:0 0 10px; line-height:1.6;">
+                                <?php echo esc_html($tpl['title']); ?>
+                            </h3>
+                            <code style="font-size:11px; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:4px; display:inline-block; margin-bottom:16px;">
+                                <?php echo esc_html($tpl['slug']); ?>
+                            </code>
+                        </div>
+
+                        <div style="display:flex; gap:8px; margin-top:14px; border-top:1px solid #f1f5f9; padding-top:14px;">
+                            <?php if ($tpl['is_imported']) : ?>
+                                <a href="<?php echo esc_url(admin_url('post.php?post=' . $tpl['post_id'] . '&action=elementor')); ?>" target="_blank" class="button button-primary" style="flex:1; text-align:center; background:#10B981; border-color:#10B981; font-weight:700;">
+                                    ویرایش با المنتور ↗
+                                </a>
+                            <?php else : ?>
+                                <button type="button" class="button button-primary uas-import-single-btn" data-slug="<?php echo esc_attr($tpl['slug']); ?>" style="flex:1; background:#8B5CF6; border-color:#8B5CF6; font-weight:700;">
+                                    درون‌ریزی به الگوها
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
         <?php
     }

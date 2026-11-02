@@ -1,0 +1,69 @@
+{
+  "version": "0.4",
+  "title": "UAS - سربرگ مدرن شیشه‌ای و چسبان (Theme Builder Sticky Glass Header)",
+  "type": "header",
+  "content": [
+    {
+      "id": "uas_sec_header_glass",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "background_background": "classic",
+        "background_color": "rgba(15, 23, 42, 0.88)",
+        "padding": { "unit": "px", "top": "16", "right": "24", "bottom": "16", "left": "24" }
+      },
+      "elements": [
+        {
+          "id": "uas_col_header_logo",
+          "elType": "column",
+          "settings": { "_column_size": 25 },
+          "elements": [
+            {
+              "id": "uas_wid_site_logo",
+              "elType": "widget",
+              "widgetType": "theme-site-logo",
+              "settings": {
+                "align": "right"
+              }
+            }
+          ]
+        },
+        {
+          "id": "uas_col_header_menu",
+          "elType": "column",
+          "settings": { "_column_size": 50 },
+          "elements": [
+            {
+              "id": "uas_wid_nav_menu",
+              "elType": "widget",
+              "widgetType": "nav-menu",
+              "settings": {
+                "layout": "horizontal",
+                "align_items": "center",
+                "pointer": "underline"
+              }
+            }
+          ]
+        },
+        {
+          "id": "uas_col_header_cta",
+          "elType": "column",
+          "settings": { "_column_size": 25 },
+          "elements": [
+            {
+              "id": "uas_wid_header_btn",
+              "elType": "widget",
+              "widgetType": "button",
+              "settings": {
+                "text": "درخواست مشاوره آنلاین",
+                "link": { "url": "#contact" },
+                "align": "left",
+                "size": "sm"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

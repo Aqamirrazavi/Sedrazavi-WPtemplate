@@ -63,6 +63,7 @@ class Plugin {
 
         // AJAX Action for Manual Template Import
         add_action('wp_ajax_uas_import_templates', [$this, 'ajax_import_templates']);
+        add_action('wp_ajax_uas_import_single_template', [$this, 'ajax_import_single_template']);
     }
 
     /**
@@ -78,6 +79,30 @@ class Plugin {
         require_once UAS_PATH . 'includes/class-template-importer.php';
         $report = Template_Importer::import_all_templates();
         wp_send_json_success($report);
+    }
+
+    /**
+     * AJAX Handler for Single Template Import
+     */
+    public function ajax_import_single_template() {
+        check_ajax_referer('uas_admin_nonce', 'nonce');
+
+        if (!current_user_can('edit_posts')) {
+            wp_send_json_error(['message' => 'سطح دسترسی ناکافی است.']);
+        }
+
+        $slug = isset($_POST['slug']) ? sanitize_key($_POST['slug']) : '';
+        if (empty($slug)) {
+            wp_send_json_error(['message' => 'شناسه قالب مشخص نشده است.']);
+        }
+
+        require_once UAS_PATH . 'includes/class-template-importer.php';
+        $result = Template_Importer::import_single_template($slug);
+        if (!empty($result['success'])) {
+            wp_send_json_success($result);
+        } else {
+            wp_send_json_error($result);
+        }
     }
 
     /**
@@ -142,6 +167,9 @@ class Plugin {
             'uas_spotplayer_course' => ['file' => 'class-widget-spotplayer-course.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_SpotPlayer_Course_Widget'],
             'uas_download_box'      => ['file' => 'class-widget-download-box.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Download_Box_Widget'],
             'uas_vip_pricing'       => ['file' => 'class-widget-vip-pricing.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_VIP_Pricing_Widget'],
+            'uas_pricing_switcher'  => ['file' => 'class-widget-pricing-switcher.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Pricing_Switcher_Widget'],
+            'uas_fomo_countdown'    => ['file' => 'class-widget-fomo-countdown.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_FOMO_Countdown_Widget'],
+            'uas_before_after'      => ['file' => 'class-widget-before-after.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Before_After_Widget'],
             'uas_news_ticker'       => ['file' => 'class-widget-news-ticker.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_News_Ticker_Widget'],
             'uas_client_portal'     => ['file' => 'class-widget-client-portal.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Client_Portal_Widget'],
         ];

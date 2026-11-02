@@ -1,0 +1,109 @@
+{
+  "version": "0.4",
+  "title": "UAS - قالب پیشرفته برگه نوشته تکی (Theme Builder Single Post)",
+  "type": "single-post",
+  "content": [
+    {
+      "id": "uas_sec_single_header",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "background_background": "classic",
+        "background_color": "#0F172A",
+        "padding": { "unit": "px", "top": "60", "right": "20", "bottom": "60", "left": "20" }
+      },
+      "elements": [
+        {
+          "id": "uas_col_single_header",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_post_title",
+              "elType": "widget",
+              "widgetType": "theme-post-title",
+              "settings": {
+                "title": "عنوان نوشته به صورت پویا (Dynamic Post Title)",
+                "align": "right"
+              }
+            },
+            {
+              "id": "uas_wid_post_info",
+              "elType": "widget",
+              "widgetType": "post-info",
+              "settings": {
+                "type": "inline",
+                "icon_align": "right"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "uas_sec_single_content",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "padding": { "unit": "px", "top": "50", "right": "20", "bottom": "60", "left": "20" }
+      },
+      "elements": [
+        {
+          "id": "uas_col_single_main",
+          "elType": "column",
+          "settings": { "_column_size": 70 },
+          "elements": [
+            {
+              "id": "uas_wid_post_featured_image",
+              "elType": "widget",
+              "widgetType": "theme-post-featured-image",
+              "settings": {
+                "image_size": "large"
+              }
+            },
+            {
+              "id": "uas_wid_post_content",
+              "elType": "widget",
+              "widgetType": "theme-post-content",
+              "settings": {}
+            },
+            {
+              "id": "uas_wid_author_box",
+              "elType": "widget",
+              "widgetType": "author-box",
+              "settings": {
+                "source": "current",
+                "show_name": "yes",
+                "show_bio": "yes"
+              }
+            },
+            {
+              "id": "uas_wid_post_comments",
+              "elType": "widget",
+              "widgetType": "post-comments",
+              "settings": {}
+            }
+          ]
+        },
+        {
+          "id": "uas_col_single_sidebar",
+          "elType": "column",
+          "settings": { "_column_size": 30 },
+          "elements": [
+            {
+              "id": "uas_wid_sidebar_cta",
+              "elType": "widget",
+              "widgetType": "uas_cta",
+              "settings": {
+                "title": "دریافت مشاوره تخصصی",
+                "subtitle": "برای راه‌اندازی پروژه‌های خود با متخصصان ما گفتگو کنید.",
+                "button_text": "رزرو آنلاین جلسه",
+                "button_url": { "url": "#booking" }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

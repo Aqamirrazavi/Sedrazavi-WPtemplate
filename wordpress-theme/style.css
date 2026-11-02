@@ -1789,6 +1789,6 @@ img {
 .border-violet-500\/30 { border-color: rgba(139, 92, 246, 0.3) !important; }
 .bg-violet-400 { background-color: #a78bfa !important; }
 
-
-
-
+/* Utilities & Maker Staging */
+.tabpane { display: block; }
+.danger { color: #dc2626; }

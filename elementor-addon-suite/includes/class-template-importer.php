@@ -40,6 +40,132 @@ class Template_Importer {
     }
 
     /**
+     * Get list of all packaged templates and their import status
+     *
+     * @return array
+     */
+    public static function get_templates_manifest() {
+        $manifest = [];
+        $sources = [
+            UAS_PATH . 'templates/' => 'section',
+            UAS_PATH . 'templates/popups/' => 'popup',
+        ];
+
+        foreach ($sources as $dir => $default_type) {
+            if (!is_dir($dir)) continue;
+            $files = glob($dir . '*.json');
+            foreach ($files as $file) {
+                $slug = basename($file, '.json');
+                $raw = @file_get_contents($file);
+                $data = @json_decode($raw, true);
+                if (!is_array($data) || empty($data['title'])) continue;
+
+                $existing = get_posts([
+                    'post_type'      => 'elementor_library',
+                    'post_status'    => 'any',
+                    'posts_per_page' => 1,
+                    'meta_key'       => '_uas_template_slug',
+                    'meta_value'     => $slug,
+                ]);
+
+                $manifest[] = [
+                    'slug'        => $slug,
+                    'title'       => $data['title'],
+                    'type'        => $data['type'] ?? $default_type,
+                    'is_imported' => !empty($existing),
+                    'post_id'     => !empty($existing) ? $existing[0]->ID : 0,
+                    'file'        => $file,
+                ];
+            }
+        }
+        return $manifest;
+    }
+
+    /**
+     * Import a single template by its slug
+     *
+     * @param string $slug
+     * @return array
+     */
+    public static function import_single_template($slug) {
+        $slug = sanitize_key($slug);
+        $file = UAS_PATH . 'templates/' . $slug . '.json';
+        $type = 'section';
+
+        if (!file_exists($file)) {
+            $file = UAS_PATH . 'templates/popups/' . $slug . '.json';
+            $type = 'popup';
+        }
+
+        if (!file_exists($file)) {
+            return ['success' => false, 'message' => "قالب با شناسه {$slug} یافت نشد."];
+        }
+
+        $raw_content = file_get_contents($file);
+        $data = json_decode($raw_content, true);
+
+        if (!is_array($data) || empty($data['title']) || empty($data['content'])) {
+            return ['success' => false, 'message' => 'فرمت فایل قالب نامعتبر است.'];
+        }
+
+        $type = $data['type'] ?? $type;
+
+        // Check if exists
+        $existing = get_posts([
+            'post_type'      => 'elementor_library',
+            'post_status'    => 'any',
+            'posts_per_page' => 1,
+            'meta_key'       => '_uas_template_slug',
+            'meta_value'     => $slug,
+        ]);
+
+        if (!empty($existing)) {
+            return [
+                'success' => true,
+                'post_id' => $existing[0]->ID,
+                'title'   => $data['title'],
+                'slug'    => $slug,
+                'status'  => 'already_exists',
+                'message' => 'این قالب از قبل در کتابخانه الگوهای المنتور موجود است.'
+            ];
+        }
+
+        $post_id = wp_insert_post([
+            'post_title'   => sanitize_text_field($data['title']),
+            'post_type'    => 'elementor_library',
+            'post_status'  => 'publish',
+            'post_content' => '',
+        ]);
+
+        if (is_wp_error($post_id) || !$post_id) {
+            return ['success' => false, 'message' => 'خطا در ثبت پست قالب در دیتابیس.'];
+        }
+
+        if (taxonomy_exists('elementor_library_type')) {
+            wp_set_object_terms($post_id, $type, 'elementor_library_type');
+        }
+
+        update_post_meta($post_id, '_elementor_edit_mode', 'builder');
+        update_post_meta($post_id, '_elementor_template_type', $type);
+        update_post_meta($post_id, '_elementor_data', wp_slash(json_encode($data['content'])));
+        update_post_meta($post_id, '_elementor_version', defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : '3.24.0');
+        update_post_meta($post_id, '_uas_template_slug', $slug);
+
+        if ($type === 'popup' && !empty($data['page_settings'])) {
+            update_post_meta($post_id, '_elementor_page_settings', wp_slash(json_encode($data['page_settings'])));
+        }
+
+        return [
+            'success' => true,
+            'post_id' => $post_id,
+            'title'   => $data['title'],
+            'slug'    => $slug,
+            'status'  => 'imported',
+            'message' => 'قالب با موفقیت به کتابخانه الگوهای المنتور اضافه شد.'
+        ];
+    }
+
+    /**
      * General directory importer
      *
      * @param string $dir Directory path
