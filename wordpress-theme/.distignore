@@ -47,3 +47,11 @@ Thumbs.db
 *.gz
 *.rar
 *.bak
+
+# Child themes (packaged separately)
+child-themes
+child-themes/
+
+# Internal staging assets
+app-dist/aistudio
+app-dist/aistudio/

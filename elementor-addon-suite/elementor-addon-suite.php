@@ -61,11 +61,12 @@ final class Universal_Elementor_Addon_Suite {
     }
 
     /**
-     * On Plugin Activation
+     * On Plugin Activation (Instant activation without blocking database clutter or timeout)
      */
     public static function on_activation() {
-        require_once UAS_PATH . 'includes/class-template-importer.php';
-        \UniversalElementorSuite\Template_Importer::run_activation_import();
+        if (!get_option('uas_plugin_activated_time')) {
+            update_option('uas_plugin_activated_time', time());
+        }
     }
 
     /**

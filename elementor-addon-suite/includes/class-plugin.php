@@ -72,8 +72,8 @@ class Plugin {
     public function ajax_import_templates() {
         check_ajax_referer('uas_admin_nonce', 'nonce');
 
-        if (!current_user_can('edit_posts')) {
-            wp_send_json_error(['message' => 'سطح دسترسی ناکافی است.']);
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'سطح دسترسی ناکافی است. تنها مدیر کل سیستم مجاز به درون‌ریزی قالب‌ها می‌باشد.']);
         }
 
         require_once UAS_PATH . 'includes/class-template-importer.php';
@@ -87,8 +87,8 @@ class Plugin {
     public function ajax_import_single_template() {
         check_ajax_referer('uas_admin_nonce', 'nonce');
 
-        if (!current_user_can('edit_posts')) {
-            wp_send_json_error(['message' => 'سطح دسترسی ناکافی است.']);
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'سطح دسترسی ناکافی است. تنها مدیر کل سیستم مجاز به درون‌ریزی قالب‌ها می‌باشد.']);
         }
 
         $slug = isset($_POST['slug']) ? sanitize_key($_POST['slug']) : '';
@@ -224,6 +224,9 @@ class Plugin {
         wp_register_script('uas-faq-js', UAS_URL . 'assets/js/widgets/faq.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
         wp_register_script('uas-floating-dock-js', UAS_URL . 'assets/js/widgets/floating-dock.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
         wp_register_script('uas-theme-toggle-js', UAS_URL . 'assets/js/widgets/theme-toggle.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
+        wp_register_script('uas-pricing-switcher-js', UAS_URL . 'assets/js/widgets/pricing-switcher.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
+        wp_register_script('uas-fomo-countdown-js', UAS_URL . 'assets/js/widgets/fomo-countdown.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
+        wp_register_script('uas-before-after-js', UAS_URL . 'assets/js/widgets/before-after.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
     }
 
     /**

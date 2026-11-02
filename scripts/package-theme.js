@@ -2,13 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import JSZip from 'jszip';
 
+const rootDir = path.resolve('.');
 const themeDir = path.resolve('wordpress-theme');
-const addonsDir = path.resolve('elementor-addon-suite');
+const elementorSuiteDir = path.resolve('elementor-addon-suite');
+const legalAddonsDir = path.resolve('sedrazavi-addons');
 const companionDir = path.resolve('sedrazavi-companion');
-const outputThemeZip = path.resolve('sedrazavi-theme.zip');
-const outputAddonsZip = path.resolve('sedrazavi-addons.zip');
-const outputCompanionZip = path.resolve('sedrazavi-companion.zip');
-const outputCompleteZip = path.resolve('sedrazavi-complete-suite.zip');
 const publicDir = path.resolve('public');
 
 function loadDistignore(dir) {
@@ -53,29 +51,34 @@ function shouldIgnore(fileOrDirName, relPath, patterns) {
     if (pattern.startsWith('*.')) {
       const ext = pattern.slice(1);
       if (fileOrDirName.endsWith(ext)) return true;
-    } else if (fileOrDirName === pattern || relPath === pattern || relPath.startsWith(pattern + path.sep)) {
+    } else if (
+      fileOrDirName === pattern ||
+      relPath === pattern ||
+      relPath.startsWith(pattern + path.sep) ||
+      relPath.startsWith(pattern + '/')
+    ) {
       return true;
     }
   }
   return false;
 }
 
-async function addDirectoryToZip(zip, currentDir, rootDir, prefix = '', patterns = []) {
+async function addDirectoryToZip(zip, currentDir, rootDirForRel, prefix = '', patterns = []) {
   if (!fs.existsSync(currentDir)) return;
   const files = fs.readdirSync(currentDir);
   for (const file of files) {
     const filePath = path.join(currentDir, file);
-    const relPath = path.relative(rootDir, filePath);
+    const relPath = path.relative(rootDirForRel, filePath).replace(/\\/g, '/');
 
     if (shouldIgnore(file, relPath, patterns)) {
       continue;
     }
 
-    const zipPath = prefix ? path.join(prefix, relPath) : relPath;
+    const zipPath = prefix ? `${prefix}/${relPath}` : relPath;
     const stat = fs.statSync(filePath);
 
     if (stat.isDirectory()) {
-      await addDirectoryToZip(zip, filePath, rootDir, prefix, patterns);
+      await addDirectoryToZip(zip, filePath, rootDirForRel, prefix, patterns);
     } else {
       const content = fs.readFileSync(filePath);
       zip.file(zipPath, content);
@@ -84,10 +87,10 @@ async function addDirectoryToZip(zip, currentDir, rootDir, prefix = '', patterns
 }
 
 async function packageTheme() {
-  console.log('Packaging WordPress theme from:', themeDir);
+  console.log('Packaging WordPress master theme from:', themeDir);
   const patterns = loadDistignore(themeDir);
+  patterns.push('child-themes', 'app-dist/aistudio');
   const zip = new JSZip();
-  // Standard WordPress package structure: single root folder named sedrazavi-theme
   await addDirectoryToZip(zip, themeDir, themeDir, 'sedrazavi-theme', patterns);
 
   const buffer = await zip.generateAsync({
@@ -96,21 +99,23 @@ async function packageTheme() {
     compressionOptions: { level: 9 },
   });
 
-  fs.writeFileSync(outputThemeZip, buffer);
+  const outRoot = path.join(rootDir, 'sedrazavi-theme.zip');
+  fs.writeFileSync(outRoot, buffer);
   if (fs.existsSync(publicDir)) {
     fs.writeFileSync(path.join(publicDir, 'sedrazavi-theme.zip'), buffer);
+    fs.writeFileSync(path.join(publicDir, 'sedrazavi-law-firm-wordpress-theme.zip'), buffer);
   }
   const sizeMb = (buffer.length / (1024 * 1024)).toFixed(2);
-  console.log(`Successfully generated ${outputThemeZip} (${sizeMb} MB)`);
+  console.log(`✅ Successfully generated sedrazavi-theme.zip (${sizeMb} MB)`);
   return buffer;
 }
 
-async function packageAddons() {
-  console.log('Packaging WordPress addons plugin from:', addonsDir);
-  const patterns = loadDistignore(addonsDir);
+async function packageElementorSuite() {
+  if (!fs.existsSync(elementorSuiteDir)) return null;
+  console.log('Packaging Elementor Addon Suite from:', elementorSuiteDir);
+  const patterns = loadDistignore(elementorSuiteDir);
   const zip = new JSZip();
-  // Standard WordPress plugin package structure: single root folder named sedrazavi-addons
-  await addDirectoryToZip(zip, addonsDir, addonsDir, 'sedrazavi-addons', patterns);
+  await addDirectoryToZip(zip, elementorSuiteDir, elementorSuiteDir, 'elementor-addon-suite', patterns);
 
   const buffer = await zip.generateAsync({
     type: 'nodebuffer',
@@ -118,12 +123,34 @@ async function packageAddons() {
     compressionOptions: { level: 9 },
   });
 
-  fs.writeFileSync(outputAddonsZip, buffer);
+  fs.writeFileSync(path.join(rootDir, 'elementor-addon-suite.zip'), buffer);
+  if (fs.existsSync(publicDir)) {
+    fs.writeFileSync(path.join(publicDir, 'elementor-addon-suite.zip'), buffer);
+  }
+  const sizeMb = (buffer.length / (1024 * 1024)).toFixed(2);
+  console.log(`✅ Successfully generated elementor-addon-suite.zip (${sizeMb} MB)`);
+  return buffer;
+}
+
+async function packageLegalAddons() {
+  if (!fs.existsSync(legalAddonsDir)) return null;
+  console.log('Packaging SedRazavi Addons (Legal Vertical) from:', legalAddonsDir);
+  const patterns = loadDistignore(legalAddonsDir);
+  const zip = new JSZip();
+  await addDirectoryToZip(zip, legalAddonsDir, legalAddonsDir, 'sedrazavi-addons', patterns);
+
+  const buffer = await zip.generateAsync({
+    type: 'nodebuffer',
+    compression: 'DEFLATE',
+    compressionOptions: { level: 9 },
+  });
+
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-addons.zip'), buffer);
   if (fs.existsSync(publicDir)) {
     fs.writeFileSync(path.join(publicDir, 'sedrazavi-addons.zip'), buffer);
   }
   const sizeMb = (buffer.length / (1024 * 1024)).toFixed(2);
-  console.log(`Successfully generated ${outputAddonsZip} (${sizeMb} MB)`);
+  console.log(`✅ Successfully generated sedrazavi-addons.zip (${sizeMb} MB)`);
   return buffer;
 }
 
@@ -140,12 +167,12 @@ async function packageCompanion() {
     compressionOptions: { level: 9 },
   });
 
-  fs.writeFileSync(outputCompanionZip, buffer);
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-companion.zip'), buffer);
   if (fs.existsSync(publicDir)) {
     fs.writeFileSync(path.join(publicDir, 'sedrazavi-companion.zip'), buffer);
   }
   const sizeMb = (buffer.length / (1024 * 1024)).toFixed(2);
-  console.log(`Successfully generated ${outputCompanionZip} (${sizeMb} MB)`);
+  console.log(`✅ Successfully generated sedrazavi-companion.zip (${sizeMb} MB)`);
   return buffer;
 }
 
@@ -155,6 +182,10 @@ async function packageChildThemes() {
 
   const childEntries = fs.readdirSync(childThemesDir);
   const childBuffers = {};
+  const childOutDir = path.join(publicDir, 'child-themes');
+  if (fs.existsSync(publicDir) && !fs.existsSync(childOutDir)) {
+    fs.mkdirSync(childOutDir, { recursive: true });
+  }
 
   for (const entry of childEntries) {
     const entryPath = path.join(childThemesDir, entry);
@@ -171,68 +202,63 @@ async function packageChildThemes() {
       compressionOptions: { level: 9 },
     });
 
-    const outPath = path.resolve(`${childZipSlug}.zip`);
-    fs.writeFileSync(outPath, buffer);
+    fs.writeFileSync(path.join(rootDir, `${childZipSlug}.zip`), buffer);
     if (fs.existsSync(publicDir)) {
       fs.writeFileSync(path.join(publicDir, `${childZipSlug}.zip`), buffer);
+      fs.writeFileSync(path.join(childOutDir, `${entry}.zip`), buffer);
     }
     const sizeKb = (buffer.length / 1024).toFixed(1);
-    console.log(`Successfully generated ${childZipSlug}.zip (${sizeKb} KB)`);
+    console.log(`   📦 Child theme ${childZipSlug}.zip created: (${sizeKb} KB)`);
     childBuffers[entry] = { slug: childZipSlug, buffer };
   }
 
   return childBuffers;
 }
 
-async function packageCompleteSuite(themeBuffer, addonsBuffer, companionBuffer, childBuffers = {}) {
+async function packageCompleteSuite(themeBuffer, elementorBuffer, legalAddonsBuffer, companionBuffer, childBuffers = {}) {
   console.log('Packaging complete suite zip...');
   const zip = new JSZip();
 
   zip.file('1-پوسته-قالب-sedrazavi-theme.zip', themeBuffer);
-  if (companionBuffer) {
-    zip.file('2-افزونه-همراه-sedrazavi-companion.zip', companionBuffer);
+  if (elementorBuffer) {
+    zip.file('2-افزونه-المنتور-elementor-addon-suite.zip', elementorBuffer);
   }
-  zip.file('3-افزونه-المنتور-sedrazavi-addons.zip', addonsBuffer);
+  if (legalAddonsBuffer) {
+    zip.file('3-افزونه-تخصصی-حقوقی-sedrazavi-addons.zip', legalAddonsBuffer);
+  }
+  if (companionBuffer) {
+    zip.file('4-افزونه-همراه-sedrazavi-companion.zip', companionBuffer);
+  }
 
   // Add individual child themes
-  const childFolder = zip.folder('4-چایلدتم‌های-تخصصی-اصناف');
+  const childFolder = zip.folder('5-چایلدتم‌های-تخصصی-اصناف');
   for (const [name, data] of Object.entries(childBuffers)) {
     childFolder.file(`${data.slug}.zip`, data.buffer);
   }
 
   const guide = `================================================================================
-پکیج جامع سیستم عامل وردپرس SedRazavi OS v6.0 - راهنمای نصب استاندارد
+🚀 پکیج جامع سیستم عامل وردپرس و المنتور SedRazavi OS v6.0 - راهنمای نصب استاندارد
 ================================================================================
 
-مرحله اول: نصب پوسته اصلی (Parent Theme)
-----------------------------------------
-۱. در پیشخوان وردپرس به مسیر «نمایش > پوسته‌ها > افزودن پوسته تازه > بارگذاری پوسته» بروید.
-۲. فایل «1-پوسته-قالب-sedrazavi-theme.zip» را انتخاب و روی «نصب» کلیک فرمایید.
-۳. پس از پایان نصب، روی «فعال‌سازی» کلیک کنید.
+این بسته شامل معماری کاملاً ماژولار و تفکیک‌شده است:
 
-مرحله دوم: نصب افزونه همراه اصناف (Companion Plugin)
-----------------------------------------
-۱. در پیشخوان به مسیر «افزونه‌ها > افزودن > بارگذاری افزونه» بروید.
-۲. فایل «2-افزونه-همراه-sedrazavi-companion.zip» را انتخاب و فعال فرمایید (شامل ماژول درگاه شتاب، اسپات‌پلیر، سابسکریپشن VIP و نصاب دمو).
+۱. پوسته اصلی (Parent Theme - sedrazavi-theme.zip):
+   - فوق‌العاده سبک (~2MB) و فاقد فایل‌های زائد
+   - معماری مستقل و بی‌نیاز از هرگونه فریم‌ورک غیربومی
 
-مرحله سوم: نصب ویجت‌های المنتور (Elementor Addon Suite)
-----------------------------------------
-۱. فایل «3-افزونه-المنتور-sedrazavi-addons.zip» را از بخش افزونه‌ها نصب و فعال نمایید.
+۲. افزونه مستقل ویجت‌ها و تمپلیت‌های المنتور (elementor-addon-suite.zip):
+   - ۲۴+ ویجت پیشرفته شامل FOMO، اسلایدر قبل و بعد، سوییچر قیمت‌گذاری و...
+   - ۲۳ تمپلیت آماده المنتور در دسته‌های Theme Builder، صفحات کامل و سکشن‌های لندینگ
+   - پنل اختصاصی درون‌ریزی تک‌کلیکی با استایل دارک مدرن
 
-مرحله چهارم (اختیاری): فعال‌سازی چایلدتم متناسب با صنف شما
-----------------------------------------
-از پوشه «4-چایلدتم‌های-تخصصی-اصناف»، چایلدتم مورد نظر را انتخاب و در مسیر «نمایش > پوسته‌ها» نصب کنید:
-- sedrazavi-child-agency-designer.zip (مخصوص آژانس دیجیتال و طراحان)
-- sedrazavi-child-legal-firm.zip (مخصوص دفاتر وکالت و حقوقی)
-- sedrazavi-child-corporate-pro.zip (مخصوص شرکت‌های تجاری و سازمانی)
-- sedrazavi-child-store-modern.zip (مخصوص فروشگاه‌های آنلاین ووکامرس)
-- sedrazavi-child-clinic-medical.zip (مخصوص کلینیک‌های پزشکی و سلامت)
-- sedrazavi-child-education-lms.zip (مخصوص آکادمی و دوره‌های آنلاین)
+۳. افزونه تخصصی حقوقی (sedrazavi-addons.zip):
+   - پست‌تایپ‌های تخصصی پرونده‌های محرمانه، داوری و رزرو وقت
 
-سازگاری و نیازمندی‌ها:
-- وردپرس نسخه ۵.۸ تا ۶.۷+
-- نسخه PHP: 7.4 تا 8.3+
-- سازگار با المنتور و ویرایشگر بلاک گوتنبرگ
+۴. افزونه همراه و موتور ابزارها (sedrazavi-companion.zip):
+   - ابزارهای ارتقا، اسنپ‌شات و توکن‌های طراحی
+
+۵. چایلدتم‌های اصناف تخصصی:
+   - قابل انتخاب و نصب متناسب با نیاز کسب‌وکار
 ================================================================================`;
 
   zip.file('README-راهنمای-نصب.txt', guide);
@@ -243,20 +269,23 @@ async function packageCompleteSuite(themeBuffer, addonsBuffer, companionBuffer, 
     compressionOptions: { level: 9 },
   });
 
-  fs.writeFileSync(outputCompleteZip, buffer);
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-complete-suite.zip'), buffer);
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-complete-ecosystem.zip'), buffer);
   if (fs.existsSync(publicDir)) {
     fs.writeFileSync(path.join(publicDir, 'sedrazavi-complete-suite.zip'), buffer);
+    fs.writeFileSync(path.join(publicDir, 'sedrazavi-complete-ecosystem.zip'), buffer);
   }
   const sizeMb = (buffer.length / (1024 * 1024)).toFixed(2);
-  console.log(`Successfully generated ${outputCompleteZip} (${sizeMb} MB)`);
+  console.log(`🎉 Successfully generated complete suite (${sizeMb} MB)`);
 }
 
 async function main() {
   const themeBuf = await packageTheme();
-  const addonsBuf = await packageAddons();
+  const elementorBuf = await packageElementorSuite();
+  const legalAddonsBuf = await packageLegalAddons();
   const companionBuf = await packageCompanion();
   const childBufs = await packageChildThemes();
-  await packageCompleteSuite(themeBuf, addonsBuf, companionBuf, childBufs);
+  await packageCompleteSuite(themeBuf, elementorBuf, legalAddonsBuf, companionBuf, childBufs);
 }
 
 main().catch(console.error);

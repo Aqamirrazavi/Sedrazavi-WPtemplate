@@ -29,6 +29,10 @@ class Universal_FOMO_Countdown_Widget extends Universal_Widget_Base {
         return ['uas-widgets-core'];
     }
 
+    public function get_script_depends() {
+        return ['uas-widgets-core', 'uas-fomo-countdown-js'];
+    }
+
     protected function register_controls() {
         $this->start_controls_section(
             'section_content',
@@ -138,7 +142,7 @@ class Universal_FOMO_Countdown_Widget extends Universal_Widget_Base {
         $hours = !empty($settings['countdown_hours']) ? (int)$settings['countdown_hours'] : 12;
         $total_seconds = $hours * 3600;
         ?>
-        <div class="uas-fomo-bar" id="uas-fomo-<?php echo esc_attr($widget_id); ?>" style="background: linear-gradient(135deg, #0b132b, #1c2541); border: 1px solid rgba(139,92,246,0.3); border-radius: 16px; padding: 20px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; color: #fff;">
+        <div class="uas-fomo-bar" id="uas-fomo-<?php echo esc_attr($widget_id); ?>" data-widget-id="<?php echo esc_attr($widget_id); ?>" data-duration="<?php echo esc_attr($total_seconds); ?>" style="background: linear-gradient(135deg, #0b132b, #1c2541); border: 1px solid rgba(139,92,246,0.3); border-radius: 16px; padding: 20px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; color: #fff;">
             
             <div style="display:flex; flex-direction:column; gap:6px; max-width: 450px;">
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -180,43 +184,6 @@ class Universal_FOMO_Countdown_Widget extends Universal_Widget_Base {
             </div>
 
         </div>
-
-        <script>
-        (function(){
-            var el = document.getElementById('uas-fomo-<?php echo esc_attr($widget_id); ?>');
-            if (!el) return;
-            var storageKey = 'uas_fomo_end_<?php echo esc_attr($widget_id); ?>';
-            var endTime = localStorage.getItem(storageKey);
-            var duration = <?php echo (int)$total_seconds; ?> * 1000;
-            
-            if (!endTime || isNaN(endTime) || parseInt(endTime, 10) < Date.now()) {
-                endTime = Date.now() + duration;
-                localStorage.setItem(storageKey, endTime);
-            } else {
-                endTime = parseInt(endTime, 10);
-            }
-
-            function update() {
-                var remaining = Math.max(0, endTime - Date.now());
-                var totalSec = Math.floor(remaining / 1000);
-                var h = Math.floor(totalSec / 3600);
-                var m = Math.floor((totalSec % 3600) / 60);
-                var s = totalSec % 60;
-
-                var hEl = el.querySelector('.uas-timer-hours');
-                var mEl = el.querySelector('.uas-timer-minutes');
-                var sEl = el.querySelector('.uas-timer-seconds');
-                if (hEl) hEl.textContent = String(h).padStart(2, '0');
-                if (mEl) mEl.textContent = String(m).padStart(2, '0');
-                if (sEl) sEl.textContent = String(s).padStart(2, '0');
-
-                if (remaining > 0) {
-                    setTimeout(update, 1000);
-                }
-            }
-            update();
-        })();
-        </script>
         <?php
     }
 }

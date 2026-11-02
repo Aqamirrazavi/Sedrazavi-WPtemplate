@@ -1,6 +1,6 @@
 {
-  "summary":  "طرح اجرایی بازبینی‌شده با تمرکز ۱۰۰٪ بر ساخت بانک مستقل و پرمیوم ویجت‌ها و تمپلیت‌های المنتوری قابل نصب روی هر سایت وردپرسی: شامل تمپلیت‌های پیش‌نیاز Theme Builder المنتور پرو (برگه اصلی، برگه نوشته تکی، برگه آرشیو و وبلاگ، هدر، فوتر، ۴۰۴)، بانک ویجت‌های تخصصی ساخت لندینگ‌پیج‌های پرسرعت، ایمپورتر تک‌کلیکی به کتابخانه المنتور (My Templates) و پکیج‌ساز زیپ خودکار، منطبق بر PHP 8.1+، وردپرس 6.7+ و استانداردهای اسناد معماری.",
-  "updatedAt":  "2026-11-02T11:42:53.170791592Z",
+  "summary":  "Comprehensive architectural and security remediation of the SedRazavi WordPress Theme and Universal Elementor Addon Suite (UAS):\n1. Excluded child-themes from sedrazavi-theme.zip, reducing package footprint from ~14MB down to ~3MB.\n2. Synchronized packaging pipelines between package-theme.js and pack-theme-zips.cjs.\n3. Cleaned up non-production staging assets and enforced .gitignore / .distignore exclusions.\n4. Hardened AJAX endpoints in class-plugin.php to strictly require manage_options capability.\n5. Optimized plugin activation to be instant and timeout-free by decoupling automatic database imports into on-demand user actions.\n6. Refactored widget JavaScript (pricing-switcher, fomo-countdown, before-after) into external modular scripts hooked via elementorFrontend.hooks.addAction.\n7. Bumped theme version to 6.0.0 with sovereign multi-niche description.",
+  "updatedAt":  "2026-11-02T13:00:02.962393945Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

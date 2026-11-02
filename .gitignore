@@ -9,3 +9,6 @@ public/*.zip
 .env*
 !.env.example
 !wordpress-theme/app-dist/**
+public/assets/aistudio/
+wordpress-theme/app-dist/aistudio/
+*.php.bak

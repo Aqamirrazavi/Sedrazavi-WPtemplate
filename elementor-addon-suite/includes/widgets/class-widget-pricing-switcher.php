@@ -31,6 +31,10 @@ class Universal_Pricing_Switcher_Widget extends Universal_Widget_Base {
         return ['uas-widgets-core'];
     }
 
+    public function get_script_depends() {
+        return ['uas-widgets-core', 'uas-pricing-switcher-js'];
+    }
+
     protected function register_controls() {
         // --- CONTENT SECTION: GENERAL ---
         $this->start_controls_section(
@@ -181,10 +185,10 @@ class Universal_Pricing_Switcher_Widget extends Universal_Widget_Base {
 
                 <!-- Switcher Toggle -->
                 <div class="uas-switcher-container" style="display:inline-flex; align-items:center; background:#f1f5f9; padding:5px; border-radius:12px; gap:6px;">
-                    <button type="button" class="uas-switch-btn active" data-period="monthly" onclick="uasTogglePeriod('<?php echo esc_attr($widget_id); ?>', 'monthly', this)" style="border:0; padding:8px 18px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; background:#fff; color:#0f172a; box-shadow:0 2px 4px rgba(0,0,0,0.06); transition: all 0.2s;">
+                    <button type="button" class="uas-switch-btn active" data-period="monthly" style="border:0; padding:8px 18px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; background:#fff; color:#0f172a; box-shadow:0 2px 4px rgba(0,0,0,0.06); transition: all 0.2s;">
                         <?php echo esc_html($settings['monthly_label']); ?>
                     </button>
-                    <button type="button" class="uas-switch-btn" data-period="yearly" onclick="uasTogglePeriod('<?php echo esc_attr($widget_id); ?>', 'yearly', this)" style="border:0; padding:8px 18px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; background:transparent; color:#64748b; transition: all 0.2s;">
+                    <button type="button" class="uas-switch-btn" data-period="yearly" style="border:0; padding:8px 18px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; background:transparent; color:#64748b; transition: all 0.2s;">
                         <?php echo esc_html($settings['yearly_label']); ?>
                     </button>
                 </div>
@@ -266,33 +270,7 @@ class Universal_Pricing_Switcher_Widget extends Universal_Widget_Base {
 
             </div>
         </div>
-
-        <script>
-        function uasTogglePeriod(widgetId, period, btn) {
-            var wrapper = document.getElementById('uas-pricing-' + widgetId);
-            if (!wrapper) return;
-            var buttons = wrapper.querySelectorAll('.uas-switch-btn');
-            buttons.forEach(function(b) {
-                b.style.background = 'transparent';
-                b.style.color = '#64748b';
-                b.style.boxShadow = 'none';
-            });
-            btn.style.background = '#fff';
-            btn.style.color = '#0f172a';
-            btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)';
-
-            var monthlies = wrapper.querySelectorAll('.uas-price-monthly');
-            var yearlies = wrapper.querySelectorAll('.uas-price-yearly');
-
-            if (period === 'yearly') {
-                monthlies.forEach(function(el){ el.style.display = 'none'; });
-                yearlies.forEach(function(el){ el.style.display = 'inline-block'; });
-            } else {
-                monthlies.forEach(function(el){ el.style.display = 'inline-block'; });
-                yearlies.forEach(function(el){ el.style.display = 'none'; });
-            }
-        }
-        </script>
         <?php
     }
 }
+

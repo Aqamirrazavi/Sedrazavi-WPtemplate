@@ -29,6 +29,10 @@ class Universal_Before_After_Widget extends Universal_Widget_Base {
         return ['uas-widgets-core'];
     }
 
+    public function get_script_depends() {
+        return ['uas-widgets-core', 'uas-before-after-js'];
+    }
+
     protected function register_controls() {
         $this->start_controls_section(
             'section_content',
@@ -144,28 +148,8 @@ class Universal_Before_After_Widget extends Universal_Widget_Base {
             </div>
 
             <!-- Native Range Input for seamless Dragging / Accessibility -->
-            <input type="range" min="0" max="100" value="<?php echo $pos; ?>" class="uas-ba-range" oninput="uasUpdateBA('<?php echo esc_attr($widget_id); ?>', this.value)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:ew-resize; z-index:5; margin:0;">
+            <input type="range" min="0" max="100" value="<?php echo $pos; ?>" class="uas-ba-range" aria-label="<?php echo esc_attr__('کنترل اسلایدر مقایسه', 'universal-elementor-suite'); ?>" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:ew-resize; z-index:5; margin:0;">
         </div>
-
-        <script>
-        function uasUpdateBA(id, val) {
-            var container = document.getElementById('uas-ba-' + id);
-            if (!container) return;
-            var before = container.querySelector('.uas-ba-before');
-            var handle = container.querySelector('.uas-ba-handle');
-            if (before) before.style.width = val + '%';
-            if (handle) handle.style.left = val + '%';
-            var beforeImg = before ? before.querySelector('img') : null;
-            if (beforeImg) beforeImg.style.width = container.offsetWidth + 'px';
-        }
-        window.addEventListener('resize', function(){
-            var el = document.getElementById('uas-ba-<?php echo esc_attr($widget_id); ?>');
-            if (el) {
-                var range = el.querySelector('.uas-ba-range');
-                if (range) uasUpdateBA('<?php echo esc_attr($widget_id); ?>', range.value);
-            }
-        });
-        </script>
         <?php
     }
 }

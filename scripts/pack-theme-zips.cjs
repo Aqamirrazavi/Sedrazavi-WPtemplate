@@ -2,16 +2,17 @@ const fs = require('fs');
 const path = require('path');
 const JSZip = require('jszip');
 
-function addDirectoryToZip(zip, folderPath, rootFolderName = '') {
+function addDirectoryToZip(zip, folderPath, rootFolderName = '', excludePatterns = []) {
   if (!fs.existsSync(folderPath)) return;
   const items = fs.readdirSync(folderPath);
   for (const item of items) {
-    if (item === '.git' || item === 'node_modules' || item.endsWith('.DS_Store')) continue;
+    if (item === '.git' || item === 'node_modules' || item.endsWith('.DS_Store') || item.endsWith('.map')) continue;
+    if (excludePatterns.some(pat => item === pat || item.startsWith(pat))) continue;
     const fullPath = path.join(folderPath, item);
     const stat = fs.statSync(fullPath);
     const zipPath = rootFolderName ? `${rootFolderName}/${item}` : item;
     if (stat.isDirectory()) {
-      addDirectoryToZip(zip, fullPath, zipPath);
+      addDirectoryToZip(zip, fullPath, zipPath, excludePatterns);
     } else {
       const content = fs.readFileSync(fullPath);
       zip.file(zipPath, content);
@@ -20,6 +21,7 @@ function addDirectoryToZip(zip, folderPath, rootFolderName = '') {
 }
 
 async function buildZips() {
+  const rootDir = path.join(__dirname, '..');
   const publicDir = path.join(__dirname, '../public');
   if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir, { recursive: true });
@@ -31,6 +33,7 @@ async function buildZips() {
   addDirectoryToZip(elementorSuiteZip, path.join(__dirname, '../elementor-addon-suite'), 'elementor-addon-suite');
   const elementorBuffer = await elementorSuiteZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
   fs.writeFileSync(path.join(publicDir, 'elementor-addon-suite.zip'), elementorBuffer);
+  fs.writeFileSync(path.join(rootDir, 'elementor-addon-suite.zip'), elementorBuffer);
   console.log(`✅ elementor-addon-suite.zip created: ${(elementorBuffer.length / 1024 / 1024).toFixed(2)} MB`);
 
   // 2. SedRazavi Addons (Specialized Vertical Plugin for Legal, Booking & Intake)
@@ -39,6 +42,7 @@ async function buildZips() {
   addDirectoryToZip(sedrazaviAddonsZip, path.join(__dirname, '../sedrazavi-addons'), 'sedrazavi-addons');
   const addonsBuffer = await sedrazaviAddonsZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
   fs.writeFileSync(path.join(publicDir, 'sedrazavi-addons.zip'), addonsBuffer);
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-addons.zip'), addonsBuffer);
   console.log(`✅ sedrazavi-addons.zip created: ${(addonsBuffer.length / 1024 / 1024).toFixed(2)} MB`);
 
   // 3. SedRazavi Companion (Shared Utility & One-Click Demo Importer Plugin)
@@ -47,15 +51,18 @@ async function buildZips() {
   addDirectoryToZip(companionZip, path.join(__dirname, '../sedrazavi-companion'), 'sedrazavi-companion');
   const companionBuffer = await companionZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
   fs.writeFileSync(path.join(publicDir, 'sedrazavi-companion.zip'), companionBuffer);
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-companion.zip'), companionBuffer);
   console.log(`✅ sedrazavi-companion.zip created: ${(companionBuffer.length / 1024 / 1024).toFixed(2)} MB`);
 
-  // 4. WordPress Master Theme
-  console.log('Packaging WordPress Master Theme ZIP...');
+  // 4. WordPress Master Theme (Excluding child-themes and staging files to maintain sleek ~2MB size)
+  console.log('Packaging WordPress Master Theme ZIP (Excluding child-themes)...');
   const themeZip = new JSZip();
-  addDirectoryToZip(themeZip, path.join(__dirname, '../wordpress-theme'), 'sedrazavi-theme');
+  addDirectoryToZip(themeZip, path.join(__dirname, '../wordpress-theme'), 'sedrazavi-theme', ['child-themes', 'aistudio']);
   const themeBuffer = await themeZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
   fs.writeFileSync(path.join(publicDir, 'sedrazavi-theme.zip'), themeBuffer);
   fs.writeFileSync(path.join(publicDir, 'sedrazavi-law-firm-wordpress-theme.zip'), themeBuffer);
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-theme.zip'), themeBuffer);
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-law-firm-wordpress-theme.zip'), themeBuffer);
   console.log(`✅ sedrazavi-theme.zip created: ${(themeBuffer.length / 1024 / 1024).toFixed(2)} MB`);
 
   // 5. Individual Child Themes
