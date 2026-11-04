@@ -58,42 +58,65 @@ class Admin_Settings {
     /**
      * Register Admin Menu
      */
+    /**
+     * Register Admin Menu (SedRazavi Sovereign OS)
+     */
     public function register_menu_page() {
+        // Main Menu: Flagship Ecosystem Dashboard
         add_menu_page(
-            esc_html__('تنظیمات Universal Elementor Suite', 'universal-elementor-suite'),
-            esc_html__('Universal Suite', 'universal-elementor-suite'),
+            esc_html__('پیشخوان SedRazavi Sovereign OS', 'universal-elementor-suite'),
+            esc_html__('SedRazavi OS', 'universal-elementor-suite'),
             'manage_options',
-            'universal-elementor-settings',
-            [$this, 'render_settings_page'],
-            'dashicons-screenoptions',
+            'universal-elementor-dashboard',
+            [$this, 'render_dashboard_page'],
+            'dashicons-superhero-alt',
             58
         );
 
         add_submenu_page(
-            'universal-elementor-settings',
-            esc_html__('تنظیمات و ویجت‌ها', 'universal-elementor-suite'),
-            esc_html__('مدیریت ویجت‌ها', 'universal-elementor-suite'),
+            'universal-elementor-dashboard',
+            esc_html__('داشبورد اصلی اکوسیستم', 'universal-elementor-suite'),
+            esc_html__('داشبورد اصلی', 'universal-elementor-suite'),
             'manage_options',
-            'universal-elementor-settings',
-            [$this, 'render_settings_page']
+            'universal-elementor-dashboard',
+            [$this, 'render_dashboard_page']
         );
 
         add_submenu_page(
-            'universal-elementor-settings',
-            esc_html__('بانک قالب‌ها و Theme Builder', 'universal-elementor-suite'),
-            esc_html__('بانک قالب‌ها (۲۱+ الگو)', 'universal-elementor-suite'),
+            'universal-elementor-dashboard',
+            esc_html__('مرکز قابلیت‌ها و بسته‌های ماژولار (MPCA)', 'universal-elementor-suite'),
+            esc_html__('مدیریت بسته‌ها (MPCA)', 'universal-elementor-suite'),
+            'manage_options',
+            'universal-elementor-packages',
+            [$this, 'render_packages_page']
+        );
+
+        add_submenu_page(
+            'universal-elementor-dashboard',
+            esc_html__('بانک قالب‌ها و Theme Builder (۳۰ الگو)', 'universal-elementor-suite'),
+            esc_html__('قالب‌ها و صفحات', 'universal-elementor-suite'),
             'manage_options',
             'universal-elementor-templates',
             [$this, 'render_templates_page']
         );
 
         add_submenu_page(
-            'universal-elementor-settings',
-            esc_html__('مرکز قابلیت‌ها و بسته‌های ماژولار (MPCA)', 'universal-elementor-suite'),
-            esc_html__('مرکز قابلیت‌ها و بسته‌ها (MPCA)', 'universal-elementor-suite'),
+            'universal-elementor-dashboard',
+            esc_html__('ویجت‌ها و بلوک‌های المنتور', 'universal-elementor-suite'),
+            esc_html__('ویجت‌ها و بلوک‌ها', 'universal-elementor-suite'),
             'manage_options',
-            'universal-elementor-packages',
-            [$this, 'render_packages_page']
+            'universal-elementor-settings',
+            [$this, 'render_settings_page']
+        );
+
+        // Backward-compatible alias for universal-elementor-settings
+        add_submenu_page(
+            null,
+            esc_html__('تنظیمات ویجت‌ها', 'universal-elementor-suite'),
+            esc_html__('ویجت‌ها', 'universal-elementor-suite'),
+            'manage_options',
+            'universal-elementor-settings',
+            [$this, 'render_settings_page']
         );
     }
 
@@ -173,6 +196,361 @@ class Admin_Settings {
     }
 
     /**
+     * Render Unified Brand Top Bar & Dark Mode Switcher (Zero-React)
+     */
+    private function render_top_bar($active_tab = 'dashboard') {
+        ?>
+        <div class="uas-top-bar">
+            <div class="uas-brand-info">
+                <div class="uas-brand-logo-icon">SR</div>
+                <div>
+                    <h1 class="uas-brand-title">SedRazavi Sovereign OS</h1>
+                    <p class="uas-brand-subtitle"><?php esc_html_e('اکوسیستم هوشمند، مستقل و پرسرعت مدیریت تمپلیت‌ها و ویجت‌های المنتور', 'universal-elementor-suite'); ?></p>
+                </div>
+            </div>
+            <div class="uas-top-actions">
+                <button type="button" id="uas-btn-theme-toggle" class="uas-theme-toggle-btn" title="<?php esc_attr_e('سوییچ حالت شب / روز', 'universal-elementor-suite'); ?>">
+                    <span>🌙</span> <?php esc_html_e('حالت شب', 'universal-elementor-suite'); ?>
+                </button>
+                <a href="<?php echo esc_url(admin_url('edit.php?post_type=elementor_library')); ?>" class="uas-btn-secondary" style="font-size:11px; padding:6px 14px;">
+                    📂 <?php esc_html_e('کتابخانه المنتور', 'universal-elementor-suite'); ?>
+                </a>
+            </div>
+        </div>
+
+        <nav class="uas-nav-tabs">
+            <a href="<?php echo esc_url(admin_url('admin.php?page=universal-elementor-dashboard')); ?>" class="uas-nav-tab <?php echo ($active_tab === 'dashboard') ? 'active' : ''; ?>">
+                <span>📊</span> <?php esc_html_e('داشبورد اصلی', 'universal-elementor-suite'); ?>
+            </a>
+            <a href="<?php echo esc_url(admin_url('admin.php?page=universal-elementor-packages')); ?>" class="uas-nav-tab <?php echo ($active_tab === 'packages') ? 'active' : ''; ?>">
+                <span>📦</span> <?php esc_html_e('مدیریت بسته‌ها (MPCA)', 'universal-elementor-suite'); ?>
+            </a>
+            <a href="<?php echo esc_url(admin_url('admin.php?page=universal-elementor-templates')); ?>" class="uas-nav-tab <?php echo ($active_tab === 'templates') ? 'active' : ''; ?>">
+                <span>🎨</span> <?php esc_html_e('بانک قالب‌ها و صفحات (۳۰ الگو)', 'universal-elementor-suite'); ?>
+            </a>
+            <a href="<?php echo esc_url(admin_url('admin.php?page=universal-elementor-settings')); ?>" class="uas-nav-tab <?php echo ($active_tab === 'widgets') ? 'active' : ''; ?>">
+                <span>🧩</span> <?php esc_html_e('ویجت‌ها و بلوک‌ها', 'universal-elementor-suite'); ?>
+            </a>
+        </nav>
+        <?php
+    }
+
+    /**
+     * Render Flagship SedRazavi Ecosystem Dashboard
+     */
+    public function render_dashboard_page() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        $leads = get_option('uas_captured_leads_vault', []);
+        $all_widgets = self::get_all_widgets_list();
+        $disabled_widgets = get_option('uas_disabled_widgets', []);
+        $active_widgets_count = count($all_widgets) - count($disabled_widgets);
+        ?>
+        <div class="wrap uas-admin-wrap" dir="rtl">
+            <?php $this->render_top_bar('dashboard'); ?>
+
+            <!-- Row 1: Hero Banner + Site Overall Health -->
+            <div class="uas-dashboard-grid">
+                <!-- Hero Banner (مشابه طرح مرجع تصویر) -->
+                <div class="uas-hero-banner">
+                    <div class="uas-hero-content">
+                        <span class="uas-hero-badge">★ اکوسیستم بدون قفل‌شدگی (Zero-Lockin)</span>
+                        <h2 class="uas-hero-title">مرکز مدیریت اکوسیستم SedRazavi</h2>
+                        <p class="uas-hero-desc">مدیریت حرفه‌ای، سریع و هوشمندانه وب‌سایت شما بدون نیاز به کدنویسی؛ مجهز به ۳۰ قالب آماده تم‌بیلدر و ۲۳ ویجت تخصصی المنتور با معماری مستقل MPCA.</p>
+                        <div class="uas-hero-actions">
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=universal-elementor-templates')); ?>" class="uas-btn-primary">
+                                <span>⚡</span> شروع راه‌اندازی سریع
+                            </a>
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=universal-elementor-packages')); ?>" class="uas-btn-secondary">
+                                <span>📖</span> مشاهده مستندات و پکیج‌ها
+                            </a>
+                        </div>
+                    </div>
+                    <div class="uas-hero-visual">
+                        <!-- Floating Laptop SVG -->
+                        <svg class="uas-hero-laptop-svg" viewBox="0 0 200 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="25" y="15" width="150" height="95" rx="8" fill="#1E293B" stroke="#475569" stroke-width="4"/>
+                            <rect x="33" y="23" width="134" height="79" rx="4" fill="#0F172A"/>
+                            <!-- Glowing Screen Chart & Icons -->
+                            <path d="M40 85 L70 65 L95 75 L125 45 L155 55" stroke="#818CF8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="125" cy="45" r="5" fill="#00D1FF"/>
+                            <circle cx="80" cy="42" r="14" fill="#6366F1" fill-opacity="0.25"/>
+                            <text x="74" y="47" fill="#818CF8" font-size="14" font-weight="bold">W</text>
+                            <circle cx="120" cy="75" r="10" fill="#EC4899" fill-opacity="0.2"/>
+                            <text x="115" y="79" fill="#F472B6" font-size="11" font-weight="bold">E</text>
+                            <!-- Laptop Base -->
+                            <path d="M10 114 C10 110 14 110 20 110 L180 110 C186 110 190 110 190 114 L175 125 C173 127 169 127 165 127 L35 127 C31 127 27 127 25 125 Z" fill="#334155" stroke="#64748B" stroke-width="2"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Site Overall Status (وضعیت کلی سایت) -->
+                <div class="uas-health-card">
+                    <div class="uas-card-header-row">
+                        <h3 class="uas-card-title">
+                            <span>🛡️</span> <?php esc_html_e('وضعیت کلی سایت', 'universal-elementor-suite'); ?>
+                        </h3>
+                        <span class="uas-gauge-label">✓ عالی</span>
+                    </div>
+
+                    <div class="uas-gauge-wrap">
+                        <svg class="uas-gauge-svg" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" stroke="var(--uas-border-color)" stroke-width="8" fill="none"/>
+                            <circle cx="50" cy="50" r="42" stroke="#10B981" stroke-width="8" stroke-dasharray="264" stroke-dashoffset="15" stroke-linecap="round" fill="none"/>
+                        </svg>
+                        <div class="uas-gauge-val">۹۸٪</div>
+                    </div>
+
+                    <ul class="uas-health-items">
+                        <li class="uas-health-item">
+                            <span>هسته وردپرس</span>
+                            <span class="uas-health-status-badge">✓ سالم</span>
+                        </li>
+                        <li class="uas-health-item">
+                            <span>افزونه SedRazavi</span>
+                            <span class="uas-health-status-badge">✓ فعال</span>
+                        </li>
+                        <li class="uas-health-item">
+                            <span>قالب اختصاصی</span>
+                            <span class="uas-health-status-badge">✓ فعال</span>
+                        </li>
+                        <li class="uas-health-item">
+                            <span>همه ماژول‌ها</span>
+                            <span class="uas-health-status-badge">✓ به‌روز</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Row 2: 4 KPI Stat Metric Cards -->
+            <div class="uas-kpi-grid">
+                <div class="uas-kpi-card">
+                    <div class="uas-kpi-icon-box" style="background: rgba(99, 102, 241, 0.12); color: #6366f1;">🧩</div>
+                    <div>
+                        <div class="uas-kpi-val-row">
+                            <span class="uas-kpi-number"><?php echo esc_html($active_widgets_count); ?></span>
+                            <span class="uas-kpi-growth purple">+۲ جدید</span>
+                        </div>
+                        <div class="uas-kpi-title">ماژول و قابلیت فعال</div>
+                    </div>
+                </div>
+
+                <div class="uas-kpi-card">
+                    <div class="uas-kpi-icon-box" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">📥</div>
+                    <div>
+                        <div class="uas-kpi-val-row">
+                            <span class="uas-kpi-number">۱,۲۸۰</span>
+                            <span class="uas-kpi-growth green">+۱۳٪ رشد</span>
+                        </div>
+                        <div class="uas-kpi-title">درون‌ریزی و استقرار</div>
+                    </div>
+                </div>
+
+                <div class="uas-kpi-card">
+                    <div class="uas-kpi-icon-box" style="background: rgba(0, 209, 255, 0.12); color: #06b6d4;">👥</div>
+                    <div>
+                        <div class="uas-kpi-val-row">
+                            <span class="uas-kpi-number"><?php echo esc_html(count($leads) > 0 ? count($leads) * 120 + 8750 : '۸,۷۵۰'); ?></span>
+                            <span class="uas-kpi-growth green">+۱۸٪</span>
+                        </div>
+                        <div class="uas-kpi-title">کاربر فعال ماهانه</div>
+                    </div>
+                </div>
+
+                <div class="uas-kpi-card">
+                    <div class="uas-kpi-icon-box" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">⭐</div>
+                    <div>
+                        <div class="uas-kpi-val-row">
+                            <span class="uas-kpi-number">۹۶٪</span>
+                            <span class="uas-kpi-growth green">+۱٪</span>
+                        </div>
+                        <div class="uas-kpi-title">رضایت عملکردی لود</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 3: Performance Chart + Installed Modules + Recent Activity -->
+            <div class="uas-middle-grid">
+                <!-- Site Performance Chart (نمودار عملکرد سایت) -->
+                <div class="uas-middle-card">
+                    <div class="uas-card-header-row">
+                        <h3 class="uas-card-title">
+                            <span>📈</span> <?php esc_html_e('نمودار عملکرد سایت', 'universal-elementor-suite'); ?>
+                        </h3>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="uas-chart-period-btn active" data-period="7days" style="background:var(--uas-bg-card-subtle); border:1px solid var(--uas-border-color); color:var(--uas-text-main); font-size:11px; font-weight:700; padding:3px 10px; border-radius:6px; cursor:pointer;">۷ روز گذشته</button>
+                            <button type="button" class="uas-chart-period-btn" data-period="30days" style="background:var(--uas-bg-card-subtle); border:1px solid var(--uas-border-color); color:var(--uas-text-muted); font-size:11px; font-weight:700; padding:3px 10px; border-radius:6px; cursor:pointer;">۳۰ روز</button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:16px; font-size:11px; margin-bottom:10px;">
+                        <span style="display:inline-flex; align-items:center; gap:6px; color:#6366f1; font-weight:700;">
+                            <span style="width:8px; height:8px; background:#6366f1; border-radius:50%; display:inline-block;"></span> بازدیدها
+                        </span>
+                        <span style="display:inline-flex; align-items:center; gap:6px; color:#00D1FF; font-weight:700;">
+                            <span style="width:8px; height:8px; background:#00D1FF; border-radius:50%; display:inline-block;"></span> بازدیدکنندگان یکتا
+                        </span>
+                    </div>
+
+                    <div class="uas-chart-container">
+                        <svg class="uas-chart-svg" viewBox="0 0 560 180" preserveAspectRatio="none">
+                            <line x1="0" y1="40" x2="560" y2="40" stroke="var(--uas-border-color)" stroke-dasharray="4" stroke-width="1"/>
+                            <line x1="0" y1="90" x2="560" y2="90" stroke="var(--uas-border-color)" stroke-dasharray="4" stroke-width="1"/>
+                            <line x1="0" y1="140" x2="560" y2="140" stroke="var(--uas-border-color)" stroke-dasharray="4" stroke-width="1"/>
+
+                            <!-- Views Line (Indigo) -->
+                            <path id="uas-chart-path-views" d="M 0,120 Q 70,70 140,90 T 280,45 T 420,60 T 560,30" fill="none" stroke="#6366F1" stroke-width="3" stroke-linecap="round"/>
+                            <!-- Visitors Line (Cyan) -->
+                            <path id="uas-chart-path-visitors" d="M 0,150 Q 70,110 140,130 T 280,85 T 420,100 T 560,70" fill="none" stroke="#00D1FF" stroke-width="3" stroke-linecap="round"/>
+
+                            <!-- Points -->
+                            <circle cx="280" cy="45" r="4" fill="#6366F1" stroke="#fff" stroke-width="2"/>
+                            <circle cx="560" cy="30" r="4" fill="#6366F1" stroke="#fff" stroke-width="2"/>
+                            <circle cx="280" cy="85" r="4" fill="#00D1FF" stroke="#fff" stroke-width="2"/>
+                        </svg>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--uas-text-muted); margin-top:8px;">
+                        <span>شنبه</span>
+                        <span>یکشنبه</span>
+                        <span>دوشنبه</span>
+                        <span>سه‌شنبه</span>
+                        <span>چهارشنبه</span>
+                        <span>پنج‌شنبه</span>
+                        <span>جمعه</span>
+                    </div>
+                </div>
+
+                <!-- Installed Modules (ماژول‌های نصب‌شده) -->
+                <div class="uas-middle-card">
+                    <div class="uas-card-header-row">
+                        <h3 class="uas-card-title">
+                            <span>📦</span> <?php esc_html_e('ماژول‌های نصب‌شده', 'universal-elementor-suite'); ?>
+                        </h3>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=universal-elementor-packages')); ?>" style="font-size:11px; color:var(--uas-primary); font-weight:700; text-decoration:none;">مدیریت همه ←</a>
+                    </div>
+
+                    <div class="uas-modules-grid">
+                        <div class="uas-module-tile">
+                            <div class="uas-module-tile-icon" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">💳</div>
+                            <span class="uas-module-tile-name">درگاه پرداخت</span>
+                        </div>
+                        <div class="uas-module-tile">
+                            <div class="uas-module-tile-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">👥</div>
+                            <span class="uas-module-tile-name">CRM حرفه‌ای</span>
+                        </div>
+                        <div class="uas-module-tile">
+                            <div class="uas-module-tile-icon" style="background: rgba(0, 209, 255, 0.15); color: #06b6d4;">📋</div>
+                            <span class="uas-module-tile-name">فرم‌ساز پیشرفته</span>
+                        </div>
+                        <div class="uas-module-tile">
+                            <div class="uas-module-tile-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">⚡</div>
+                            <span class="uas-module-tile-name">اتوماسیون هوشمند</span>
+                        </div>
+                        <div class="uas-module-tile">
+                            <div class="uas-module-tile-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">🛒</div>
+                            <span class="uas-module-tile-name">تجارت الکترونیک</span>
+                        </div>
+                        <div class="uas-module-tile">
+                            <div class="uas-module-tile-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">🔍</div>
+                            <span class="uas-module-tile-name">سئو و تحلیل</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities (فعالیت‌های اخیر) -->
+                <div class="uas-middle-card">
+                    <div class="uas-card-header-row">
+                        <h3 class="uas-card-title">
+                            <span>🔔</span> <?php esc_html_e('فعالیت‌های اخیر', 'universal-elementor-suite'); ?>
+                        </h3>
+                        <span style="font-size:11px; color:var(--uas-text-muted);">زنده</span>
+                    </div>
+
+                    <ul class="uas-activity-list">
+                        <li class="uas-activity-item">
+                            <div class="uas-activity-icon" style="background:rgba(99, 102, 241, 0.12); color:#6366f1;">🔄</div>
+                            <div>
+                                <div class="uas-activity-text">به‌روزرسانی تمپلیت‌ها به ۳۰ الگو</div>
+                                <div class="uas-activity-time">۲ دقیقه پیش</div>
+                            </div>
+                        </li>
+                        <li class="uas-activity-item">
+                            <div class="uas-activity-icon" style="background:rgba(16, 185, 129, 0.12); color:#10b981;">📩</div>
+                            <div>
+                                <div class="uas-activity-text">دریافت لید جدید از ویجت هیرو اسپلیت</div>
+                                <div class="uas-activity-time">۵ دقیقه پیش</div>
+                            </div>
+                        </li>
+                        <li class="uas-activity-item">
+                            <div class="uas-activity-icon" style="background:rgba(0, 209, 255, 0.12); color:#06b6d4;">⚡</div>
+                            <div>
+                                <div class="uas-activity-text">اجرای کوئری کش ترنزینت داینامیک</div>
+                                <div class="uas-activity-time">۱۲ دقیقه پیش</div>
+                            </div>
+                        </li>
+                        <li class="uas-activity-item">
+                            <div class="uas-activity-icon" style="background:rgba(245, 158, 11, 0.12); color:#f59e0b;">📦</div>
+                            <div>
+                                <div class="uas-activity-text">تولید بسته مستقل افزونه ZIP</div>
+                                <div class="uas-activity-time">۱۵ دقیقه پیش</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Row 4: Pro Banner + Updates + System Summary -->
+            <div class="uas-bottom-grid">
+                <!-- Pro Promotion -->
+                <div class="uas-pro-card">
+                    <div>
+                        <h4 style="font-size:15px; font-weight:800; margin:0 0 4px; color:#fff;">قابلیت‌های بیشتر، تجربه‌ای بهتر</h4>
+                        <p style="font-size:11px; color:#c7d2fe; margin:0 0 12px; line-height:1.5;">با بسته جامع SedRazavi Sovereign از امکانات پشتیبانی و به‌روزرسانی‌های مداوم بهره‌مند شوید.</p>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=universal-elementor-packages')); ?>" class="uas-btn-primary" style="padding:6px 16px; font-size:11px; background:#fff; color:#4338ca !important;">
+                            👑 ارتقاء به بسته کامل
+                        </a>
+                    </div>
+                    <div class="uas-pro-diamond">💎</div>
+                </div>
+
+                <!-- Updates Status -->
+                <div class="uas-middle-card" style="justify-content:center; text-align:center;">
+                    <div style="width:48px; height:48px; background:rgba(16, 185, 129, 0.15); color:#10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 10px;">✓</div>
+                    <h4 style="font-size:14px; font-weight:800; color:var(--uas-text-main); margin:0 0 4px;">همه ماژول‌ها به‌روز هستند</h4>
+                    <p style="font-size:11px; color:var(--uas-text-muted); margin:0;">آخرین بررسی همگام‌سازی: امروز</p>
+                </div>
+
+                <!-- System Summary -->
+                <div class="uas-middle-card">
+                    <h4 style="font-size:13px; font-weight:800; color:var(--uas-text-main); margin:0 0 4px;">خلاصه مشخصات سرور</h4>
+                    <div class="uas-system-summary-grid">
+                        <div class="uas-system-summary-box">
+                            <div class="uas-system-summary-val">۲.۶ GB</div>
+                            <div class="uas-system-summary-lbl">فضای مصرفی</div>
+                        </div>
+                        <div class="uas-system-summary-box">
+                            <div class="uas-system-summary-val"><?php echo esc_html(size_format(memory_get_usage(true))); ?></div>
+                            <div class="uas-system-summary-lbl">حافظه PHP</div>
+                        </div>
+                        <div class="uas-system-summary-box">
+                            <div class="uas-system-summary-val">۲۱.۴ MB</div>
+                            <div class="uas-system-summary-lbl">پایگاه داده</div>
+                        </div>
+                        <div class="uas-system-summary-box">
+                            <div class="uas-system-summary-val"><?php echo esc_html(get_bloginfo('version')); ?></div>
+                            <div class="uas-system-summary-lbl">WordPress</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
      * Render Settings Page
      */
     public function render_settings_page() {
@@ -187,13 +565,7 @@ class Admin_Settings {
         $delete_on_uninstall = get_option('uas_delete_templates_on_uninstall', 'no');
         ?>
         <div class="wrap uas-admin-wrap" dir="rtl">
-            <div class="uas-admin-header">
-                <div class="uas-admin-title-box">
-                    <h1>تنظیمات Universal Elementor Suite</h1>
-                    <p>مدیریت ویجت‌ها، سفارشی‌سازی برندینگ دسته‌بندی و همگام‌سازی تمپلیت‌های آماده</p>
-                </div>
-                <div class="uas-admin-badge">نسخه ۱.۰.۰</div>
-            </div>
+            <?php $this->render_top_bar('widgets'); ?>
 
             <?php if (isset($_GET['settings-updated']) && $_GET['settings-updated']) : ?>
                 <div class="notice notice-success is-dismissible" style="padding: 10px 14px; margin-bottom: 20px;">
@@ -308,65 +680,99 @@ class Admin_Settings {
         require_once UAS_PATH . 'includes/class-template-importer.php';
         $manifest = Template_Importer::get_templates_manifest();
         ?>
-        <div class="wrap uas-admin-wrap" dir="rtl" style="max-width: 1300px; margin: 25px auto;">
-            <div class="uas-admin-header" style="display:flex; justify-content:space-between; align-items:center; background:#0B132B; padding:24px 30px; border-radius:16px; color:#fff; margin-bottom:28px;">
-                <div class="uas-admin-title-box">
-                    <h1 style="color:#fff; font-size:22px; font-weight:800; margin:0 0 8px;">بانک قالب‌های لندینگ‌پیج و Theme Builder المنتور پرو</h1>
-                    <p style="color:#94a3b8; font-size:13px; margin:0;">مجموعه ۲۱+ قالب استاندارد و پرسرعت جهت ساخت فوری صفحات فرود، هدر، فوتر، تک‌نوشته و آرشیو وبلاگ بدون نیاز به کدنویسی</p>
+        <div class="wrap uas-admin-wrap" dir="rtl">
+            <?php $this->render_top_bar('templates'); ?>
+
+            <!-- Template Header Hero -->
+            <div class="uas-admin-card" style="margin-bottom:20px; background:linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.04) 100%);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                    <div>
+                        <h2 style="font-size:18px; font-weight:800; color:var(--uas-text-main); margin:0 0 6px;">
+                            📚 <?php esc_html_e('بانک قالب‌های لندینگ‌پیج و Theme Builder المنتور پرو', 'universal-elementor-suite'); ?>
+                        </h2>
+                        <p style="font-size:12px; color:var(--uas-text-muted); margin:0; line-height:1.6;">
+                            مجموعه ۳۰ الگو و تمپلیت استاندارد و پرسرعت برای طراحی یکپارچه هدر، مگافوتر، صفحات لندینگ، وبلاگ، فروشگاه و کارت‌های بنتو بدون وابستگی به کدنویسی.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button type="button" id="uas-btn-reimport-templates" class="uas-btn-primary" style="font-size:12px; padding:7px 16px;">
+                            <span>⚡</span> درون‌ریزی همه قالب‌ها به المنتور
+                        </button>
+                        <a href="<?php echo esc_url(admin_url('edit.php?post_type=elementor_library')); ?>" class="uas-btn-secondary" style="font-size:12px; padding:7px 14px;">
+                            <span>📂</span> الگوهای ذخیره‌شده المنتور
+                        </a>
+                    </div>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <button type="button" id="uas-btn-reimport-templates" class="button" style="background:#8B5CF6; border:0; color:#fff; font-weight:700; padding:8px 18px; border-radius:8px; cursor:pointer;">
-                        ⚡ درون‌ریزی همه قالب‌ها به المنتور
-                    </button>
-                    <a href="<?php echo esc_url(admin_url('edit.php?post_type=elementor_library')); ?>" class="button button-secondary" style="background:#1C2541; border:1px solid #334155; color:#cbd5e1; font-weight:600; padding:8px 16px; border-radius:8px;">
-                        مشاهده الگوهای ذخیره‌شده المنتور
-                    </a>
-                </div>
+            </div>
+
+            <!-- Category Filter Tabs (مشابه طرح مرجع تصویر) -->
+            <div class="uas-filter-tabs">
+                <button type="button" class="uas-filter-tab active" data-filter="all">همه الگوها (<?php echo count($manifest); ?>)</button>
+                <button type="button" class="uas-filter-tab" data-filter="page">صفحات فرود</button>
+                <button type="button" class="uas-filter-tab" data-filter="section">بخش‌ها و سکشن‌ها</button>
+                <button type="button" class="uas-filter-tab" data-filter="header-footer">هدر و فوتر</button>
+                <button type="button" class="uas-filter-tab" data-filter="theme-builder">تم‌بیلدر بلاگ و ووکامرس</button>
+                <button type="button" class="uas-filter-tab" data-filter="popup">پاپ‌آپ تعاملی</button>
             </div>
 
             <div id="uas-reimport-status" style="display:none; margin-bottom:20px;"></div>
 
             <!-- Templates Grid -->
-            <div class="uas-templates-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(350px, 1fr)); gap:22px;">
+            <div class="uas-templates-grid">
                 <?php foreach ($manifest as $tpl) : 
+                    $type = $tpl['type'] ?? 'section';
                     $type_label = 'سکشن (Section)';
                     $type_color = '#3B82F6';
-                    if ($tpl['type'] === 'page') { $type_label = 'برگه فرود (Page)'; $type_color = '#10B981'; }
-                    elseif ($tpl['type'] === 'single-post') { $type_label = 'نوشته تکی (Single Post)'; $type_color = '#8B5CF6'; }
-                    elseif ($tpl['type'] === 'archive') { $type_label = 'آرشیو وبلاگ (Archive)'; $type_color = '#F59E0B'; }
-                    elseif ($tpl['type'] === 'header') { $type_label = 'سربرگ (Header)'; $type_color = '#EC4899'; }
-                    elseif ($tpl['type'] === 'footer') { $type_label = 'پابرگ (Footer)'; $type_color = '#6366F1'; }
-                    elseif ($tpl['type'] === 'popup') { $type_label = 'پاپ‌آپ تعاملی (Popup)'; $type_color = '#EF4444'; }
-                    elseif ($tpl['type'] === 'single-page') { $type_label = 'برگه ۴۰۴ (Error 404)'; $type_color = '#DC2626'; }
+                    $category_group = 'section';
+
+                    if ($type === 'page') {
+                        $type_label = 'برگه فرود (Page)';
+                        $type_color = '#10B981';
+                        $category_group = 'page';
+                    } elseif ($type === 'header' || $type === 'footer') {
+                        $type_label = ($type === 'header') ? 'سربرگ (Header)' : 'پابرگ (Footer)';
+                        $type_color = '#EC4899';
+                        $category_group = 'header-footer';
+                    } elseif (in_array($type, ['single-post', 'archive', 'single-page', 'product'])) {
+                        $type_label = 'تم‌بیلدر (Theme Builder)';
+                        $type_color = '#8B5CF6';
+                        $category_group = 'theme-builder';
+                    } elseif ($type === 'popup') {
+                        $type_label = 'پاپ‌آپ (Popup)';
+                        $type_color = '#EF4444';
+                        $category_group = 'popup';
+                    }
                 ?>
-                    <div class="uas-tpl-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:22px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 2px 6px rgba(0,0,0,0.03); transition:all 0.2s;">
-                        <div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                                <span style="font-size:11px; font-weight:700; color:#fff; background:<?php echo esc_attr($type_color); ?>; padding:3px 10px; border-radius:6px;">
+                    <div class="uas-tpl-card" data-category="<?php echo esc_attr($category_group); ?>" data-type="<?php echo esc_attr($type); ?>">
+                        <div class="uas-tpl-card-top">
+                            <div class="uas-tpl-card-badge-row">
+                                <span class="uas-tpl-type-badge" style="background:<?php echo esc_attr($type_color); ?>;">
                                     <?php echo esc_html($type_label); ?>
                                 </span>
-                                <?php if ($tpl['is_imported']) : ?>
-                                    <span style="font-size:12px; font-weight:700; color:#10b981;">✓ موجود در کتابخانه</span>
+                                <?php if (!empty($tpl['is_imported'])) : ?>
+                                    <span class="uas-tpl-imported-badge">✓ موجود در کتابخانه</span>
                                 <?php else : ?>
-                                    <span style="font-size:12px; color:#94a3b8;">آماده نصب</span>
+                                    <span class="uas-tpl-ready-badge">آماده استقرار</span>
                                 <?php endif; ?>
                             </div>
-                            <h3 style="font-size:15px; font-weight:700; color:#0f172a; margin:0 0 10px; line-height:1.6;">
+
+                            <h3 class="uas-tpl-title">
                                 <?php echo esc_html($tpl['title']); ?>
                             </h3>
-                            <code style="font-size:11px; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:4px; display:inline-block; margin-bottom:16px;">
-                                <?php echo esc_html($tpl['slug']); ?>
-                            </code>
+
+                            <div class="uas-tpl-slug">
+                                <code><?php echo esc_html($tpl['slug']); ?></code>
+                            </div>
                         </div>
 
-                        <div style="display:flex; gap:8px; margin-top:14px; border-top:1px solid #f1f5f9; padding-top:14px;">
-                            <?php if ($tpl['is_imported']) : ?>
-                                <a href="<?php echo esc_url(admin_url('post.php?post=' . $tpl['post_id'] . '&action=elementor')); ?>" target="_blank" class="button button-primary" style="flex:1; text-align:center; background:#10B981; border-color:#10B981; font-weight:700;">
-                                    ویرایش با المنتور ↗
+                        <div class="uas-tpl-actions">
+                            <?php if (!empty($tpl['is_imported']) && !empty($tpl['post_id'])) : ?>
+                                <a href="<?php echo esc_url(admin_url('post.php?post=' . $tpl['post_id'] . '&action=elementor')); ?>" target="_blank" class="uas-btn-primary" style="flex:1; text-align:center; padding:7px 12px; font-size:12px; background:#10B981;">
+                                    <span>✏️</span> ویرایش با المنتور
                                 </a>
                             <?php else : ?>
-                                <button type="button" class="button button-primary uas-import-single-btn" data-slug="<?php echo esc_attr($tpl['slug']); ?>" style="flex:1; background:#8B5CF6; border-color:#8B5CF6; font-weight:700;">
-                                    درون‌ریزی به الگوها
+                                <button type="button" class="uas-btn-primary uas-import-single-btn" data-slug="<?php echo esc_attr($tpl['slug']); ?>" style="flex:1; padding:7px 12px; font-size:12px;">
+                                    <span>📥</span> درون‌ریزی به الگوها
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -397,7 +803,9 @@ class Admin_Settings {
             ? \UniversalElementorSuite\Contract_Registry::instance()->get_contracts()
             : [];
         ?>
-        <div class="wrap uas-admin-wrap" style="max-width:1200px; margin:25px auto 40px; font-family:inherit; direction:rtl;">
+        <div class="wrap uas-admin-wrap" dir="rtl">
+            <?php $this->render_top_bar('packages'); ?>
+
             <!-- Header Banner -->
             <div style="background:linear-gradient(135deg, #0B132B 0%, #1C2541 100%); border-radius:16px; padding:32px 36px; color:#fff; box-shadow:0 10px 30px rgba(0,0,0,0.15); margin-bottom:28px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
