@@ -122,3 +122,20 @@ Adopt the 6-Layer Modular Portable Capability Architecture (MPCA):
 - **Positive:** Features can be extracted as standalone `.zip` plugins, installed on third-party WordPress sites, and operated independently.
 - **Trade-off:** Each capability must provide its own contract schemas, dependency declarations, and self-contained asset definitions.
 
+---
+
+## ADR 008: Standalone Package Exporter, Transient Dynamic Query Engine & Observability Hub
+
+### Context
+Clients need rapid deployment of landing pages on arbitrary WordPress installations without theme lock-in. Querying custom post types in Elementor widgets can cause high database load without deterministic caching, and contact/lead forms require privacy-preserving analytics without external SaaS trackers.
+
+### Decision
+1. **Zero-Lockin ZIP Exporter:** Implement `export_standalone_package()` in `Package_Manager` which dynamically generates standard WordPress plugin headers (`add_action('elementor/widgets/register', ...)`), bundles self-contained JS/CSS, and serves direct one-click downloads with admin nonce verification.
+2. **Deterministic Transient Query Engine:** Implement `Dynamic_Query_Engine` using MD5-serialized transient keys (`uas_query_{hash}`) with automatic cache invalidation on `save_post` and `deleted_post`. Enforce strict privacy checks mapping confidential dossiers (`case`) to public precedents (`case_study`) for unauthorized users.
+3. **Observability Hub:** Record lead submissions locally with `wp_privacy_anonymize_ip()` to comply with GDPR/privacy mandates, while providing an admin diagnostics dashboard for memory, query cache status, and audit logs.
+
+### Consequences
+- **Positive:** Any widget or capability can be exported as a standalone WordPress plugin in 1 click; landing page queries achieve sub-50ms execution times via transients; zero third-party telemetry.
+- **Trade-off:** Server must support `ZipArchive` (or directory fallbacks) for real-time archive generation.
+
+
