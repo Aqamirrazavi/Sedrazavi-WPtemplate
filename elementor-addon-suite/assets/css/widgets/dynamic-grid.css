@@ -1,0 +1,149 @@
+/**
+ * Universal Dynamic Content Grid Styles
+ */
+.uas-dynamic-grid-container {
+  width: 100%;
+  margin: 30px 0;
+  box-sizing: border-box;
+}
+
+.uas-dyn-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--uas-grid-cols, 3), minmax(0, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .uas-dyn-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .uas-dyn-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.uas-dyn-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.uas-dyn-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.07);
+}
+
+.uas-dyn-card-thumb-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.uas-dyn-card-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.uas-dyn-card:hover .uas-dyn-card-img {
+  transform: scale(1.05);
+}
+
+.uas-dyn-cat-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.uas-dyn-card-body {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.uas-dyn-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+
+.uas-dyn-card-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.uas-dyn-card-title a {
+  color: #0f172a;
+  text-decoration: none !important;
+  transition: color 0.2s;
+}
+
+.uas-dyn-card-title a:hover {
+  color: #4f46e5;
+}
+
+.uas-dyn-card-desc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+
+.uas-dyn-card-footer {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 14px;
+  margin-top: auto;
+}
+
+.uas-dyn-readmore-btn {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4f46e5;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s;
+}
+
+.uas-dyn-readmore-btn:hover {
+  transform: translateX(-4px);
+}
+
+.uas-dyn-empty-notice {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}

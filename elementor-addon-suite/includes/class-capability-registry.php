@@ -63,6 +63,26 @@ class Capability_Registry {
             ],
         ]);
 
+        // 9. Intelligent Dynamic Query Grid & Transient Caching
+        $this->register_capability('uas_dynamic_grid', [
+            'id'           => 'uas_dynamic_grid',
+            'name'         => 'گرید داینامیک کوئری هوشمند و کش ترنزینت (Dynamic Grid)',
+            'description'  => 'گرید کارت‌های داینامیک با کوئری پست‌تایپ‌های وردپرس، امنیت دسترسی و کشینگ ترنزینت قطعی.',
+            'category'     => 'data_integration',
+            'package_type' => 'ui',
+            'version'      => '6.0.0',
+            'author'       => 'Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)',
+            'widgets'      => ['uas_dynamic_grid'],
+            'blocks'       => ['sedrazavi/dynamic-grid'],
+            'shortcodes'   => ['uas_dynamic_grid'],
+            'status'       => 'active',
+            'portable'     => true,
+            'dependencies' => [
+                'php'       => '>=7.4',
+                'elementor' => '>=3.10',
+            ],
+        ]);
+
         // 2. Psychological FOMO Urgency Countdown
         $this->register_capability('uas_fomo_countdown', [
             'id'           => 'uas_fomo_countdown',
@@ -135,6 +155,66 @@ class Capability_Registry {
             'widgets'      => ['uas_floating_cta'],
             'blocks'       => ['sedrazavi/floating-cta'],
             'shortcodes'   => ['uas_floating_cta'],
+            'status'       => 'active',
+            'portable'     => true,
+            'dependencies' => [
+                'php'       => '>=7.4',
+                'elementor' => '>=3.10',
+            ],
+        ]);
+
+        // 6. Pricing Comparison Matrix
+        $this->register_capability('uas_pricing_matrix', [
+            'id'           => 'uas_pricing_matrix',
+            'name'         => 'جدول ماتریس مقایسه ویژگی‌ها و پلن‌ها',
+            'description'  => 'جدول مقایسه چندستونه با ردیف‌های دسته‌بندی، آیکون‌های تیک و ضربدر، و تولتیپ‌های توضیحی.',
+            'category'     => 'conversion_tools',
+            'package_type' => 'ui',
+            'version'      => '6.0.0',
+            'author'       => 'Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)',
+            'widgets'      => ['uas_pricing_matrix'],
+            'blocks'       => ['sedrazavi/pricing-matrix'],
+            'shortcodes'   => ['uas_pricing_matrix'],
+            'status'       => 'active',
+            'portable'     => true,
+            'dependencies' => [
+                'php'       => '>=7.4',
+                'elementor' => '>=3.10',
+            ],
+        ]);
+
+        // 7. Split-Screen Hero Conversion
+        $this->register_capability('uas_hero_split', [
+            'id'           => 'uas_hero_split',
+            'name'         => 'هیرو بنر اسپلیت فرود و جذب لید (Split Hero)',
+            'description'  => 'طراحی هیرو دوطرفه مدرن با فرم جذب لید درون‌برنامه‌ای، پالس متحرک و نشان‌های اعتماد.',
+            'category'     => 'landing_elements',
+            'package_type' => 'ui',
+            'version'      => '6.0.0',
+            'author'       => 'Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)',
+            'widgets'      => ['uas_hero_split'],
+            'blocks'       => ['sedrazavi/hero-split'],
+            'shortcodes'   => ['uas_hero_split'],
+            'status'       => 'active',
+            'portable'     => true,
+            'dependencies' => [
+                'php'       => '>=7.4',
+                'elementor' => '>=3.10',
+            ],
+        ]);
+
+        // 8. Bento Grid Interactive Tabs
+        $this->register_capability('uas_bento_tabs', [
+            'id'           => 'uas_bento_tabs',
+            'name'         => 'گرید بنتو تعاملی با تب‌های دسته‌بندی (Bento Tabs)',
+            'description'  => 'کارت‌های بنتو باکس مدرن با فیلتر آنی تب‌ها و نمایش برچسب‌های شاخص عملکرد.',
+            'category'     => 'interactive_media',
+            'package_type' => 'ui',
+            'version'      => '6.0.0',
+            'author'       => 'Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)',
+            'widgets'      => ['uas_bento_tabs'],
+            'blocks'       => ['sedrazavi/bento-tabs'],
+            'shortcodes'   => ['uas_bento_tabs'],
             'status'       => 'active',
             'portable'     => true,
             'dependencies' => [

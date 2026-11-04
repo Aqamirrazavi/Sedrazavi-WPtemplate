@@ -1,0 +1,232 @@
+/**
+ * Universal Hero Split Screen Styles
+ */
+.uas-hero-split-container {
+  width: 100%;
+  margin: 30px 0;
+  box-sizing: border-box;
+}
+
+.uas-hero-split-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 36px;
+  align-items: center;
+}
+
+@media (max-width: 992px) {
+  .uas-hero-split-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.uas-hero-badge-pill {
+  display: inline-block;
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 30px;
+  margin-bottom: 16px;
+}
+
+.uas-hero-split-h1 {
+  font-size: 38px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.35;
+  margin: 0 0 16px;
+}
+
+@media (max-width: 768px) {
+  .uas-hero-split-h1 {
+    font-size: 28px;
+  }
+}
+
+.uas-hero-split-desc {
+  font-size: 16px;
+  color: #475569;
+  line-height: 1.7;
+  margin: 0 0 24px;
+}
+
+.uas-hero-bullets-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px;
+}
+
+.uas-hero-bullets-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+.uas-bullet-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: #dcfce7;
+  color: #15803d;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.uas-hero-social-proof {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.uas-avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.uas-avatar-pill {
+  width: 32px;
+  height: 32px;
+  background: #f1f5f9;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  margin-left: -8px;
+}
+
+.uas-proof-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.uas-proof-text strong {
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.uas-proof-text span {
+  color: #64748b;
+}
+
+/* Lead Capture Card */
+.uas-hero-lead-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.uas-lead-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.uas-lead-badge-pulse {
+  width: 10px;
+  height: 10px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: uas-pulse 1.8s infinite;
+}
+
+.uas-lead-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.uas-lead-desc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.uas-hero-lead-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.uas-form-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+  direction: rtl;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.uas-form-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.uas-form-submit-btn {
+  width: 100%;
+  padding: 12px 20px;
+  background: #6366f1;
+  color: #ffffff;
+  border: 0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+}
+
+.uas-form-submit-btn:hover {
+  background: #4f46e5;
+}
+
+.uas-form-success-msg {
+  display: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: #15803d;
+  background: #dcfce7;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.uas-hero-lead-form.is-submitted .uas-form-submit-btn {
+  display: none;
+}
+
+.uas-hero-lead-form.is-submitted .uas-form-success-msg {
+  display: block;
+}
+
+.uas-lead-guarantee {
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+  margin-top: 14px;
+}

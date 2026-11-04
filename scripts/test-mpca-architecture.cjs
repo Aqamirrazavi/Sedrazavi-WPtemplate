@@ -56,6 +56,9 @@ if (fs.existsSync(capRegistryPath)) {
   assert(content.includes('uas_before_after'), 'Core capability uas_before_after is registered');
   assert(content.includes('uas_stat_counter'), 'Core capability uas_stat_counter is registered');
   assert(content.includes('uas_floating_cta'), 'Core capability uas_floating_cta is registered');
+  assert(content.includes('uas_pricing_matrix'), 'Core capability uas_pricing_matrix is registered');
+  assert(content.includes('uas_hero_split'), 'Core capability uas_hero_split is registered');
+  assert(content.includes('uas_bento_tabs'), 'Core capability uas_bento_tabs is registered');
   assert(content.includes('uas_sovereign_asset_banks'), 'Core capability uas_sovereign_asset_banks is registered');
   assert(content.includes("register_rest_route('sedrazavi/v1', '/capabilities'"), 'REST route /sedrazavi/v1/capabilities is declared');
   assert(content.includes("register_rest_route('sedrazavi/v1', '/health-diagnostics'"), 'REST route /sedrazavi/v1/health-diagnostics is declared');
@@ -76,6 +79,9 @@ if (fs.existsSync(pkgManagerPath)) {
   assert(content.includes('package-before-after'), 'Portable package package-before-after is declared');
   assert(content.includes('package-stat-counter'), 'Portable package package-stat-counter is declared');
   assert(content.includes('package-floating-cta'), 'Portable package package-floating-cta is declared');
+  assert(content.includes('package-pricing-matrix'), 'Portable package package-pricing-matrix is declared');
+  assert(content.includes('package-hero-split'), 'Portable package package-hero-split is declared');
+  assert(content.includes('package-bento-tabs'), 'Portable package package-bento-tabs is declared');
   assert(content.includes("register_rest_route('sedrazavi/v1', '/packages'"), 'REST route /sedrazavi/v1/packages is declared');
 }
 
@@ -148,6 +154,98 @@ assert(fs.existsSync(tplProofPath), 'template-section-client-proof.json exists')
 const tplFloatingPath = path.join(__dirname, '..', 'elementor-addon-suite', 'templates', 'template-section-floating-lead.json');
 assert(fs.existsSync(tplFloatingPath), 'template-section-floating-lead.json exists');
 
+// Test Group 8: Phase 6 Pricing Matrix, Split Hero, Bento Tabs & Theme Builder Templates
+console.log('\n🔍 Test Group 8: Phase 6 Matrix, Split Hero, Bento & Theme Builder Templates');
+const matrixWidgetPath = path.join(__dirname, '..', 'elementor-addon-suite', 'includes', 'widgets', 'class-widget-pricing-matrix.php');
+assert(fs.existsSync(matrixWidgetPath), 'class-widget-pricing-matrix.php exists');
+
+const heroSplitWidgetPath = path.join(__dirname, '..', 'elementor-addon-suite', 'includes', 'widgets', 'class-widget-hero-split.php');
+assert(fs.existsSync(heroSplitWidgetPath), 'class-widget-hero-split.php exists');
+
+const bentoWidgetPath = path.join(__dirname, '..', 'elementor-addon-suite', 'includes', 'widgets', 'class-widget-bento-tabs.php');
+assert(fs.existsSync(bentoWidgetPath), 'class-widget-bento-tabs.php exists');
+
+const matrixJsPath = path.join(__dirname, '..', 'elementor-addon-suite', 'assets', 'js', 'widgets', 'pricing-matrix.js');
+assert(fs.existsSync(matrixJsPath), 'pricing-matrix.js exists');
+
+const heroSplitJsPath = path.join(__dirname, '..', 'elementor-addon-suite', 'assets', 'js', 'widgets', 'hero-split.js');
+assert(fs.existsSync(heroSplitJsPath), 'hero-split.js exists');
+
+const bentoJsPath = path.join(__dirname, '..', 'elementor-addon-suite', 'assets', 'js', 'widgets', 'bento-tabs.js');
+assert(fs.existsSync(bentoJsPath), 'bento-tabs.js exists');
+
+const tplMatrixPath = path.join(__dirname, '..', 'elementor-addon-suite', 'templates', 'template-pricing-matrix-table.json');
+assert(fs.existsSync(tplMatrixPath), 'template-pricing-matrix-table.json exists');
+
+const tplProductPath = path.join(__dirname, '..', 'elementor-addon-suite', 'templates', 'template-single-product-master.json');
+assert(fs.existsSync(tplProductPath), 'template-single-product-master.json exists');
+if (fs.existsSync(tplProductPath)) {
+  const pData = JSON.parse(fs.readFileSync(tplProductPath, 'utf8'));
+  assert(pData.version && pData.content, 'template-single-product-master.json has valid Elementor schema');
+}
+
+const tplBentoPath = path.join(__dirname, '..', 'elementor-addon-suite', 'templates', 'template-bento-services-grid.json');
+assert(fs.existsSync(tplBentoPath), 'template-bento-services-grid.json exists');
+
+// Test Group 9: Phase 7 Standalone ZIP Package Exporter & Downloader
+console.log('\n🔍 Test Group 9: Phase 7 Standalone ZIP Package Exporter & Downloader');
+const contentPkg = fs.readFileSync(pkgManagerPath, 'utf8');
+assert(contentPkg.includes('export_standalone_package'), 'Package_Manager has export_standalone_package method');
+assert(contentPkg.includes('handle_package_download'), 'Package_Manager has handle_package_download method');
+assert(contentPkg.includes('ajax_export_package'), 'Package_Manager has ajax_export_package method');
+assert(contentPkg.includes('uas_download_package_nonce'), 'Package download enforces security nonce');
+assert(contentPkg.includes('generate_standalone_plugin_header'), 'Standalone plugin loader generator is implemented');
+
+// Test Group 10: Phase 8 Dynamic Query Engine & Dynamic Grid Widget
+console.log('\n🔍 Test Group 10: Phase 8 Dynamic Query Engine & Dynamic Grid Widget');
+const queryEnginePath = path.join(__dirname, '..', 'elementor-addon-suite', 'includes', 'class-dynamic-query-engine.php');
+assert(fs.existsSync(queryEnginePath), 'class-dynamic-query-engine.php exists');
+if (fs.existsSync(queryEnginePath)) {
+  const qeContent = fs.readFileSync(queryEnginePath, 'utf8');
+  assert(qeContent.includes('class Dynamic_Query_Engine'), 'Dynamic_Query_Engine class is defined');
+  assert(qeContent.includes('uas_query_'), 'Transient caching key prefix uas_query_ is used');
+  assert(qeContent.includes('invalidate_query_cache'), 'Cache invalidation hook is implemented');
+  assert(qeContent.includes('edit_others_posts'), 'Confidential case dossiers are access-controlled');
+}
+
+const dynamicGridWidgetPath = path.join(__dirname, '..', 'elementor-addon-suite', 'includes', 'widgets', 'class-widget-dynamic-grid.php');
+assert(fs.existsSync(dynamicGridWidgetPath), 'class-widget-dynamic-grid.php exists');
+if (fs.existsSync(dynamicGridWidgetPath)) {
+  const dgwContent = fs.readFileSync(dynamicGridWidgetPath, 'utf8');
+  assert(dgwContent.includes('class Universal_Dynamic_Grid_Widget'), 'Universal_Dynamic_Grid_Widget class is defined');
+  assert(dgwContent.includes('uas_dynamic_grid'), 'Widget slug uas_dynamic_grid is set');
+  assert(dgwContent.includes('add_advanced_dynamic_query_controls'), 'Dynamic query controls helper is integrated');
+}
+
+const dynamicGridCssPath = path.join(__dirname, '..', 'elementor-addon-suite', 'assets', 'css', 'widgets', 'dynamic-grid.css');
+assert(fs.existsSync(dynamicGridCssPath), 'dynamic-grid.css exists');
+
+// Test Group 11: Phase 9 Observability Hub & Lead Tracking
+console.log('\n🔍 Test Group 11: Phase 9 Observability Hub & Lead Tracking');
+const obsHubPath = path.join(__dirname, '..', 'elementor-addon-suite', 'includes', 'class-observability-hub.php');
+assert(fs.existsSync(obsHubPath), 'class-observability-hub.php exists');
+if (fs.existsSync(obsHubPath)) {
+  const obsContent = fs.readFileSync(obsHubPath, 'utf8');
+  assert(obsContent.includes('class Observability_Hub'), 'Observability_Hub class is defined');
+  assert(obsContent.includes('record_lead'), 'record_lead method is implemented');
+  assert(obsContent.includes('log_audit_event'), 'log_audit_event method is implemented');
+  assert(obsContent.includes('wp_privacy_anonymize_ip'), 'IP anonymization for privacy is implemented');
+  assert(obsContent.includes("register_rest_route('sedrazavi/v1', '/observability/stats'"), 'REST route /observability/stats is declared');
+}
+
+// Test Group 12: Phase 10 Template Vault (30 Templates Verification)
+console.log('\n🔍 Test Group 12: Phase 10 Template Vault (30 Templates Verification)');
+const templatesDir = path.join(__dirname, '..', 'elementor-addon-suite', 'templates');
+const templateFiles = fs.readdirSync(templatesDir).filter(f => f.endsWith('.json'));
+assert(templateFiles.length >= 30, `Template Vault contains >= 30 templates (Found: ${templateFiles.length})`);
+
+const dynamicGridTplPath = path.join(templatesDir, 'template-dynamic-showcase-grid.json');
+assert(fs.existsSync(dynamicGridTplPath), 'template-dynamic-showcase-grid.json exists in templates');
+if (fs.existsSync(dynamicGridTplPath)) {
+  const tplObj = JSON.parse(fs.readFileSync(dynamicGridTplPath, 'utf8'));
+  assert(tplObj.version && tplObj.content, 'template-dynamic-showcase-grid.json has valid Elementor schema');
+}
+
 console.log('========================================================================');
 console.log(`📊 Test Results: ${passCount} passed, ${failCount} failed`);
 if (failCount === 0) {
@@ -157,4 +255,5 @@ if (failCount === 0) {
   process.exit(1);
 }
 console.log('========================================================================');
+
 

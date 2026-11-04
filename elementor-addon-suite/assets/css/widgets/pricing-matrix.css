@@ -1,0 +1,160 @@
+/**
+ * Universal Pricing Comparison Matrix Styles
+ */
+.uas-pricing-matrix-container {
+  width: 100%;
+  margin: 30px 0;
+  box-sizing: border-box;
+}
+
+.uas-matrix-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.uas-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  direction: rtl;
+}
+
+.uas-matrix-table th,
+.uas-matrix-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.uas-matrix-th-features {
+  width: 34%;
+  background: #f8fafc;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.uas-matrix-th-plan {
+  width: 22%;
+  text-align: center;
+  background: #f8fafc;
+  vertical-align: top;
+}
+
+.uas-plan-head h4 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.uas-plan-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.uas-featured-badge {
+  display: inline-block;
+  background: #6366f1;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+}
+
+.uas-matrix-col-featured {
+  background: rgba(99, 102, 241, 0.03) !important;
+  border-left: 2px solid var(--uas-featured-color, #6366f1);
+  border-right: 2px solid var(--uas-featured-color, #6366f1);
+}
+
+.uas-matrix-btn {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none !important;
+  background: #f1f5f9;
+  color: #334155 !important;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  width: 85%;
+}
+
+.uas-matrix-btn:hover {
+  background: #e2e8f0;
+}
+
+.uas-btn-featured {
+  background: #6366f1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.uas-btn-featured:hover {
+  background: #4f46e5 !important;
+}
+
+.uas-matrix-cat-row td {
+  background: #f1f5f9;
+  font-size: 13px;
+  font-weight: 800;
+  color: #4338ca;
+  padding: 10px 20px;
+}
+
+.uas-matrix-feature-row:hover td {
+  background: #fafafa;
+}
+
+.uas-matrix-feature-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.uas-matrix-tooltip {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-right: 6px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  line-height: 16px;
+}
+
+.uas-matrix-val-cell {
+  text-align: center;
+  font-size: 13px;
+  color: #334155;
+}
+
+.uas-matrix-icon {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.uas-matrix-icon.uas-check {
+  color: #10b981;
+}
+
+.uas-matrix-icon.uas-cross {
+  color: #cbd5e1;
+}
+
+.uas-matrix-text-val {
+  font-weight: 700;
+  font-size: 12px;
+  color: #0f172a;
+}

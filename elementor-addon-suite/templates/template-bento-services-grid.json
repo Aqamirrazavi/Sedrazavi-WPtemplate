@@ -1,0 +1,67 @@
+{
+  "version": "0.4",
+  "title": "UAS - سکشن گرید بنتو با تب‌های تعاملی (Bento Services Grid Section)",
+  "type": "section",
+  "content": [
+    {
+      "id": "uas_sec_bento_services_01",
+      "elType": "section",
+      "settings": {
+        "layout": "boxed",
+        "padding": { "unit": "px", "top": "70", "right": "20", "bottom": "70", "left": "20" },
+        "background_background": "classic",
+        "background_color": "#FFFFFF"
+      },
+      "elements": [
+        {
+          "id": "uas_col_bento_services_01",
+          "elType": "column",
+          "settings": { "_column_size": 100 },
+          "elements": [
+            {
+              "id": "uas_wid_bento_services_01",
+              "elType": "widget",
+              "widgetType": "uas_bento_tabs",
+              "settings": {
+                "bento_list": [
+                  {
+                    "category_slug": "conversion",
+                    "card_span": "span-2",
+                    "icon": "⚡",
+                    "title": "سوییچر هوشمند پلن‌ها با تخفیف سالانه",
+                    "description": "طراحی مدرن با سایدبار کامل ۳ تبه المنتور و دکمه‌های مستقیم تسویه‌حساب.",
+                    "metric_tag": "ویژه صفحات فرود"
+                  },
+                  {
+                    "category_slug": "conversion",
+                    "card_span": "span-1",
+                    "icon": "⏳",
+                    "title": "شمارنده اضطرار فروش (FOMO)",
+                    "description": "ذخیره سشن در حافظه مرورگر جهت جلوگیری از ریست فریبنده.",
+                    "metric_tag": "روانشناسی خرید"
+                  },
+                  {
+                    "category_slug": "builder",
+                    "card_span": "span-1",
+                    "icon": "🧩",
+                    "title": "کتابخانه تمپلیت‌های کانتینری و تم‌بیلدر",
+                    "description": "هدر، فوتر، تک‌پست، محصول و آرشیو آماده درون‌ریزی با یک کلیک.",
+                    "metric_tag": "۲۹+ الگوی بومی"
+                  },
+                  {
+                    "category_slug": "speed",
+                    "card_span": "span-2",
+                    "icon": "🛡️",
+                    "title": "معماری خالص Zero-CDN و هسته سبک PHP",
+                    "description": "حذف کامل درخواست‌های شخص ثالث و دارایی‌های فونت خارجی جهت حداکثر رتبه سئو.",
+                    "metric_tag": "Core Web Vitals A+"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

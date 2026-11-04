@@ -163,6 +163,12 @@ class Admin_Settings {
             'uas_pricing_switcher'=> ['name' => 'جدول قیمت‌گذاری با سوییچر تخفیف (ویژه لندینگ)', 'icon' => 'eicon-table'],
             'uas_fomo_countdown'  => ['name' => 'نوار فوریت و شمارش معکوس تخفیف FOMO', 'icon' => 'eicon-countdown'],
             'uas_before_after'    => ['name' => 'اسلایدر مقایسه تصویری قبل و بعد (Before/After)', 'icon' => 'eicon-image-before-after'],
+            'uas_stat_counter'    => ['name' => 'پیشخوان آمار و ارقام انیمیشنی (Animated Counter)', 'icon' => 'eicon-counter'],
+            'uas_floating_cta'    => ['name' => 'نوار شناور اقدام فوری و تبدیل لید (Floating CTA)', 'icon' => 'eicon-anchor'],
+            'uas_pricing_matrix'  => ['name' => 'ماتریس جامع مقایسه ویژگی‌ها و قیمت‌ها', 'icon' => 'eicon-table'],
+            'uas_hero_split'      => ['name' => 'هیرو بنر اسپلیت و جذب لید (Split Hero)', 'icon' => 'eicon-split'],
+            'uas_bento_tabs'      => ['name' => 'گرید بنتو تعاملی با تب‌های دسته‌بندی (Bento Tabs)', 'icon' => 'eicon-tabs'],
+            'uas_dynamic_grid'    => ['name' => 'گرید داینامیک کوئری هوشمند و کش ترنزینت', 'icon' => 'eicon-posts-grid'],
         ];
     }
 
@@ -526,9 +532,11 @@ class Admin_Settings {
                                     <?php echo esc_html($pkg['description']); ?>
                                 </p>
                             </div>
-                            <div style="border-top:1px solid #e2e8f0; padding-top:10px; margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                            <div style="border-top:1px solid #e2e8f0; padding-top:12px; margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                                 <code style="font-size:11px;"><?php echo esc_html($pkg['id']); ?></code>
-                                <span style="font-size:11px; font-weight:600; color:#3b82f6;">مستقل و Zero-Lockin</span>
+                                <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=uas_download_package&package_id=' . urlencode($pkg['id'])), 'uas_download_package_nonce')); ?>" class="button button-primary" style="font-size:11px; padding:2px 10px; height:auto; display:inline-flex; align-items:center; gap:4px;">
+                                    <span>📦</span> <?php esc_html_e('دریافت بسته مستقل ZIP', 'universal-elementor-suite'); ?>
+                                </a>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -564,6 +572,70 @@ class Admin_Settings {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Tab Section 4: Observability & Leads Intelligence Hub -->
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:24px; margin-top:28px; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                    <div>
+                        <h2 style="font-size:17px; font-weight:800; color:#0f172a; margin:0 0 4px;">رصدخانه عملکرد و لیدهای هوشمند (Observability Hub)</h2>
+                        <p style="font-size:12px; color:#64748b; margin:0;">پایش نرخ تبدیل لندینگ‌پیج‌ها، شمارش لیدهای فرم‌های هیرو/تماس با حفظ حریم خصوصی و امنیت داده‌ها.</p>
+                    </div>
+                </div>
+
+                <?php
+                $leads = get_option('uas_captured_leads_vault', []);
+                $logs  = get_option('uas_security_audit_logs', []);
+                ?>
+
+                <!-- Summary Metric Cards -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-bottom:24px;">
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; text-align:center;">
+                        <span style="font-size:24px; font-weight:800; color:#4338ca; display:block;"><?php echo count($leads); ?></span>
+                        <span style="font-size:12px; color:#64748b; font-weight:600;">لیدهای جذب‌شده فعال</span>
+                    </div>
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; text-align:center;">
+                        <span style="font-size:24px; font-weight:800; color:#059669; display:block;"><?php echo count($logs); ?></span>
+                        <span style="font-size:12px; color:#64748b; font-weight:600;">رویدادهای امنیتی مانیتور شده</span>
+                    </div>
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; text-align:center;">
+                        <span style="font-size:24px; font-weight:800; color:#d97706; display:block;">Active</span>
+                        <span style="font-size:12px; color:#64748b; font-weight:600;">کشینگ ترنزینت کوئری‌ها</span>
+                    </div>
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; text-align:center;">
+                        <span style="font-size:24px; font-weight:800; color:#0f172a; display:block;">PHP <?php echo esc_html(PHP_VERSION); ?></span>
+                        <span style="font-size:12px; color:#64748b; font-weight:600;">موتور پردازش سریع سرور</span>
+                    </div>
+                </div>
+
+                <!-- Recent Captured Leads Table -->
+                <h3 style="font-size:14px; font-weight:700; color:#0f172a; margin:0 0 10px;">جدیدترین درخواست‌های جذب لید (Anonymized & Secure)</h3>
+                <?php if (empty($leads)) : ?>
+                    <p style="font-size:12px; color:#94a3b8; font-style:italic;">هنوز لیدی از طریق ویجت‌های فرود ثبت نشده است. پس از ارسال فرم توسط کاربران، داده‌ها در این بخش به نمایش درمی‌آیند.</p>
+                <?php else : ?>
+                    <div style="overflow-x:auto;">
+                        <table class="wp-list-table widefat fixed striped" style="border:1px solid #e2e8f0; border-radius:8px;">
+                            <thead>
+                                <tr style="background:#f8fafc;">
+                                    <th style="font-weight:700; width:30%;">شماره تماس</th>
+                                    <th style="font-weight:700; width:25%;">ویجت منبع</th>
+                                    <th style="font-weight:700; width:25%;">زمان ثبت</th>
+                                    <th style="font-weight:700; width:20%;">آدرس IP (ناشناس‌سازی)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach (array_slice($leads, 0, 5) as $lead) : ?>
+                                    <tr>
+                                        <td><strong><?php echo esc_html($lead['phone']); ?></strong></td>
+                                        <td><code><?php echo esc_html($lead['source']); ?></code></td>
+                                        <td style="font-size:11px; color:#64748b;"><?php echo esc_html($lead['timestamp']); ?></td>
+                                        <td><span style="font-size:11px; background:#f1f5f9; padding:2px 6px; border-radius:4px;"><?php echo esc_html($lead['ip']); ?></span></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
         <?php

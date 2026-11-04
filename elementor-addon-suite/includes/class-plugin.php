@@ -172,8 +172,12 @@ class Plugin {
             'uas_before_after'      => ['file' => 'class-widget-before-after.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Before_After_Widget'],
             'uas_stat_counter'      => ['file' => 'class-widget-stat-counter.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Stat_Counter_Widget'],
             'uas_floating_cta'      => ['file' => 'class-widget-floating-cta.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Floating_CTA_Widget'],
+            'uas_pricing_matrix'    => ['file' => 'class-widget-pricing-matrix.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Pricing_Comparison_Matrix_Widget'],
+            'uas_hero_split'        => ['file' => 'class-widget-hero-split.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Hero_Split_Conversion_Widget'],
+            'uas_bento_tabs'        => ['file' => 'class-widget-bento-tabs.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Interactive_Tabs_Bento_Widget'],
             'uas_news_ticker'       => ['file' => 'class-widget-news-ticker.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_News_Ticker_Widget'],
             'uas_client_portal'     => ['file' => 'class-widget-client-portal.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Client_Portal_Widget'],
+            'uas_dynamic_grid'      => ['file' => 'class-widget-dynamic-grid.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Dynamic_Grid_Widget'],
         ];
 
         foreach ($widgets_map as $widget_id => $data) {
@@ -217,6 +221,10 @@ class Plugin {
         wp_register_style('uas-theme-toggle-css', UAS_URL . 'assets/css/widgets/theme-toggle.css', ['uas-widgets-core'], UAS_VERSION);
         wp_register_style('uas-stat-counter-css', UAS_URL . 'assets/css/widgets/stat-counter.css', ['uas-widgets-core'], UAS_VERSION);
         wp_register_style('uas-floating-cta-css', UAS_URL . 'assets/css/widgets/floating-cta.css', ['uas-widgets-core'], UAS_VERSION);
+        wp_register_style('uas-pricing-matrix-css', UAS_URL . 'assets/css/widgets/pricing-matrix.css', ['uas-widgets-core'], UAS_VERSION);
+        wp_register_style('uas-hero-split-css', UAS_URL . 'assets/css/widgets/hero-split.css', ['uas-widgets-core'], UAS_VERSION);
+        wp_register_style('uas-bento-tabs-css', UAS_URL . 'assets/css/widgets/bento-tabs.css', ['uas-widgets-core'], UAS_VERSION);
+        wp_register_style('uas-dynamic-grid-css', UAS_URL . 'assets/css/widgets/dynamic-grid.css', ['uas-widgets-core'], UAS_VERSION);
     }
 
     /**
@@ -233,6 +241,9 @@ class Plugin {
         wp_register_script('uas-before-after-js', UAS_URL . 'assets/js/widgets/before-after.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
         wp_register_script('uas-stat-counter-js', UAS_URL . 'assets/js/widgets/stat-counter.js', ['uas-widgets-core'], UAS_VERSION, true);
         wp_register_script('uas-floating-cta-js', UAS_URL . 'assets/js/widgets/floating-cta.js', ['uas-widgets-core'], UAS_VERSION, true);
+        wp_register_script('uas-pricing-matrix-js', UAS_URL . 'assets/js/widgets/pricing-matrix.js', ['uas-widgets-core'], UAS_VERSION, true);
+        wp_register_script('uas-hero-split-js', UAS_URL . 'assets/js/widgets/hero-split.js', ['uas-widgets-core'], UAS_VERSION, true);
+        wp_register_script('uas-bento-tabs-js', UAS_URL . 'assets/js/widgets/bento-tabs.js', ['uas-widgets-core'], UAS_VERSION, true);
     }
 
     /**

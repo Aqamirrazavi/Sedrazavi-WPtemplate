@@ -209,4 +209,87 @@ abstract class Universal_Widget_Base extends \Elementor\Widget_Base {
 
         $this->end_controls_section();
     }
+
+    /**
+     * Helper: Register advanced dynamic query controls with CPT and taxonomy selection
+     */
+    protected function add_advanced_dynamic_query_controls() {
+        $this->start_controls_section(
+            'section_dynamic_query',
+            [
+                'label' => esc_html__('تنظیمات کوئری پویا و منبع محتوا (Dynamic Query)', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_CONTENT,
+            ]
+        );
+
+        $post_types = class_exists('\UniversalElementorSuite\Dynamic_Query_Engine')
+            ? Dynamic_Query_Engine::get_queryable_post_types()
+            : ['post' => 'نوشته‌ها', 'page' => 'برگه‌ها'];
+
+        $this->add_control(
+            'query_post_type',
+            [
+                'label'   => esc_html__('نوع محتوا (Post Type)', 'universal-elementor-suite'),
+                'type'    => Controls_Manager::SELECT,
+                'default' => 'post',
+                'options' => $post_types,
+            ]
+        );
+
+        $this->add_control(
+            'query_posts_per_page',
+            [
+                'label'   => esc_html__('تعداد نمایش در هر صفحه', 'universal-elementor-suite'),
+                'type'    => Controls_Manager::NUMBER,
+                'min'     => 1,
+                'max'     => 40,
+                'step'    => 1,
+                'default' => 6,
+            ]
+        );
+
+        $this->add_control(
+            'query_orderby',
+            [
+                'label'   => esc_html__('مرتب‌سازی بر اساس', 'universal-elementor-suite'),
+                'type'    => Controls_Manager::SELECT,
+                'default' => 'date',
+                'options' => [
+                    'date'          => esc_html__('تاریخ انتشار', 'universal-elementor-suite'),
+                    'title'         => esc_html__('عنوان الفبایی', 'universal-elementor-suite'),
+                    'rand'          => esc_html__('تصادفی', 'universal-elementor-suite'),
+                    'comment_count' => esc_html__('محبوب‌ترین (دیدگاه‌ها)', 'universal-elementor-suite'),
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'query_order',
+            [
+                'label'   => esc_html__('جهت مرتب‌سازی', 'universal-elementor-suite'),
+                'type'    => Controls_Manager::SELECT,
+                'default' => 'DESC',
+                'options' => [
+                    'DESC' => esc_html__('نزولی (جدیدترین)', 'universal-elementor-suite'),
+                    'ASC'  => esc_html__('صعودی (قدیمی‌ترین)', 'universal-elementor-suite'),
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'query_cache_ttl',
+            [
+                'label'       => esc_html__('مدت زمان کش هوشمند (ثانیه)', 'universal-elementor-suite'),
+                'type'        => Controls_Manager::NUMBER,
+                'min'         => 0,
+                'max'         => 86400,
+                'step'        => 300,
+                'default'     => 3600,
+                'description' => esc_html__('جهت افزایش حداکثری سرعت و کاهش مراجعات دیتابیس. مقدار ۰ کش را غیرفعال می‌کند.', 'universal-elementor-suite'),
+            ]
+        );
+
+        $this->end_controls_section();
+    }
 }
+

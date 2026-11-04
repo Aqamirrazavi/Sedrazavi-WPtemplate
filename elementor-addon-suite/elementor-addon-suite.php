@@ -127,6 +127,13 @@ final class Universal_Elementor_Addon_Suite {
         require_once UAS_PATH . 'includes/class-contract-registry.php';
         \UniversalElementorSuite\Contract_Registry::instance();
 
+        // 2.2 Load Dynamic Query Engine & Observability Hub
+        require_once UAS_PATH . 'includes/class-dynamic-query-engine.php';
+        \UniversalElementorSuite\Dynamic_Query_Engine::instance();
+
+        require_once UAS_PATH . 'includes/class-observability-hub.php';
+        \UniversalElementorSuite\Observability_Hub::instance();
+
         if (is_admin()) {
             require_once UAS_PATH . 'includes/class-github-admin.php';
             \UniversalElementorSuite\GitHub_Admin::instance();
