@@ -62,17 +62,26 @@ class SedRazavi_Library_Engine {
     }
 
     /**
-     * RBAC Permission check
+     * RBAC Permission check: Strictly require Administrator capability
      */
     public function check_admin_permission($request) {
-        if (!current_user_can('manage_options')) {
-            // For headless / simulation, allow verified nonce or valid admin token
-            $nonce = $request->get_header('x-wp-nonce');
-            if ($nonce && wp_verify_nonce($nonce, 'wp_rest')) {
-                return true;
-            }
-            return false;
+        if (!is_user_logged_in() || !current_user_can('manage_options')) {
+            return new WP_Error(
+                'rest_forbidden',
+                esc_html__('دسترسی به عملیات کتابخانه و پکیج‌ها نیازمند سطح مدیریت است.', 'sedrazavi-companion'),
+                ['status' => 403]
+            );
         }
+
+        $nonce = $request->get_header('x-wp-nonce');
+        if ($nonce && !wp_verify_nonce($nonce, 'wp_rest')) {
+            return new WP_Error(
+                'rest_invalid_nonce',
+                esc_html__('اعتبار نانس امنیتی منقضی یا نامعتبر است.', 'sedrazavi-companion'),
+                ['status' => 403]
+            );
+        }
+
         return true;
     }
 

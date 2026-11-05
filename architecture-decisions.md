@@ -138,4 +138,27 @@ Clients need rapid deployment of landing pages on arbitrary WordPress installati
 - **Positive:** Any widget or capability can be exported as a standalone WordPress plugin in 1 click; landing page queries achieve sub-50ms execution times via transients; zero third-party telemetry.
 - **Trade-off:** Server must support `ZipArchive` (or directory fallbacks) for real-time archive generation.
 
+---
+
+## ADR 009: Sovereign Custom Kit Builder & Dynamic Portable Bundle Exporter
+
+### Context
+When developers and agencies take on bespoke client projects (e.g., medical clinics, law firms, corporate portals, online academies, or e-commerce shops), installing an entire multi-megabyte ecosystem with dozens of unused widgets and layouts bloats the database and complicates maintenance. Agencies require a sovereign "Toolset Studio" where they can selectively choose only the specific widgets, Elementor JSON templates, and infrastructure services needed for a particular client, click a single button, and download a customized, lightweight, standalone WordPress plugin ZIP ready to install on any fresh WordPress + Elementor host.
+
+### Decision
+1. **Interactive Custom Kit Builder:** Provide an administrative studio inside `Universal Elementor Suite -> مدیریت بسته‌ها (MPCA)` with:
+   - Project Metadata: Custom Project Title, unique Plugin Slug, and Niche selector (Corporate, Clinic, Store, LMS, Agency, Legal, General).
+   - Granular Selection Grid: Checkboxes for all 31 native Elementor widgets and all 30 Elementor JSON templates with one-click "Select All / Deselect All" helpers and real-time selection counters.
+   - Smart Infrastructure Toggles: Optional inclusion of the bidirectional `Theme_Builder_Bridge` (for headers, footers, single posts, and 404 pages without Elementor Pro) and the `Dynamic_Query_Engine` (for transient caching and CPT filtering).
+2. **Dynamic Standalone Plugin Compilation:** The backend `Package_Manager::build_custom_project_bundle()` dynamically compiles a clean WordPress plugin:
+   - Generates a bespoke plugin header file (`{slug}.php`) with standard metadata, activation hooks, and automated registration.
+   - Embeds an automated activation hook that idempotently parses and imports the selected Elementor templates into `elementor_library` so they appear immediately in the client's Elementor Saved Templates library.
+   - Bundles the exact widget classes, frontend JS, and widget CSS into the ZIP without bundling unnecessary files.
+   - Cleans temporary artifacts and delivers the compiled ZIP via authenticated AJAX with direct download URL.
+3. **Zero-React & Zero Theme Lock-in:** The entire custom kit builder and the generated standalone plugins use 100% native WordPress PHP 8.x, Elementor sidebar controls, CSS custom properties, and vanilla JS/jQuery. The generated plugin functions flawlessly across any theme (including Hello Elementor, Astra, or custom themes).
+
+### Consequences
+- **Positive:** Rapid project deployment (sub-2 minute setup for client sites); zero database or asset bloat; templates automatically populate Elementor's Saved Templates library upon activation; client sites have zero dependency on the parent theme.
+- **Trade-off:** PHP `ZipArchive` extension is required on the build environment to generate dynamic ZIP files.
+
 

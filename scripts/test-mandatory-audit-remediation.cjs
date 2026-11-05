@@ -194,6 +194,52 @@ assert(
   'Both functions.php and react-shortcodes.php prioritize canonical app-dist build path'
 );
 
+// -------------------------------------------------------------
+// Test Group 5: Companion Plugins Security & Package Manager Resilience
+// -------------------------------------------------------------
+console.log('\n🔍 Test Group 5: Companion Plugins Security & Package Manager Resilience');
+
+const companionPortalPath = path.join(__dirname, '../sedrazavi-companion/includes/class-legal-matter-portal.php');
+assert(fs.existsSync(companionPortalPath), 'class-legal-matter-portal.php exists');
+const companionPortalContent = fs.readFileSync(companionPortalPath, 'utf8');
+
+assert(
+  !companionPortalContent.includes('$role = $request->get_header(\'x-sedrazavi-user-role\')'),
+  'class-legal-matter-portal.php rejects spoofable user-role headers'
+);
+
+assert(
+  companionPortalContent.includes('verify_hmac_client_token') &&
+  !companionPortalContent.includes('($nonce && wp_verify_nonce($nonce, \'wp_rest\')) || !empty($client_token)'),
+  'class-legal-matter-portal.php enforces HMAC token / logged-in auth (no bare nonce bypass)'
+);
+
+const companionDoctorPath = path.join(__dirname, '../sedrazavi-companion/includes/class-sedrazavi-diagnostics-doctor.php');
+assert(fs.existsSync(companionDoctorPath), 'class-sedrazavi-diagnostics-doctor.php exists');
+const companionDoctorContent = fs.readFileSync(companionDoctorPath, 'utf8');
+
+assert(
+  companionDoctorContent.includes('current_user_can(\'manage_options\')') &&
+  !companionDoctorContent.includes('// In local/simulated headless mode, allow read diagnosis'),
+  'class-sedrazavi-diagnostics-doctor.php strictly enforces manage_options'
+);
+
+const packageManagerPath = path.join(__dirname, '../elementor-addon-suite/includes/class-package-manager.php');
+assert(fs.existsSync(packageManagerPath), 'class-package-manager.php exists');
+const packageManagerContent = fs.readFileSync(packageManagerPath, 'utf8');
+
+assert(
+  packageManagerContent.includes('!class_exists(\'\\ZipArchive\')') &&
+  packageManagerContent.includes('ماژول ZipArchive در تنظیمات PHP سرور فعال نیست'),
+  'Package_Manager fails gracefully with error message if ZipArchive is missing'
+);
+
+assert(
+  packageManagerContent.includes('resolve_package_dependencies') &&
+  packageManagerContent.includes('Circular Dependency'),
+  'Package_Manager has recursive dependency resolution and circular dependency detection'
+);
+
 console.log('========================================================================');
 console.log(`📊 Test Results: ${passedTests} / ${totalTests} passed`);
 if (allPassed) {

@@ -94,22 +94,68 @@ if (!function_exists('sedrazavi_theme_setup')) {
 }
 
 /**
- * 3. Custom Post Types Registration ('service', 'article', 'case')
+ * 3. Niche Archetype Detector & Custom Post Types Registration ('service', 'article', 'case')
  */
+if (!function_exists('sedrazavi_is_legal_module_enabled')) {
+    function sedrazavi_is_legal_module_enabled() {
+        $active_archetype = get_option('sedrazavi_active_archetype', 'agency-designer');
+        $current_theme = function_exists('get_stylesheet') ? get_stylesheet() : '';
+        if (strpos($current_theme, 'legal') !== false || strpos($current_theme, 'lawyer') !== false || $active_archetype === 'legal-firm' || $active_archetype === 'lawyer' || defined('SEDRAZAVI_LEGAL_ACTIVE')) {
+            return true;
+        }
+        return false;
+    }
+}
+
 if (!function_exists('sedrazavi_register_custom_post_types')) {
     function sedrazavi_register_custom_post_types() {
+        $is_legal = sedrazavi_is_legal_module_enabled();
+        $archetype = get_option('sedrazavi_active_archetype', 'agency-designer');
 
-        // CPT 1: Legal Services ('service')
+        // Dynamic Niche Labels for Services ('service')
+        $service_name = esc_html__('خدمات و توانمندی‌ها', 'sedrazavi');
+        $service_singular = esc_html__('خدمت', 'sedrazavi');
+        $service_slug = 'services';
+        $service_icon = 'dashicons-admin-tools';
+
+        if ($is_legal) {
+            $service_name = esc_html__('خدمات حقوقی', 'sedrazavi');
+            $service_singular = esc_html__('خدمت حقوقی', 'sedrazavi');
+            $service_slug = 'legal-services';
+            $service_icon = 'dashicons-hammer';
+        } elseif ($archetype === 'clinic-medical') {
+            $service_name = esc_html__('خدمات درمانی و پزشکی', 'sedrazavi');
+            $service_singular = esc_html__('خدمت درمانی', 'sedrazavi');
+            $service_slug = 'medical-services';
+            $service_icon = 'dashicons-heart';
+        } elseif ($archetype === 'corporate-pro') {
+            $service_name = esc_html__('خدمات و راهکارهای سازمانی', 'sedrazavi');
+            $service_singular = esc_html__('راهکار سازمانی', 'sedrazavi');
+            $service_slug = 'corporate-services';
+            $service_icon = 'dashicons-building';
+        } elseif ($archetype === 'education-lms') {
+            $service_name = esc_html__('دوره‌ها و خدمات آموزشی', 'sedrazavi');
+            $service_singular = esc_html__('دوره آموزشی', 'sedrazavi');
+            $service_slug = 'courses-and-services';
+            $service_icon = 'dashicons-welcome-learn-more';
+        } elseif ($archetype === 'store-modern') {
+            $service_name = esc_html__('خدمات و پشتیبانی فروشگاه', 'sedrazavi');
+            $service_singular = esc_html__('خدمت فروشگاهی', 'sedrazavi');
+            $service_slug = 'store-services';
+            $service_icon = 'dashicons-cart';
+        }
+
+        // CPT 1: Dynamic Services ('service')
         if (!post_type_exists('service')) {
             $service_labels = [
-                'name'               => esc_html__('خدمات حقوقی', 'sedrazavi'),
-                'singular_name'      => esc_html__('خدمت حقوقی', 'sedrazavi'),
-                'menu_name'          => esc_html__('خدمات حقوقی', 'sedrazavi'),
+                'name'               => $service_name,
+                'singular_name'      => $service_singular,
+                'menu_name'          => $service_name,
                 'add_new'            => esc_html__('افزودن خدمت جدید', 'sedrazavi'),
-                'add_new_item'       => esc_html__('افزودن خدمت حقوقی جدید', 'sedrazavi'),
-                'edit_item'          => esc_html__('ویرایش خدمت حقوقی', 'sedrazavi'),
-                'new_item'           => esc_html__('خدمت حقوقی جدید', 'sedrazavi'),
-                'view_item'          => esc_html__('مشاهده خدمت حقوقی', 'sedrazavi'),
+                'add_new_item'       => sprintf(esc_html__('افزودن %s جدید', 'sedrazavi'), $service_singular),
+                'edit_item'          => sprintf(esc_html__('ویرایش %s', 'sedrazavi'), $service_singular),
+                'new_item'           => sprintf(esc_html__('%s جدید', 'sedrazavi'), $service_singular),
+                'view_item'          => sprintf(esc_html__('مشاهده %s', 'sedrazavi'), $service_singular),
                 'search_items'       => esc_html__('جستجوی خدمات', 'sedrazavi'),
                 'not_found'          => esc_html__('خدمتی یافت نشد', 'sedrazavi'),
                 'not_found_in_trash' => esc_html__('در سطل زباله یافت نشد', 'sedrazavi'),
@@ -119,8 +165,8 @@ if (!function_exists('sedrazavi_register_custom_post_types')) {
                 'labels'              => $service_labels,
                 'public'              => true,
                 'has_archive'         => true,
-                'rewrite'             => ['slug' => 'legal-services'],
-                'menu_icon'           => 'dashicons-hammer',
+                'rewrite'             => ['slug' => $service_slug],
+                'menu_icon'           => $service_icon,
                 'supports'            => ['title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'revisions'],
                 'show_in_rest'        => true,
                 'hierarchical'        => false,
@@ -128,7 +174,7 @@ if (!function_exists('sedrazavi_register_custom_post_types')) {
 
             register_taxonomy('service_category', ['service'], [
                 'labels'            => [
-                    'name'          => esc_html__('دسته‌بندی خدمات حقوقی', 'sedrazavi'),
+                    'name'          => sprintf(esc_html__('دسته‌بندی %s', 'sedrazavi'), $service_name),
                     'singular_name' => esc_html__('دسته‌بندی خدمت', 'sedrazavi'),
                 ],
                 'hierarchical'      => true,
@@ -174,7 +220,8 @@ if (!function_exists('sedrazavi_register_custom_post_types')) {
 
         // CPT 3: Client Cases & Confidential Docket Tracking ('case')
         // CRITICAL PRIVACY FIX: Private by default, excluded from search, sitemaps, and public permalinks
-        if (!post_type_exists('case')) {
+        // Encapsulated: Only loaded when legal niche is explicitly active
+        if ($is_legal && !post_type_exists('case')) {
             $case_labels = [
                 'name'               => esc_html__('پرونده‌های محرمانه موکلان', 'sedrazavi'),
                 'singular_name'      => esc_html__('پرونده محرمانه', 'sedrazavi'),
@@ -551,15 +598,6 @@ if (!function_exists('enqueue_react_assets')) {
 /**
  * 7. Universal Modular Inclusions (Clean Separation of Concerns)
  */
-function sedrazavi_is_legal_module_enabled() {
-    $active_archetype = get_option('sedrazavi_active_archetype', 'agency-designer');
-    $current_theme = function_exists('get_stylesheet') ? get_stylesheet() : '';
-    if (strpos($current_theme, 'legal') !== false || strpos($current_theme, 'lawyer') !== false || $active_archetype === 'legal-firm' || $active_archetype === 'lawyer') {
-        return true;
-    }
-    return false;
-}
-
 // Universal Framework Core (Loaded for all niches: Agency, Corporate, Store, Legal)
 $sedrazavi_essential_includes = [
     'register-react-shortcodes.php', // Universal [react_component name="..."] shortcodes

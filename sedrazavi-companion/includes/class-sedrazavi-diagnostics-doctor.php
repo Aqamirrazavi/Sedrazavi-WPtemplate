@@ -58,18 +58,26 @@ class SedRazavi_Diagnostics_Doctor {
     }
 
     /**
-     * Permission callback: Admin or verified development nonce
+     * Permission callback: Strictly require WordPress Administrator capability
      */
     public function check_admin_permissions($request) {
-        if (current_user_can('manage_options')) {
-            return true;
+        if (!is_user_logged_in() || !current_user_can('manage_options')) {
+            return new WP_Error(
+                'rest_forbidden',
+                esc_html__('دسترسی غیرمجاز: اجرای پایش سیستمی و عیب‌یابی صرفاً در صلاحیت مدیر کل وب‌سایت است.', 'sedrazavi-companion'),
+                ['status' => 403]
+            );
         }
-        $client_token = $request->get_header('x-sedrazavi-client-token');
+
         $nonce = $request->get_header('x-wp-nonce');
-        if (($nonce && wp_verify_nonce($nonce, 'wp_rest')) || !empty($client_token)) {
-            return true;
+        if ($nonce && !wp_verify_nonce($nonce, 'wp_rest')) {
+            return new WP_Error(
+                'rest_invalid_nonce',
+                esc_html__('اعتبار نانس امنیتی منقضی یا نامعتبر است.', 'sedrazavi-companion'),
+                ['status' => 403]
+            );
         }
-        // In local/simulated headless mode, allow read diagnosis
+
         return true;
     }
 

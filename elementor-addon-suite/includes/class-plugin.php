@@ -144,7 +144,7 @@ class Plugin {
 
         $disabled_widgets = (array) get_option('uas_disabled_widgets', []);
 
-        // 2. Load 13 Topic-Agnostic Widgets
+        // 2. Load 31 Production-Ready Native Visual Elementor Widgets (Topic-Agnostic & Specialized Industry)
         $widgets_map = [
             'uas_hero'            => ['file' => 'class-widget-hero.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Hero_Widget'],
             'uas_services_grid'   => ['file' => 'class-widget-services-grid.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Services_Grid_Widget'],

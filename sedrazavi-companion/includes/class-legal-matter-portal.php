@@ -73,20 +73,37 @@ class SedRazavi_Legal_Matter_Portal {
     }
 
     /**
-     * Check if user is authenticated client or staff
+     * Check if user is authenticated client or staff (Strict Authentication - Anti-Bypass)
+     * Nonce is CSRF protection, NOT authentication.
      */
     public function check_authenticated_client($request) {
-        if (is_user_logged_in()) {
-            return true;
+        if (!is_user_logged_in()) {
+            // Check if secure HMAC token provided for headless/mobile clients
+            $client_token = $request->get_header('x-sedrazavi-client-token');
+            if (!empty($client_token)) {
+                $token_user_id = $this->verify_hmac_client_token($client_token);
+                if ($token_user_id) {
+                    return true;
+                }
+            }
+            return new WP_Error(
+                'rest_not_authenticated',
+                esc_html__('احراز هویت الزامی است. دسترسی با نانس عمومی مجاز نمی‌باشد.', 'sedrazavi-companion'),
+                ['status' => 401]
+            );
         }
-        $client_token = $request->get_header('x-sedrazavi-client-token');
-        $nonce = $request->get_header('x-wp-nonce');
 
-        // Allow verified simulation nonce or client auth header
-        if (($nonce && wp_verify_nonce($nonce, 'wp_rest')) || !empty($client_token)) {
-            return true;
+        // Validate CSRF nonce for logged-in requests
+        $nonce = $request->get_header('x-wp-nonce');
+        if ($nonce && !wp_verify_nonce($nonce, 'wp_rest')) {
+            return new WP_Error(
+                'rest_invalid_nonce',
+                esc_html__('اعتبار نانس امنیتی منقضی یا نامعتبر است.', 'sedrazavi-companion'),
+                ['status' => 403]
+            );
         }
-        return false;
+
+        return true;
     }
 
     /**
@@ -400,12 +417,32 @@ class SedRazavi_Legal_Matter_Portal {
         return 'client_user_101'; // Default simulated primary client
     }
 
+    /**
+     * Verify cryptographic HMAC client token (format: user_id:timestamp:hmac)
+     */
+    private function verify_hmac_client_token($token) {
+        $parts = explode(':', $token);
+        if (count($parts) !== 3) {
+            return false;
+        }
+        list($uid, $time, $hash) = $parts;
+        // 24 hour expiry
+        if (abs(time() - intval($time)) > 86400) {
+            return false;
+        }
+        $expected = hash_hmac('sha256', "{$uid}:{$time}", wp_salt('auth'));
+        if (hash_equals($expected, $hash)) {
+            return sanitize_text_field($uid);
+        }
+        return false;
+    }
+
     private function is_staff_user($request) {
-        if (current_user_can('manage_options') || current_user_can('edit_posts')) {
+        // Enforce strict WordPress capability checks. Client-sent headers are untrusted and rejected.
+        if (is_user_logged_in() && (current_user_can('manage_options') || current_user_can('edit_posts'))) {
             return true;
         }
-        $role = $request->get_header('x-sedrazavi-user-role');
-        return $role === 'admin' || $role === 'lawyer';
+        return false;
     }
 
     /**

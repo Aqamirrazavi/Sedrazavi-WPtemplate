@@ -73,18 +73,27 @@ class SedRazavi_Ecosystem_Publisher {
     }
 
     /**
-     * Permission callback for publisher operations
+     * Permission callback for publisher operations - Strictly require manage_options
      */
     public function check_authorized_actor($request) {
-        if (current_user_can('manage_options')) {
-            return true;
+        if (!is_user_logged_in() || !current_user_can('manage_options')) {
+            return new WP_Error(
+                'rest_forbidden',
+                esc_html__('دسترسی به بخش ناشران و فعال‌سازی قابلیت‌های سیستمی نیازمند مجوز مدیریت است.', 'sedrazavi-companion'),
+                ['status' => 403]
+            );
         }
-        $client_token = $request->get_header('x-sedrazavi-client-token');
+
         $nonce = $request->get_header('x-wp-nonce');
-        if (($nonce && wp_verify_nonce($nonce, 'wp_rest')) || !empty($client_token)) {
-            return true;
+        if ($nonce && !wp_verify_nonce($nonce, 'wp_rest')) {
+            return new WP_Error(
+                'rest_invalid_nonce',
+                esc_html__('اعتبار نانس امنیتی منقضی یا نامعتبر است.', 'sedrazavi-companion'),
+                ['status' => 403]
+            );
         }
-        return false;
+
+        return true;
     }
 
     /**

@@ -61,9 +61,26 @@ final class Universal_Elementor_Addon_Suite {
     }
 
     /**
-     * On Plugin Activation (Instant activation without blocking database clutter or timeout)
+     * On Plugin Activation (Supports Single Site and WordPress Multisite Network-Wide)
      */
-    public static function on_activation() {
+    public static function on_activation($network_wide = false) {
+        if (function_exists('is_multisite') && is_multisite() && $network_wide) {
+            global $wpdb;
+            $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+            foreach ($blog_ids as $blog_id) {
+                switch_to_blog($blog_id);
+                self::activate_single_site();
+                restore_current_blog();
+            }
+        } else {
+            self::activate_single_site();
+        }
+    }
+
+    /**
+     * Single Site Activation Routine
+     */
+    private static function activate_single_site() {
         if (!get_option('uas_plugin_activated_time')) {
             update_option('uas_plugin_activated_time', time());
         }
@@ -151,9 +168,12 @@ final class Universal_Elementor_Addon_Suite {
             return;
         }
 
-        // 5. Load Elementor Core Engine
+        // 5. Load Elementor Core Engine & Theme Builder Bridge
         require_once UAS_PATH . 'includes/class-plugin.php';
         \UniversalElementorSuite\Plugin::instance();
+
+        require_once UAS_PATH . 'includes/class-theme-builder-bridge.php';
+        \UniversalElementorSuite\Theme_Builder_Bridge::instance();
     }
 
     /**

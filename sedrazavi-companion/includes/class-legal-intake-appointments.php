@@ -76,17 +76,27 @@ class SedRazavi_Legal_Intake_Appointments {
     }
 
     /**
-     * Staff/Lawyer RBAC Permission check
+     * Staff/Lawyer RBAC Permission check: Strictly require authenticated user with edit_posts or manage_options
      */
     public function check_staff_permission($request) {
-        if (current_user_can('manage_options') || current_user_can('edit_posts')) {
-            return true;
+        if (!is_user_logged_in() || (!current_user_can('manage_options') && !current_user_can('edit_posts'))) {
+            return new WP_Error(
+                'rest_forbidden',
+                esc_html__('دسترسی غیرمجاز: مشاهده اطلاعات نوبت‌ها و استعلام‌های حقوقی نیازمند مجوز وکالت یا مدیریت است.', 'sedrazavi-companion'),
+                ['status' => 403]
+            );
         }
+
         $nonce = $request->get_header('x-wp-nonce');
-        if ($nonce && wp_verify_nonce($nonce, 'wp_rest')) {
-            return true;
+        if ($nonce && !wp_verify_nonce($nonce, 'wp_rest')) {
+            return new WP_Error(
+                'rest_invalid_nonce',
+                esc_html__('اعتبار نانس امنیتی منقضی یا نامعتبر است.', 'sedrazavi-companion'),
+                ['status' => 403]
+            );
         }
-        return false;
+
+        return true;
     }
 
     /**

@@ -27,7 +27,9 @@ class Template_Importer {
      * @return array Status report
      */
     public static function import_all_templates() {
-        return self::import_from_directory(UAS_PATH . 'templates/', 'section');
+        $report = self::import_from_directory(UAS_PATH . 'templates/', 'section');
+        self::flush_elementor_css_cache();
+        return $report;
     }
 
     /**
@@ -36,7 +38,18 @@ class Template_Importer {
      * @return array Status report
      */
     public static function import_all_popups() {
-        return self::import_from_directory(UAS_PATH . 'templates/popups/', 'popup');
+        $report = self::import_from_directory(UAS_PATH . 'templates/popups/', 'popup');
+        self::flush_elementor_css_cache();
+        return $report;
+    }
+
+    /**
+     * Flush Elementor compiled CSS files cache for instant styling parity
+     */
+    public static function flush_elementor_css_cache() {
+        if (class_exists('\Elementor\Plugin') && isset(\Elementor\Plugin::$instance->files_manager)) {
+            \Elementor\Plugin::$instance->files_manager->clear_cache();
+        }
     }
 
     /**
@@ -155,6 +168,8 @@ class Template_Importer {
             update_post_meta($post_id, '_elementor_page_settings', wp_slash(json_encode($data['page_settings'])));
         }
 
+        self::flush_elementor_css_cache();
+
         return [
             'success' => true,
             'post_id' => $post_id,
@@ -262,6 +277,30 @@ class Template_Importer {
             'skipped'  => $skipped,
             'total'    => count($files),
             'items'    => $results,
+        ];
+    }
+
+    /**
+     * Rollback atomic import batch
+     * Removes specified post IDs and their meta in case of error or user undo request
+     *
+     * @param array $post_ids
+     * @return array
+     */
+    public static function rollback_imported_batch(array $post_ids) {
+        $deleted = 0;
+        foreach ($post_ids as $id) {
+            $post = get_post($id);
+            if ($post && $post->post_type === 'elementor_library') {
+                if (wp_delete_post($id, true)) {
+                    $deleted++;
+                }
+            }
+        }
+        return [
+            'success' => true,
+            'deleted' => $deleted,
+            'message' => sprintf('%d قالب با موفقیت از کتابخانه حذف و رول‌بک گردید.', $deleted),
         ];
     }
 }

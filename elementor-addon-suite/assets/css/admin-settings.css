@@ -778,3 +778,43 @@ input:checked + .uas-slider {
 input:checked + .uas-slider:before {
   transform: translateX(20px);
 }
+
+/* Custom Project Kit Studio (استودیوی ساخت جعبه‌ابزار سفارشی) */
+.uas-kit-studio-card {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.08);
+}
+
+.uas-admin-wrap.uas-dark-mode .uas-kit-studio-card {
+  border-color: #818cf8 !important;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.uas-kit-studio-card input[type="text"],
+.uas-kit-studio-card select {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.uas-kit-studio-card input[type="text"]:focus,
+.uas-kit-studio-card select:focus {
+  border-color: var(--uas-primary) !important;
+  box-shadow: 0 0 0 3px var(--uas-primary-glow) !important;
+  outline: none;
+}
+
+.uas-admin-wrap.uas-dark-mode .uas-kit-studio-card label[style*="background"] {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.uas-admin-wrap.uas-dark-mode .uas-kit-studio-card label[style*="background"]:hover {
+  background: #25334a !important;
+  border-color: #818cf8 !important;
+}
+
+.uas-admin-wrap.uas-dark-mode #uas-custom-bundle-status > div {
+  color: #f1f5f9;
+}
+

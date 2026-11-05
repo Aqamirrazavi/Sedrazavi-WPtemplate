@@ -166,32 +166,37 @@ class Admin_Settings {
      */
     public static function get_all_widgets_list() {
         return [
-            'uas_hero'            => ['name' => 'هیرو بنر مدرن و منعطف', 'icon' => 'eicon-banner'],
-            'uas_services_grid'   => ['name' => 'شبکه خدمات و ویژگی‌ها', 'icon' => 'eicon-gallery-grid'],
-            'uas_testimonials'    => ['name' => 'نظرات و رضایت مشتریان', 'icon' => 'eicon-testimonial'],
-            'uas_posts_grid'      => ['name' => 'گرید مقالات و اخبار پویا', 'icon' => 'eicon-post-list'],
-            'uas_video'           => ['name' => 'نمایشگر ویدیویی با پوستر', 'icon' => 'eicon-video-playlist'],
-            'uas_story_bar'       => ['name' => 'نوار استوری‌ها و هایلایت‌ها', 'icon' => 'eicon-instagram-gallery'],
-            'uas_team'            => ['name' => 'معرفی اعضای تیم و متخصصان', 'icon' => 'eicon-person'],
-            'uas_faq'             => ['name' => 'آکاردئون پرسش‌های متداول', 'icon' => 'eicon-help-o'],
-            'uas_contact_booking' => ['name' => 'فرم هوشمند رزرو نوبت و مشاوره', 'icon' => 'eicon-form-horizontal'],
-            'uas_cta'             => ['name' => 'بنر فراخوان اقدام و تماس (CTA)', 'icon' => 'eicon-call-to-action'],
-            'uas_banner_slider'   => ['name' => 'نوار تیکر و شعارهای متحرک', 'icon' => 'eicon-text-area'],
-            'uas_floating_dock'   => ['name' => 'داک شناور بازگشت به بالا', 'icon' => 'eicon-navigation-vertical'],
-            'uas_theme_toggle'    => ['name' => 'سوییچ تغییر حالت شب و روز', 'icon' => 'eicon-adjust'],
-            'uas_firm_milestones' => ['name' => 'سفر رشد و نقاط عطف راهبردی', 'icon' => 'eicon-time-line'],
-            'uas_case_timeline'   => ['name' => 'تایم‌لاین تعاملی پرونده موکل', 'icon' => 'eicon-history'],
-            'uas_email_otp'       => ['name' => 'ورود با رمز یکبار مصرف ایمیل', 'icon' => 'eicon-lock-user'],
-            'uas_radar_chart'     => ['name' => 'نمودار راداری حوزه‌های تخصصی', 'icon' => 'eicon-radar-chart'],
-            'uas_pricing_switcher'=> ['name' => 'جدول قیمت‌گذاری با سوییچر تخفیف (ویژه لندینگ)', 'icon' => 'eicon-table'],
-            'uas_fomo_countdown'  => ['name' => 'نوار فوریت و شمارش معکوس تخفیف FOMO', 'icon' => 'eicon-countdown'],
-            'uas_before_after'    => ['name' => 'اسلایدر مقایسه تصویری قبل و بعد (Before/After)', 'icon' => 'eicon-image-before-after'],
-            'uas_stat_counter'    => ['name' => 'پیشخوان آمار و ارقام انیمیشنی (Animated Counter)', 'icon' => 'eicon-counter'],
-            'uas_floating_cta'    => ['name' => 'نوار شناور اقدام فوری و تبدیل لید (Floating CTA)', 'icon' => 'eicon-anchor'],
-            'uas_pricing_matrix'  => ['name' => 'ماتریس جامع مقایسه ویژگی‌ها و قیمت‌ها', 'icon' => 'eicon-table'],
-            'uas_hero_split'      => ['name' => 'هیرو بنر اسپلیت و جذب لید (Split Hero)', 'icon' => 'eicon-split'],
-            'uas_bento_tabs'      => ['name' => 'گرید بنتو تعاملی با تب‌های دسته‌بندی (Bento Tabs)', 'icon' => 'eicon-tabs'],
-            'uas_dynamic_grid'    => ['name' => 'گرید داینامیک کوئری هوشمند و کش ترنزینت', 'icon' => 'eicon-posts-grid'],
+            'uas_hero'              => ['name' => 'هیرو بنر مدرن و منعطف', 'icon' => 'eicon-banner'],
+            'uas_services_grid'     => ['name' => 'شبکه خدمات و ویژگی‌ها', 'icon' => 'eicon-gallery-grid'],
+            'uas_testimonials'      => ['name' => 'نظرات و رضایت مشتریان', 'icon' => 'eicon-testimonial'],
+            'uas_posts_grid'        => ['name' => 'گرید مقالات و اخبار پویا', 'icon' => 'eicon-post-list'],
+            'uas_video'             => ['name' => 'نمایشگر ویدیویی با پوستر', 'icon' => 'eicon-video-playlist'],
+            'uas_story_bar'         => ['name' => 'نوار استوری‌ها و هایلایت‌ها', 'icon' => 'eicon-instagram-gallery'],
+            'uas_team'              => ['name' => 'معرفی اعضای تیم و متخصصان', 'icon' => 'eicon-person'],
+            'uas_faq'               => ['name' => 'آکاردئون پرسش‌های متداول', 'icon' => 'eicon-help-o'],
+            'uas_contact_booking'   => ['name' => 'فرم هوشمند رزرو نوبت و مشاوره', 'icon' => 'eicon-form-horizontal'],
+            'uas_cta'               => ['name' => 'بنر فراخوان اقدام و تماس (CTA)', 'icon' => 'eicon-call-to-action'],
+            'uas_banner_slider'     => ['name' => 'نوار تیکر و شعارهای متحرک', 'icon' => 'eicon-text-area'],
+            'uas_floating_dock'     => ['name' => 'داک شناور بازگشت به بالا', 'icon' => 'eicon-navigation-vertical'],
+            'uas_theme_toggle'      => ['name' => 'سوییچ تغییر حالت شب و روز', 'icon' => 'eicon-adjust'],
+            'uas_firm_milestones'   => ['name' => 'سفر رشد و نقاط عطف راهبردی', 'icon' => 'eicon-time-line'],
+            'uas_case_timeline'     => ['name' => 'تایم‌لاین تعاملی پرونده موکل', 'icon' => 'eicon-history'],
+            'uas_email_otp'         => ['name' => 'ورود با رمز یکبار مصرف ایمیل', 'icon' => 'eicon-lock-user'],
+            'uas_radar_chart'       => ['name' => 'نمودار راداری حوزه‌های تخصصی', 'icon' => 'eicon-radar-chart'],
+            'uas_pricing_switcher'  => ['name' => 'جدول قیمت‌گذاری با سوییچر تخفیف (ویژه لندینگ)', 'icon' => 'eicon-table'],
+            'uas_fomo_countdown'    => ['name' => 'نوار فوریت و شمارش معکوس تخفیف FOMO', 'icon' => 'eicon-countdown'],
+            'uas_before_after'      => ['name' => 'اسلایدر مقایسه تصویری قبل و بعد (Before/After)', 'icon' => 'eicon-image-before-after'],
+            'uas_stat_counter'      => ['name' => 'پیشخوان آمار و ارقام انیمیشنی (Animated Counter)', 'icon' => 'eicon-counter'],
+            'uas_floating_cta'      => ['name' => 'نوار شناور اقدام فوری و تبدیل لید (Floating CTA)', 'icon' => 'eicon-anchor'],
+            'uas_pricing_matrix'    => ['name' => 'ماتریس جامع مقایسه ویژگی‌ها و قیمت‌ها', 'icon' => 'eicon-table'],
+            'uas_hero_split'        => ['name' => 'هیرو بنر اسپلیت و جذب لید (Split Hero)', 'icon' => 'eicon-split'],
+            'uas_bento_tabs'        => ['name' => 'گرید بنتو تعاملی با تب‌های دسته‌بندی (Bento Tabs)', 'icon' => 'eicon-tabs'],
+            'uas_dynamic_grid'      => ['name' => 'گرید داینامیک کوئری هوشمند و کش ترنزینت', 'icon' => 'eicon-posts-grid'],
+            'uas_client_portal'     => ['name' => 'پورتال مراجعین و پیگیری وضعیت پرونده', 'icon' => 'eicon-user-preferences'],
+            'uas_download_box'      => ['name' => 'باکس دانلود چندمنظوره با شمارنده و هش', 'icon' => 'eicon-file-download'],
+            'uas_news_ticker'       => ['name' => 'تیکر اخبار و اعلانات فوری زنده', 'icon' => 'eicon-bullet-list'],
+            'uas_spotplayer_course' => ['name' => 'کارت دوره آموزشی با لایسنس اسپات‌پلیر', 'icon' => 'eicon-play'],
+            'uas_vip_pricing'       => ['name' => 'جدول قیمت‌گذاری ویژه VIP با بج برجسته', 'icon' => 'eicon-price-table'],
         ];
     }
 
@@ -850,6 +855,155 @@ class Admin_Settings {
                 <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; border-right:4px solid #06b6d4;">
                     <div style="font-size:11px; color:#64748b; font-weight:700;">لایه ۶: زیرساخت وردپرس</div>
                     <div style="font-size:15px; font-weight:800; color:#0f172a; margin-top:4px;">PHP <?php echo esc_html(PHP_VERSION); ?></div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- FLAGSHIP: CUSTOM PROJECT KIT BUILDER STUDIO (استودیوی ساخت جعبه‌ابزار سفارشی) -->
+            <!-- ============================================================== -->
+            <?php
+            require_once UAS_PATH . 'includes/class-template-importer.php';
+            $all_kit_widgets   = self::get_all_widgets_list();
+            $all_kit_templates = \UniversalElementorSuite\Template_Importer::get_templates_manifest();
+            ?>
+            <div class="uas-admin-card uas-kit-studio-card" style="margin-bottom:30px; border:2px solid #6366f1; background:linear-gradient(135deg, rgba(99,102,241,0.04) 0%, rgba(139,92,246,0.02) 100%);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px; border-bottom:1px solid var(--uas-border-color); padding-bottom:18px;">
+                    <div>
+                        <span style="background:linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color:#fff; font-size:11px; font-weight:800; padding:4px 12px; border-radius:20px; display:inline-block; margin-bottom:8px;">
+                            🚀 قابلیت نوین: استودیوی ساخت کیت مستقل برای پروژه‌های سفارشی
+                        </span>
+                        <h2 style="font-size:20px; font-weight:800; color:var(--uas-text-main); margin:0 0 6px;">
+                            🧰 استودیوی ساخت جعبه‌ابزار سفارشی و قابل حمل (Custom Project Kit Studio)
+                        </h2>
+                        <p style="font-size:13px; color:var(--uas-text-muted); margin:0; max-width:860px; line-height:1.7;">
+                            اگر پروژه جدیدی برای مشتری (شرکتی، پزشکی، فروشگاهی، آموزشی، حقوقی یا آژانس) تحویل گرفته‌اید، پس از نصب وردپرس و المنتور خام، بدون نیاز به نصب کل اکوسیستم یا قالب‌های سنگین، دقیقاً ویجت‌ها، قالب‌ها و قابلیت‌های مورد نیاز آن سایت را انتخاب کنید. سیستم با ۱ کلیک یک افزونه مستقل وردپرسی (Standalone ZIP Plugin) کامپایل می‌کند که با بارگذاری آن در هاست مشتری، قالب‌ها خودکار در کتابخانه المنتور ثبت و تمام ویجت‌ها آماده استفاده می‌شوند (۱۰۰٪ بدون ری‌اکت و کاملاً سازگار با المنتور).
+                        </p>
+                    </div>
+                    <div style="background:var(--uas-bg-card); border:1px solid var(--uas-border-color); padding:10px 16px; border-radius:12px; text-align:center;">
+                        <span style="font-size:11px; color:var(--uas-text-muted); display:block;">موجودی قابل انتخاب</span>
+                        <strong style="font-size:16px; color:var(--uas-primary);"><?php echo count($all_kit_widgets); ?> ویجت + <?php echo count($all_kit_templates); ?> الگو</strong>
+                    </div>
+                </div>
+
+                <!-- Form Controls: Project Info -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:18px; margin-bottom:24px;">
+                    <div>
+                        <label for="uas-kit-project-name" style="display:block; font-size:13px; font-weight:700; color:var(--uas-text-main); margin-bottom:6px;">
+                            نام پروژه یا برند مشتری:
+                        </label>
+                        <input type="text" id="uas-kit-project-name" value="پروژه وب‌سایت مشتری" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--uas-border-color); background:var(--uas-bg-card); color:var(--uas-text-main); font-size:13px; font-weight:600;" placeholder="مثال: آکادمی توسعه فردی نوین" />
+                    </div>
+
+                    <div>
+                        <label for="uas-kit-project-slug" style="display:block; font-size:13px; font-weight:700; color:var(--uas-text-main); margin-bottom:6px;">
+                            نامک انگلیسی افزونه (Slug):
+                        </label>
+                        <input type="text" id="uas-kit-project-slug" value="client-elementor-kit" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--uas-border-color); background:var(--uas-bg-card); color:var(--uas-text-main); font-size:13px; font-family:monospace; direction:ltr; text-align:left;" placeholder="e.g. client-academy-kit" />
+                    </div>
+
+                    <div>
+                        <label for="uas-kit-niche" style="display:block; font-size:13px; font-weight:700; color:var(--uas-text-main); margin-bottom:6px;">
+                            حوزه کاری و نیچ پروژه (Niche):
+                        </label>
+                        <select id="uas-kit-niche" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--uas-border-color); background:var(--uas-bg-card); color:var(--uas-text-main); font-size:13px; font-weight:600;">
+                            <option value="corporate">شرکتی و سازمانی (Corporate)</option>
+                            <option value="medical">کلینیک و پزشکی (Clinic & Healthcare)</option>
+                            <option value="store">فروشگاه آنلاین (E-Commerce / Store)</option>
+                            <option value="lms">آکادمی و دوره آنلاین (LMS & Academy)</option>
+                            <option value="agency">آژانس دیجیتال و نمونه‌کار (Creative Agency)</option>
+                            <option value="legal">حقوقی، وکالت و موسسات (Legal Firm)</option>
+                            <option value="general" selected>چندمنظوره و استاندارد (General Purpose)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Infrastructure Capabilities Checkboxes -->
+                <div style="background:var(--uas-bg-card); border:1px solid var(--uas-border-color); border-radius:12px; padding:16px 20px; margin-bottom:24px; display:flex; flex-wrap:wrap; gap:24px; align-items:center;">
+                    <strong style="font-size:13px; color:var(--uas-text-main); display:inline-flex; align-items:center; gap:6px;">
+                        <span>⚙️</span> قابلیت‌های زیرساختی هوشمند:
+                    </strong>
+
+                    <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:var(--uas-text-body);">
+                        <input type="checkbox" id="uas-kit-theme-bridge" checked value="1" style="width:17px; height:17px; accent-color:#6366f1;" />
+                        <span><strong>پل سازنده قالب (Theme Builder Bridge):</strong> نمایش خودکار هدر، فوتر، تک‌پست و ۴۰۴ حتی در المنتور رایگان</span>
+                    </label>
+
+                    <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:var(--uas-text-body);">
+                        <input type="checkbox" id="uas-kit-query-engine" checked value="1" style="width:17px; height:17px; accent-color:#6366f1;" />
+                        <span><strong>موتور کوئری پویا (Dynamic Query Engine):</strong> کوئری‌های پرسرعت CPT و سیستم کشینگ ترنزینت</span>
+                    </label>
+                </div>
+
+                <!-- SECTION A: SELECT WIDGETS -->
+                <div style="margin-bottom:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                        <h3 style="font-size:15px; font-weight:800; color:var(--uas-text-main); margin:0;">
+                            🧩 ۱. انتخاب ویجت‌های المنتور برای این پروژه (<span id="uas-kit-widgets-selected-count"><?php echo count($all_kit_widgets); ?></span> از <?php echo count($all_kit_widgets); ?> انتخاب‌شده):
+                        </h3>
+                        <div style="display:flex; gap:8px;">
+                            <button type="button" id="uas-kit-select-all-widgets" class="button" style="font-size:11px; padding:2px 10px; height:auto;">انتخاب همه</button>
+                            <button type="button" id="uas-kit-deselect-all-widgets" class="button" style="font-size:11px; padding:2px 10px; height:auto;">عدم انتخاب همه</button>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px; max-height:300px; overflow-y:auto; padding:12px; background:var(--uas-bg-card); border:1px solid var(--uas-border-color); border-radius:10px;">
+                        <?php foreach ($all_kit_widgets as $w_slug => $w_data) : ?>
+                            <label style="display:flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid var(--uas-border-color); border-radius:8px; background:var(--uas-bg-card-subtle); cursor:pointer; font-size:12px; transition:all 0.15s ease;">
+                                <input type="checkbox" name="uas_kit_widgets[]" value="<?php echo esc_attr($w_slug); ?>" checked class="uas-kit-widget-cb" style="accent-color:#6366f1; width:16px; height:16px;" />
+                                <span style="color:var(--uas-primary); font-size:15px;"><i class="<?php echo esc_attr($w_data['icon']); ?>"></i></span>
+                                <span style="font-weight:700; color:var(--uas-text-main);"><?php echo esc_html($w_data['name']); ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- SECTION B: SELECT TEMPLATES -->
+                <div style="margin-bottom:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                        <h3 style="font-size:15px; font-weight:800; color:var(--uas-text-main); margin:0;">
+                            📐 ۲. انتخاب الگوهای آماده برای درون‌ریزی خودکار در کتابخانه (<span id="uas-kit-templates-selected-count"><?php echo count($all_kit_templates); ?></span> از <?php echo count($all_kit_templates); ?> انتخاب‌شده):
+                        </h3>
+                        <div style="display:flex; gap:8px;">
+                            <button type="button" id="uas-kit-select-all-templates" class="button" style="font-size:11px; padding:2px 10px; height:auto;">انتخاب همه</button>
+                            <button type="button" id="uas-kit-deselect-all-templates" class="button" style="font-size:11px; padding:2px 10px; height:auto;">عدم انتخاب همه</button>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; max-height:300px; overflow-y:auto; padding:12px; background:var(--uas-bg-card); border:1px solid var(--uas-border-color); border-radius:10px;">
+                        <?php foreach ($all_kit_templates as $tpl) : 
+                            $badge_color = '#3b82f6';
+                            if ($tpl['type'] === 'page') $badge_color = '#10b981';
+                            elseif ($tpl['type'] === 'header' || $tpl['type'] === 'footer') $badge_color = '#ec4899';
+                            elseif ($tpl['type'] === 'popup') $badge_color = '#ef4444';
+                        ?>
+                            <label style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 12px; border:1px solid var(--uas-border-color); border-radius:8px; background:var(--uas-bg-card-subtle); cursor:pointer; font-size:12px; transition:all 0.15s ease;">
+                                <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+                                    <input type="checkbox" name="uas_kit_templates[]" value="<?php echo esc_attr($tpl['slug']); ?>" checked class="uas-kit-template-cb" style="accent-color:#6366f1; width:16px; height:16px;" />
+                                    <span style="font-weight:700; color:var(--uas-text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="<?php echo esc_attr($tpl['title']); ?>">
+                                        <?php echo esc_html($tpl['title']); ?>
+                                    </span>
+                                </div>
+                                <span style="font-size:10px; padding:2px 6px; border-radius:4px; color:#fff; background:<?php echo esc_attr($badge_color); ?>; flex-shrink:0;">
+                                    <?php echo esc_html($tpl['type']); ?>
+                                </span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- ACTION: COMPILE BUTTON & RESULT STATUS -->
+                <div style="border-top:1px solid var(--uas-border-color); padding-top:20px; display:flex; flex-direction:column; gap:14px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;">
+                        <button type="button" id="uas-btn-build-custom-bundle" class="uas-btn-primary" style="padding:12px 28px; font-size:14px; font-weight:800; border-radius:10px; box-shadow:0 6px 18px rgba(99,102,241,0.35); display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+                            <span>⚡</span> <?php esc_html_e('کامپایل و استخراج بسته مستقل ZIP برای پروژه', 'universal-elementor-suite'); ?>
+                        </button>
+                        <span style="font-size:12px; color:var(--uas-text-muted);">
+                            🔒 خودکفا و ایزوله: قابل نصب روی هر هاست و دامین مستقل بدون هیچ وابستگی به تم مادر یا ری‌اکت
+                        </span>
+                    </div>
+
+                    <!-- Live build progress and download area -->
+                    <div id="uas-custom-bundle-status" style="display:none;"></div>
                 </div>
             </div>
 
