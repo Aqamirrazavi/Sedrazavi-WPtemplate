@@ -1,25 +1,19 @@
 /**
  * Vazirmatn Persian Typography Stylesheet
- * Local self-contained font stack ensuring 100% offline uptime and zero dependency on external CDNs.
+ * 100% Local Self-Contained Webfont Stack
+ * Zero External CDN Dependency - Fully Offline Compatible
  *
  * @package SedRazavi
- * @version 3.0.0
+ * @version 6.1.0
  */
-
-@font-face {
-  font-family: 'Vazirmatn';
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: local('Vazirmatn Light'), local('Vazirmatn-Light'), local('Vazirmatn');
-}
 
 @font-face {
   font-family: 'Vazirmatn';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: local('Vazirmatn Regular'), local('Vazirmatn-Regular'), local('Vazirmatn');
+  src: local('Vazirmatn Regular'), local('Vazirmatn-Regular'), local('Vazirmatn'),
+       url('../fonts/Vazirmatn-Regular.woff2') format('woff2');
 }
 
 @font-face {
@@ -27,15 +21,8 @@
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: local('Vazirmatn Medium'), local('Vazirmatn-Medium'), local('Vazirmatn');
-}
-
-@font-face {
-  font-family: 'Vazirmatn';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: local('Vazirmatn SemiBold'), local('Vazirmatn-SemiBold'), local('Vazirmatn');
+  src: local('Vazirmatn Medium'), local('Vazirmatn-Medium'),
+       url('../fonts/Vazirmatn-Medium.woff2') format('woff2');
 }
 
 @font-face {
@@ -43,7 +30,8 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: local('Vazirmatn Bold'), local('Vazirmatn-Bold'), local('Vazirmatn');
+  src: local('Vazirmatn Bold'), local('Vazirmatn-Bold'),
+       url('../fonts/Vazirmatn-Bold.woff2') format('woff2');
 }
 
 @font-face {
@@ -51,7 +39,8 @@
   font-style: normal;
   font-weight: 800;
   font-display: swap;
-  src: local('Vazirmatn ExtraBold'), local('Vazirmatn-ExtraBold'), local('Vazirmatn');
+  src: local('Vazirmatn ExtraBold'), local('Vazirmatn-ExtraBold'),
+       url('../fonts/Vazirmatn-Bold.woff2') format('woff2');
 }
 
 :root {

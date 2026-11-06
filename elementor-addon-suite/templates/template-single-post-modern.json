@@ -4,54 +4,80 @@
   "type": "single-post",
   "content": [
     {
-      "id": "uas_sec_single_header",
-      "elType": "section",
+      "id": "uas_cnt_single_header",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
         "background_background": "classic",
         "background_color": "#0F172A",
-        "padding": { "unit": "px", "top": "60", "right": "20", "bottom": "60", "left": "20" }
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_col_single_header",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_wid_post_title",
-              "elType": "widget",
-              "widgetType": "theme-post-title",
-              "settings": {
-                "title": "عنوان نوشته به صورت پویا (Dynamic Post Title)",
-                "align": "right"
-              }
-            },
-            {
-              "id": "uas_wid_post_info",
-              "elType": "widget",
-              "widgetType": "post-info",
-              "settings": {
-                "type": "inline",
-                "icon_align": "right"
-              }
-            }
-          ]
+          "id": "uas_wid_post_title",
+          "elType": "widget",
+          "widgetType": "theme-post-title",
+          "settings": {
+            "title": "عنوان نوشته به صورت پویا (Dynamic Post Title)",
+            "align": "right"
+          }
+        },
+        {
+          "id": "uas_wid_post_info",
+          "elType": "widget",
+          "widgetType": "post-info",
+          "settings": {
+            "type": "inline",
+            "icon_align": "right"
+          }
         }
       ]
     },
     {
-      "id": "uas_sec_single_content",
-      "elType": "section",
+      "id": "uas_cnt_single_content",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
-        "padding": { "unit": "px", "top": "50", "right": "20", "bottom": "60", "left": "20" }
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "row",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "flex_wrap": "wrap",
+        "flex_gap": {
+          "unit": "px",
+          "size": 24
+        }
       },
       "elements": [
         {
-          "id": "uas_col_single_main",
-          "elType": "column",
-          "settings": { "_column_size": 70 },
+          "id": "uas_cnt_sub_single_main",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 70
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
           "elements": [
             {
               "id": "uas_wid_post_featured_image",
@@ -86,9 +112,17 @@
           ]
         },
         {
-          "id": "uas_col_single_sidebar",
-          "elType": "column",
-          "settings": { "_column_size": 30 },
+          "id": "uas_cnt_sub_single_sidebar",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 30
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
           "elements": [
             {
               "id": "uas_wid_sidebar_cta",
@@ -98,7 +132,9 @@
                 "title": "دریافت مشاوره تخصصی",
                 "subtitle": "برای راه‌اندازی پروژه‌های خود با متخصصان ما گفتگو کنید.",
                 "button_text": "رزرو آنلاین جلسه",
-                "button_url": { "url": "#booking" }
+                "button_url": {
+                  "url": "#booking"
+                }
               }
             }
           ]

@@ -110,6 +110,93 @@ class Theme_Builder_Bridge {
     }
 
     /**
+     * Universal do_location dispatcher for Theme Builder locations
+     *
+     * @param string $location
+     * @return bool
+     */
+    public function do_location($location) {
+        if (!class_exists('\Elementor\Plugin')) {
+            return false;
+        }
+
+        switch ($location) {
+            case 'header':
+                return $this->render_header();
+            case 'footer':
+                return $this->render_footer();
+            case 'single':
+                return $this->render_single();
+            case 'archive':
+                return $this->render_archive();
+            case '404':
+                $tpl_404 = $this->get_assigned_template_id('404');
+                if ($tpl_404) {
+                    get_header();
+                    echo '<main id="content" class="site-main uas-canvas-main uas-theme-builder-404">';
+                    echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($tpl_404);
+                    echo '</main>';
+                    get_footer();
+                    return true;
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Render assigned single template
+     *
+     * @return bool
+     */
+    public function render_single() {
+        if (!class_exists('\Elementor\Plugin')) {
+            return false;
+        }
+
+        $single_id = $this->get_assigned_template_id('single');
+        if (!$single_id) {
+            $single_id = $this->get_assigned_template_id('single-post');
+        }
+
+        if ($single_id) {
+            get_header();
+            echo '<main id="content" class="site-main uas-canvas-main uas-theme-builder-single">';
+            echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($single_id);
+            echo '</main>';
+            get_footer();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Render assigned archive template
+     *
+     * @return bool
+     */
+    public function render_archive() {
+        if (!class_exists('\Elementor\Plugin')) {
+            return false;
+        }
+
+        $archive_id = $this->get_assigned_template_id('archive');
+
+        if ($archive_id) {
+            get_header();
+            echo '<main id="content" class="site-main uas-canvas-main uas-theme-builder-archive">';
+            echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display($archive_id);
+            echo '</main>';
+            get_footer();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Helper to get assigned template ID by location
      */
     public function get_assigned_template_id($location) {
@@ -181,5 +268,21 @@ class Theme_Builder_Bridge {
 
         update_option('uas_theme_builder_' . $location . '_template_id', $template_id);
         wp_send_json_success(['message' => 'قالب تم‌بیلدر با موفقیت به موقعیت مورد نظر متصل گردید.']);
+    }
+}
+
+// Global polyfill for elementor_theme_do_location when Elementor Pro is not installed
+if (!function_exists('elementor_theme_do_location')) {
+    /**
+     * Global polyfill for elementor_theme_do_location
+     *
+     * @param string $location
+     * @return bool
+     */
+    function elementor_theme_do_location($location) {
+        if (class_exists('\UniversalElementorSuite\Theme_Builder_Bridge')) {
+            return \UniversalElementorSuite\Theme_Builder_Bridge::instance()->do_location($location);
+        }
+        return false;
     }
 }

@@ -27,7 +27,7 @@ class Template_Importer {
      * @return array Status report
      */
     public static function import_all_templates() {
-        $report = self::import_from_directory(UAS_PATH . 'templates/', 'section');
+        $report = self::import_from_directory(UAS_PATH . 'templates/', 'container');
         self::flush_elementor_css_cache();
         return $report;
     }
@@ -60,7 +60,7 @@ class Template_Importer {
     public static function get_templates_manifest() {
         $manifest = [];
         $sources = [
-            UAS_PATH . 'templates/' => 'section',
+            UAS_PATH . 'templates/' => 'container',
             UAS_PATH . 'templates/popups/' => 'popup',
         ];
 

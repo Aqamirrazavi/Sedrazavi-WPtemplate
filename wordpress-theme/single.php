@@ -3,10 +3,36 @@
  * The template for displaying all single posts
  *
  * @package SedRazavi
- * @version 2.0.0
+ * @version 6.1.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// 1. Elementor Theme Builder Single Location Support (Pro or Free Bridge)
+if ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_location( 'single' ) ) {
+    return;
+}
+
 get_header();
+
+// 2. Direct Elementor Builder Mode Support (if designed directly with Elementor)
+$is_elementor_post = false;
+if ( is_singular() ) {
+    $mode = get_post_meta( get_the_ID(), '_elementor_edit_mode', true );
+    if ( $mode === 'builder' ) {
+        $is_elementor_post = true;
+    }
+}
+
+if ( $is_elementor_post ) :
+    while ( have_posts() ) : the_post();
+        the_content();
+    endwhile;
+    get_footer();
+    return;
+endif;
 ?>
 
 <div class="py-12 bg-[#F4F6F9] dark:bg-[#070D1E] min-h-screen">

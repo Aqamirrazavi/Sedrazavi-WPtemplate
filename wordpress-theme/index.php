@@ -3,11 +3,16 @@
  * Main Template File (Silence is Golden Fallback)
  *
  * @package SedRazavi
- * @version 2.0.0
+ * @version 6.1.0
  */
 
 if (!defined('ABSPATH')) {
     exit;
+}
+
+// 1. Elementor Theme Builder Archive Location Support (Pro or Free Bridge)
+if ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_location( 'archive' ) ) {
+    return;
 }
 
 get_header();

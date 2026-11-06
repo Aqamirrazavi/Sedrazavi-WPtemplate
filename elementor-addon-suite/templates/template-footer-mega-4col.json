@@ -4,25 +4,50 @@
   "type": "footer",
   "content": [
     {
-      "id": "uas_sec_footer_main",
-      "elType": "section",
+      "id": "uas_cnt_footer_main",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
         "background_background": "classic",
         "background_color": "#090D1A",
-        "padding": { "unit": "px", "top": "60", "right": "20", "bottom": "40", "left": "20" }
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "40",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "row",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "flex_wrap": "wrap",
+        "flex_gap": {
+          "unit": "px",
+          "size": 24
+        }
       },
       "elements": [
         {
-          "id": "uas_col_footer_brand",
-          "elType": "column",
-          "settings": { "_column_size": 35 },
+          "id": "uas_cnt_sub_footer_brand",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 35
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
           "elements": [
             {
               "id": "uas_wid_footer_logo",
               "elType": "widget",
               "widgetType": "theme-site-logo",
-              "settings": { "align": "right" }
+              "settings": {
+                "align": "right"
+              }
             },
             {
               "id": "uas_wid_footer_desc",
@@ -35,15 +60,26 @@
           ]
         },
         {
-          "id": "uas_col_footer_links1",
-          "elType": "column",
-          "settings": { "_column_size": 20 },
+          "id": "uas_cnt_sub_footer_links1",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 20
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
           "elements": [
             {
               "id": "uas_wid_footer_head1",
               "elType": "widget",
               "widgetType": "heading",
-              "settings": { "title": "دسترسی سریع", "header_size": "h4" }
+              "settings": {
+                "title": "دسترسی سریع",
+                "header_size": "h4"
+              }
             },
             {
               "id": "uas_wid_footer_iconlist1",
@@ -51,25 +87,56 @@
               "widgetType": "icon-list",
               "settings": {
                 "icon_list": [
-                  { "text": "صفحه اصلی", "link": { "url": "/" } },
-                  { "text": "خدمات و پروژه‌ها", "link": { "url": "#services" } },
-                  { "text": "تعرفه‌ها و پلن‌ها", "link": { "url": "#pricing" } },
-                  { "text": "درباره ما", "link": { "url": "#about" } }
+                  {
+                    "text": "صفحه اصلی",
+                    "link": {
+                      "url": "/"
+                    }
+                  },
+                  {
+                    "text": "خدمات و پروژه‌ها",
+                    "link": {
+                      "url": "#services"
+                    }
+                  },
+                  {
+                    "text": "تعرفه‌ها و پلن‌ها",
+                    "link": {
+                      "url": "#pricing"
+                    }
+                  },
+                  {
+                    "text": "درباره ما",
+                    "link": {
+                      "url": "#about"
+                    }
+                  }
                 ]
               }
             }
           ]
         },
         {
-          "id": "uas_col_footer_links2",
-          "elType": "column",
-          "settings": { "_column_size": 20 },
+          "id": "uas_cnt_sub_footer_links2",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 20
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
           "elements": [
             {
               "id": "uas_wid_footer_head2",
               "elType": "widget",
               "widgetType": "heading",
-              "settings": { "title": "راهنما و پشتیبانی", "header_size": "h4" }
+              "settings": {
+                "title": "راهنما و پشتیبانی",
+                "header_size": "h4"
+              }
             },
             {
               "id": "uas_wid_footer_iconlist2",
@@ -77,25 +144,56 @@
               "widgetType": "icon-list",
               "settings": {
                 "icon_list": [
-                  { "text": "سوالات متداول", "link": { "url": "#faq" } },
-                  { "text": "شرایط استفاده از خدمات", "link": { "url": "#terms" } },
-                  { "text": "حریم خصوصی کاربران", "link": { "url": "#privacy" } },
-                  { "text": "ارتباط با پشتیبانی", "link": { "url": "#contact" } }
+                  {
+                    "text": "سوالات متداول",
+                    "link": {
+                      "url": "#faq"
+                    }
+                  },
+                  {
+                    "text": "شرایط استفاده از خدمات",
+                    "link": {
+                      "url": "#terms"
+                    }
+                  },
+                  {
+                    "text": "حریم خصوصی کاربران",
+                    "link": {
+                      "url": "#privacy"
+                    }
+                  },
+                  {
+                    "text": "ارتباط با پشتیبانی",
+                    "link": {
+                      "url": "#contact"
+                    }
+                  }
                 ]
               }
             }
           ]
         },
         {
-          "id": "uas_col_footer_contact",
-          "elType": "column",
-          "settings": { "_column_size": 25 },
+          "id": "uas_cnt_sub_footer_contact",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 25
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
           "elements": [
             {
               "id": "uas_wid_footer_head3",
               "elType": "widget",
               "widgetType": "heading",
-              "settings": { "title": "ارتباط مستقیم", "header_size": "h4" }
+              "settings": {
+                "title": "ارتباط مستقیم",
+                "header_size": "h4"
+              }
             },
             {
               "id": "uas_wid_footer_contact_info",

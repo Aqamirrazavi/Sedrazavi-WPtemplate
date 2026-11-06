@@ -54,8 +54,8 @@ jobs:
       - name: Create Production ZIP Packages
         run: |
           mkdir -p release-artifacts
-          node scripts/package-theme.js
-          cp -f sedrazavi-*.zip release-artifacts/
+          node scripts/pack-theme-zips.cjs
+          cp -f *.zip release-artifacts/
           ls -la release-artifacts/
           echo "All ZIP artifacts built successfully with canonical WordPress directory structure."
 

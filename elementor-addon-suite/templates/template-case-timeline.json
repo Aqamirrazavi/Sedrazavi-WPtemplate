@@ -1,63 +1,66 @@
 {
   "version": "0.4",
   "title": "UAS - تایم‌لاین تعاملی پیشرفت پرونده و پروژه (Interactive Case Timeline)",
-  "type": "section",
+  "type": "container",
   "content": [
     {
-      "id": "uas_sec_timeline_01",
-      "elType": "section",
+      "id": "uas_cnt_timeline_01",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
-        "padding": { "unit": "px", "top": "50", "right": "0", "bottom": "50", "left": "0" },
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "0",
+          "bottom": "50",
+          "left": "0"
+        },
         "background_background": "classic",
-        "background_color": "#070D1E"
+        "background_color": "#070D1E",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_col_timeline_01",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_wid_timeline_01",
-              "elType": "widget",
-              "widgetType": "uas_case_timeline",
-              "settings": {
-                "timeline_title": "مراحل راهبردی پیشبرد پرونده و دعوی حقوقی",
-                "timeline_subtitle": "شفافیت گام‌به‌گام از ثبت اولیه دادخواست تا صدور حکم قطعی و اجرای احکام",
-                "badge_status": "در حال رسیدگی فعال",
-                "completion_percentage": 75,
-                "current_stage": "جلسه دادرسی و لوایح دفاعیه",
-                "next_milestone_date": "۱۴۰۳/۰۹/۱۵",
-                "milestones_list": [
-                  {
-                    "title": "ثبت دادخواست و ارجاع به شعبه تخصصی",
-                    "date": "۱۴۰۳/۰۷/۱۰",
-                    "status": "completed",
-                    "desc": "تنظیم شکواییه و ضمائم ادله، ثبت در سامانه ثنا و ارجاع به مجتمع قضایی صدر تهران."
-                  },
-                  {
-                    "title": "تکمیل کارشناسی رسمی دادگستری",
-                    "date": "۱۴۰۳/۰۸/۰۲",
-                    "status": "completed",
-                    "desc": "بررسی فنی هیئت سه نفره کارشناسان ثبتی و حسابرسی، ارائه نظریه مثبت به نفع موکل."
-                  },
-                  {
-                    "title": "برگزاری جلسه دادرسی بدوی",
-                    "date": "۱۴۰۳/۰۸/۲۵",
-                    "status": "in_progress",
-                    "desc": "حضور در جلسه رسمی، دفاع مستدل شفاهی و ثبت آخرین لایحه تکمیلی مستند."
-                  },
-                  {
-                    "title": "صدور دادنامه بدوی و ابلاغ رای",
-                    "date": "۱۴۰۳/۰۹/۱۵",
-                    "status": "pending",
-                    "desc": "انشای دادنامه توسط دادگاه و تدارک تمهیدات دفاع تجدیدنظرخواهی در صورت لزوم."
-                  }
-                ]
+          "id": "uas_wid_timeline_01",
+          "elType": "widget",
+          "widgetType": "uas_case_timeline",
+          "settings": {
+            "timeline_title": "مراحل راهبردی پیشبرد پرونده و دعوی حقوقی",
+            "timeline_subtitle": "شفافیت گام‌به‌گام از ثبت اولیه دادخواست تا صدور حکم قطعی و اجرای احکام",
+            "badge_status": "در حال رسیدگی فعال",
+            "completion_percentage": 75,
+            "current_stage": "جلسه دادرسی و لوایح دفاعیه",
+            "next_milestone_date": "۱۴۰۳/۰۹/۱۵",
+            "milestones_list": [
+              {
+                "title": "ثبت دادخواست و ارجاع به شعبه تخصصی",
+                "date": "۱۴۰۳/۰۷/۱۰",
+                "status": "completed",
+                "desc": "تنظیم شکواییه و ضمائم ادله، ثبت در سامانه ثنا و ارجاع به مجتمع قضایی صدر تهران."
+              },
+              {
+                "title": "تکمیل کارشناسی رسمی دادگستری",
+                "date": "۱۴۰۳/۰۸/۰۲",
+                "status": "completed",
+                "desc": "بررسی فنی هیئت سه نفره کارشناسان ثبتی و حسابرسی، ارائه نظریه مثبت به نفع موکل."
+              },
+              {
+                "title": "برگزاری جلسه دادرسی بدوی",
+                "date": "۱۴۰۳/۰۸/۲۵",
+                "status": "in_progress",
+                "desc": "حضور در جلسه رسمی، دفاع مستدل شفاهی و ثبت آخرین لایحه تکمیلی مستند."
+              },
+              {
+                "title": "صدور دادنامه بدوی و ابلاغ رای",
+                "date": "۱۴۰۳/۰۹/۱۵",
+                "status": "pending",
+                "desc": "انشای دادنامه توسط دادگاه و تدارک تمهیدات دفاع تجدیدنظرخواهی در صورت لزوم."
               }
-            }
-          ]
+            ]
+          }
         }
       ]
     }

@@ -3,9 +3,28 @@
  * Single Service Detail Template
  *
  * @package SedRazavi
+ * @version 6.1.0
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// 1. Elementor Theme Builder Single Location Support (Pro or Free Bridge)
+if ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_location( 'single' ) ) {
+    return;
+}
+
 get_header();
+
+// 2. Direct Elementor Builder Mode Support
+if ( is_singular() && get_post_meta( get_the_ID(), '_elementor_edit_mode', true ) === 'builder' ) :
+    while ( have_posts() ) : the_post();
+        the_content();
+    endwhile;
+    get_footer();
+    return;
+endif;
 ?>
 
 <?php while (have_posts()) : the_post(); 

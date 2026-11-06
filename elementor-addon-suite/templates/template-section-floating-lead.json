@@ -1,39 +1,44 @@
 {
   "version": "0.4",
   "title": "UAS - نوار شناور تبدیل لید و تماس فوری (Floating Lead Dock Section)",
-  "type": "section",
+  "type": "container",
   "content": [
     {
-      "id": "uas_sec_floating_lead_01",
-      "elType": "section",
+      "id": "uas_cnt_floating_lead_01",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "full_width",
-        "padding": { "unit": "px", "top": "0", "right": "0", "bottom": "0", "left": "0" }
+        "padding": {
+          "unit": "px",
+          "top": "0",
+          "right": "0",
+          "bottom": "0",
+          "left": "0"
+        },
+        "content_width": "full",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_col_floating_lead_01",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_wid_floating_lead_01",
-              "elType": "widget",
-              "widgetType": "uas_floating_cta",
-              "settings": {
-                "dock_position": "bottom",
-                "scroll_trigger": 100,
-                "cta_headline": "فرصت ارزیابی اولیه و تحلیل رایگان کسب‌وکار شما مهیا است",
-                "cta_subtext": "مشاوره اختصاصی با مدیران ارشد + پاسخگویی در سریع‌ترین زمان",
-                "primary_btn_text": "درخواست مشاوره اختصاصی",
-                "primary_btn_url": { "url": "#consultation" },
-                "show_phone_btn": "yes",
-                "phone_number": "02188889999",
-                "show_whatsapp_btn": "yes",
-                "whatsapp_number": "989123456789"
-              }
-            }
-          ]
+          "id": "uas_wid_floating_lead_01",
+          "elType": "widget",
+          "widgetType": "uas_floating_cta",
+          "settings": {
+            "dock_position": "bottom",
+            "scroll_trigger": 100,
+            "cta_headline": "فرصت ارزیابی اولیه و تحلیل رایگان کسب‌وکار شما مهیا است",
+            "cta_subtext": "مشاوره اختصاصی با مدیران ارشد + پاسخگویی در سریع‌ترین زمان",
+            "primary_btn_text": "درخواست مشاوره اختصاصی",
+            "primary_btn_url": {
+              "url": "#consultation"
+            },
+            "show_phone_btn": "yes",
+            "phone_number": "02188889999",
+            "show_whatsapp_btn": "yes",
+            "whatsapp_number": "989123456789"
+          }
         }
       ]
     }

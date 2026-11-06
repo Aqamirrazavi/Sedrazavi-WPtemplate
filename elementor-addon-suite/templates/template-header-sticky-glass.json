@@ -4,19 +4,42 @@
   "type": "header",
   "content": [
     {
-      "id": "uas_sec_header_glass",
-      "elType": "section",
+      "id": "uas_cnt_header_glass",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
         "background_background": "classic",
         "background_color": "rgba(15, 23, 42, 0.88)",
-        "padding": { "unit": "px", "top": "16", "right": "24", "bottom": "16", "left": "24" }
+        "padding": {
+          "unit": "px",
+          "top": "16",
+          "right": "24",
+          "bottom": "16",
+          "left": "24"
+        },
+        "content_width": "boxed",
+        "flex_direction": "row",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "flex_wrap": "wrap",
+        "flex_gap": {
+          "unit": "px",
+          "size": 24
+        }
       },
       "elements": [
         {
-          "id": "uas_col_header_logo",
-          "elType": "column",
-          "settings": { "_column_size": 25 },
+          "id": "uas_cnt_sub_header_logo",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 25
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
           "elements": [
             {
               "id": "uas_wid_site_logo",
@@ -29,9 +52,17 @@
           ]
         },
         {
-          "id": "uas_col_header_menu",
-          "elType": "column",
-          "settings": { "_column_size": 50 },
+          "id": "uas_cnt_sub_header_menu",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 50
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
           "elements": [
             {
               "id": "uas_wid_nav_menu",
@@ -46,9 +77,17 @@
           ]
         },
         {
-          "id": "uas_col_header_cta",
-          "elType": "column",
-          "settings": { "_column_size": 25 },
+          "id": "uas_cnt_sub_header_cta",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 25
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
           "elements": [
             {
               "id": "uas_wid_header_btn",
@@ -56,7 +95,9 @@
               "widgetType": "button",
               "settings": {
                 "text": "درخواست مشاوره آنلاین",
-                "link": { "url": "#contact" },
+                "link": {
+                  "url": "#contact"
+                },
                 "align": "left",
                 "size": "sm"
               }

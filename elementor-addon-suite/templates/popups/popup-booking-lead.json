@@ -3,7 +3,10 @@
   "title": "UAS - پاپ‌آپ هوشمند رزرو نوبت و مشاوره فوری (Quick Lead & Booking Popup)",
   "type": "popup",
   "page_settings": {
-    "width": { "unit": "px", "size": 600 },
+    "width": {
+      "unit": "px",
+      "size": 600
+    },
     "height": "fit_to_content",
     "position_h": "center",
     "position_v": "center",
@@ -15,29 +18,32 @@
   "content": [
     {
       "id": "uas_popup_sec_booking",
-      "elType": "section",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
         "background_color": "#FFFFFF",
-        "padding": { "unit": "px", "top": "24", "right": "24", "bottom": "24", "left": "24" }
+        "padding": {
+          "unit": "px",
+          "top": "24",
+          "right": "24",
+          "bottom": "24",
+          "left": "24"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_popup_col_booking",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_popup_wid_booking",
-              "elType": "widget",
-              "widgetType": "uas_contact_booking",
-              "settings": {
-                "form_title": "هماهنگی سریع جلسه مشاوره و ارزیابی اولیه",
-                "form_desc": "مشخصات و زمان پیشنهادی خود را ثبت فرمایید تا کارشناسان مربوطه هماهنگی‌های لازم را انجام دهند.",
-                "submit_btn_text": "ثبت فوری درخواست ←"
-              }
-            }
-          ]
+          "id": "uas_popup_wid_booking",
+          "elType": "widget",
+          "widgetType": "uas_contact_booking",
+          "settings": {
+            "form_title": "هماهنگی سریع جلسه مشاوره و ارزیابی اولیه",
+            "form_desc": "مشخصات و زمان پیشنهادی خود را ثبت فرمایید تا کارشناسان مربوطه هماهنگی‌های لازم را انجام دهند.",
+            "submit_btn_text": "ثبت فوری درخواست ←"
+          }
         }
       ]
     }

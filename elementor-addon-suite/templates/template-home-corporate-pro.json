@@ -4,88 +4,103 @@
   "type": "page",
   "content": [
     {
-      "id": "uas_sec_corp_hero",
-      "elType": "section",
+      "id": "uas_cnt_corp_hero",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
         "background_background": "gradient",
         "background_color": "#0F172A",
         "background_color_b": "#1E293B",
-        "padding": { "unit": "px", "top": "90", "right": "20", "bottom": "80", "left": "20" }
+        "padding": {
+          "unit": "px",
+          "top": "90",
+          "right": "20",
+          "bottom": "80",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_col_corp_hero",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_wid_corp_hero",
-              "elType": "widget",
-              "widgetType": "uas_hero",
-              "settings": {
-                "badge_text": "مشاوره راهبردی و راهکارهای جامع سازمانی",
-                "hero_title": "هدایت کسب‌وکارها به‌سوی رشد پایدار و مزیت‌های ماندگار",
-                "hero_desc": "ما با تلفیق سال‌ها تجربه ارشد مدیریتی، تحلیل عمیق بازار و فناوری‌های نوین، به مدیران ارشد سازمان‌ها در اتخاذ تصمیمات استراتژیک یاری می‌رسانیم.",
-                "primary_btn_text": "درخواست جلسه استراتژی",
-                "primary_btn_url": { "url": "#booking", "is_external": false },
-                "secondary_btn_text": "مطالعه حوزه‌های عملکرد",
-                "secondary_btn_url": { "url": "#practice-areas", "is_external": false }
-              }
+          "id": "uas_wid_corp_hero",
+          "elType": "widget",
+          "widgetType": "uas_hero",
+          "settings": {
+            "badge_text": "مشاوره راهبردی و راهکارهای جامع سازمانی",
+            "hero_title": "هدایت کسب‌وکارها به‌سوی رشد پایدار و مزیت‌های ماندگار",
+            "hero_desc": "ما با تلفیق سال‌ها تجربه ارشد مدیریتی، تحلیل عمیق بازار و فناوری‌های نوین، به مدیران ارشد سازمان‌ها در اتخاذ تصمیمات استراتژیک یاری می‌رسانیم.",
+            "primary_btn_text": "درخواست جلسه استراتژی",
+            "primary_btn_url": {
+              "url": "#booking",
+              "is_external": false
+            },
+            "secondary_btn_text": "مطالعه حوزه‌های عملکرد",
+            "secondary_btn_url": {
+              "url": "#practice-areas",
+              "is_external": false
             }
-          ]
+          }
         }
       ]
     },
     {
-      "id": "uas_sec_corp_stats",
-      "elType": "section",
+      "id": "uas_cnt_corp_stats",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
-        "padding": { "unit": "px", "top": "50", "right": "20", "bottom": "50", "left": "20" }
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "50",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_col_corp_timeline",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_wid_corp_timeline",
-              "elType": "widget",
-              "widgetType": "uas_case_timeline",
-              "settings": {
-                "title": "مراحل گام‌به‌گام پیاده‌سازی تحول سازمانی",
-                "subtitle": "از ارزیابی وضعیت فعلی تا دستیابی به نتایج ملموس مالی و عملیاتی"
-              }
-            }
-          ]
+          "id": "uas_wid_corp_timeline",
+          "elType": "widget",
+          "widgetType": "uas_case_timeline",
+          "settings": {
+            "title": "مراحل گام‌به‌گام پیاده‌سازی تحول سازمانی",
+            "subtitle": "از ارزیابی وضعیت فعلی تا دستیابی به نتایج ملموس مالی و عملیاتی"
+          }
         }
       ]
     },
     {
-      "id": "uas_sec_corp_team",
-      "elType": "section",
+      "id": "uas_cnt_corp_team",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
-        "padding": { "unit": "px", "top": "60", "right": "20", "bottom": "60", "left": "20" }
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_col_corp_team",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_wid_corp_team",
-              "elType": "widget",
-              "widgetType": "uas_team",
-              "settings": {
-                "title": "تیم مشاوران ارشد و شرکای کلیدی",
-                "subtitle": "متخصصان برجسته با سوابق اجرایی در صنایع گوناگون"
-              }
-            }
-          ]
+          "id": "uas_wid_corp_team",
+          "elType": "widget",
+          "widgetType": "uas_team",
+          "settings": {
+            "title": "تیم مشاوران ارشد و شرکای کلیدی",
+            "subtitle": "متخصصان برجسته با سوابق اجرایی در صنایع گوناگون"
+          }
         }
       ]
     }

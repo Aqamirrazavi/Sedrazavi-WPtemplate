@@ -62,6 +62,7 @@ require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-legal-intake-appointments
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-legal-matter-portal.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-sedrazavi-diagnostics-doctor.php';
 require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-sedrazavi-ecosystem-publisher.php';
+require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-iranian-market-adapter.php';
 
 /**
  * Initialize Companion Subsystems
@@ -108,6 +109,7 @@ function sedrazavi_companion_init() {
     SedRazavi_Legal_Matter_Portal::get_instance();
     SedRazavi_Diagnostics_Doctor::get_instance();
     SedRazavi_Ecosystem_Publisher::get_instance();
+    SedRazavi_Iranian_Market_Adapter::get_instance();
 }
 add_action('plugins_loaded', 'sedrazavi_companion_init');
 

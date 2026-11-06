@@ -4,136 +4,154 @@
   "type": "page",
   "content": [
     {
-      "id": "uas_sec_home_hero",
-      "elType": "section",
+      "id": "uas_cnt_home_hero",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
         "background_background": "gradient",
         "background_color": "#0B132B",
         "background_color_b": "#1C2541",
-        "padding": { "unit": "px", "top": "90", "right": "20", "bottom": "80", "left": "20" }
+        "padding": {
+          "unit": "px",
+          "top": "90",
+          "right": "20",
+          "bottom": "80",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_col_home_hero",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_wid_home_hero",
-              "elType": "widget",
-              "widgetType": "uas_hero",
-              "settings": {
-                "badge_text": "پلتفرم نسل جدید طراحی وب بدون کدنویسی",
-                "hero_title": "طراحی وب‌سایت‌های مدرن و خیره‌کننده، سریع‌تر از همیشه",
-                "hero_desc": "با مجموعه جامع ویجت‌ها و الگوهای آماده المنتور، در کمترین زمان صفحاتی زیبا با بیشترین نرخ تبدیل خلق کنید و زمان طراحی را به حداقل برسانید.",
-                "primary_btn_text": "شروع رایگان و مشاهده دموها",
-                "primary_btn_url": { "url": "#pricing", "is_external": false },
-                "secondary_btn_text": "مشاهده کاتالوگ الگوها",
-                "secondary_btn_url": { "url": "#features", "is_external": false },
-                "hero_image": {
-                  "url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=900"
-                }
-              }
+          "id": "uas_wid_home_hero",
+          "elType": "widget",
+          "widgetType": "uas_hero",
+          "settings": {
+            "badge_text": "پلتفرم نسل جدید طراحی وب بدون کدنویسی",
+            "hero_title": "طراحی وب‌سایت‌های مدرن و خیره‌کننده، سریع‌تر از همیشه",
+            "hero_desc": "با مجموعه جامع ویجت‌ها و الگوهای آماده المنتور، در کمترین زمان صفحاتی زیبا با بیشترین نرخ تبدیل خلق کنید و زمان طراحی را به حداقل برسانید.",
+            "primary_btn_text": "شروع رایگان و مشاهده دموها",
+            "primary_btn_url": {
+              "url": "#pricing",
+              "is_external": false
+            },
+            "secondary_btn_text": "مشاهده کاتالوگ الگوها",
+            "secondary_btn_url": {
+              "url": "#features",
+              "is_external": false
+            },
+            "hero_image": {
+              "url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=900"
             }
-          ]
+          }
         }
       ]
     },
     {
-      "id": "uas_sec_home_features",
-      "elType": "section",
+      "id": "uas_cnt_home_features",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
-        "padding": { "unit": "px", "top": "70", "right": "20", "bottom": "70", "left": "20" }
+        "padding": {
+          "unit": "px",
+          "top": "70",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_col_home_features",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_wid_home_features",
-              "elType": "widget",
-              "widgetType": "uas_services_grid",
-              "settings": {
-                "section_badge": "قابلیت‌های انحصاری",
-                "section_title": "هر آنچه برای ساخت صفحات فرود موفق نیاز دارید",
-                "section_desc": "معماری فوق‌العاده سبک، بارگذاری فوق‌سریع و تطابق کامل با استانداردهای گوگل و سئو",
-                "columns": "3",
-                "items": [
-                  {
-                    "title": "سرعت بارگذاری فوق‌العاده",
-                    "desc": "بدون بارگذاری فایل‌های سنگین جانبی، لود زیر ۱۰۰ میلی‌ثانیه و سازگار با کش سرور",
-                    "icon": "eicon-flash"
-                  },
-                  {
-                    "title": "امنیت و ساختار استاندارد",
-                    "desc": "کدنویسی تمیز بر پایه استانداردهای رسمی وردپرس و اعتبارسنجی کامل داده‌ها",
-                    "icon": "eicon-lock-user"
-                  },
-                  {
-                    "title": "پشتیبانی کامل از زبان فارسی",
-                    "desc": "چیدمان راست‌چین و چپ‌چین خودکار با قلم زیبا و بهینه‌سازی‌شده وزیرمتن",
-                    "icon": "eicon-globe"
-                  }
-                ]
+          "id": "uas_wid_home_features",
+          "elType": "widget",
+          "widgetType": "uas_services_grid",
+          "settings": {
+            "section_badge": "قابلیت‌های انحصاری",
+            "section_title": "هر آنچه برای ساخت صفحات فرود موفق نیاز دارید",
+            "section_desc": "معماری فوق‌العاده سبک، بارگذاری فوق‌سریع و تطابق کامل با استانداردهای گوگل و سئو",
+            "columns": "3",
+            "items": [
+              {
+                "title": "سرعت بارگذاری فوق‌العاده",
+                "desc": "بدون بارگذاری فایل‌های سنگین جانبی، لود زیر ۱۰۰ میلی‌ثانیه و سازگار با کش سرور",
+                "icon": "eicon-flash"
+              },
+              {
+                "title": "امنیت و ساختار استاندارد",
+                "desc": "کدنویسی تمیز بر پایه استانداردهای رسمی وردپرس و اعتبارسنجی کامل داده‌ها",
+                "icon": "eicon-lock-user"
+              },
+              {
+                "title": "پشتیبانی کامل از زبان فارسی",
+                "desc": "چیدمان راست‌چین و چپ‌چین خودکار با قلم زیبا و بهینه‌سازی‌شده وزیرمتن",
+                "icon": "eicon-globe"
               }
-            }
-          ]
+            ]
+          }
         }
       ]
     },
     {
-      "id": "uas_sec_home_pricing",
-      "elType": "section",
+      "id": "uas_cnt_home_pricing",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
-        "padding": { "unit": "px", "top": "60", "right": "20", "bottom": "60", "left": "20" }
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_col_home_pricing",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_wid_home_pricing",
-              "elType": "widget",
-              "widgetType": "uas_vip_pricing",
-              "settings": {
-                "section_title": "پلن‌های سرمایه‌گذاری متناسب با مقیاس کار شما",
-                "section_subtitle": "بدون هزینه‌های پنهان، پرداخت امن و دسترسی مادام‌العمر به بسته‌ها"
-              }
-            }
-          ]
+          "id": "uas_wid_home_pricing",
+          "elType": "widget",
+          "widgetType": "uas_vip_pricing",
+          "settings": {
+            "section_title": "پلن‌های سرمایه‌گذاری متناسب با مقیاس کار شما",
+            "section_subtitle": "بدون هزینه‌های پنهان، پرداخت امن و دسترسی مادام‌العمر به بسته‌ها"
+          }
         }
       ]
     },
     {
-      "id": "uas_sec_home_faq",
-      "elType": "section",
+      "id": "uas_cnt_home_faq",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "boxed",
-        "padding": { "unit": "px", "top": "50", "right": "20", "bottom": "70", "left": "20" }
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_col_home_faq",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_wid_home_faq",
-              "elType": "widget",
-              "widgetType": "uas_faq",
-              "settings": {
-                "title": "پرسش‌های متداول طراحان و مدیران سایت",
-                "subtitle": "پاسخ سریع به متداول‌ترین سوالات درباره نصب و استفاده از ویجت‌ها"
-              }
-            }
-          ]
+          "id": "uas_wid_home_faq",
+          "elType": "widget",
+          "widgetType": "uas_faq",
+          "settings": {
+            "title": "پرسش‌های متداول طراحان و مدیران سایت",
+            "subtitle": "پاسخ سریع به متداول‌ترین سوالات درباره نصب و استفاده از ویجت‌ها"
+          }
         }
       ]
     }

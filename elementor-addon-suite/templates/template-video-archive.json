@@ -1,38 +1,47 @@
 {
   "version": "0.4",
   "title": "UAS - ویترین و مرکز آرشیو رسانه و ویدئو (Video Media Showcase)",
-  "type": "section",
+  "type": "container",
   "content": [
     {
-      "id": "uas_sec_video_showcase",
-      "elType": "section",
+      "id": "uas_cnt_video_showcase",
+      "elType": "container",
+      "isInner": false,
       "settings": {
-        "layout": "full_width",
-        "padding": { "unit": "px", "top": "50", "right": "20", "bottom": "50", "left": "20" },
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "50",
+          "left": "20"
+        },
         "background_background": "classic",
-        "background_color": "#070D1E"
+        "background_color": "#070D1E",
+        "content_width": "full",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_col_video_01",
-          "elType": "column",
-          "settings": { "_column_size": 100 },
-          "elements": [
-            {
-              "id": "uas_wid_video_header",
-              "elType": "widget",
-              "widgetType": "uas_hero",
-              "settings": {
-                "badge_text": "🎬 رسانه و سخنرانی‌های تخصصی",
-                "hero_title": "مرکز ویدئوها، تحلیل‌های کاربردی و آموزش‌های ویدیویی",
-                "hero_desc": "پخش آنلاین با کیفیت‌های متعدد، امکان دانلود فایل صوتی و دسترسی به سرفصل‌های زمانی تعاملی.",
-                "primary_btn_text": "مشاهده ویدئوی شاخص",
-                "primary_btn_url": { "url": "#featured-video", "is_external": false },
-                "secondary_btn_text": "کانال آپارات و یوتیوب",
-                "secondary_btn_url": { "url": "#channels", "is_external": false }
-              }
+          "id": "uas_wid_video_header",
+          "elType": "widget",
+          "widgetType": "uas_hero",
+          "settings": {
+            "badge_text": "🎬 رسانه و سخنرانی‌های تخصصی",
+            "hero_title": "مرکز ویدئوها، تحلیل‌های کاربردی و آموزش‌های ویدیویی",
+            "hero_desc": "پخش آنلاین با کیفیت‌های متعدد، امکان دانلود فایل صوتی و دسترسی به سرفصل‌های زمانی تعاملی.",
+            "primary_btn_text": "مشاهده ویدئوی شاخص",
+            "primary_btn_url": {
+              "url": "#featured-video",
+              "is_external": false
+            },
+            "secondary_btn_text": "کانال آپارات و یوتیوب",
+            "secondary_btn_url": {
+              "url": "#channels",
+              "is_external": false
             }
-          ]
+          }
         }
       ]
     }

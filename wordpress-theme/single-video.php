@@ -6,10 +6,28 @@
  * interactive timestamps/chapters, speaker bio, and related video cards.
  *
  * @package SedRazavi
- * @version 3.1.0
+ * @version 6.1.0
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// 1. Elementor Theme Builder Single Location Support (Pro or Free Bridge)
+if ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_location( 'single' ) ) {
+    return;
+}
+
 get_header();
+
+// 2. Direct Elementor Builder Mode Support
+if ( is_singular() && get_post_meta( get_the_ID(), '_elementor_edit_mode', true ) === 'builder' ) :
+    while ( have_posts() ) : the_post();
+        the_content();
+    endwhile;
+    get_footer();
+    return;
+endif;
 ?>
 
 <div class="sedrazavi-single-video-page py-10 bg-[#F4F6F9] dark:bg-[#070D1E] min-h-screen text-right" dir="rtl">

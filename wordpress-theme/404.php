@@ -3,8 +3,17 @@
  * The template for displaying 404 pages (not found)
  *
  * @package SedRazavi
- * @version 2.0.0
+ * @version 6.1.0
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// 1. Elementor Theme Builder 404 Location Support (Pro or Free Bridge)
+if ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_location( '404' ) ) {
+    return;
+}
 
 get_header();
 ?>
