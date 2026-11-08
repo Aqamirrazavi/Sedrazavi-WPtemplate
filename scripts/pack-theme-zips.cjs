@@ -65,6 +65,54 @@ async function buildZips() {
   fs.writeFileSync(path.join(rootDir, 'sedrazavi-law-firm-wordpress-theme.zip'), themeBuffer);
   console.log(`✅ sedrazavi-theme.zip created: ${(themeBuffer.length / 1024 / 1024).toFixed(2)} MB`);
 
+  // 4b. Dedicated Standalone WordPress Designer Landing Theme (sedrazavi-designer-theme)
+  console.log('Packaging Dedicated Standalone Designer Theme ZIP...');
+  const designerThemeZip = new JSZip();
+  addDirectoryToZip(designerThemeZip, path.join(__dirname, '../sedrazavi-designer-theme'), 'sedrazavi-designer-theme');
+  const designerThemeBuffer = await designerThemeZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+  fs.writeFileSync(path.join(publicDir, 'sedrazavi-designer-theme.zip'), designerThemeBuffer);
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-designer-theme.zip'), designerThemeBuffer);
+  console.log(`✅ sedrazavi-designer-theme.zip created: ${(designerThemeBuffer.length / 1024 / 1024).toFixed(2)} MB`);
+
+  // 4c. Dedicated Standalone WordPress Designer Core Plugin (sedrazavi-designer-core)
+  console.log('Packaging Dedicated Standalone Designer Core Plugin ZIP...');
+  const designerCoreZip = new JSZip();
+  addDirectoryToZip(designerCoreZip, path.join(__dirname, '../sedrazavi-designer-core'), 'sedrazavi-designer-core');
+  const designerCoreBuffer = await designerCoreZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+  fs.writeFileSync(path.join(publicDir, 'sedrazavi-designer-core.zip'), designerCoreBuffer);
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-designer-core.zip'), designerCoreBuffer);
+  console.log(`✅ sedrazavi-designer-core.zip created: ${(designerCoreBuffer.length / 1024 / 1024).toFixed(2)} MB`);
+
+  // 4d. Dedicated Designer All-In-One Bundle (Theme + Plugin + Guide)
+  console.log('Packaging Dedicated Designer Bundle ZIP...');
+  const designerBundleZip = new JSZip();
+  designerBundleZip.file('1-پوسته-مستقل-طراح-sedrazavi-designer-theme.zip', designerThemeBuffer);
+  designerBundleZip.file('2-افزونه-هسته-طراح-sedrazavi-designer-core.zip', designerCoreBuffer);
+  designerBundleZip.file('راهنمای_سریع_طراح_وردپرس_بدون_کدنویسی.txt', `========================================================================
+⚡ راهنمای استقرار بسته اختصاصی و مستقل طراح وردپرس (No-Code Architect)
+========================================================================
+این بسته کاملاً مستقل، بدون نیاز به چایلد تم، ۱۰۰٪ بدون ری‌اکت در فرانت و منطبق بر استانداردهای المنتور پرو است:
+
+۱. نصب پوسته اختصاصی:
+   - از پیشخوان وردپرس > نمایش > پوسته‌ها > افزودن پوسته تازه > بارگذاری، فایل «1-پوسته-مستقل-طراح-sedrazavi-designer-theme.zip» را نصب و فعال کنید.
+
+۲. نصب افزونه هسته اختصاصی:
+   - از پیشخوان وردپرس > افزونه‌ها > افزودن افزونه تازه > بارگذاری، فایل «2-افزونه-هسته-طراح-sedrazavi-designer-core.zip» را نصب و فعال کنید.
+
+۳. ویژگی‌های خودکار پس از فعال‌سازی:
+   - ایجاد خودکار ۱۲ برگه (خانه، درباره، خدمات، نمونه‌کار، تماس، رهگیری، پورتال و...)
+   - ست شدن خودکار برگه خانه و وبلاگ در تنظیمات خواندن
+   - ایجاد منوی اصلی و اتصال به سربرگ نئونی
+   - فعال‌سازی جدول دیتابیس اختصاصی رهگیری سفارش‌ها (SR-XXXXX)
+   - فعال‌سازی ۴ ویجت اختصاصی در پنل المنتور (ساعت سه‌گانه، بازی دایناسور نئونی، موزیک پلیر سایبرپانک، کره ساعت جهانی)
+========================================================================
+`);
+  const designerBundleBuffer = await designerBundleZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+  fs.writeFileSync(path.join(publicDir, 'sedrazavi-designer-bundle.zip'), designerBundleBuffer);
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-designer-bundle.zip'), designerBundleBuffer);
+  console.log(`✅ sedrazavi-designer-bundle.zip created: ${(designerBundleBuffer.length / 1024 / 1024).toFixed(2)} MB`);
+
+
   // 5. Individual Child Themes
   const childThemesDir = path.join(__dirname, '../wordpress-theme/child-themes');
   const childZipBuffers = {};

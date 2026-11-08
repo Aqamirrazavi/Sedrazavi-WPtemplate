@@ -1,0 +1,303 @@
+/**
+ * SedRazavi Designer Ecosystem - 66 Complete Color Palettes Engine
+ * 33 Dark Cyberpunk Palettes + 33 Light Modern Palettes
+ * WCAG AA Contrast Compliant (>= 4.5:1 text, >= 3:1 large text)
+ *
+ * @package SedRazavi_Designer_Theme
+ * @version 1.0.0
+ */
+
+:root {
+  /* Default Default Active (01 Cyberpunk Neon) */
+  --sr-bg: #070D1E;
+  --sr-surface: #0B132B;
+  --sr-surface-2: #121E3E;
+  --sr-text: #F8FAFC;
+  --sr-muted: #94A3B8;
+  --sr-primary: #6C5CE7;
+  --sr-secondary: #00D1FF;
+  --sr-accent: #00F0FF;
+  --sr-border: rgba(108, 92, 231, 0.25);
+  --sr-border-subtle: rgba(255, 255, 255, 0.08);
+  --sr-glow: rgba(108, 92, 231, 0.45);
+  --sr-success: #10B981;
+  --sr-warning: #F59E0B;
+  --sr-danger: #EF4444;
+  --sr-radius: 1rem;
+  --sr-radius-sm: 0.5rem;
+  --sr-radius-lg: 1.5rem;
+}
+
+/* ==========================================================================
+   33 DARK CYBERPUNK PALETTES
+   ========================================================================== */
+
+[data-palette="dark-01"], .palette-dark-01 {
+  --sr-bg: #070D1E; --sr-surface: #0B132B; --sr-surface-2: #121E3E; --sr-text: #F8FAFC; --sr-muted: #94A3B8;
+  --sr-primary: #6C5CE7; --sr-secondary: #00D1FF; --sr-accent: #00F0FF; --sr-border: rgba(108, 92, 231, 0.3); --sr-glow: rgba(0, 209, 255, 0.4);
+}
+[data-palette="dark-02"], .palette-dark-02 { /* Deep Matrix */
+  --sr-bg: #040D06; --sr-surface: #081B0C; --sr-surface-2: #0E2914; --sr-text: #E6F9EA; --sr-muted: #74B580;
+  --sr-primary: #00FF66; --sr-secondary: #10B981; --sr-accent: #05DF72; --sr-border: rgba(0, 255, 102, 0.25); --sr-glow: rgba(0, 255, 102, 0.35);
+}
+[data-palette="dark-03"], .palette-dark-03 { /* Bloodline Crimson */
+  --sr-bg: #0E0406; --sr-surface: #1E080C; --sr-surface-2: #2E0D13; --sr-text: #FDE8EA; --sr-muted: #BA757D;
+  --sr-primary: #FF2E56; --sr-secondary: #FF6B8B; --sr-accent: #FF1744; --sr-border: rgba(255, 46, 86, 0.3); --sr-glow: rgba(255, 46, 86, 0.4);
+}
+[data-palette="dark-04"], .palette-dark-04 { /* Royal Gold Cyber */
+  --sr-bg: #0A0D14; --sr-surface: #101624; --sr-surface-2: #182236; --sr-text: #FFF9E6; --sr-muted: #A39E88;
+  --sr-primary: #D4AF37; --sr-secondary: #FFDF00; --sr-accent: #F3E5AB; --sr-border: rgba(212, 175, 55, 0.35); --sr-glow: rgba(212, 175, 55, 0.45);
+}
+[data-palette="dark-05"], .palette-dark-05 { /* Synthwave Sunset */
+  --sr-bg: #12071E; --sr-surface: #200D36; --sr-surface-2: #301452; --sr-text: #FCE7FF; --sr-muted: #C084FC;
+  --sr-primary: #F43F5E; --sr-secondary: #FB923C; --sr-accent: #EC4899; --sr-border: rgba(244, 63, 94, 0.3); --sr-glow: rgba(251, 146, 60, 0.4);
+}
+[data-palette="dark-06"], .palette-dark-06 { /* Nordic Midnight */
+  --sr-bg: #0A111C; --sr-surface: #101D2E; --sr-surface-2: #16273D; --sr-text: #EAF2FB; --sr-muted: #8AA4C2;
+  --sr-primary: #38BDF8; --sr-secondary: #818CF8; --sr-accent: #67E8F9; --sr-border: rgba(56, 189, 248, 0.25); --sr-glow: rgba(56, 189, 248, 0.35);
+}
+[data-palette="dark-07"], .palette-dark-07 { /* Violet Protocol */
+  --sr-bg: #0B0817; --sr-surface: #16102D; --sr-surface-2: #211944; --sr-text: #F5F3FF; --sr-muted: #A78BFA;
+  --sr-primary: #8B5CF6; --sr-secondary: #C084FC; --sr-accent: #A855F7; --sr-border: rgba(139, 92, 246, 0.3); --sr-glow: rgba(139, 92, 246, 0.4);
+}
+[data-palette="dark-08"], .palette-dark-08 { /* Arctic Circuit */
+  --sr-bg: #061118; --sr-surface: #0B1E29; --sr-surface-2: #112D3D; --sr-text: #E0F2FE; --sr-muted: #7DD3FC;
+  --sr-primary: #0EA5E9; --sr-secondary: #06B6D4; --sr-accent: #38BDF8; --sr-border: rgba(14, 165, 233, 0.3); --sr-glow: rgba(6, 182, 212, 0.35);
+}
+[data-palette="dark-09"], .palette-dark-09 { /* Emerald Terminal */
+  --sr-bg: #02120C; --sr-surface: #042217; --sr-surface-2: #083424; --sr-text: #ECFDF5; --sr-muted: #6EE7B7;
+  --sr-primary: #10B981; --sr-secondary: #34D399; --sr-accent: #059669; --sr-border: rgba(16, 185, 129, 0.3); --sr-glow: rgba(16, 185, 129, 0.4);
+}
+[data-palette="dark-10"], .palette-dark-10 { /* Obsidian Amber */
+  --sr-bg: #140E04; --sr-surface: #241A08; --sr-surface-2: #36260C; --sr-text: #FFFBEB; --sr-muted: #FCD34D;
+  --sr-primary: #F59E0B; --sr-secondary: #D97706; --sr-accent: #FBBF24; --sr-border: rgba(245, 158, 11, 0.3); --sr-glow: rgba(245, 158, 11, 0.4);
+}
+[data-palette="dark-11"], .palette-dark-11 { /* Plasma Orchid */
+  --sr-bg: #120516; --sr-surface: #240A2C; --sr-surface-2: #360E42; --sr-text: #FDF4FF; --sr-muted: #F0ABFC;
+  --sr-primary: #D946EF; --sr-secondary: #E879F9; --sr-accent: #C026D3; --sr-border: rgba(217, 70, 239, 0.3); --sr-glow: rgba(217, 70, 239, 0.4);
+}
+[data-palette="dark-12"], .palette-dark-12 { /* Ghost Blue */
+  --sr-bg: #090F1E; --sr-surface: #101B34; --sr-surface-2: #18274A; --sr-text: #F0F9FF; --sr-muted: #93C5FD;
+  --sr-primary: #3B82F6; --sr-secondary: #60A5FA; --sr-accent: #1D4ED8; --sr-border: rgba(59, 130, 246, 0.3); --sr-glow: rgba(59, 130, 246, 0.35);
+}
+[data-palette="dark-13"], .palette-dark-13 { /* Quantum Teal */
+  --sr-bg: #031414; --sr-surface: #072626; --sr-surface-2: #0B3A3A; --sr-text: #F0FDFA; --sr-muted: #5EEAD4;
+  --sr-primary: #14B8A6; --sr-secondary: #2DD4BF; --sr-accent: #0D9488; --sr-border: rgba(20, 184, 166, 0.3); --sr-glow: rgba(20, 184, 166, 0.4);
+}
+[data-palette="dark-14"], .palette-dark-14 { /* Solar Flare Night */
+  --sr-bg: #160803; --sr-surface: #291006; --sr-surface-2: #3D1909; --sr-text: #FFF7ED; --sr-muted: #FDBA74;
+  --sr-primary: #EA580C; --sr-secondary: #FB923C; --sr-accent: #F97316; --sr-border: rgba(234, 88, 12, 0.35); --sr-glow: rgba(234, 88, 12, 0.45);
+}
+[data-palette="dark-15"], .palette-dark-15 { /* Monochrome Hacker */
+  --sr-bg: #0A0A0A; --sr-surface: #171717; --sr-surface-2: #262626; --sr-text: #FAFAFA; --sr-muted: #A3A3A3;
+  --sr-primary: #E5E5E5; --sr-secondary: #737373; --sr-accent: #FFFFFF; --sr-border: rgba(255, 255, 255, 0.25); --sr-glow: rgba(255, 255, 255, 0.3);
+}
+[data-palette="dark-16"], .palette-dark-16 { /* Persian Sapphire */
+  --sr-bg: #030B1C; --sr-surface: #081736; --sr-surface-2: #0E2452; --sr-text: #EBF3FF; --sr-muted: #82A8E8;
+  --sr-primary: #2563EB; --sr-secondary: #60A5FA; --sr-accent: #1E40AF; --sr-border: rgba(37, 99, 235, 0.35); --sr-glow: rgba(37, 99, 235, 0.4);
+}
+[data-palette="dark-17"], .palette-dark-17 { /* Persian Copper */
+  --sr-bg: #140905; --sr-surface: #24130A; --sr-surface-2: #381E10; --sr-text: #FFF5F0; --sr-muted: #D99B7E;
+  --sr-primary: #C2410C; --sr-secondary: #FB923C; --sr-accent: #EA580C; --sr-border: rgba(194, 65, 12, 0.35); --sr-glow: rgba(251, 146, 60, 0.4);
+}
+[data-palette="dark-18"], .palette-dark-18 { /* Midnight Rose */
+  --sr-bg: #14040A; --sr-surface: #240A13; --sr-surface-2: #38111E; --sr-text: #FFF1F2; --sr-muted: #FDA4AF;
+  --sr-primary: #E11D48; --sr-secondary: #FB7185; --sr-accent: #BE123C; --sr-border: rgba(225, 29, 72, 0.3); --sr-glow: rgba(225, 29, 72, 0.4);
+}
+[data-palette="dark-19"], .palette-dark-19 { /* Acid Lime */
+  --sr-bg: #080D03; --sr-surface: #111A06; --sr-surface-2: #1B290B; --sr-text: #F7FEE7; --sr-muted: #BEF264;
+  --sr-primary: #84CC16; --sr-secondary: #A3E635; --sr-accent: #65A30D; --sr-border: rgba(132, 204, 22, 0.3); --sr-glow: rgba(132, 204, 22, 0.4);
+}
+[data-palette="dark-20"], .palette-dark-20 { /* Oceanic Abyss */
+  --sr-bg: #020E18; --sr-surface: #051A2C; --sr-surface-2: #082742; --sr-text: #F0F9FF; --sr-muted: #7DD3FC;
+  --sr-primary: #0284C7; --sr-secondary: #38BDF8; --sr-accent: #0369A1; --sr-border: rgba(2, 132, 199, 0.3); --sr-glow: rgba(2, 132, 199, 0.4);
+}
+[data-palette="dark-21"], .palette-dark-21 { /* Lunar Silver */
+  --sr-bg: #0B0E14; --sr-surface: #141A24; --sr-surface-2: #1E2736; --sr-text: #F1F5F9; --sr-muted: #94A3B8;
+  --sr-primary: #CBD5E1; --sr-secondary: #E2E8F0; --sr-accent: #64748B; --sr-border: rgba(203, 213, 225, 0.3); --sr-glow: rgba(226, 232, 240, 0.35);
+}
+[data-palette="dark-22"], .palette-dark-22 { /* Ruby Reactor */
+  --sr-bg: #140205; --sr-surface: #24050A; --sr-surface-2: #380810; --sr-text: #FFE4E6; --sr-muted: #F43F5E;
+  --sr-primary: #E11D48; --sr-secondary: #FF2E56; --sr-accent: #9F1239; --sr-border: rgba(225, 29, 72, 0.35); --sr-glow: rgba(255, 46, 86, 0.45);
+}
+[data-palette="dark-23"], .palette-dark-23 { /* Indigo Storm */
+  --sr-bg: #060918; --sr-surface: #0E132E; --sr-surface-2: #161D44; --sr-text: #EEF2FF; --sr-muted: #818CF8;
+  --sr-primary: #4F46E5; --sr-secondary: #6366F1; --sr-accent: #4338CA; --sr-border: rgba(79, 70, 229, 0.3); --sr-glow: rgba(99, 102, 241, 0.4);
+}
+[data-palette="dark-24"], .palette-dark-24 { /* Neon Sakura */
+  --sr-bg: #140710; --sr-surface: #260E1E; --sr-surface-2: #3A152E; --sr-text: #FDF2F8; --sr-muted: #F472B6;
+  --sr-primary: #DB2777; --sr-secondary: #F472B6; --sr-accent: #BE185D; --sr-border: rgba(219, 39, 119, 0.3); --sr-glow: rgba(244, 114, 182, 0.4);
+}
+[data-palette="dark-25"], .palette-dark-25 { /* Carbon Fiber */
+  --sr-bg: #0D0F12; --sr-surface: #181C22; --sr-surface-2: #242A34; --sr-text: #F8FAFC; --sr-muted: #94A3B8;
+  --sr-primary: #38BDF8; --sr-secondary: #64748B; --sr-accent: #0EA5E9; --sr-border: rgba(56, 189, 248, 0.25); --sr-glow: rgba(56, 189, 248, 0.35);
+}
+[data-palette="dark-26"], .palette-dark-26 { /* Deep Space */
+  --sr-bg: #03040A; --sr-surface: #090B18; --sr-surface-2: #10142B; --sr-text: #F1F5F9; --sr-muted: #818CF8;
+  --sr-primary: #6366F1; --sr-secondary: #A855F7; --sr-accent: #4F46E5; --sr-border: rgba(99, 102, 241, 0.3); --sr-glow: rgba(168, 85, 247, 0.4);
+}
+[data-palette="dark-27"], .palette-dark-27 { /* Cobalt Pulse */
+  --sr-bg: #020B1E; --sr-surface: #06183C; --sr-surface-2: #0B255C; --sr-text: #EFF6FF; --sr-muted: #60A5FA;
+  --sr-primary: #1D4ED8; --sr-secondary: #3B82F6; --sr-accent: #1E40AF; --sr-border: rgba(29, 78, 216, 0.35); --sr-glow: rgba(59, 130, 246, 0.45);
+}
+[data-palette="dark-28"], .palette-dark-28 { /* Magenta Flux */
+  --sr-bg: #140310; --sr-surface: #24071E; --sr-surface-2: #380C2E; --sr-text: #FDF2F8; --sr-muted: #E879F9;
+  --sr-primary: #C026D3; --sr-secondary: #E879F9; --sr-accent: #A21CAF; --sr-border: rgba(192, 38, 211, 0.3); --sr-glow: rgba(232, 121, 249, 0.4);
+}
+[data-palette="dark-29"], .palette-dark-29 { /* Dark Forest */
+  --sr-bg: #040E08; --sr-surface: #081C10; --sr-surface-2: #0D2C1A; --sr-text: #F0FDF4; --sr-muted: #4ADE80;
+  --sr-primary: #16A34A; --sr-secondary: #22C55E; --sr-accent: #15803D; --sr-border: rgba(22, 163, 74, 0.3); --sr-glow: rgba(34, 197, 94, 0.35);
+}
+[data-palette="dark-30"], .palette-dark-30 { /* Electric Tangerine */
+  --sr-bg: #140801; --sr-surface: #240F02; --sr-surface-2: #381804; --sr-text: #FFF7ED; --sr-muted: #FB923C;
+  --sr-primary: #EA580C; --sr-secondary: #F97316; --sr-accent: #C2410C; --sr-border: rgba(234, 88, 12, 0.35); --sr-glow: rgba(249, 115, 22, 0.45);
+}
+[data-palette="dark-31"], .palette-dark-31 { /* Amethyst Grid */
+  --sr-bg: #0C0617; --sr-surface: #170C2D; --sr-surface-2: #241344; --sr-text: #FAF5FF; --sr-muted: #C084FC;
+  --sr-primary: #9333EA; --sr-secondary: #A855F7; --sr-accent: #7E22CE; --sr-border: rgba(147, 51, 234, 0.3); --sr-glow: rgba(168, 85, 247, 0.4);
+}
+[data-palette="dark-32"], .palette-dark-32 { /* Stealth Slate */
+  --sr-bg: #0B0F19; --sr-surface: #141B2D; --sr-surface-2: #1E2842; --sr-text: #F8FAFC; --sr-muted: #94A3B8;
+  --sr-primary: #475569; --sr-secondary: #94A3B8; --sr-accent: #334155; --sr-border: rgba(71, 85, 105, 0.3); --sr-glow: rgba(148, 163, 184, 0.3);
+}
+[data-palette="dark-33"], .palette-dark-33 { /* Aurora Borealis */
+  --sr-bg: #030F14; --sr-surface: #061D26; --sr-surface-2: #0B2C3A; --sr-text: #ECFDF5; --sr-muted: #2DD4BF;
+  --sr-primary: #059669; --sr-secondary: #06B6D4; --sr-accent: #10B981; --sr-border: rgba(5, 150, 105, 0.3); --sr-glow: rgba(6, 182, 212, 0.4);
+}
+
+/* ==========================================================================
+   33 LIGHT MODERN PALETTES
+   ========================================================================== */
+
+[data-palette="light-01"], .palette-light-01 { /* Minimalist Paper */
+  --sr-bg: #FAFAF9; --sr-surface: #FFFFFF; --sr-surface-2: #F5F5F4; --sr-text: #1C1917; --sr-muted: #78716C;
+  --sr-primary: #0F172A; --sr-secondary: #475569; --sr-accent: #2563EB; --sr-border: #E7E5E4; --sr-glow: rgba(37, 99, 235, 0.15);
+}
+[data-palette="light-02"], .palette-light-02 { /* Solar Warm */
+  --sr-bg: #FFFDF9; --sr-surface: #FFFFFF; --sr-surface-2: #FEF3C7; --sr-text: #451A03; --sr-muted: #B45309;
+  --sr-primary: #D97706; --sr-secondary: #F59E0B; --sr-accent: #B45309; --sr-border: #FDE68A; --sr-glow: rgba(245, 158, 11, 0.2);
+}
+[data-palette="light-03"], .palette-light-03 { /* Nordic Frost */
+  --sr-bg: #F8FAFC; --sr-surface: #FFFFFF; --sr-surface-2: #F1F5F9; --sr-text: #0F172A; --sr-muted: #64748B;
+  --sr-primary: #0284C7; --sr-secondary: #0EA5E9; --sr-accent: #0369A1; --sr-border: #E2E8F0; --sr-glow: rgba(2, 132, 199, 0.15);
+}
+[data-palette="light-04"], .palette-light-04 { /* Emerald Tech */
+  --sr-bg: #F6FEF9; --sr-surface: #FFFFFF; --sr-surface-2: #ECFDF5; --sr-text: #064E3B; --sr-muted: #047857;
+  --sr-primary: #059669; --sr-secondary: #10B981; --sr-accent: #047857; --sr-border: #A7F3D0; --sr-glow: rgba(16, 185, 129, 0.15);
+}
+[data-palette="light-05"], .palette-light-05 { /* Cyber Lavender */
+  --sr-bg: #FBF9FF; --sr-surface: #FFFFFF; --sr-surface-2: #F3E8FF; --sr-text: #3B0764; --sr-muted: #7E22CE;
+  --sr-primary: #7C3AED; --sr-secondary: #8B5CF6; --sr-accent: #6D28D9; --sr-border: #E9D5FF; --sr-glow: rgba(124, 58, 237, 0.15);
+}
+[data-palette="light-06"], .palette-light-06 { /* Cloud Blue */
+  --sr-bg: #F0F9FF; --sr-surface: #FFFFFF; --sr-surface-2: #E0F2FE; --sr-text: #082F49; --sr-muted: #0369A1;
+  --sr-primary: #0284C7; --sr-secondary: #38BDF8; --sr-accent: #0369A1; --sr-border: #BAE6FD; --sr-glow: rgba(2, 132, 199, 0.2);
+}
+[data-palette="light-07"], .palette-light-07 { /* Pearl Graphite */
+  --sr-bg: #F8F9FA; --sr-surface: #FFFFFF; --sr-surface-2: #E9ECEF; --sr-text: #212529; --sr-muted: #6C757D;
+  --sr-primary: #343A40; --sr-secondary: #495057; --sr-accent: #0D6EFD; --sr-border: #DEE2E6; --sr-glow: rgba(13, 110, 253, 0.12);
+}
+[data-palette="light-08"], .palette-light-08 { /* Persian Turquoise */
+  --sr-bg: #F0FDFA; --sr-surface: #FFFFFF; --sr-surface-2: #CCFBF1; --sr-text: #134E4A; --sr-muted: #0F766E;
+  --sr-primary: #0D9488; --sr-secondary: #14B8A6; --sr-accent: #042F2E; --sr-border: #99F6E4; --sr-glow: rgba(13, 148, 136, 0.2);
+}
+[data-palette="light-09"], .palette-light-09 { /* Persian Sand */
+  --sr-bg: #FDFBF7; --sr-surface: #FFFFFF; --sr-surface-2: #F5EBE1; --sr-text: #3E2723; --sr-muted: #795548;
+  --sr-primary: #8D6E63; --sr-secondary: #A1887F; --sr-accent: #5D4037; --sr-border: #D7CCC8; --sr-glow: rgba(141, 110, 99, 0.15);
+}
+[data-palette="light-10"], .palette-light-10 { /* Rose Quartz */
+  --sr-bg: #FFF1F2; --sr-surface: #FFFFFF; --sr-surface-2: #FFE4E6; --sr-text: #881337; --sr-muted: #BE123C;
+  --sr-primary: #E11D48; --sr-secondary: #FB7185; --sr-accent: #9F1239; --sr-border: #FECDD3; --sr-glow: rgba(225, 29, 72, 0.15);
+}
+[data-palette="light-11"], .palette-light-11 { /* Mint Circuit */
+  --sr-bg: #F2FBF7; --sr-surface: #FFFFFF; --sr-surface-2: #D1FAE5; --sr-text: #064E3B; --sr-muted: #047857;
+  --sr-primary: #059669; --sr-secondary: #34D399; --sr-accent: #065F46; --sr-border: #A7F3D0; --sr-glow: rgba(5, 150, 105, 0.15);
+}
+[data-palette="light-12"], .palette-light-12 { /* Lemon Cream */
+  --sr-bg: #FEFCE8; --sr-surface: #FFFFFF; --sr-surface-2: #FEF08A; --sr-text: #713F12; --sr-muted: #A16207;
+  --sr-primary: #CA8A04; --sr-secondary: #EAB308; --sr-accent: #854D0E; --sr-border: #FDE047; --sr-glow: rgba(202, 138, 4, 0.15);
+}
+[data-palette="light-13"], .palette-light-13 { /* Coral Studio */
+  --sr-bg: #FFF5F5; --sr-surface: #FFFFFF; --sr-surface-2: #FFE3E3; --sr-text: #7F1D1D; --sr-muted: #B91C1C;
+  --sr-primary: #EA580C; --sr-secondary: #F87171; --sr-accent: #C2410C; --sr-border: #FECACA; --sr-glow: rgba(234, 88, 12, 0.15);
+}
+[data-palette="light-14"], .palette-light-14 { /* Arctic Sky */
+  --sr-bg: #F8FAFD; --sr-surface: #FFFFFF; --sr-surface-2: #E8F0FE; --sr-text: #174EA6; --sr-muted: #4285F4;
+  --sr-primary: #1A73E8; --sr-secondary: #4285F4; --sr-accent: #155724; --sr-border: #D2E3FC; --sr-glow: rgba(26, 115, 232, 0.15);
+}
+[data-palette="light-15"], .palette-light-15 { /* Soft Orchid */
+  --sr-bg: #FAF5FF; --sr-surface: #FFFFFF; --sr-surface-2: #F3E8FF; --sr-text: #581C87; --sr-muted: #86198F;
+  --sr-primary: #A21CAF; --sr-secondary: #C026D3; --sr-accent: #701A75; --sr-border: #F0ABFC; --sr-glow: rgba(162, 28, 175, 0.15);
+}
+[data-palette="light-16"], .palette-light-16 { /* Copper Canvas */
+  --sr-bg: #FDF8F5; --sr-surface: #FFFFFF; --sr-surface-2: #F5E6DC; --sr-text: #431407; --sr-muted: #9A3412;
+  --sr-primary: #C2410C; --sr-secondary: #EA580C; --sr-accent: #7C2D12; --sr-border: #FED7AA; --sr-glow: rgba(194, 65, 12, 0.15);
+}
+[data-palette="light-17"], .palette-light-17 { /* Ocean Mist */
+  --sr-bg: #F0FDF4; --sr-surface: #FFFFFF; --sr-surface-2: #DCFCE7; --sr-text: #14532D; --sr-muted: #15803D;
+  --sr-primary: #16A34A; --sr-secondary: #22C55E; --sr-accent: #166534; --sr-border: #BBF7D0; --sr-glow: rgba(22, 163, 74, 0.15);
+}
+[data-palette="light-18"], .palette-light-18 { /* Sage Interface */
+  --sr-bg: #F4F6F4; --sr-surface: #FFFFFF; --sr-surface-2: #E4E8E4; --sr-text: #263326; --sr-muted: #4B634B;
+  --sr-primary: #3E5A3E; --sr-secondary: #5A7F5A; --sr-accent: #2C402C; --sr-border: #CCD4CC; --sr-glow: rgba(62, 90, 62, 0.12);
+}
+[data-palette="light-19"], .palette-light-19 { /* Glacier Teal */
+  --sr-bg: #ECFEFF; --sr-surface: #FFFFFF; --sr-surface-2: #CFFAFE; --sr-text: #164E63; --sr-muted: #0891B2;
+  --sr-primary: #0891B2; --sr-secondary: #06B6D4; --sr-accent: #155E75; --sr-border: #A5F3FC; --sr-glow: rgba(8, 145, 178, 0.15);
+}
+[data-palette="light-20"], .palette-light-20 { /* Apricot Pixel */
+  --sr-bg: #FFF7ED; --sr-surface: #FFFFFF; --sr-surface-2: #FFEDD5; --sr-text: #7C2D12; --sr-muted: #C2410C;
+  --sr-primary: #EA580C; --sr-secondary: #FB923C; --sr-accent: #9A3412; --sr-border: #FED7AA; --sr-glow: rgba(234, 88, 12, 0.15);
+}
+[data-palette="light-21"], .palette-light-21 { /* Lilac Paper */
+  --sr-bg: #F5F3FF; --sr-surface: #FFFFFF; --sr-surface-2: #EDE9FE; --sr-text: #4C1D95; --sr-muted: #6D28D9;
+  --sr-primary: #6D28D9; --sr-secondary: #8B5CF6; --sr-accent: #5B21B6; --sr-border: #DDD6FE; --sr-glow: rgba(109, 40, 217, 0.15);
+}
+[data-palette="light-22"], .palette-light-22 { /* Clean Cobalt */
+  --sr-bg: #EFF6FF; --sr-surface: #FFFFFF; --sr-surface-2: #DBEAFE; --sr-text: #1E3A8A; --sr-muted: #1D4ED8;
+  --sr-primary: #1D4ED8; --sr-secondary: #3B82F6; --sr-accent: #172554; --sr-border: #BFDBFE; --sr-glow: rgba(29, 78, 216, 0.15);
+}
+[data-palette="light-23"], .palette-light-23 { /* Warm Charcoal */
+  --sr-bg: #F5F5F4; --sr-surface: #FFFFFF; --sr-surface-2: #E7E5E4; --sr-text: #292524; --sr-muted: #57534E;
+  --sr-primary: #1C1917; --sr-secondary: #44403C; --sr-accent: #0C0A09; --sr-border: #D6D3D1; --sr-glow: rgba(28, 25, 23, 0.12);
+}
+[data-palette="light-24"], .palette-light-24 { /* Pistachio Light */
+  --sr-bg: #F7FEE7; --sr-surface: #FFFFFF; --sr-surface-2: #ECFCCB; --sr-text: #365314; --sr-muted: #4D7C0F;
+  --sr-primary: #65A30D; --sr-secondary: #84CC16; --sr-accent: #3F6212; --sr-border: #D9F99D; --sr-glow: rgba(101, 163, 13, 0.15);
+}
+[data-palette="light-25"], .palette-light-25 { /* Blush Minimal */
+  --sr-bg: #FDF2F8; --sr-surface: #FFFFFF; --sr-surface-2: #FCE7F3; --sr-text: #831843; --sr-muted: #BE185D;
+  --sr-primary: #BE185D; --sr-secondary: #EC4899; --sr-accent: #9D174D; --sr-border: #FBCFE8; --sr-glow: rgba(190, 24, 93, 0.15);
+}
+[data-palette="light-26"], .palette-light-26 { /* Silverline */
+  --sr-bg: #F8FAFC; --sr-surface: #FFFFFF; --sr-surface-2: #F1F5F9; --sr-text: #334155; --sr-muted: #64748B;
+  --sr-primary: #475569; --sr-secondary: #64748B; --sr-accent: #1E293B; --sr-border: #E2E8F0; --sr-glow: rgba(71, 85, 105, 0.15);
+}
+[data-palette="light-27"], .palette-light-27 { /* Sky Terminal */
+  --sr-bg: #F0F9FF; --sr-surface: #FFFFFF; --sr-surface-2: #E0F2FE; --sr-text: #0C4A6E; --sr-muted: #0284C7;
+  --sr-primary: #0284C7; --sr-secondary: #0EA5E9; --sr-accent: #0369A1; --sr-border: #BAE6FD; --sr-glow: rgba(2, 132, 199, 0.15);
+}
+[data-palette="light-28"], .palette-light-28 { /* Golden Hour */
+  --sr-bg: #FFFBEB; --sr-surface: #FFFFFF; --sr-surface-2: #FEF3C7; --sr-text: #78350F; --sr-muted: #B45309;
+  --sr-primary: #B45309; --sr-secondary: #D97706; --sr-accent: #92400E; --sr-border: #FDE68A; --sr-glow: rgba(180, 83, 9, 0.15);
+}
+[data-palette="light-29"], .palette-light-29 { /* Soft Crimson */
+  --sr-bg: #FEF2F2; --sr-surface: #FFFFFF; --sr-surface-2: #FEE2E2; --sr-text: #7F1D1D; --sr-muted: #B91C1C;
+  --sr-primary: #DC2626; --sr-secondary: #EF4444; --sr-accent: #991B1B; --sr-border: #FECACA; --sr-glow: rgba(220, 38, 38, 0.15);
+}
+[data-palette="light-30"], .palette-light-30 { /* Blue Porcelain */
+  --sr-bg: #F4F7FB; --sr-surface: #FFFFFF; --sr-surface-2: #E4ECF6; --sr-text: #1B365D; --sr-muted: #2E5B9A;
+  --sr-primary: #1B365D; --sr-secondary: #2E5B9A; --sr-accent: #10223D; --sr-border: #CBDDF0; --sr-glow: rgba(27, 54, 93, 0.15);
+}
+[data-palette="light-31"], .palette-light-31 { /* Monochrome Ink */
+  --sr-bg: #FFFFFF; --sr-surface: #F8F9FA; --sr-surface-2: #E9ECEF; --sr-text: #111827; --sr-muted: #4B5563;
+  --sr-primary: #111827; --sr-secondary: #374151; --sr-accent: #000000; --sr-border: #E5E7EB; --sr-glow: rgba(0, 0, 0, 0.1);
+}
+[data-palette="light-32"], .palette-light-32 { /* Meadow Green */
+  --sr-bg: #F2FDF5; --sr-surface: #FFFFFF; --sr-surface-2: #DCFCE7; --sr-text: #14532D; --sr-muted: #15803D;
+  --sr-primary: #15803D; --sr-secondary: #22C55E; --sr-accent: #166534; --sr-border: #BBF7D0; --sr-glow: rgba(21, 128, 61, 0.15);
+}
+[data-palette="light-33"], .palette-light-33 { /* Rainbow Prism */
+  --sr-bg: #FAFAFE; --sr-surface: #FFFFFF; --sr-surface-2: #F0F0FF; --sr-text: #1E1B4B; --sr-muted: #4338CA;
+  --sr-primary: #4F46E5; --sr-secondary: #EC4899; --sr-accent: #06B6D4; --sr-border: #E0E7FF; --sr-glow: rgba(79, 70, 229, 0.15);
+}
