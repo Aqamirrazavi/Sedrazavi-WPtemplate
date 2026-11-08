@@ -236,6 +236,25 @@ const pluginTemplateCount = fs.readdirSync(pluginTemplatesDir).filter(f => f.end
 assert(themeTemplateCount === 33, `Theme contains 33 Elementor JSON templates (Found: ${themeTemplateCount})`);
 assert(pluginTemplateCount === 33, `Plugin contains 33 Elementor JSON templates (Found: ${pluginTemplateCount})`);
 
+// Explicitly verify the 10 critical modular templates exist in both theme and core
+const keyTemplates = [
+  'template-section-client-proof.json',
+  'template-section-floating-lead.json',
+  'template-section-stat-counter.json',
+  'template-services-bento.json',
+  'template-single-post-modern.json',
+  'template-single-product-master.json',
+  'template-single-video-player.json',
+  'template-store-showcase.json',
+  'template-video-archive.json',
+  'template-vip-pricing-tier.json',
+];
+
+for (const tmpl of keyTemplates) {
+  assert(fs.existsSync(path.join(themeTemplatesDir, tmpl)), `Theme template ${tmpl} exists and is verified`);
+  assert(fs.existsSync(path.join(pluginTemplatesDir, tmpl)), `Plugin template ${tmpl} exists and is verified`);
+}
+
 // 5.5 Web Audio API Synthesizer
 assert(themeJs.includes('playNeonTone'), 'main.js implements playNeonTone synthesizer');
 assert(themeJs.includes('AudioContext') || themeJs.includes('webkitAudioContext'), 'main.js uses Web Audio API AudioContext');
