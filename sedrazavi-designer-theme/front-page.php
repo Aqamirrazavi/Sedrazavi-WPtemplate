@@ -192,56 +192,93 @@ if ($is_elementor && have_posts()) {
             </div>
 
             <div class="sr-services-grid">
-                <!-- Service 1 -->
-                <div class="sr-service-card">
-                    <div class="sr-service-badge">پرطرفدار</div>
-                    <div class="sr-service-icon">⚡</div>
-                    <h3 class="sr-service-title">لندینگ‌پیج با نرخ تبدیل بالا</h3>
-                    <p class="sr-service-desc">
-                        صفحات فرود اختصاصی برای کمپین‌های تبلیغاتی، معرفی دوره‌ها یا محصولات ویژه با معماری روان‌شناختی فروش و افکت‌های نئونی چشم‌نواز.
-                    </p>
-                    <ul class="sr-service-features">
-                        <li>✓ طراحی ۱۰۰٪ اختصاصی در المنتور</li>
-                        <li>✓ سازگاری کامل با موبایل و تبلت</li>
-                        <li>✓ سیستم رهگیری لیدها و پیامک آنی</li>
-                        <li>✓ لودینگ زیر ۸۰۰ میلی‌ثانیه</li>
-                    </ul>
-                    <button type="button" class="sr-btn sr-btn-sm sr-btn-outline sr-open-consultation" data-modal="sr-consultation-modal">ثبت درخواست لندینگ &larr;</button>
-                </div>
+                <?php
+                $front_services_query = new \WP_Query([
+                    'post_type'      => 'services',
+                    'posts_per_page' => 3,
+                    'post_status'    => 'publish',
+                ]);
 
-                <!-- Service 2 -->
-                <div class="sr-service-card sr-featured-card">
-                    <div class="sr-service-badge sr-badge-primary">پیشنهاد ویژه</div>
-                    <div class="sr-service-icon">🏢</div>
-                    <h3 class="sr-service-title">وب‌سایت شرکتی مدرن و هویت برند</h3>
-                    <p class="sr-service-desc">
-                        طراحی کامل سایت سازمانی شامل برگه خانه، درباره ما، خدمات، سبد نمونه‌کارها، تماس نئونی، همراه با پورتال ورود اختصاصی کارفرمایان.
-                    </p>
-                    <ul class="sr-service-features">
-                        <li>✓ ساخت تمام بخش‌ها با Elementor Theme Builder</li>
-                        <li>✓ قالب اختصاصی وبلاگ و بایگانی با ۳ تقویم</li>
-                        <li>✓ فرم استعلام قیمت هوشمند با کد رهگیری</li>
-                        <li>✓ آموزش ویدئویی مدیریت بدون کدنویسی</li>
-                    </ul>
-                    <button type="button" class="sr-btn sr-btn-sm sr-btn-glow sr-open-consultation" data-modal="sr-consultation-modal">سفارش سایت شرکتی ⚡</button>
-                </div>
+                if ($front_services_query->have_posts()) :
+                    while ($front_services_query->have_posts()) : $front_services_query->the_post();
+                        $price    = get_post_meta(get_the_ID(), '_sr_service_price', true);
+                        $badge    = get_post_meta(get_the_ID(), '_sr_service_badge', true) ?: 'تخصصی';
+                        $icon     = get_post_meta(get_the_ID(), '_sr_service_icon', true) ?: '⚡';
+                        $features = get_post_meta(get_the_ID(), '_sr_service_features', true);
+                        $feature_lines = !empty($features) ? array_slice(array_filter(array_map('trim', explode("\n", $features))), 0, 4) : [];
+                        ?>
+                        <div class="sr-service-card">
+                            <div class="sr-service-badge"><?php echo esc_html($badge); ?></div>
+                            <div class="sr-service-icon"><?php echo esc_html($icon); ?></div>
+                            <h3 class="sr-service-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+                            <div class="sr-service-desc">
+                                <?php the_excerpt(); ?>
+                            </div>
+                            <?php if (!empty($feature_lines)) : ?>
+                                <ul class="sr-service-features">
+                                    <?php foreach ($feature_lines as $f) : ?>
+                                        <li>✓ <?php echo esc_html($f); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                            <?php if (!empty($price)) : ?>
+                                <div style="margin-bottom:12px; font-weight:700; color:var(--sr-primary); font-size:13px;"><?php echo esc_html($price); ?></div>
+                            <?php endif; ?>
+                            <button type="button" class="sr-btn sr-btn-sm sr-btn-outline sr-open-consultation" data-modal="sr-consultation-modal">ثبت درخواست &larr;</button>
+                        </div>
+                    <?php endwhile; wp_reset_postdata(); ?>
+                <?php else : ?>
+                    <!-- Service 1 -->
+                    <div class="sr-service-card">
+                        <div class="sr-service-badge">پرطرفدار</div>
+                        <div class="sr-service-icon">⚡</div>
+                        <h3 class="sr-service-title">لندینگ‌پیج با نرخ تبدیل بالا</h3>
+                        <p class="sr-service-desc">
+                            صفحات فرود اختصاصی برای کمپین‌های تبلیغاتی، معرفی دوره‌ها یا محصولات ویژه با معماری روان‌شناختی فروش و افکت‌های نئونی چشم‌نواز.
+                        </p>
+                        <ul class="sr-service-features">
+                            <li>✓ طراحی ۱۰۰٪ اختصاصی در المنتور</li>
+                            <li>✓ سازگاری کامل با موبایل و تبلت</li>
+                            <li>✓ سیستم رهگیری لیدها و پیامک آنی</li>
+                            <li>✓ لودینگ زیر ۸۰۰ میلی‌ثانیه</li>
+                        </ul>
+                        <button type="button" class="sr-btn sr-btn-sm sr-btn-outline sr-open-consultation" data-modal="sr-consultation-modal">ثبت درخواست لندینگ &larr;</button>
+                    </div>
 
-                <!-- Service 3 -->
-                <div class="sr-service-card">
-                    <div class="sr-service-badge">فروشگاهی</div>
-                    <div class="sr-service-icon">🛒</div>
-                    <h3 class="sr-service-title">فروشگاه آنلاین بدون کدنویسی</h3>
-                    <p class="sr-service-desc">
-                        راه‌اندازی کامل ووکامرس با صفحات محصول اختصاصی المنتوری، تسویه‌حساب تک‌مرحله‌ای، درگاه بانکی مستقیم و تجربه کاربری مینیمال.
-                    </p>
-                    <ul class="sr-service-features">
-                        <li>✓ آرشیو و کارت‌های محصول سفارشی نئونی</li>
-                        <li>✓ سبد خرید شناور و تسویه حساب سریع</li>
-                        <li>✓ پنل کاربری شیک و ارسال نوتیفیکیشن</li>
-                        <li>✓ امنیت کامل و بهینه‌سازی دیتابیس</li>
-                    </ul>
-                    <button type="button" class="sr-btn sr-btn-sm sr-btn-outline sr-open-consultation" data-modal="sr-consultation-modal">سفارش فروشگاه &larr;</button>
-                </div>
+                    <!-- Service 2 -->
+                    <div class="sr-service-card sr-featured-card">
+                        <div class="sr-service-badge sr-badge-primary">پیشنهاد ویژه</div>
+                        <div class="sr-service-icon">🏢</div>
+                        <h3 class="sr-service-title">وب‌سایت شرکتی مدرن و هویت برند</h3>
+                        <p class="sr-service-desc">
+                            طراحی کامل سایت سازمانی شامل برگه خانه، درباره ما، خدمات، سبد نمونه‌کارها، تماس نئونی، همراه با پورتال ورود اختصاصی کارفرمایان.
+                        </p>
+                        <ul class="sr-service-features">
+                            <li>✓ ساخت تمام بخش‌ها با Elementor Theme Builder</li>
+                            <li>✓ قالب اختصاصی وبلاگ و بایگانی با ۳ تقویم</li>
+                            <li>✓ فرم استعلام قیمت هوشمند با کد رهگیری</li>
+                            <li>✓ آموزش ویدئویی مدیریت بدون کدنویسی</li>
+                        </ul>
+                        <button type="button" class="sr-btn sr-btn-sm sr-btn-glow sr-open-consultation" data-modal="sr-consultation-modal">سفارش سایت شرکتی ⚡</button>
+                    </div>
+
+                    <!-- Service 3 -->
+                    <div class="sr-service-card">
+                        <div class="sr-service-badge">فروشگاهی</div>
+                        <div class="sr-service-icon">🛒</div>
+                        <h3 class="sr-service-title">فروشگاه آنلاین بدون کدنویسی</h3>
+                        <p class="sr-service-desc">
+                            راه‌اندازی کامل ووکامرس با صفحات محصول اختصاصی المنتوری، تسویه‌حساب تک‌مرحله‌ای، درگاه بانکی مستقیم و تجربه کاربری مینیمال.
+                        </p>
+                        <ul class="sr-service-features">
+                            <li>✓ آرشیو و کارت‌های محصول سفارشی نئونی</li>
+                            <li>✓ سبد خرید شناور و تسویه حساب سریع</li>
+                            <li>✓ پنل کاربری شیک و ارسال نوتیفیکیشن</li>
+                            <li>✓ امنیت کامل و بهینه‌سازی دیتابیس</li>
+                        </ul>
+                        <button type="button" class="sr-btn sr-btn-sm sr-btn-outline sr-open-consultation" data-modal="sr-consultation-modal">سفارش فروشگاه &larr;</button>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>
@@ -339,62 +376,113 @@ if ($is_elementor && have_posts()) {
             </div>
 
             <div class="sr-portfolio-grid">
-                <!-- Project 1 -->
-                <div class="sr-portfolio-card">
-                    <div class="sr-portfolio-thumb">
-                        <div class="sr-thumb-mockup">
-                            <span class="sr-badge-pill sr-badge-sm">لندینگ‌پیج</span>
-                            <div class="sr-mockup-inner">⚡ نئون سایبر صرافی ارز دیجیتال</div>
-                        </div>
-                    </div>
-                    <div class="sr-portfolio-info">
-                        <h3 class="sr-portfolio-title">پلتفرم تبادل کریپتوکارنسی CyberEx</h3>
-                        <p class="sr-portfolio-desc">لندینگ‌پیج با طراحی دارک نئونی، اتصال به وب‌سوکت قیمت لحظه‌ای و نرخ تبدیل ۲۴ درصدی.</p>
-                        <div class="sr-portfolio-tags">
-                            <span>المنتور پرو</span>
-                            <span>پالت Cyan Neon</span>
-                            <span>لود ۶۰۰ میلی‌ثانیه</span>
-                        </div>
-                    </div>
-                </div>
+                <?php
+                $front_portfolio_query = new \WP_Query([
+                    'post_type'      => 'portfolio',
+                    'posts_per_page' => 3,
+                    'post_status'    => 'publish',
+                    'meta_key'       => '_sr_portfolio_featured',
+                    'orderby'        => ['meta_value' => 'DESC', 'date' => 'DESC'],
+                ]);
 
-                <!-- Project 2 -->
-                <div class="sr-portfolio-card">
-                    <div class="sr-portfolio-thumb">
-                        <div class="sr-thumb-mockup">
-                            <span class="sr-badge-pill sr-badge-sm">شرکتی و حقوقی</span>
-                            <div class="sr-mockup-inner">⚖️ پرتال وکالت و مشاوره آنلاین</div>
+                if ($front_portfolio_query->have_posts()) :
+                    while ($front_portfolio_query->have_posts()) : $front_portfolio_query->the_post();
+                        $client     = get_post_meta(get_the_ID(), '_sr_portfolio_client', true);
+                        $url        = get_post_meta(get_the_ID(), '_sr_portfolio_url', true);
+                        $tech_stack = get_post_meta(get_the_ID(), '_sr_portfolio_tech_stack', true);
+                        $metric     = get_post_meta(get_the_ID(), '_sr_portfolio_metric', true);
+                        $terms      = get_the_terms(get_the_ID(), 'portfolio_category');
+                        $cat_name   = (!empty($terms) && !is_wp_error($terms)) ? $terms[0]->name : 'پروژه اختصاصی';
+                        $tags       = !empty($tech_stack) ? array_slice(array_map('trim', explode(',', $tech_stack)), 0, 3) : ['المنتور پرو', 'سایبر نئون'];
+                        ?>
+                        <div class="sr-portfolio-card">
+                            <div class="sr-portfolio-thumb">
+                                <?php if (has_post_thumbnail()) : ?>
+                                    <?php the_post_thumbnail('medium_large', ['class' => 'sr-portfolio-img']); ?>
+                                <?php else : ?>
+                                    <div class="sr-thumb-mockup">
+                                        <span class="sr-badge-pill sr-badge-sm"><?php echo esc_html($cat_name); ?></span>
+                                        <div class="sr-mockup-inner">⚡ <?php the_title(); ?></div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="sr-portfolio-info">
+                                <h3 class="sr-portfolio-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+                                <p class="sr-portfolio-desc"><?php echo esc_html(get_the_excerpt()); ?></p>
+                                <div class="sr-portfolio-tags">
+                                    <?php foreach ($tags as $t) : ?>
+                                        <span><?php echo esc_html($t); ?></span>
+                                    <?php endforeach; ?>
+                                    <?php if (!empty($metric)) : ?>
+                                        <span style="color:var(--sr-primary); font-weight:600;"><?php echo esc_html($metric); ?></span>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if (!empty($url)) : ?>
+                                    <div style="margin-top:8px;">
+                                        <a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer" class="sr-card-link">مشاهده دمو زنده &larr;</a>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endwhile; wp_reset_postdata(); ?>
+                <?php else : ?>
+                    <!-- Project 1 -->
+                    <div class="sr-portfolio-card">
+                        <div class="sr-portfolio-thumb">
+                            <div class="sr-thumb-mockup">
+                                <span class="sr-badge-pill sr-badge-sm">لندینگ‌پیج</span>
+                                <div class="sr-mockup-inner">⚡ نئون سایبر صرافی ارز دیجیتال</div>
+                            </div>
+                        </div>
+                        <div class="sr-portfolio-info">
+                            <h3 class="sr-portfolio-title">پلتفرم تبادل کریپتوکارنسی CyberEx</h3>
+                            <p class="sr-portfolio-desc">لندینگ‌پیج با طراحی دارک نئونی، اتصال به وب‌سوکت قیمت لحظه‌ای و نرخ تبدیل ۲۴ درصدی.</p>
+                            <div class="sr-portfolio-tags">
+                                <span>المنتور پرو</span>
+                                <span>پالت Cyan Neon</span>
+                                <span>لود ۶۰۰ میلی‌ثانیه</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="sr-portfolio-info">
-                        <h3 class="sr-portfolio-title">موسسه حقوقی و داوری بین‌المللی</h3>
-                        <p class="sr-portfolio-desc">سیستم نوبت‌دهی آنلاین، سامانه رهگیری پرونده‌های حقوقی و تم‌ساز چندمنظوره.</p>
-                        <div class="sr-portfolio-tags">
-                            <span>پورتال کارفرما</span>
-                            <span>Theme Builder</span>
-                            <span>بدون کدنویسی</span>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Project 3 -->
-                <div class="sr-portfolio-card">
-                    <div class="sr-portfolio-thumb">
-                        <div class="sr-thumb-mockup">
-                            <span class="sr-badge-pill sr-badge-sm">فروشگاهی</span>
-                            <div class="sr-mockup-inner">🎧 استور تجهیزات استودیویی و گیمینگ</div>
+                    <!-- Project 2 -->
+                    <div class="sr-portfolio-card">
+                        <div class="sr-portfolio-thumb">
+                            <div class="sr-thumb-mockup">
+                                <span class="sr-badge-pill sr-badge-sm">شرکتی و حقوقی</span>
+                                <div class="sr-mockup-inner">⚖️ پرتال وکالت و مشاوره آنلاین</div>
+                            </div>
+                        </div>
+                        <div class="sr-portfolio-info">
+                            <h3 class="sr-portfolio-title">موسسه حقوقی و داوری بین‌المللی</h3>
+                            <p class="sr-portfolio-desc">سیستم نوبت‌دهی آنلاین، سامانه رهگیری پرونده‌های حقوقی و تم‌ساز چندمنظوره.</p>
+                            <div class="sr-portfolio-tags">
+                                <span>پورتال کارفرما</span>
+                                <span>Theme Builder</span>
+                                <span>بدون کدنویسی</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="sr-portfolio-info">
-                        <h3 class="sr-portfolio-title">فروشگاه آنلاین تخصصی SoundWave</h3>
-                        <p class="sr-portfolio-desc">فروشگاه مجهز به پیش‌نمایش صوتی محصولات، فیلتر در لحظه ووکامرس و رابط نئونی بنفش.</p>
-                        <div class="sr-portfolio-tags">
-                            <span>ووکامرس مدرن</span>
-                            <span>تسویه یک‌مرحله‌ای</span>
-                            <span>Core Web Vitals ۹۹</span>
+
+                    <!-- Project 3 -->
+                    <div class="sr-portfolio-card">
+                        <div class="sr-portfolio-thumb">
+                            <div class="sr-thumb-mockup">
+                                <span class="sr-badge-pill sr-badge-sm">فروشگاهی</span>
+                                <div class="sr-mockup-inner">🎧 استور تجهیزات استودیویی و گیمینگ</div>
+                            </div>
+                        </div>
+                        <div class="sr-portfolio-info">
+                            <h3 class="sr-portfolio-title">فروشگاه آنلاین تخصصی SoundWave</h3>
+                            <p class="sr-portfolio-desc">فروشگاه مجهز به پیش‌نمایش صوتی محصولات، فیلتر در لحظه ووکامرس و رابط نئونی بنفش.</p>
+                            <div class="sr-portfolio-tags">
+                                <span>ووکامرس مدرن</span>
+                                <span>تسویه یک‌مرحله‌ای</span>
+                                <span>Core Web Vitals ۹۹</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>

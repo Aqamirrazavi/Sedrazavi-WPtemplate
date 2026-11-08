@@ -269,6 +269,32 @@ const gitignoreContent = fs.readFileSync(path.join(rootDir, '.gitignore'), 'utf8
 assert(gitignoreContent.includes('!public/sedrazavi-designer-theme.zip'), '.gitignore whitelists sedrazavi-designer-theme.zip');
 assert(gitignoreContent.includes('!public/sedrazavi-designer-core.zip'), '.gitignore whitelists sedrazavi-designer-core.zip');
 
+// 6. CPT Meta Boxes & Front-to-Back Harmony
+console.log('\n🔍 Group 6: CPT Meta Boxes & Dynamic Frontend-to-Backend Harmony');
+const cptCode = fs.readFileSync(path.join(pluginDir, 'inc/custom-post-types.php'), 'utf8');
+assert(cptCode.includes('sr_portfolio_meta_box'), 'Portfolio Meta Box registered');
+assert(cptCode.includes('sr_service_meta_box'), 'Services Meta Box registered');
+assert(cptCode.includes('_sr_portfolio_client') && cptCode.includes('_sr_portfolio_url'), 'Portfolio meta fields (_sr_portfolio_client, _sr_portfolio_url) defined');
+assert(cptCode.includes('_sr_portfolio_metric') && cptCode.includes('_sr_portfolio_featured'), 'Portfolio achievement metrics & featured status defined');
+assert(cptCode.includes('_sr_service_price') && cptCode.includes('_sr_service_delivery'), 'Services pricing & delivery time fields defined');
+assert(cptCode.includes('save_meta_boxes'), 'CPT Meta Boxes save securely with nonces');
+
+// Dynamic CPT rendering in templates
+const portfolioPageCode = fs.readFileSync(path.join(themeDir, 'page-portfolio.php'), 'utf8');
+assert(portfolioPageCode.includes("post_type'      => 'portfolio'"), 'page-portfolio.php dynamically queries portfolio CPT');
+assert(portfolioPageCode.includes('_sr_portfolio_metric'), 'page-portfolio.php renders project metrics from post meta');
+
+const servicesPageCode = fs.readFileSync(path.join(themeDir, 'page-services.php'), 'utf8');
+assert(servicesPageCode.includes("post_type'      => 'services'"), 'page-services.php dynamically queries services CPT');
+assert(servicesPageCode.includes('_sr_service_price'), 'page-services.php renders service price from post meta');
+
+const singleCode = fs.readFileSync(path.join(themeDir, 'single.php'), 'utf8');
+assert(singleCode.includes("get_post_type() === 'portfolio'"), 'single.php handles single portfolio post meta');
+assert(singleCode.includes("get_post_type() === 'services'"), 'single.php handles single service post meta');
+
+const clientDashCode = fs.readFileSync(path.join(themeDir, 'page-client-dashboard.php'), 'utf8');
+assert(!clientDashCode.includes('alert('), 'page-client-dashboard.php is 100% clean of window.alert');
+
 console.log('\n========================================================================');
 console.log(`📊 Audit Results: ${passed} passed, ${failed} failed`);
 if (failed === 0) {

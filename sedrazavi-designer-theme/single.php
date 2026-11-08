@@ -135,6 +135,35 @@ while (have_posts()) : the_post();
             <?php endif; ?>
 
             <div class="sr-single-body">
+                <?php if (get_post_type() === 'portfolio') :
+                    $client     = get_post_meta(get_the_ID(), '_sr_portfolio_client', true);
+                    $url        = get_post_meta(get_the_ID(), '_sr_portfolio_url', true);
+                    $tech_stack = get_post_meta(get_the_ID(), '_sr_portfolio_tech_stack', true);
+                    $year       = get_post_meta(get_the_ID(), '_sr_portfolio_year', true);
+                    $metric     = get_post_meta(get_the_ID(), '_sr_portfolio_metric', true);
+                ?>
+                    <div class="sr-cpt-meta-card" style="background:var(--sr-surface-2); border:1px solid var(--sr-border); border-radius:14px; padding:18px; margin-bottom:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px;">
+                        <?php if ($client) : ?><div><span style="color:var(--sr-muted); font-size:12px;">کارفرما:</span> <strong style="display:block;"><?php echo esc_html($client); ?></strong></div><?php endif; ?>
+                        <?php if ($year) : ?><div><span style="color:var(--sr-muted); font-size:12px;">مدت اجرا / سال:</span> <strong style="display:block;"><?php echo esc_html($year); ?></strong></div><?php endif; ?>
+                        <?php if ($metric) : ?><div><span style="color:var(--sr-muted); font-size:12px;">دستاورد کلیدی:</span> <strong style="display:block; color:var(--sr-primary);"><?php echo esc_html($metric); ?></strong></div><?php endif; ?>
+                        <?php if ($tech_stack) : ?><div><span style="color:var(--sr-muted); font-size:12px;">فناوری‌ها:</span> <strong style="display:block;"><?php echo esc_html($tech_stack); ?></strong></div><?php endif; ?>
+                        <?php if ($url) : ?><div style="align-self:center;"><a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer" class="sr-btn sr-btn-sm sr-btn-glow">مشاهده سایت زنده &larr;</a></div><?php endif; ?>
+                    </div>
+                <?php elseif (get_post_type() === 'services') :
+                    $price    = get_post_meta(get_the_ID(), '_sr_service_price', true);
+                    $delivery = get_post_meta(get_the_ID(), '_sr_service_delivery', true);
+                    $badge    = get_post_meta(get_the_ID(), '_sr_service_badge', true);
+                ?>
+                    <div class="sr-cpt-meta-card" style="background:var(--sr-surface-2); border:1px solid var(--sr-border); border-radius:14px; padding:18px; margin-bottom:24px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px;">
+                        <div style="display:flex; gap:20px; align-items:center;">
+                            <?php if ($price) : ?><div><span style="color:var(--sr-muted); font-size:12px;">شروع تعرفه:</span> <strong style="display:block; color:var(--sr-primary); font-size:16px;"><?php echo esc_html($price); ?></strong></div><?php endif; ?>
+                            <?php if ($delivery) : ?><div><span style="color:var(--sr-muted); font-size:12px;">زمان تحویل:</span> <strong style="display:block;"><?php echo esc_html($delivery); ?></strong></div><?php endif; ?>
+                            <?php if ($badge) : ?><div><span class="sr-badge-pill sr-badge-primary"><?php echo esc_html($badge); ?></span></div><?php endif; ?>
+                        </div>
+                        <button type="button" class="sr-btn sr-btn-sm sr-btn-glow sr-open-consultation" data-modal="sr-consultation-modal">سفارش این خدمت ⚡</button>
+                    </div>
+                <?php endif; ?>
+
                 <div class="sr-entry-content" id="sr-article-body">
                     <?php the_content(); ?>
                 </div>

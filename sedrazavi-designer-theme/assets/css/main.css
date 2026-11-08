@@ -1639,3 +1639,8 @@
     font-size: 1.05rem;
     font-weight: 700;
 }
+
+.sr-download-notice.sr-visible {
+    display: block !important;
+}
+

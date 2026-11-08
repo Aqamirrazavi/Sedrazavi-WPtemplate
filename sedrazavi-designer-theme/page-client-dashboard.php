@@ -86,7 +86,8 @@ get_header();
                             <span class="sr-deliv-title">مستندات ویدیویی آموزش کار با المنتور (بدون کد)</span>
                             <span class="sr-deliv-meta">فایل MP4 • ۱۸ مگابایت</span>
                         </div>
-                        <button type="button" class="sr-btn sr-btn-sm sr-btn-outline" onclick="alert('لینک دانلود پس از تایید نهایی پروژه فعال می‌شود.');">دانلود</button>
+                        <button type="button" class="sr-btn sr-btn-sm sr-btn-outline" onclick="this.nextElementSibling.classList.toggle('sr-visible');">وضعیت دریافت</button>
+                        <div class="sr-download-notice" style="display:none; margin-top:8px; font-size:12px; color:var(--sr-primary);">⚡ لینک دسترسی و دانلود پس از تایید نهایی پروژه توسط کارفرما فعال می‌شود.</div>
                     </div>
                     <div class="sr-deliverable-item">
                         <span class="sr-deliv-icon">🎨</span>
