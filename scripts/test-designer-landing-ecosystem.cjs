@@ -129,8 +129,57 @@ assert(mainPlugin.includes('Widget_Cyber_Dino'), 'Cyber Dino widget registered')
 assert(mainPlugin.includes('Widget_Music_Player'), 'Music Player widget registered');
 assert(mainPlugin.includes('Widget_World_Globe'), 'World Globe widget registered');
 
-// 3. Packaging & ZIP Distribution
-console.log('\n🔍 Group 3: Standalone ZIP Packages & Distribution');
+// Check Local Persian Font Loader (Zero-CDN)
+const fontLoaderTheme = path.join(themeDir, 'inc/local-font-loader.php');
+assert(fs.existsSync(fontLoaderTheme), 'Theme local-font-loader.php exists');
+const fontLoaderCore = path.join(pluginDir, 'inc/local-font-loader.php');
+assert(fs.existsSync(fontLoaderCore), 'Plugin local-font-loader.php exists');
+const fontLoaderThemeContent = fs.readFileSync(fontLoaderTheme, 'utf8');
+assert(fontLoaderThemeContent.includes('Vazirmatn'), 'Local font loader defines Vazirmatn font-face');
+assert(fontLoaderThemeContent.includes('font-display: swap'), 'Local font loader uses font-display: swap');
+assert(fontLoaderThemeContent.includes('block_external_fonts'), 'Local font loader dequeues external Google/CDN fonts');
+assert(fontLoaderThemeContent.includes('register_elementor_additional_fonts'), 'Local font loader registers Vazirmatn in Elementor');
+
+// Check 4 Single Post Layout Archetypes (Section 16.0 / 18.1)
+const singlePhp = fs.readFileSync(path.join(themeDir, 'single.php'), 'utf8');
+assert(singlePhp.includes("'classic'"), 'single.php implements Classic Sticky TOC layout');
+assert(singlePhp.includes("'cyber'"), 'single.php implements Cyber Full-Width Cinematic layout');
+assert(singlePhp.includes("'magazine'"), 'single.php implements Tech Magazine layout');
+assert(singlePhp.includes("'reader'"), 'single.php implements Minimalist Clean Reader layout');
+
+// Check Sovereign Preloader (Section 17.9)
+const headerPhp = fs.readFileSync(path.join(themeDir, 'header.php'), 'utf8');
+assert(headerPhp.includes('sr-preloader-backdrop'), 'header.php renders accessible sovereign preloader');
+
+// 3. Plugin WebP Visual Identity Assets (<100KB)
+console.log('\n🔍 Group 3: Plugin WebP Visual Identity Assets (< 100KB)');
+const checkWebpAssets = [
+  'sedrazavi-designer-core/assets/banner-772x250.webp',
+  'sedrazavi-designer-core/assets/icon-256x256.webp',
+  'sedrazavi-designer-core/screenshot.webp',
+  'elementor-addon-suite/assets/banner-772x250.webp',
+  'elementor-addon-suite/assets/icon-256x256.webp',
+  'elementor-addon-suite/screenshot.webp',
+  'sedrazavi-addons/assets/banner-772x250.webp',
+  'sedrazavi-addons/assets/icon-256x256.webp',
+  'sedrazavi-addons/screenshot.webp',
+  'sedrazavi-companion/assets/banner-772x250.webp',
+  'sedrazavi-companion/assets/icon-256x256.webp',
+  'sedrazavi-companion/screenshot.webp',
+  'sedrazavi-designer-theme/screenshot.webp',
+];
+
+for (const relPath of checkWebpAssets) {
+  const fullP = path.join(rootDir, relPath);
+  assert(fs.existsSync(fullP), `Asset ${relPath} exists`);
+  if (fs.existsSync(fullP)) {
+    const sizeKb = fs.statSync(fullP).size / 1024;
+    assert(sizeKb < 100, `Asset ${relPath} is strictly under 100KB (${sizeKb.toFixed(1)} KB)`);
+  }
+}
+
+// 4. Packaging & ZIP Distribution
+console.log('\n🔍 Group 4: Standalone ZIP Packages & Distribution');
 const publicDir = path.join(rootDir, 'public');
 const packages = [
   'sedrazavi-designer-theme.zip',

@@ -38,6 +38,13 @@ if (!defined('ABSPATH')) {
 <body <?php body_class('antialiased'); ?>>
 <?php wp_body_open(); ?>
 
+<!-- Sovereign Preloader (Section 17.9) -->
+<div class="sr-preloader-backdrop" id="sr-page-preloader" role="status" aria-live="polite">
+    <div class="sr-preloader-brand-icon">⚡</div>
+    <div class="sr-preloader-ring"></div>
+    <div class="sr-preloader-text">استودیو سیدرضوی • معماری بدون کدنویسی</div>
+</div>
+
 <a class="skip-link screen-reader-text" href="#main-content">
     <?php esc_html_e('پرش به محتوای اصلی', 'sedrazavi-designer'); ?>
 </a>

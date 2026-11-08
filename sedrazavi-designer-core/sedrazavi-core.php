@@ -33,6 +33,7 @@ require_once SEDRAZAVI_CORE_DIR . 'inc/lead-manager.php';
 require_once SEDRAZAVI_CORE_DIR . 'inc/auth-guard.php';
 require_once SEDRAZAVI_CORE_DIR . 'inc/settings-sync.php';
 require_once SEDRAZAVI_CORE_DIR . 'inc/theme-builder-bridge.php';
+require_once SEDRAZAVI_CORE_DIR . 'inc/local-font-loader.php';
 
 /**
  * Activation Hook

@@ -17,6 +17,9 @@ define('SEDRAZAVI_DESIGNER_VERSION', '1.0.0');
 define('SEDRAZAVI_DESIGNER_DIR', get_template_directory());
 define('SEDRAZAVI_DESIGNER_URI', get_template_directory_uri());
 
+// Load Local Sovereign Persian Font System (Zero-CDN, Offline Resilient)
+require_once SEDRAZAVI_DESIGNER_DIR . '/inc/local-font-loader.php';
+
 /**
  * 1. Theme Setup & Feature Declarations
  */

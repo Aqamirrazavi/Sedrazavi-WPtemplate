@@ -393,7 +393,43 @@
         });
     }
 
+    // 11. Sovereign Preloader (Section 17.9)
+    function initPreloader() {
+        const preloader = document.getElementById('sr-page-preloader');
+        if (!preloader) return;
+
+        function dismiss() {
+            preloader.classList.add('is-hidden');
+            setTimeout(() => {
+                if (preloader.parentNode) preloader.parentNode.removeChild(preloader);
+            }, 450);
+        }
+
+        if (document.readyState === 'complete') {
+            dismiss();
+        } else {
+            window.addEventListener('load', dismiss);
+            // Safety timeout: never block page if resources are slow/blocked (max 1.8s)
+            setTimeout(dismiss, 1800);
+        }
+    }
+
+    // 12. Reading Progress Indicator (Layout 4: Clean Reader)
+    function initReadingProgress() {
+        const progress = document.getElementById('sr-reading-progress');
+        if (!progress) return;
+
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            if (docHeight > 0) {
+                const scrolled = (window.scrollY / docHeight) * 100;
+                progress.style.width = `${Math.min(100, Math.max(0, scrolled))}%`;
+            }
+        });
+    }
+
     // Initialize All
+    initPreloader();
     document.addEventListener('DOMContentLoaded', () => {
         initThemeMode();
         initPaletteSwitcher();
@@ -404,5 +440,6 @@
         initBackToTop();
         initPortfolioFilters();
         initLeadForms();
+        initReadingProgress();
     });
 })();

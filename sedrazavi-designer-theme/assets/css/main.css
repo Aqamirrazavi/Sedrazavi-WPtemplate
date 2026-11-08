@@ -1431,3 +1431,211 @@
         flex-direction: column;
     }
 }
+
+/* ==========================================================================
+   14. Sovereign Preloader (Section 17.9)
+   ========================================================================== */
+.sr-preloader-backdrop {
+    position: fixed;
+    inset: 0;
+    background: var(--sr-bg);
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.sr-preloader-backdrop.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.sr-preloader-brand-icon {
+    font-size: 2.8rem;
+    animation: srPreloaderPulse 1.2s ease-in-out infinite alternate;
+}
+
+.sr-preloader-ring {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--sr-primary);
+    box-shadow: 0 0 16px var(--sr-glow);
+    animation: srPreloaderSpin 0.8s linear infinite;
+}
+
+.sr-preloader-text {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--sr-muted);
+    letter-spacing: 0.5px;
+}
+
+@keyframes srPreloaderSpin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes srPreloaderPulse {
+    0% { transform: scale(0.9); filter: drop-shadow(0 0 4px var(--sr-primary)); }
+    100% { transform: scale(1.1); filter: drop-shadow(0 0 18px var(--sr-glow)); }
+}
+
+/* ==========================================================================
+   15. Single Post 4 Layout Archetypes (Section 16.0 / 18.1)
+   ========================================================================== */
+.sr-layout-switcher-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: var(--sr-surface);
+    border: 1px solid var(--sr-border);
+    max-width: fit-content;
+    margin-inline: auto;
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.sr-switcher-label {
+    color: var(--sr-muted);
+    font-weight: 700;
+}
+
+.sr-switch-link {
+    color: var(--sr-muted);
+    text-decoration: none;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.sr-switch-link:hover,
+.sr-switch-link.is-active {
+    background: var(--sr-surface-2);
+    color: var(--sr-primary);
+    border: 1px solid var(--sr-border);
+}
+
+.sr-reading-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--sr-primary), var(--sr-secondary));
+    box-shadow: 0 0 10px var(--sr-glow);
+    z-index: 10000;
+    transition: width 0.1s linear;
+}
+
+.sr-single-layout-wrapper.has-sidebar {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2.5rem;
+    align-items: start;
+}
+
+.sr-sticky-toc-sidebar {
+    position: sticky;
+    top: 5.5rem;
+}
+
+.sr-toc-card {
+    background: var(--sr-surface);
+    border: 1px solid var(--sr-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.sr-toc-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    color: var(--sr-text);
+}
+
+.sr-toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem 0;
+}
+
+.sr-toc-list li {
+    margin-bottom: 0.6rem;
+}
+
+.sr-toc-list a {
+    color: var(--sr-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s ease;
+}
+
+.sr-toc-list a:hover {
+    color: var(--sr-primary);
+}
+
+.sr-cyber-cinematic-header {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+    padding: 4rem 2rem;
+    border: 1px solid var(--sr-border);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.sr-cinematic-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.sr-cinematic-backdrop img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4) saturate(1.2);
+}
+
+.sr-cinematic-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(11, 15, 25, 0.4), var(--sr-bg));
+}
+
+.sr-cinematic-content {
+    position: relative;
+    z-index: 1;
+}
+
+.sr-magazine-takeaways-card {
+    background: var(--sr-surface-2);
+    border: 1px solid var(--sr-primary);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.sr-takeaway-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+    color: var(--sr-primary);
+}
+
+.sr-takeaway-head h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
