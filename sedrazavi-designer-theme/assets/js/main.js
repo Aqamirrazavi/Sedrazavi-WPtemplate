@@ -24,6 +24,43 @@
     const consultationModal = document.getElementById('sr-consultation-modal');
     const modalCloseBtn = document.getElementById('sr-modal-close');
 
+    // ==========================================================================
+    // Subtle Neon Web Audio API Sound Synthesizer (Addendum 20)
+    // ==========================================================================
+    let audioCtx = null;
+    let soundEnabled = localStorage.getItem('sr_sound_enabled') !== '0'; // default enabled
+
+    function initAudioContext() {
+        if (!audioCtx) {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {}
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function playNeonTone(freqStart, freqEnd, duration, gainVal = 0.035) {
+        if (!soundEnabled) return;
+        try {
+            initAudioContext();
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(freqStart, audioCtx.currentTime);
+            if (freqEnd && freqEnd !== freqStart) {
+                osc.frequency.exponentialRampToValueAtTime(freqEnd, audioCtx.currentTime + duration);
+            }
+            gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        } catch (e) {}
+    }
+
     // 2. Day / Night Mode Handler
     function initThemeMode() {
         const savedMode = localStorage.getItem('sr_theme_mode') || htmlEl.getAttribute('data-theme') || 'dark';
@@ -34,6 +71,7 @@
                 const currentMode = htmlEl.getAttribute('data-theme') || 'dark';
                 const newMode = currentMode === 'dark' ? 'light' : 'dark';
                 setThemeMode(newMode, true);
+                playNeonTone(360, 720, 0.12, 0.04);
             });
         }
     }
@@ -75,6 +113,7 @@
                         chips.forEach((c) => c.classList.remove('is-active'));
                         chip.classList.add('is-active');
                         palettePopover.classList.remove('is-open');
+                        playNeonTone(520, 980, 0.08, 0.04);
                     }
                 });
             });

@@ -1,0 +1,110 @@
+{
+  "version": "0.4",
+  "title": "UAS - قالب تم‌بیلدر برگه تکی محصول (Single Product Master)",
+  "type": "single-page",
+  "content": [
+    {
+      "id": "uas_cnt_single_prod_01",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#F8FAFC",
+        "content_width": "boxed",
+        "flex_direction": "row",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "flex_wrap": "wrap",
+        "flex_gap": {
+          "unit": "px",
+          "size": 24
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_cnt_sub_single_prod_gallery",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 50
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_single_prod_img",
+              "elType": "widget",
+              "widgetType": "image",
+              "settings": {
+                "image": {
+                  "url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800"
+                },
+                "caption_source": "none"
+              }
+            }
+          ]
+        },
+        {
+          "id": "uas_cnt_sub_single_prod_details",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 50
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_single_prod_title",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "ساعت مچی هوشمند سری پرو با بدنه تیتانیوم",
+                "header_size": "h1"
+              }
+            },
+            {
+              "id": "uas_wid_single_prod_price",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "۴,۸۵۰,۰۰۰ تومان",
+                "header_size": "h3"
+              }
+            },
+            {
+              "id": "uas_wid_single_prod_fomo",
+              "elType": "widget",
+              "widgetType": "uas_fomo_countdown",
+              "settings": {
+                "initial_minutes": 25,
+                "banner_text": "⚡ تخفیف شگفت‌انگیز فقط تا پایان زمان باقی‌مانده:"
+              }
+            },
+            {
+              "id": "uas_wid_single_prod_desc",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "محصول اورجینال با ضمانت تعویض ۱۸ ماهه طلایی، ارسال رایگان به سراسر کشور و پایشگر سلامتی پیشرفته."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

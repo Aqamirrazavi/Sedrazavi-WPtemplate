@@ -1,0 +1,36 @@
+{
+  "version": "0.4",
+  "title": "SedRazavi - سکوی فرماندهی معمار سایبرنتیک (Cyber Cockpit Hero)",
+  "type": "container",
+  "content": [
+    {
+      "id": "sr_cnt_cockpit_hero",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "24",
+          "bottom": "60",
+          "left": "24"
+        },
+        "background_background": "classic",
+        "background_color": "#070a13",
+        "content_width": "boxed",
+        "flex_direction": "column"
+      },
+      "elements": [
+        {
+          "id": "sr_wid_cockpit_title",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "کابین فرماندهی و مانیتورینگ پروژه معمار نئونی",
+            "header_size": "h1"
+          }
+        }
+      ]
+    }
+  ]
+}

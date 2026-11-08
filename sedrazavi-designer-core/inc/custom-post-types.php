@@ -67,6 +67,20 @@ class Custom_Post_Types {
             'supports'     => ['title', 'editor', 'thumbnail', 'excerpt', 'elementor'],
             'rewrite'      => ['slug' => 'all-services'],
         ]);
+
+        // 3. System Configuration CPT (SSOT for Master Config, Snapshots & Version Hash)
+        register_post_type('sedrazavi_config', [
+            'labels' => [
+                'name'          => __('پیکربندی سیستم و اسنپ‌شات‌ها', 'sedrazavi-designer-core'),
+                'singular_name' => __('پیکربندی سیستم', 'sedrazavi-designer-core'),
+            ],
+            'public'       => false,
+            'show_ui'      => true,
+            'show_in_menu' => false,
+            'show_in_rest' => true,
+            'supports'     => ['title', 'editor', 'custom-fields', 'revisions'],
+            'can_export'   => true,
+        ]);
     }
 
     public static function add_elementor_support() {

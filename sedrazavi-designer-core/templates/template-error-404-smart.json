@@ -1,0 +1,71 @@
+{
+  "version": "0.4",
+  "title": "UAS - صفحه خطای ۴۰۴ هوشمند و هدایت‌کننده (Theme Builder Error 404)",
+  "type": "single-page",
+  "content": [
+    {
+      "id": "uas_cnt_404_main",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "background_background": "gradient",
+        "background_color": "#0B1120",
+        "background_color_b": "#1E293B",
+        "padding": {
+          "unit": "px",
+          "top": "100",
+          "right": "20",
+          "bottom": "100",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_404_code",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "۴۰۴",
+            "align": "center",
+            "header_size": "xl"
+          }
+        },
+        {
+          "id": "uas_wid_404_title",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "صفحه مورد نظر شما یافت نشد!",
+            "align": "center",
+            "header_size": "h2"
+          }
+        },
+        {
+          "id": "uas_wid_404_desc",
+          "elType": "widget",
+          "widgetType": "text-editor",
+          "settings": {
+            "editor": "<p style='text-align:center; color:#94a3b8; font-size:16px; max-width:600px; margin:auto;'>متاسفانه آدرس وارد شده تغییر کرده یا حذف شده است. می‌توانید از طریق کادر جستجوی زیر مطلب مورد نظر خود را بیابید یا به صفحه اصلی بازگردید.</p>"
+          }
+        },
+        {
+          "id": "uas_wid_404_btn",
+          "elType": "widget",
+          "widgetType": "button",
+          "settings": {
+            "text": "بازگشت به صفحه اصلی سایت",
+            "link": {
+              "url": "/"
+            },
+            "align": "center",
+            "size": "md"
+          }
+        }
+      ]
+    }
+  ]
+}

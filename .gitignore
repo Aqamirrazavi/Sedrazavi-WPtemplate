@@ -2,8 +2,18 @@ node_modules/
 /build/
 /dist/
 coverage/
+# Exclude temp zips but allow release packages
 *.zip
 public/*.zip
+!public/sedrazavi-designer-theme.zip
+!public/sedrazavi-designer-core.zip
+!public/sedrazavi-designer-bundle.zip
+!public/elementor-addon-suite.zip
+!public/sedrazavi-addons.zip
+!public/sedrazavi-companion.zip
+!public/sedrazavi-theme.zip
+!public/sedrazavi-complete-ecosystem.zip
+!public/child-themes/*.zip
 .DS_Store
 *.log
 .env*

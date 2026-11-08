@@ -20,6 +20,9 @@ define('SEDRAZAVI_DESIGNER_URI', get_template_directory_uri());
 // Load Local Sovereign Persian Font System (Zero-CDN, Offline Resilient)
 require_once SEDRAZAVI_DESIGNER_DIR . '/inc/local-font-loader.php';
 
+// Load 33-Pattern Vector Geometric & Cybernetic Engine (Section 5 & Addendum 17)
+require_once SEDRAZAVI_DESIGNER_DIR . '/inc/vector-engine.php';
+
 /**
  * 1. Theme Setup & Feature Declarations
  */

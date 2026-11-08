@@ -1,0 +1,35 @@
+{
+  "version": "0.4",
+  "title": "SedRazavi - ماژول پیگیری وضعیت زنده پرونده (Interactive Order Tracker)",
+  "type": "container",
+  "content": [
+    {
+      "id": "sr_cnt_order_tracker",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "50",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0d1322",
+        "content_width": "boxed",
+        "flex_direction": "column"
+      },
+      "elements": [
+        {
+          "id": "sr_wid_tracker_widget",
+          "elType": "widget",
+          "widgetType": "shortcode",
+          "settings": {
+            "shortcode": "[sedrazavi_order_tracker]"
+          }
+        }
+      ]
+    }
+  ]
+}

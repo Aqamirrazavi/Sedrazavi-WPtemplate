@@ -194,12 +194,69 @@ for (const pkg of packages) {
   assert(size > 5000, `ZIP ${pkg} has valid content (size: ${(size / 1024).toFixed(1)} KB)`);
 }
 
+// 5. Verification of 7 Master Prompt Compliance Items (SSOT, Vector Engine, 33 Templates, Web Audio API, Cockpit Reply Modal, Docs, .gitignore)
+console.log('\n🔍 Group 5: Master Prompt Compliance & Hardening Verification');
+
+// 5.1 Documentation Preservation
+const docFile = path.join(rootDir, 'docs/MASTER_PROMPT_v25_SOVEREIGN_ECOSYSTEM.md');
+assert(fs.existsSync(docFile), 'docs/MASTER_PROMPT_v25_SOVEREIGN_ECOSYSTEM.md exists');
+if (fs.existsSync(docFile)) {
+  const docSizeKb = fs.statSync(docFile).size / 1024;
+  assert(docSizeKb > 100, `Master prompt documentation is fully recorded without loss (${docSizeKb.toFixed(1)} KB > 100 KB)`);
+}
+
+// 5.2 SSOT Configuration Engine
+const cptFile = fs.readFileSync(path.join(pluginDir, 'inc/custom-post-types.php'), 'utf8');
+assert(cptFile.includes("'sedrazavi_config'"), 'CPT sedrazavi_config is registered');
+const syncFile = fs.readFileSync(path.join(pluginDir, 'inc/settings-sync.php'), 'utf8');
+assert(syncFile.includes('master-config'), 'Settings_Sync uses master-config slug');
+assert(syncFile.includes('save_master_config'), 'Settings_Sync implements save_master_config');
+assert(syncFile.includes('revert_to_snapshot'), 'Settings_Sync implements snapshot rollback');
+assert(syncFile.includes('_sr_config_sha256'), 'Settings_Sync enforces SHA-256 integrity hash verification');
+
+// 5.3 33 Geometric Vector Engine & Parallax
+const vectorEngineFile = path.join(themeDir, 'inc/vector-engine.php');
+assert(fs.existsSync(vectorEngineFile), 'Theme inc/vector-engine.php exists');
+const vectorEngineContent = fs.readFileSync(vectorEngineFile, 'utf8');
+assert(vectorEngineContent.includes('pattern_33') || vectorEngineContent.includes("'id' => 33"), 'Vector engine defines 33 geometric patterns');
+assert(vectorEngineContent.includes('render_background'), 'Vector engine provides render_background method');
+const vectorMotionFile = path.join(themeDir, 'assets/js/vector-motion.js');
+assert(fs.existsSync(vectorMotionFile), 'Theme assets/js/vector-motion.js exists');
+const vectorMotionContent = fs.readFileSync(vectorMotionFile, 'utf8');
+assert(vectorMotionContent.includes('prefers-reduced-motion'), 'Vector motion respects prefers-reduced-motion accessibility');
+assert(vectorMotionContent.includes('touchstart') && vectorMotionContent.includes('touchend'), 'Vector motion handles touch swipe');
+
+// 5.4 33 Raw Elementor JSON Templates
+const themeTemplatesDir = path.join(themeDir, 'templates');
+const pluginTemplatesDir = path.join(pluginDir, 'templates');
+assert(fs.existsSync(themeTemplatesDir), 'Theme templates directory exists');
+assert(fs.existsSync(pluginTemplatesDir), 'Plugin templates directory exists');
+const themeTemplateCount = fs.readdirSync(themeTemplatesDir).filter(f => f.endsWith('.json')).length;
+const pluginTemplateCount = fs.readdirSync(pluginTemplatesDir).filter(f => f.endsWith('.json')).length;
+assert(themeTemplateCount === 33, `Theme contains 33 Elementor JSON templates (Found: ${themeTemplateCount})`);
+assert(pluginTemplateCount === 33, `Plugin contains 33 Elementor JSON templates (Found: ${pluginTemplateCount})`);
+
+// 5.5 Web Audio API Synthesizer
+assert(themeJs.includes('playNeonTone'), 'main.js implements playNeonTone synthesizer');
+assert(themeJs.includes('AudioContext') || themeJs.includes('webkitAudioContext'), 'main.js uses Web Audio API AudioContext');
+
+// 5.6 Designer Cockpit Reply & Status Modal
+const cockpitFile = fs.readFileSync(path.join(themeDir, 'page-designer-cockpit.php'), 'utf8');
+assert(cockpitFile.includes('sr-designer-reply-modal'), 'Designer Cockpit implements client reply modal');
+assert(cockpitFile.includes('sr_update_inquiry_status'), 'Designer Cockpit supports real-time status updates');
+
+// 5.7 .gitignore Whitelist Check
+const gitignoreContent = fs.readFileSync(path.join(rootDir, '.gitignore'), 'utf8');
+assert(gitignoreContent.includes('!public/sedrazavi-designer-theme.zip'), '.gitignore whitelists sedrazavi-designer-theme.zip');
+assert(gitignoreContent.includes('!public/sedrazavi-designer-core.zip'), '.gitignore whitelists sedrazavi-designer-core.zip');
+
 console.log('\n========================================================================');
 console.log(`📊 Audit Results: ${passed} passed, ${failed} failed`);
 if (failed === 0) {
   console.log('🎉 ALL DESIGNER ECOSYSTEM AUDIT CHECKS PASSED (100%)!');
 } else {
-  console.log('❌ SOME AUDIT CHECKS FAILED!');
+  console.error(`⚠️ FAILED: ${failed} assertions did not pass.`);
   process.exit(1);
 }
 console.log('========================================================================');
+

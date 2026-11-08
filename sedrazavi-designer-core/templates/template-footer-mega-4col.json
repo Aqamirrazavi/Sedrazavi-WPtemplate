@@ -1,0 +1,211 @@
+{
+  "version": "0.4",
+  "title": "UAS - پابرگ غنی چهارستونه سازمانی (Theme Builder Mega Footer)",
+  "type": "footer",
+  "content": [
+    {
+      "id": "uas_cnt_footer_main",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "background_background": "classic",
+        "background_color": "#090D1A",
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "40",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "row",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "flex_wrap": "wrap",
+        "flex_gap": {
+          "unit": "px",
+          "size": 24
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_cnt_sub_footer_brand",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 35
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_footer_logo",
+              "elType": "widget",
+              "widgetType": "theme-site-logo",
+              "settings": {
+                "align": "right"
+              }
+            },
+            {
+              "id": "uas_wid_footer_desc",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p style='color:#94a3b8; font-size:14px; line-height:1.9;'>ارائه راهکارهای نوین طراحی وب، بهینه‌سازی تجربه کاربری و توسعه سیستم‌های نرم‌افزاری بر پایه برترین متدهای روز دنیا.</p>"
+              }
+            }
+          ]
+        },
+        {
+          "id": "uas_cnt_sub_footer_links1",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 20
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_footer_head1",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "دسترسی سریع",
+                "header_size": "h4"
+              }
+            },
+            {
+              "id": "uas_wid_footer_iconlist1",
+              "elType": "widget",
+              "widgetType": "icon-list",
+              "settings": {
+                "icon_list": [
+                  {
+                    "text": "صفحه اصلی",
+                    "link": {
+                      "url": "/"
+                    }
+                  },
+                  {
+                    "text": "خدمات و پروژه‌ها",
+                    "link": {
+                      "url": "#services"
+                    }
+                  },
+                  {
+                    "text": "تعرفه‌ها و پلن‌ها",
+                    "link": {
+                      "url": "#pricing"
+                    }
+                  },
+                  {
+                    "text": "درباره ما",
+                    "link": {
+                      "url": "#about"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "uas_cnt_sub_footer_links2",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 20
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_footer_head2",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "راهنما و پشتیبانی",
+                "header_size": "h4"
+              }
+            },
+            {
+              "id": "uas_wid_footer_iconlist2",
+              "elType": "widget",
+              "widgetType": "icon-list",
+              "settings": {
+                "icon_list": [
+                  {
+                    "text": "سوالات متداول",
+                    "link": {
+                      "url": "#faq"
+                    }
+                  },
+                  {
+                    "text": "شرایط استفاده از خدمات",
+                    "link": {
+                      "url": "#terms"
+                    }
+                  },
+                  {
+                    "text": "حریم خصوصی کاربران",
+                    "link": {
+                      "url": "#privacy"
+                    }
+                  },
+                  {
+                    "text": "ارتباط با پشتیبانی",
+                    "link": {
+                      "url": "#contact"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "uas_cnt_sub_footer_contact",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 25
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_footer_head3",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "ارتباط مستقیم",
+                "header_size": "h4"
+              }
+            },
+            {
+              "id": "uas_wid_footer_contact_info",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p style='color:#cbd5e1; font-size:13px;'>تلفن تماس: ۰۲۱-۸۸۰۰۰۰۰۰<br>ایمیل سازمانی: info@example.com<br>ساعات کاری: شنبه تا چهارشنبه ۹ الی ۱۸</p>"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
