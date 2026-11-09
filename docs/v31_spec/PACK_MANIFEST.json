@@ -1,0 +1,47 @@
+{
+  "pack": "SedRazavi Final Markdown Pack",
+  "version": "31",
+  "created": "2026-11-10",
+  "files": [
+    {
+      "file": "00_README_START_HERE.md",
+      "bytes": 3426,
+      "sha256": "dc3744b76b0fde974e3b90b60a5dc97eed3bcc4683e2b9688ad13615a4f52f6f"
+    },
+    {
+      "file": "SedRazavi_Code_Level_Remediation_Plan_v1.md",
+      "bytes": 6574,
+      "sha256": "aa941407ef81031665bf1dfb91f93b505cf94cccdf3e6dfb54f9f3b76c22525f"
+    },
+    {
+      "file": "SedRazavi_Designer_Toolkit_Master_Prompt_v5_Native_Portability.md",
+      "bytes": 68738,
+      "sha256": "7242f5ad0c090d29f54f4ad7c00ced07a428e035d5b5f6d3eccb00bbb42d0583"
+    },
+    {
+      "file": "SedRazavi_Designer_Toolkit_Phase2_Master_Spec_v30_Final.md",
+      "bytes": 4264534,
+      "sha256": "5276c26623bcdb1333b7bceff4f67564f164bd0d223f4396c90dd10711931e0d"
+    },
+    {
+      "file": "SedRazavi_Designer_Toolkit_Phase_Prompts_v3.md",
+      "bytes": 11686,
+      "sha256": "33342d0d79251d36b5b34ef9f7becf5ef590bcfd3814ea6d8cbecf6162616749"
+    },
+    {
+      "file": "SedRazavi_Designer_Toolkit_Phased_Execution_Roadmap_v3.md",
+      "bytes": 4860,
+      "sha256": "c65001e7b30412557e87a7b66443fb6bafdc75f2d75d4fe8b0c71cc909cec790"
+    },
+    {
+      "file": "SedRazavi_Latest_Repository_Audit_2026-11-10.md",
+      "bytes": 7775,
+      "sha256": "2969f782e314eb0c983063c04b8a5dfaff2c490b1d33fccbe247f22aeeb5b95c"
+    },
+    {
+      "file": "SedRazavi_Native_Elementor_Gutenberg_Portability_Spec_v31.md",
+      "bytes": 17304,
+      "sha256": "d7655469a6ef41f5242c709bf361afe8ff3f17c22384131d08ec17967815a037"
+    }
+  ]
+}
