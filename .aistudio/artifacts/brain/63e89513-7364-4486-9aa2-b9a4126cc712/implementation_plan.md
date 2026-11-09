@@ -1,106 +1,101 @@
-# طرح معماری و پیاده‌سازی اکوسیستم اختصاصی لندینگ‌پیج طراح وردپرس (SedRazavi Designer Suite)
+# Sovereign WordPress & Elementor No-Code Designer Ecosystem (v16.0–v30.0)
 
-اکوسیستم مستقل و اختصاصی لندینگ‌پیج طراح ارشد وب‌سایت‌های وردپرس بدون کدنویسی (سید امیر حسین رضوی فردویی - `@sedrazavi`). این سامانه به صورت یک **پوسته بومی مستقل و مجزا (`sedrazavi-designer-theme`)** و یک **افزونه هسته اختصاصی و مجزا (`sedrazavi-designer-core`)**، بدون استفاده از چایلدتم و بدون ری‌اکت در فرانت‌اند، با سازگاری ۱۰۰٪ و ساختاری با المنتور و تم‌بیلدر المنتور پرو پیاده‌سازی می‌شود.
+A comprehensive architectural blueprint for the standalone, zero-React, 100% Elementor-native landing page and plugin ecosystem for Seyed Amir Hossein Razavi Fordoei (`@sedrazavi`), featuring in-theme automated plugin bundling and activation, an interstellar warp starfield background engine, front-end font upload and customization, and a Zoomit-inspired tech-editorial aesthetic.
 
 ---
 
-## بررسی کاربر و تصمیم‌های کلیدی (User Review & Critical Decisions)
+## User Review & Critical Decisions
 
 > [!IMPORTANT]
-> بر اساس شفاف‌سازی‌های تاییدشده در فاز ۱، تصمیم‌های زیر قطعی و مبنای پیاده‌سازی قرار گرفته‌اند:
+> The following decisions were clarified and approved during the interview phase:
 
-- **تصمیم تاییدشده ۱ (تفکیک پوسته و افزونه مستقل):** ساختار پروژه به طور کامل از معماری چایلدتم تفکیک شده و دو بسته مستقل و مجزا ایجاد می‌گردد: پوسته مستقل `sedrazavi-designer-theme` (مستقل از هر تم دیگر با فایل‌های قالب بومی PHP) و افزونه مستقل `sedrazavi-designer-core` (پلاگین مستقل ویجت‌های المنتور، پست‌تایپ‌ها و منطق پورتال).
-- **تصمیم تاییدشده ۲ (هویت بصری و پالت‌های نئونی):** استایل نئونی سایبرپانک با قابلیت سوییچ روز و شب و **۶۶ پالت رنگی** (۳۳ شب + ۳۳ روز)، تایپوگرافی محلی بدون CDN (فونت‌های وزیرمتن و JetBrains Mono) و موتور پس‌زمینه وکتوری ۳۳ گانه پارامتریک و اسلیمی پیاده‌سازی می‌شود.
-- **تصمیم تاییدشده ۳ (چیدمان و برگه‌ها):** همزمان **صفحه اصلی یکپارچه و ماژولار لندینگ‌پیج** با تمام سکشن‌های مدرن طراحی شده و در اولین فعال‌سازی، **۱۲ برگه استاندارد و قالب‌های آماده تم‌بیلدر المنتور** به همراه کانتینرهای فلکس‌باکس خودکار تولید و تنظیم می‌شوند.
-
----
-
-## ۱. نمای کلی و مفهوم بنیادین (Overview & Core Concept)
-
-- **ماهیت پروژه:** ایجاد پلتفرم پرچمدار، سریع و مستقل برای یک طراح ارشد وب‌سایت وردپرسی که می‌خواهد بدون نیاز به برنامه‌نویسی و بدون وابستگی به ری‌اکت، وب‌سایتی چشم‌نواز با جلوه‌های نئونی، ابزارک‌های تعاملی (کره زمین سه‌بعدی ساعت جهان، استریمر صوتی، بازی پیکسلی دایناسور و ساعت سه‌گانه شمسی/میلادی/قمری) و پورتال اختصاصی تعامل کارفرما و طراح ارائه دهد.
-- **مخاطبان هدف:** کارفرمایان و مشتریانی که به دنبال سفارش طراحی سایت‌های شرکتی، فروشگاهی و خدماتی با المنتور و وردپرس هستند؛ و طراحانی که می‌خواهند از این بسته به عنوان یک پکیج آماده، قابل توسعه و قابل حمل استفاده نمایند.
-- **ارزش کلیدی:** ویرایش‌پذیری ۱۰۰٪ تک‌تک بخش‌ها و ویجت‌ها در ادیتور زنده المنتور با حفظ پرفورمنس حداکثری (Lighthouse > 90) و استقلال فنی کامل.
+- **Confirmed Decision 1 (In-Theme Plugin Bundling & 1-Click Installer)**: The standalone theme (`sedrazavi-designer-theme`) will embed a pre-packaged zip of the core vertical plugin in `inc/plugins/sedrazavi-designer-core.zip`. A dedicated 1-click installer and activator handler (`inc/plugin-installer.php`) will allow the site administrator to install and activate the plugin directly from the front-end Designer Cockpit (`/designer-cockpit/`) and the WP Admin notification bar via AJAX/REST, while ensuring the theme remains 100% resilient and functional even if the plugin is not activated.
+- **Confirmed Decision 2 (Default Background Engine - Addenda 29.0 & 30.0)**: The default background animation across the site is the **Pure Galactic Interstellar Warp Drive** (Pattern #01). It features a pure cosmic canvas (zero cockpit or window frame obstruction), idle cruising velocity, scroll-driven impulse acceleration, exponential damping inertia deceleration ($\lambda = 0.92$), and light streak tails, fully controllable in Elementor Site Settings.
+- **Confirmed Decision 3 (Typography & Front-End Font Studio)**: Sovereign local **Vazirmatn (WOFF2)** is the zero-risk open-source default (OFL). The Designer Cockpit provides an intuitive front-end font selector and secure WOFF2 custom font uploader (for commercial fonts like Yekan Bakh, Dana, or IRANYekanX) that updates CSS variables and Elementor typography kit without manual code edits.
 
 ---
 
-## ۲. تجربه کاربری و طراحی بصری (User Experience & Visual Design)
+## 1. Overview & Core Concept
 
-### جریان‌های کلیدی کاربر (Key User Flows)
-1. **جریان بازدیدکننده / کارفرما در لندینگ‌پیج:**
-   - ورود به هیروی نئونی با افکت تایپ، مشاهده آمار عملکرد (+۱۵۰ پروژه، ۵+ سال تجربه، ۱۰۰٪ رضایت)، بررسی گرید خدمات و پروژه‌های شاخص.
-   - تعامل با ابزارک‌های جذاب: بررسی ساعت شهرهای جهان روی کره وکتوری، شنیدن موسیقی متن لو-فای، و مینی‌گیم دونده دایناسور کروم.
-   - ثبت سفارش پروژه در فرم هوشمند همراه با تعیین رمز عبور برای ساخت آنی پنل پیگیری.
-2. **جریان پورتال کارفرما (`/portal/client/`):**
-   - مشاهده لحظه‌ای وضعیت پیشرفت پروژه با کد رهگیری یکتای `SR-XXXXX`، مشاهده پیش‌فاکتورها، و ارسال پیام تکمیلی به طراح بدون دسترسی به `/wp-admin/`.
-3. **جریان طراح / مدیر سایت (`/cockpit/` و پیشخوان):**
-   - رصد سفارش‌ها و لیدهای جدید، ارسال مستقیم پاسخ و پیش‌فاکتور به پنل مشتری، و داک شناور تغییر پالت‌های رنگی و سوئیچ سریع به ویرایشگر المنتور.
-
-### هویت بصری، پالت‌ها و تایپوگرافی (Visual Identity & Design Tokens)
-- **تم پیش‌فرض:** پس‌زمینه تیره سایبرپانک (`#070D1E` و `#0B132B`) با حاشیه‌های درخشان بنفش نئونی (`#6C5CE7`) و فیروزه‌ای نئونی (`#00D1FF`).
-- **سیستم ۶۶ پالت روز و شب:** ۳۳ پالت مستقل شب (مانند Cyberpunk Neon، Deep Matrix، Royal Gold Cyber) و ۳۳ پالت مستقل روز (مانند Minimalist Paper، Persian Turquoise، Nordic Frost) با کنتراست تاییدشده WCAG AA (حداقل 4.5:1).
-- **تایپوگرافی ۱۰۰٪ محلی:** بارگذاری محلی وزیرمتن (Vazirmatn) برای عناوین و متون فارسی و JetBrains Mono برای اعداد، کدهای رهگیری و بخش‌های تکنیکال.
-- **موتور وکتور ۳۳گانه تعاملی:** پترن‌های اسلیمی-هندسی (گره‌چینی، شمسه، مقرنس) و خطوط سایبرنتیک با افکت پارالاکس نرم در اسکرول.
+- **What It Does**: Delivers an all-in-one, high-performance WordPress portfolio and landing page ecosystem specifically tailored for a premier No-Code WordPress & Elementor Architect. It bridges frontend client interactions with backend WordPress features—including automated project tracking (`SR-XXXXX`), interactive Elementor widgets, live quote calculators, client portals, and tech-editorial case studies.
+- **Target Audience / Persona**: High-value businesses, e-commerce stores, startups, and institutions seeking bespoke WordPress websites, sales landing pages, and complex Elementor layouts without bloat or code fragility.
+- **Key Value**: Drastically accelerates project delivery (zero-code setup) while providing clients and designers with dedicated front-end dashboards, eliminating the need to expose `/wp-admin/` to clients.
 
 ---
 
-## ۳. تصمیم‌های راهبردی و مصالحه‌های فنی (Key Decisions & Trade-Offs)
+## 2. User Experience & Visual Design
 
-1. **تفکیک کامل پوسته و افزونه به صورت Standalone (نه Child-Theme):**
-   - *رویکرد انتخابی:* ایجاد دایرکتوری مستقل `sedrazavi-designer-theme` برای تم و `sedrazavi-designer-core` برای افزونه.
-   - *دلیل:* استقلال کامل از هرگونه تم مادر؛ حذف وابستگی‌های ناخواسته، جلوگیری از ارث‌بری فایل‌های غیرمرتبط، و سهولت حمل و بسته‌بندی در قالب دو فایل ZIP مستقل.
-2. **Zero-React در فرانت‌اند و کلاینت:**
-   - *رویکرد انتخابی:* معماری ۱۰۰٪ PHP 8.2+ و HTML5 سمانتیک با Vanilla JavaScript مدرن (ES6+).
-   - *دلیل:* جلوگیری از سنگینی باندل ۱.۷ مگابایتی ری‌اکت در فرانت‌اند؛ ارتقای فوق‌العاده سرعت LCP و امتیاز سئو، و سازگاری بی‌نقص با هسته وردپرس و المنتور.
-3. **ایزوله‌سازی رندرهای زنده در ویرایشگر المنتور (Editor Isolation):**
-   - *رویکرد انتخابی:* در محیط ادیتور زنده المنتور (`is_edit_mode()`)، ویجت‌های سنگین (کره زمین و بازی بوم Canvas) یک پیش‌نمایش استاتیک شیک نمایش می‌دهند و لوپ‌های اجرایی در فرانت‌اند فعال می‌شوند تا ویرایشگر هرگز کرش نکند.
-4. **سیستم همگام‌سازی منبع حقیقت (SSOT) با کیت المنتور:**
-   - *رویکرد انتخابی:* ذخیره تنظیمات در پست‌تایپ سیستمی `sedrazavi_config` و همگام‌سازی آنی متغیرهای رنگی در کیت فعال المنتور (`elementor_active_kit`) همراه با پاک‌سازی خودکار کش استایل‌ها.
+### Visual Identity & Aesthetic Direction
+- **Atmospheric Palette**: Dark Cyberpunk Obsidian (`#0B0F19` deep space background, `#111827` surface cards, `#1F2937` hover elevated surfaces) accented by **Zoomit Vibrant Red** (`#E11D48`), **Cyber Neon Cyan** (`#00D1FF`), and **Electric Emerald** (`#10B981`), backed by a 66-palette dynamic switcher (33 dark and 33 light palettes).
+- **Typography**: Editorial Iranian font scale utilizing self-hosted **Vazirmatn** with options for **Yekan Bakh** and **Dana**, paired with **JetBrains Mono** for technical specs, timestamps, and metric data.
+- **Surface Math & Structure**: Hairline borders (`1px solid rgba(255,255,255,0.08)`), subtle glassmorphism blur (`backdrop-filter: blur(12px)`), $12\text{px}$ card radius, and clean unboxed typographic metadata.
+
+### 10 Core Landing Page Sections (Elementor Flexbox Containers)
+1. **Sticky Glass Header & Reading Progress Bar**: Real-time reading progress line, designer live availability pulse indicator, theme toggle, and drawer navigation.
+2. **Horizontal Video & Demo Stories Bar**: Touch-snap carousel of 30-second vertical demo reels and customer testimonials with gradient neon rings.
+3. **Asymmetrical Bento Hero Grid**: 2/3 flagship project showcase with $16:9$ media and executive summary + 1/3 vertical column of numbered tech insights (`01`, `02`, `03`).
+4. **Hot Topics Pill Bar**: Interactive filter chips (`#NoCode`, `#WooCommerce`, `#ElementorPro`) triggering instant client-side project filtering.
+5. **Interactive Services & 3D Tech Bento**: 3D interactive world clock globe, live jalali/gregorian/hijri chrono clock, and instant project scope cost calculator.
+6. **Flagship Case Studies & Pros/Cons Matrix**: Zoomit-style 60-second quick-take summary boxes, dual-column solved challenges, and $9.8/10$ performance review badges.
+7. **Retro Cyber Entertainment Hub**: Pure Vanilla JS Chrome Dino runner with local high-score tracking and cyberpunk music player with SVG audio visualizer.
+8. **Editorial Tech Magazine Grid**: Responsive article cards with local bookmarks (no-login), reading time, and author bio.
+9. **VIP Lead Capture & Order Inquiry Portal**: Hardened consultation intake form with automatic guest account provisioning and instant `SR-XXXXX` tracking code generation.
+10. **Multi-Column Editorial Footer**: System HUD status, dual-language switch (FA/EN), social handles (`@sedrazavi`), and copyright.
 
 ---
 
-## ۴. معماری فنی و ساختار بسته‌ها (Technical Architecture & Data Strategy)
+## 3. Key Product Decisions & Trade-Offs
+
+- **Decision 1: Standalone Theme + Bundled Core Plugin**:
+  - *Chosen Approach*: The theme (`sedrazavi-designer-theme`) and vertical core plugin (`sedrazavi-designer-core`) are packaged as separate folders for distribution. Additionally, `sedrazavi-designer-core.zip` is bundled inside `sedrazavi-designer-theme/inc/plugins/` with an AJAX-powered 1-click installer in the front-end Designer Cockpit and WP admin.
+  - *Why*: Allows standalone portability (the theme runs gracefully with built-in fallbacks if the plugin is deactivated), while providing a friction-free 1-click installation experience for new sites.
+  - *Alternatives Considered*: Hardcoding all functionality inside the theme only (violates WordPress best practices for data persistence when switching themes) or forcing manual zip uploads in `/wp-admin/` (cumbersome for designers).
+- **Decision 2: Zero React in Theme/Plugin Frontend**:
+  - *Chosen Approach*: 100% native WordPress PHP templates, semantic HTML5, CSS3 Custom Properties, and Vanilla ES6+ JS (<15KB).
+  - *Why*: Guarantees instant sub-800ms loading speeds, eliminates build-step dependencies on live hosts, and ensures 100% compatibility with the Elementor visual editor.
+- **Decision 3: Single Source of Truth (SSOT) via `sedrazavi_config`**:
+  - *Chosen Approach*: Configuration data is authored and saved to a dedicated CPT `sedrazavi_config` with slug `master-config`, version locking (`_sr_config_version`), and SHA-256 integrity verification (`_sr_config_sha256`), with automatic snapshots for instant rollback.
+
+---
+
+## 4. Technical Architecture & System Flow
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                   WordPress 6.7+ / PHP 8.2+ Core                       │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-           ┌────────────────────────┴────────────────────────┐
-           ▼                                                 ▼
-┌──────────────────────────────────────┐  ┌──────────────────────────────────────┐
-│  sedrazavi-designer-theme (پوسته بومی)  │  │  sedrazavi-designer-core (افزونه هسته) │
-├──────────────────────────────────────┤  ├──────────────────────────────────────┤
-│ • style.css (متادیتا و فونت‌های محلی)  │  │ • sedrazavi-core.php (لودر اصلی)     │
-│ • functions.php (هوک‌ها و قالب‌ها)   │  │ • CPTs: portfolio & services         │
-│ • header.php & footer.php سمانتیک    │  │ • Inquiries & Messages Database      │
-│ • front-page.php (لندینگ یکپارچه)    │  │ • 4 ویجت اختصاصی المنتور:           │
-│ • 12 تمپلیت برگه وردپرس             │  │   - World Clock Globe (کره زمین)     │
-│ • قالب‌های Theme Builder المنتور پرو: │  │   - Cyber Dino Runner (دایناسور)     │
-│   - Header / Footer / 404            │  │   - Cyber Music Player (موزیک پلیر)  │
-│   - Single Post (4 چیدمان)          │  │   - Tri-Calendar & Clock (ساعت ۳گانه)│
-│   - Archive & Single Portfolio       │  │ • موتور همگام‌ساز دوطرفه با المنتور کیت│
-│ • template-elementor-full-width.php  │  │ • پورتال مشتریان (Role: client)     │
-│ • template-elementor-canvas.php      │  │ • استودیوی کوکپیت فرانت‌اند طراح      │
-│ • assets/ (فونت‌ها، استایل‌های ۶۶ پالت)│  │ • Auto-Provisioning (راه‌اندازی خودکار)│
-└──────────────────────────────────────┘  └──────────────────────────────────────┘
+│                   SEDRAZAVI DESIGNER THEME & CORE                       │
+└────────────────────────────────────┬───────────────────────────────────┘
+                                     │
+         ┌───────────────────────────┴───────────────────────────┐
+         ▼                                                       ▼
+┌──────────────────────────────────┐   ┌─────────────────────────────────┐
+│     sedrazavi-designer-theme     │   │      sedrazavi-designer-core    │
+│  - style.css (100% Standalone)   │   │  - sedrazavi-core.php           │
+│  - header.php / footer.php       │   │  - inc/database-installer.php   │
+│  - front-page.php (10 Sections)  │   │  - inc/auto-provisioning.php    │
+│  - 12 Dynamic Page Templates     │   │  - inc/custom-post-types.php    │
+│  - single.php (4 Layout Archetypes)  │  - inc/settings-sync.php (SSOT) │
+│  - inc/starfield-warp.php        │   │  - inc/lead-manager.php         │
+│  - inc/plugin-installer.php      │   │  - inc/auth-guard.php           │
+│  - inc/local-font-loader.php     │   │  - 4 Elementor Widgets          │
+│  - inc/plugins/core-bundle.zip   │   │  - 33 Elementor JSON Templates  │
+└────────────────┬─────────────────┘   └────────────────┬────────────────┘
+                 │                                      │
+                 └───────────────────┬──────────────────┘
+                                     ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                      FRONT-END APPLICATION LAYERS                      │
+├────────────────────────────────────────────────────────────────────────┤
+│  1. Interstellar Warp Starfield Canvas (Pure Cosmic Space Engine)      │
+│  2. Front-End Designer Cockpit (1-Click Core Install + Font Studio)    │
+│  3. Front-End Client Dashboard (Order Status + Designer Messages)      │
+│  4. Public Inquiry Tracker (/track-order/?tracking_code=SR-XXXXX)      │
+│  5. 100% Elementor Theme Builder Locations (header/footer/single/arch) │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
-### ساختار پایگاه داده و کنترل دسترسی:
-- **جداول اختصاصی دیتابیس:**
-  - `wp_sedrazavi_inquiries`: ثبت استعلام‌ها، نوع پروژه، شماره تماس، کد رهگیری یکتا و وضعیت سفارش.
-  - `wp_sedrazavi_messages`: تبادل پیام‌های طراح و کارفرما در پورتال فرانت‌اند.
-- **نقش‌های کاربری (RBAC):**
-  - نقش اختصاصی `sedrazavi_client`: بدون دسترسی به پیشخوان مدیریت، هدایت خودکار به `/portal/client/`.
-  - نقش طراح / مدیر: دسترسی به پیشخوان و استودیوی فرانت‌اند `/cockpit/`.
-
-### مراحل فازبندی اجرا (تکمیل شده ۱۰۰٪ ✅):
-1. **فاز ۱ (تکمیل شد):** ایجاد پوسته مستقل `sedrazavi-designer-theme` همراه با فونت‌های محلی وزیرمتن (بدون CDN)، متغیرهای ۶۶ پالت رنگ (۳۳ تاریک نئونی + ۳۳ روشن مدرن) و تمپلیت‌های المنتور تمام‌عرض (`template-elementor-full-width.php`) و بوم خالی (`template-elementor-canvas.php`).
-2. **فاز ۲ (تکمیل شد):** پیاده‌سازی افزونه هسته `sedrazavi-designer-core` شامل ساخت خودکار جداول دیتابیس (`wp_sedrazavi_inquiries`, `wp_sedrazavi_messages`)، پست‌تایپ‌های نمونه‌کار و خدمات با پشتیبانی المنتور، و ایجاد خودکار ۱۲ برگه، تنظیم صفحه اصلی و برپایی منوی ناوبری اصلی.
-3. **فاز ۳ (تکمیل شد):** توسعه ۴ ویجت اختصاصی المنتور (کره زمین ۳ بعدی ساعت جهان، بازی دایناسور نئونی کروم با افکت‌های صوتی Web Audio، موزیک‌پلیر سایبرپانک و ساعت دیجیتال با ۳ تقویم شمسی/میلادی/قمری) با محافظ هوشمند ویرایشگر المنتور (`is_edit_mode`).
-4. **فاز ۴ (تکمیل شد):** پیاده‌سازی تمپلیت‌های ۱۲ برگه، هدر و فوتر نئونی با پشتیبانی Elementor Theme Builder، برگه نوشته تکی با تخمین زمان مطالعه و ۳ تقویم، و پورتال‌های تفکیک‌شده فرانت‌اند کارفرما و کاک‌پیت طراح بدون ورود به `wp-admin`.
-5. **فاز ۵ (تکمیل شد):** بسته‌بندی فایل‌های فشرده مستقل، آماده استقرار فوری روی هاست با استانداردهای رسمی وردپرس و المنتور:
-102:    - `public/sedrazavi-designer-theme.zip` (پوسته کاملاً مستقل بدون چایلد تم - ۲۰۶ کیلوبایت)
-103:    - `public/sedrazavi-designer-core.zip` (افزونه صنفی هسته اختصاصی - ۲۱ کیلوبایت)
-104:    - `public/sedrazavi-designer-bundle.zip` (بسته نصبی یکپارچه طراح به همراه راهنما - ۲۲۴ کیلوبایت)
-105:    - قبولی ۱۰۰٪ آزمون‌های خودکار (۷۲ از ۷۲ تست موفق) و بیلد سبز.
-
+### Key Modules to Create / Upgrade:
+1. **`inc/starfield-warp.php` & `assets/js/starfield-warp.js`**: Implement the pure cosmic interstellar starfield engine with acceleration formula $V(t) = \min(V_{\text{warp}} + |\Delta Y| \times 0.22, 18.0)$, exponential damping ($\lambda = 0.92$), and light streak tails.
+2. **`inc/plugin-installer.php`**: Built-in 1-click plugin extraction and activation handler supporting both the front-end Designer Cockpit and WP admin.
+3. **`inc/font-studio.php`**: Front-end font uploader and switcher supporting Vazirmatn, Yekan Bakh, Dana, and IRANYekanX with dynamic `@font-face` injection.
+4. **Theme & Core Distribution**: Update packaging script (`scripts/pack-theme-zips.cjs`) to embed `sedrazavi-designer-core.zip` inside `sedrazavi-designer-theme/inc/plugins/` and build release bundles.
+5. **Automated Verification**: Extend test suite (`scripts/test-designer-landing-ecosystem.cjs`) to verify the starfield engine, plugin installer, font studio, and 100% compliance with master prompt v30.0.

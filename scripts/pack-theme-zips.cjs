@@ -65,15 +65,6 @@ async function buildZips() {
   fs.writeFileSync(path.join(rootDir, 'sedrazavi-law-firm-wordpress-theme.zip'), themeBuffer);
   console.log(`✅ sedrazavi-theme.zip created: ${(themeBuffer.length / 1024 / 1024).toFixed(2)} MB`);
 
-  // 4b. Dedicated Standalone WordPress Designer Landing Theme (sedrazavi-designer-theme)
-  console.log('Packaging Dedicated Standalone Designer Theme ZIP...');
-  const designerThemeZip = new JSZip();
-  addDirectoryToZip(designerThemeZip, path.join(__dirname, '../sedrazavi-designer-theme'), 'sedrazavi-designer-theme');
-  const designerThemeBuffer = await designerThemeZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
-  fs.writeFileSync(path.join(publicDir, 'sedrazavi-designer-theme.zip'), designerThemeBuffer);
-  fs.writeFileSync(path.join(rootDir, 'sedrazavi-designer-theme.zip'), designerThemeBuffer);
-  console.log(`✅ sedrazavi-designer-theme.zip created: ${(designerThemeBuffer.length / 1024 / 1024).toFixed(2)} MB`);
-
   // 4c. Dedicated Standalone WordPress Designer Core Plugin (sedrazavi-designer-core)
   console.log('Packaging Dedicated Standalone Designer Core Plugin ZIP...');
   const designerCoreZip = new JSZip();
@@ -82,6 +73,23 @@ async function buildZips() {
   fs.writeFileSync(path.join(publicDir, 'sedrazavi-designer-core.zip'), designerCoreBuffer);
   fs.writeFileSync(path.join(rootDir, 'sedrazavi-designer-core.zip'), designerCoreBuffer);
   console.log(`✅ sedrazavi-designer-core.zip created: ${(designerCoreBuffer.length / 1024 / 1024).toFixed(2)} MB`);
+
+  // Ensure bundled core is embedded directly inside sedrazavi-designer-theme/inc/plugins/
+  const themePluginsDir = path.join(__dirname, '../sedrazavi-designer-theme/inc/plugins');
+  if (!fs.existsSync(themePluginsDir)) {
+    fs.mkdirSync(themePluginsDir, { recursive: true });
+  }
+  fs.writeFileSync(path.join(themePluginsDir, 'sedrazavi-designer-core.zip'), designerCoreBuffer);
+  console.log('✅ Bundled core plugin embedded in sedrazavi-designer-theme/inc/plugins/');
+
+  // 4b. Dedicated Standalone WordPress Designer Landing Theme (sedrazavi-designer-theme)
+  console.log('Packaging Dedicated Standalone Designer Theme ZIP...');
+  const designerThemeZip = new JSZip();
+  addDirectoryToZip(designerThemeZip, path.join(__dirname, '../sedrazavi-designer-theme'), 'sedrazavi-designer-theme');
+  const designerThemeBuffer = await designerThemeZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+  fs.writeFileSync(path.join(publicDir, 'sedrazavi-designer-theme.zip'), designerThemeBuffer);
+  fs.writeFileSync(path.join(rootDir, 'sedrazavi-designer-theme.zip'), designerThemeBuffer);
+  console.log(`✅ sedrazavi-designer-theme.zip created: ${(designerThemeBuffer.length / 1024 / 1024).toFixed(2)} MB`);
 
   // 4d. Dedicated Designer All-In-One Bundle (Theme + Plugin + Guide)
   console.log('Packaging Dedicated Designer Bundle ZIP...');

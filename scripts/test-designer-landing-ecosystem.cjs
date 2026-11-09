@@ -295,6 +295,66 @@ assert(singleCode.includes("get_post_type() === 'services'"), 'single.php handle
 const clientDashCode = fs.readFileSync(path.join(themeDir, 'page-client-dashboard.php'), 'utf8');
 assert(!clientDashCode.includes('alert('), 'page-client-dashboard.php is 100% clean of window.alert');
 
+// 7. Verification of Addenda 16.0–30.0 (Starfield Warp, Plugin Bundler, Font Studio)
+console.log('\n🔍 Group 7: Addenda 16.0–30.0 (Starfield Warp Engine, In-Theme Bundler, Font Studio)');
+
+// 7.1 Pure Galactic Interstellar Starfield Warp Engine
+const starfieldPhp = path.join(themeDir, 'inc/starfield-warp.php');
+const starfieldJs = path.join(themeDir, 'assets/js/starfield-warp.js');
+assert(fs.existsSync(starfieldPhp), 'inc/starfield-warp.php exists');
+assert(fs.existsSync(starfieldJs), 'assets/js/starfield-warp.js exists');
+
+const starfieldPhpContent = fs.readFileSync(starfieldPhp, 'utf8');
+assert(starfieldPhpContent.includes('sr-starfield-canvas'), 'starfield-warp.php renders canvas element #sr-starfield-canvas');
+assert(starfieldPhpContent.includes('sr_starfield_enable'), 'starfield-warp.php registers Customizer toggle');
+assert(starfieldPhpContent.includes('z-index: -1'), 'starfield canvas is full-bleed background without obstructions');
+
+const starfieldJsContent = fs.readFileSync(starfieldJs, 'utf8');
+assert(starfieldJsContent.includes('baseSpeed: 1.2') || starfieldJsContent.includes('1.2'), 'starfield-warp.js specifies idle cruising speed (V_base = 1.2)');
+assert(starfieldJsContent.includes('maxSpeed: 18.0') || starfieldJsContent.includes('18.0'), 'starfield-warp.js specifies max warp velocity (V_max = 18.0)');
+assert(starfieldJsContent.includes('accelFactor: 0.22') || starfieldJsContent.includes('0.22'), 'starfield-warp.js implements scroll impulse acceleration (factor = 0.22)');
+assert(starfieldJsContent.includes('damping: 0.92') || starfieldJsContent.includes('0.92'), 'starfield-warp.js implements exponential damping (damping = 0.92)');
+assert(starfieldJsContent.includes('prefers-reduced-motion'), 'starfield-warp.js respects prefers-reduced-motion');
+assert(starfieldJsContent.includes('visibilitychange'), 'starfield-warp.js pauses on page visibility hidden');
+
+// 7.2 In-Theme Automated Bundled Plugin Installer
+const installerPhp = path.join(themeDir, 'inc/plugin-installer.php');
+assert(fs.existsSync(installerPhp), 'inc/plugin-installer.php exists');
+const installerContent = fs.readFileSync(installerPhp, 'utf8');
+assert(installerContent.includes('sr_install_bundled_core'), 'Plugin_Installer defines AJAX action sr_install_bundled_core');
+assert(installerContent.includes('is_installed'), 'Plugin_Installer implements is_installed()');
+assert(installerContent.includes('is_active'), 'Plugin_Installer implements is_active()');
+assert(installerContent.includes('unzip_file'), 'Plugin_Installer uses WP Filesystem unzip_file()');
+
+// Check that bundled zip actually exists in theme
+const bundledZipPath = path.join(themeDir, 'inc/plugins/sedrazavi-designer-core.zip');
+assert(fs.existsSync(bundledZipPath), 'Theme contains bundled plugin at inc/plugins/sedrazavi-designer-core.zip');
+const bundledZipSize = fs.existsSync(bundledZipPath) ? fs.statSync(bundledZipPath).size : 0;
+assert(bundledZipSize > 100000, `Bundled core plugin zip is valid (${(bundledZipSize / 1024).toFixed(1)} KB > 100 KB)`);
+
+// 7.3 Front-End Font Studio & Dynamic Font Uploader
+const fontStudioPhp = path.join(themeDir, 'inc/font-studio.php');
+assert(fs.existsSync(fontStudioPhp), 'inc/font-studio.php exists');
+const fontStudioContent = fs.readFileSync(fontStudioPhp, 'utf8');
+assert(fontStudioContent.includes('get_available_fonts'), 'Font_Studio implements get_available_fonts()');
+assert(fontStudioContent.includes('sr_update_active_font'), 'Font_Studio implements AJAX action sr_update_active_font');
+assert(fontStudioContent.includes('sr_upload_custom_font'), 'Font_Studio implements AJAX action sr_upload_custom_font');
+assert(fontStudioContent.includes('wp_handle_upload'), 'Font_Studio uses secure wp_handle_upload for custom fonts');
+assert(fontStudioContent.includes('--sr-font-body'), 'Font_Studio dynamically injects CSS custom properties');
+
+// 7.4 Designer Cockpit Integration Check
+assert(cockpitFile.includes('sr-cockpit-install-plugin-btn'), 'Cockpit contains 1-click plugin install button');
+assert(cockpitFile.includes('sr-apply-font-btn'), 'Cockpit contains font switcher button');
+assert(cockpitFile.includes('sr-upload-font-btn'), 'Cockpit contains custom font uploader button');
+assert(cockpitFile.includes('sr_plugin_install_nonce'), 'Cockpit scripts include plugin installer nonce');
+assert(cockpitFile.includes('sr_font_studio_nonce'), 'Cockpit scripts include font studio nonce');
+
+// 7.5 Theme functions.php Inclusions
+const themeFunctionsContent = fs.readFileSync(path.join(themeDir, 'functions.php'), 'utf8');
+assert(themeFunctionsContent.includes('starfield-warp.php'), 'functions.php requires inc/starfield-warp.php');
+assert(themeFunctionsContent.includes('plugin-installer.php'), 'functions.php requires inc/plugin-installer.php');
+assert(themeFunctionsContent.includes('font-studio.php'), 'functions.php requires inc/font-studio.php');
+
 console.log('\n========================================================================');
 console.log(`📊 Audit Results: ${passed} passed, ${failed} failed`);
 if (failed === 0) {
@@ -304,4 +364,5 @@ if (failed === 0) {
   process.exit(1);
 }
 console.log('========================================================================');
+
 

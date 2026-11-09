@@ -23,6 +23,16 @@ require_once SEDRAZAVI_DESIGNER_DIR . '/inc/local-font-loader.php';
 // Load 33-Pattern Vector Geometric & Cybernetic Engine (Section 5 & Addendum 17)
 require_once SEDRAZAVI_DESIGNER_DIR . '/inc/vector-engine.php';
 
+// Load Pure Galactic Interstellar Starfield Warp Engine (Addenda 29.0 & 30.0)
+require_once SEDRAZAVI_DESIGNER_DIR . '/inc/starfield-warp.php';
+
+// Load In-Theme Bundled Core Plugin Installer & Activator (Addenda 16.0 & 20.0)
+require_once SEDRAZAVI_DESIGNER_DIR . '/inc/plugin-installer.php';
+
+// Load Front-End Font Studio & Dynamic Font Uploader (Addenda 20.0 & 27.0)
+require_once SEDRAZAVI_DESIGNER_DIR . '/inc/font-studio.php';
+
+
 /**
  * 1. Theme Setup & Feature Declarations
  */

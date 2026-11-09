@@ -114,6 +114,71 @@ get_header();
         </div>
     </div>
 
+    <!-- Management Tools: Core Plugin Bundler & Front-End Font Studio -->
+    <div class="sr-cockpit-tools-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px; margin-bottom:28px;">
+        <!-- Card 1: Bundled Core Plugin 1-Click Installer -->
+        <div class="sr-card sr-cockpit-card">
+            <div class="sr-card-head">
+                <h3 class="sr-card-title">📦 افزونه هسته اختصاصی طراح (SedRazavi Core)</h3>
+                <?php if (class_exists('\SedRazaviDesigner\Plugin_Installer') && \SedRazaviDesigner\Plugin_Installer::is_active()) : ?>
+                    <span class="sr-badge-pill sr-badge-primary">✅ فعال و متصل</span>
+                <?php else : ?>
+                    <span class="sr-badge-pill" style="color:#EF4444; border-color:#EF4444;">غیرفعال</span>
+                <?php endif; ?>
+            </div>
+            <p style="font-size:13px; color:var(--sr-muted); line-height:1.7; margin-bottom:16px;">
+                بسته نصبی افزونه اختصاصی درون پوسته تعبیه شده است. با یک کلیک می‌توانید افزونه را نصب، جداول دیتابیس را مستقر و ویجت‌های المنتور را فعال کنید:
+            </p>
+            <?php if (class_exists('\SedRazaviDesigner\Plugin_Installer') && \SedRazaviDesigner\Plugin_Installer::is_active()) : ?>
+                <div style="background:var(--sr-surface-2); padding:12px; border-radius:10px; font-size:12px; color:var(--sr-text);">
+                    ⚡ تمامی ویجت‌ها، پست‌تایپ‌های نمونه‌کار و خدمات و جداول استعلام فعال هستند.
+                </div>
+            <?php else : ?>
+                <button type="button" class="sr-btn sr-btn-glow sr-btn-full" id="sr-cockpit-install-plugin-btn">
+                    <span>نصب و فعال‌سازی افزونه هسته با ۱ کلیک</span>
+                    <span class="sr-btn-icon">⚡</span>
+                </button>
+                <div id="sr-plugin-install-msg" style="margin-top:10px; font-size:12px; font-weight:600;"></div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Card 2: Front-End Font Studio -->
+        <div class="sr-card sr-cockpit-card">
+            <div class="sr-card-head">
+                <h3 class="sr-card-title">🎨 استودیوی فرانت‌اند فونت و تایپوگرافی</h3>
+                <span class="sr-badge-pill">تغییر در لحظه</span>
+            </div>
+            <div style="margin-bottom:14px;">
+                <label for="sr_font_selector" style="font-size:12px; color:var(--sr-muted); display:block; margin-bottom:6px;">انتخاب تایپ‌فیس فعال سایت:</label>
+                <?php
+                $active_font = get_option('sedrazavi_active_font', 'vazirmatn');
+                $fonts = class_exists('\SedRazaviDesigner\Font_Studio') ? \SedRazaviDesigner\Font_Studio::get_available_fonts() : [];
+                ?>
+                <select id="sr_font_selector" style="width:100%; border-radius:8px; padding:8px 10px; background:var(--sr-surface-2); border:1px solid var(--sr-border); color:var(--sr-text);">
+                    <?php foreach ($fonts as $k => $f) : ?>
+                        <option value="<?php echo esc_attr($k); ?>" <?php selected($active_font, $k); ?>>
+                            <?php echo esc_html($f['name_fa']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="button" class="sr-btn sr-btn-sm sr-btn-outline" id="sr-apply-font-btn" style="margin-top:8px;">
+                    <span>اعمال فونت سراسری</span>
+                </button>
+                <span id="sr-font-status-msg" style="margin-right:10px; font-size:12px;"></span>
+            </div>
+
+            <!-- Custom Font Uploader -->
+            <div style="border-top:1px dashed var(--sr-border); padding-top:12px; margin-top:10px;">
+                <label style="font-size:12px; color:var(--sr-muted); display:block; margin-bottom:6px;">آپلود فونت سفارشی تجاری (WOFF2):</label>
+                <input type="file" id="sr_custom_font_file" accept=".woff2,.woff,.ttf" style="font-size:12px; color:var(--sr-muted); width:100%; margin-bottom:8px;">
+                <button type="button" class="sr-btn sr-btn-sm sr-btn-glow" id="sr-upload-font-btn">
+                    <span>بارگذاری و فعال‌سازی فونت</span>
+                </button>
+                <span id="sr-upload-font-msg" style="margin-right:10px; font-size:12px;"></span>
+            </div>
+        </div>
+    </div>
+
     <!-- Leads & Inquiries Table with Reply Interface -->
     <div class="sr-card sr-cockpit-card">
         <div class="sr-card-head">
@@ -244,6 +309,7 @@ get_header();
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // 1. Reply Modal Controller
     const replyModal = document.getElementById('sr-designer-reply-modal');
     const closeBtn = document.getElementById('sr-reply-modal-close');
     const openBtns = document.querySelectorAll('.sr-open-reply-modal');
@@ -274,6 +340,162 @@ document.addEventListener('DOMContentLoaded', function () {
                 replyModal.classList.remove('is-open');
                 replyModal.setAttribute('aria-hidden', 'true');
             }
+        });
+    }
+
+    // 2. Bundled Core Plugin 1-Click Installer
+    const installPluginBtn = document.getElementById('sr-cockpit-install-plugin-btn');
+    const pluginInstallMsg = document.getElementById('sr-plugin-install-msg');
+    const pluginNonce = '<?php echo esc_js(wp_create_nonce("sr_plugin_install_nonce")); ?>';
+    const ajaxUrl = '<?php echo esc_url(admin_url("admin-ajax.php")); ?>';
+
+    if (installPluginBtn) {
+        installPluginBtn.addEventListener('click', function () {
+            installPluginBtn.disabled = true;
+            installPluginBtn.innerHTML = '<span>در حال استخراج و فعال‌سازی...</span> <span class="sr-btn-icon">⏳</span>';
+            if (pluginInstallMsg) {
+                pluginInstallMsg.style.color = 'var(--sr-primary)';
+                pluginInstallMsg.textContent = 'در حال استخراج بسته نصبی و پیکربندی خودکار...';
+            }
+
+            const fd = new FormData();
+            fd.append('action', 'sr_install_bundled_core');
+            fd.append('security', pluginNonce);
+
+            fetch(ajaxUrl, {
+                method: 'POST',
+                body: fd
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) {
+                    if (pluginInstallMsg) {
+                        pluginInstallMsg.style.color = '#10B981';
+                        pluginInstallMsg.textContent = '✅ ' + (res.data?.message || 'افزونه با موفقیت نصب و فعال گردید.');
+                    }
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    if (pluginInstallMsg) {
+                        pluginInstallMsg.style.color = '#EF4444';
+                        pluginInstallMsg.textContent = '❌ خطا: ' + (res.data?.message || 'نصب با خطا مواجه شد.');
+                    }
+                    installPluginBtn.disabled = false;
+                    installPluginBtn.innerHTML = '<span>نصب و فعال‌سازی افزونه هسته با ۱ کلیک</span> <span class="sr-btn-icon">⚡</span>';
+                }
+            })
+            .catch(() => {
+                if (pluginInstallMsg) {
+                    pluginInstallMsg.style.color = '#EF4444';
+                    pluginInstallMsg.textContent = '❌ خطا در ارسال درخواست به سرور.';
+                }
+                installPluginBtn.disabled = false;
+                installPluginBtn.innerHTML = '<span>نصب و فعال‌سازی افزونه هسته با ۱ کلیک</span> <span class="sr-btn-icon">⚡</span>';
+            });
+        });
+    }
+
+    // 3. Front-End Font Studio Switcher
+    const applyFontBtn = document.getElementById('sr-apply-font-btn');
+    const fontSelector = document.getElementById('sr_font_selector');
+    const fontStatusMsg = document.getElementById('sr-font-status-msg');
+    const fontStudioNonce = '<?php echo esc_js(wp_create_nonce("sr_font_studio_nonce")); ?>';
+
+    if (applyFontBtn && fontSelector) {
+        applyFontBtn.addEventListener('click', function () {
+            applyFontBtn.disabled = true;
+            if (fontStatusMsg) {
+                fontStatusMsg.style.color = 'var(--sr-primary)';
+                fontStatusMsg.textContent = 'در حال اعمال...';
+            }
+
+            const fd = new FormData();
+            fd.append('action', 'sr_update_active_font');
+            fd.append('font_key', fontSelector.value);
+            fd.append('security', fontStudioNonce);
+
+            fetch(ajaxUrl, {
+                method: 'POST',
+                body: fd
+            })
+            .then(res => res.json())
+            .then(res => {
+                applyFontBtn.disabled = false;
+                if (res.success) {
+                    if (fontStatusMsg) {
+                        fontStatusMsg.style.color = '#10B981';
+                        fontStatusMsg.textContent = '✅ فونت با موفقیت اعمال شد.';
+                    }
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    if (fontStatusMsg) {
+                        fontStatusMsg.style.color = '#EF4444';
+                        fontStatusMsg.textContent = '❌ خطا: ' + (res.data?.message || 'خطا در تغییر فونت');
+                    }
+                }
+            })
+            .catch(() => {
+                applyFontBtn.disabled = false;
+                if (fontStatusMsg) {
+                    fontStatusMsg.style.color = '#EF4444';
+                    fontStatusMsg.textContent = '❌ خطا در ارتباط با سرور';
+                }
+            });
+        });
+    }
+
+    // 4. Custom Font WOFF2 Uploader
+    const uploadFontBtn = document.getElementById('sr-upload-font-btn');
+    const fontFileInput = document.getElementById('sr_custom_font_file');
+    const uploadFontMsg = document.getElementById('sr-upload-font-msg');
+
+    if (uploadFontBtn && fontFileInput) {
+        uploadFontBtn.addEventListener('click', function () {
+            if (!fontFileInput.files || fontFileInput.files.length === 0) {
+                if (uploadFontMsg) {
+                    uploadFontMsg.style.color = '#EF4444';
+                    uploadFontMsg.textContent = 'لطفاً ابتدا فایل فونت را انتخاب کنید.';
+                }
+                return;
+            }
+
+            uploadFontBtn.disabled = true;
+            if (uploadFontMsg) {
+                uploadFontMsg.style.color = 'var(--sr-primary)';
+                uploadFontMsg.textContent = 'در حال بارگذاری فونت...';
+            }
+
+            const fd = new FormData();
+            fd.append('action', 'sr_upload_custom_font');
+            fd.append('font_file', fontFileInput.files[0]);
+            fd.append('security', fontStudioNonce);
+
+            fetch(ajaxUrl, {
+                method: 'POST',
+                body: fd
+            })
+            .then(res => res.json())
+            .then(res => {
+                uploadFontBtn.disabled = false;
+                if (res.success) {
+                    if (uploadFontMsg) {
+                        uploadFontMsg.style.color = '#10B981';
+                        uploadFontMsg.textContent = '✅ ' + (res.data?.message || 'فونت بارگذاری و فعال شد.');
+                    }
+                    setTimeout(() => window.location.reload(), 1200);
+                } else {
+                    if (uploadFontMsg) {
+                        uploadFontMsg.style.color = '#EF4444';
+                        uploadFontMsg.textContent = '❌ ' + (res.data?.message || 'خطا در آپلود فونت.');
+                    }
+                }
+            })
+            .catch(() => {
+                uploadFontBtn.disabled = false;
+                if (uploadFontMsg) {
+                    uploadFontMsg.style.color = '#EF4444';
+                    uploadFontMsg.textContent = '❌ خطا در آپلود فونت.';
+                }
+            });
         });
     }
 });
