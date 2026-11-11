@@ -90,22 +90,30 @@ class Gutenberg_Blocks {
             return;
         }
 
+        $blocks_dir = trailingslashit(UAS_PATH) . 'blocks/';
+
         // 1. Vector Background Block
-        register_block_type('sedrazavi/sovereign-vector-bg', [
-            'api_version'   => 2,
-            'category'      => 'sedrazavi-sovereign',
-            'title'         => 'بک‌گراند وکتور مستقل (۶۶ مدل ریاضی)',
-            'description'   => 'بک‌گراند وکتور متحرک و ثابت ریاضی با کنترل شفافیت، بلور و سرعت انیمیشن.',
-            'attributes'    => [
-                'presetId'  => ['type' => 'number', 'default' => 1],
-                'mode'      => ['type' => 'string', 'default' => 'motion'],
-                'opacity'   => ['type' => 'number', 'default' => 0.85],
-                'blur'      => ['type' => 'number', 'default' => 0],
-                'minHeight' => ['type' => 'string', 'default' => '400px'],
-                'overlay'   => ['type' => 'string', 'default' => 'dark'],
-            ],
-            'render_callback' => [$this, 'render_vector_bg_block'],
-        ]);
+        if (file_exists($blocks_dir . 'sovereign-vector-bg/block.json')) {
+            register_block_type($blocks_dir . 'sovereign-vector-bg', [
+                'render_callback' => [$this, 'render_vector_bg_block'],
+            ]);
+        } else {
+            register_block_type('sedrazavi/sovereign-vector-bg', [
+                'api_version'   => 2,
+                'category'      => 'sedrazavi-sovereign',
+                'title'         => 'بک‌گراند وکتور مستقل (۶۶ مدل ریاضی)',
+                'description'   => 'بک‌گراند وکتور متحرک و ثابت ریاضی با کنترل شفافیت، بلور و سرعت انیمیشن.',
+                'attributes'    => [
+                    'presetId'  => ['type' => 'number', 'default' => 1],
+                    'mode'      => ['type' => 'string', 'default' => 'motion'],
+                    'opacity'   => ['type' => 'number', 'default' => 0.85],
+                    'blur'      => ['type' => 'number', 'default' => 0],
+                    'minHeight' => ['type' => 'string', 'default' => '400px'],
+                    'overlay'   => ['type' => 'string', 'default' => 'dark'],
+                ],
+                'render_callback' => [$this, 'render_vector_bg_block'],
+            ]);
+        }
 
         // 2. Sovereign Widget Block
         register_block_type('sedrazavi/sovereign-widget', [

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "sedrazavi/sovereign-icon",
+  "title": "آیکون برداری بدون CDN (۶۶ آیکون)",
+  "category": "sedrazavi-sovereign",
+  "icon": "star-filled",
+  "description": "آیکون‌های فوق‌سبک برداری بدون هیچ‌گونه بارگذاری فونت خارجی.",
+  "keywords": ["icon", "svg", "local", "sedrazavi"],
+  "version": "6.0.0",
+  "textdomain": "universal-elementor-suite",
+  "attributes": {
+    "iconId": { "type": "number", "default": 1 },
+    "size": { "type": "number", "default": 36 },
+    "color": { "type": "string", "default": "#D4AF37" },
+    "strokeWidth": { "type": "number", "default": 2 }
+  },
+  "supports": { "align": true, "html": false }
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "sedrazavi/sovereign-vector-bg",
+  "title": "بک‌گراند وکتور مستقل (۶۶ مدل ریاضی)",
+  "category": "sedrazavi-sovereign",
+  "icon": "art",
+  "description": "بک‌گراند وکتور متحرک و ثابت ریاضی با کنترل شفافیت، بلور و سرعت انیمیشن.",
+  "keywords": ["vector", "background", "sedrazavi", "pattern"],
+  "version": "6.0.0",
+  "textdomain": "universal-elementor-suite",
+  "attributes": {
+    "presetId": {
+      "type": "number",
+      "default": 1
+    },
+    "mode": {
+      "type": "string",
+      "default": "motion"
+    },
+    "opacity": {
+      "type": "number",
+      "default": 0.85
+    },
+    "blur": {
+      "type": "number",
+      "default": 0
+    },
+    "minHeight": {
+      "type": "string",
+      "default": "400px"
+    },
+    "overlay": {
+      "type": "string",
+      "default": "dark"
+    }
+  },
+  "supports": {
+    "align": ["wide", "full"],
+    "html": false,
+    "customClassName": true
+  }
+}

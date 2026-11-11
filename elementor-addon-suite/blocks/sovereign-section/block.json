@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "sedrazavi/sovereign-section",
+  "title": "بلوک سکشن آماده (۶۶ سناریوی کامل)",
+  "category": "sedrazavi-sovereign",
+  "icon": "layout",
+  "description": "سکشن‌های بهینه‌سازی‌شده برای هیرو، تعرفه‌ها، تیم، نظرات، فرآیند کاری و فوتر.",
+  "keywords": ["section", "layout", "sedrazavi", "bento"],
+  "version": "6.0.0",
+  "textdomain": "universal-elementor-suite",
+  "attributes": {
+    "sectionId": {
+      "type": "number",
+      "default": 1
+    },
+    "colorMode": {
+      "type": "string",
+      "default": "dark"
+    },
+    "padding": {
+      "type": "string",
+      "default": "lg"
+    }
+  },
+  "supports": {
+    "align": ["wide", "full"],
+    "html": false,
+    "customClassName": true
+  }
+}

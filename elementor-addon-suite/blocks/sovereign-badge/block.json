@@ -1,0 +1,19 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "sedrazavi/sovereign-badge",
+  "title": "نشان اعتبار و مهر امنیتی (۶۶ نشان)",
+  "category": "sedrazavi-sovereign",
+  "icon": "awards",
+  "description": "نشان‌های اعتماد حقوقی، اصالت کد، SSL، گواهی داوری و استانداردهای وب.",
+  "keywords": ["badge", "trust", "seal", "security"],
+  "version": "6.0.0",
+  "textdomain": "universal-elementor-suite",
+  "attributes": {
+    "badgeId": { "type": "number", "default": 1 },
+    "color": { "type": "string", "default": "#D4AF37" },
+    "size": { "type": "string", "default": "md" },
+    "showLabel": { "type": "boolean", "default": true }
+  },
+  "supports": { "align": true, "html": false }
+}

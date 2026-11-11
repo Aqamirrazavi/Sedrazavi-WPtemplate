@@ -1,101 +1,84 @@
-# Sovereign WordPress & Elementor No-Code Designer Ecosystem (v16.0–v30.0)
+# برنامه اجرایی ارتقای معماری: پوسته‌های ۱۰۰٪ مستقل و پیشخوان فرانت‌اند یکپارچه
+## Autonomous Standalone Themes & Unified Frontend Management Cockpit
 
-A comprehensive architectural blueprint for the standalone, zero-React, 100% Elementor-native landing page and plugin ecosystem for Seyed Amir Hossein Razavi Fordoei (`@sedrazavi`), featuring in-theme automated plugin bundling and activation, an interstellar warp starfield background engine, front-end font upload and customization, and a Zoomit-inspired tech-editorial aesthetic.
-
----
-
-## User Review & Critical Decisions
-
-> [!IMPORTANT]
-> The following decisions were clarified and approved during the interview phase:
-
-- **Confirmed Decision 1 (In-Theme Plugin Bundling & 1-Click Installer)**: The standalone theme (`sedrazavi-designer-theme`) will embed a pre-packaged zip of the core vertical plugin in `inc/plugins/sedrazavi-designer-core.zip`. A dedicated 1-click installer and activator handler (`inc/plugin-installer.php`) will allow the site administrator to install and activate the plugin directly from the front-end Designer Cockpit (`/designer-cockpit/`) and the WP Admin notification bar via AJAX/REST, while ensuring the theme remains 100% resilient and functional even if the plugin is not activated.
-- **Confirmed Decision 2 (Default Background Engine - Addenda 29.0 & 30.0)**: The default background animation across the site is the **Pure Galactic Interstellar Warp Drive** (Pattern #01). It features a pure cosmic canvas (zero cockpit or window frame obstruction), idle cruising velocity, scroll-driven impulse acceleration, exponential damping inertia deceleration ($\lambda = 0.92$), and light streak tails, fully controllable in Elementor Site Settings.
-- **Confirmed Decision 3 (Typography & Front-End Font Studio)**: Sovereign local **Vazirmatn (WOFF2)** is the zero-risk open-source default (OFL). The Designer Cockpit provides an intuitive front-end font selector and secure WOFF2 custom font uploader (for commercial fonts like Yekan Bakh, Dana, or IRANYekanX) that updates CSS variables and Elementor typography kit without manual code edits.
+**نسخه:** 4.0 | **مبنای معماری:** پوسته‌های کاملاً مستقل (Zero Child Themes) + پیشخوان جامع فرانت‌اند + مدیریت کاربران و پست‌تایپ‌ها  
+**توسعه‌دهنده و معمار:** سید امیر حسین رضوی فردوئی (@sedrazavi)  
 
 ---
 
-## 1. Overview & Core Concept
+### ۱. هدف و تغییرات راهبردی معماری
 
-- **What It Does**: Delivers an all-in-one, high-performance WordPress portfolio and landing page ecosystem specifically tailored for a premier No-Code WordPress & Elementor Architect. It bridges frontend client interactions with backend WordPress features—including automated project tracking (`SR-XXXXX`), interactive Elementor widgets, live quote calculators, client portals, and tech-editorial case studies.
-- **Target Audience / Persona**: High-value businesses, e-commerce stores, startups, and institutions seeking bespoke WordPress websites, sales landing pages, and complex Elementor layouts without bloat or code fragility.
-- **Key Value**: Drastically accelerates project delivery (zero-code setup) while providing clients and designers with dedicated front-end dashboards, eliminating the need to expose `/wp-admin/` to clients.
+پیرو دستور صریح، مفهوم «پوسته فرزند (Child Theme)» به‌طور کامل از کلیه لایه‌ها و دایرکتوری‌های پروژه حذف می‌شود. ساختار جدید بر سه ستون اصلی استوار است:
 
----
+1. **پوسته‌های ۱۰۰٪ مستقل و والد (Autonomous Standalone Themes):**
+   - هر یک از ۸ پوسته موضوعی (وکالت، آژانس، درمان، آموزش، شرکتی، خبری، فروشگاهی و پوسته اصلی طراح) به عنوان یک تم والد مستقل و با دایرکتوری مجزا سازماندهی می‌شوند.
+   - هیچ پوسته‌ای نیاز به `Template: sedrazavi-theme` ندارد؛ هر تم ساختار سلسله‌مراتب قالب (`index.php`, `header.php`, `footer.php`, `functions.php`)، استایل‌ها، اسکریپت‌ها و لایسنس اختصاصی خود را دارد.
+   - بسته‌های ویجت و تمپلیت‌های المنتوری به عنوان یک «بانک قابل‌حمل و مستقل» طراحی می‌شوند که هر تم بر اساس نیاز خود می‌تواند آن‌ها را فراخوانی یا درون‌ریزی کند، بدون آنکه وابستگی ساختاری به تم دیگری داشته باشد.
 
-## 2. User Experience & Visual Design
+2. **پیشخوان فرانت‌اند یکپارچه مدیریت پست‌تایپ‌ها و متاباکس‌ها (Universal Frontend CPT & Metabox Manager):**
+   - ایجاد برگه و موتور فرانت‌اند اختصاصی متصل به دیتابیس بومی وردپرس (`wp_posts` و `wp_postmeta`).
+   - امکان ایجاد، ویرایش، حذف، مشاهده و جستجوی تمام پست‌تایپ‌ها (`case`, `case_study`, `portfolio`, `services`, `courses`, `articles` و ...) به همراه فیلدهای متاباکس اختصاصی آن‌ها از داخل رابط کاربری فرانت‌اند، بدون نیاز به ورود به محیط پیشخوان پیش‌فرض وردپرس (`wp-admin`).
 
-### Visual Identity & Aesthetic Direction
-- **Atmospheric Palette**: Dark Cyberpunk Obsidian (`#0B0F19` deep space background, `#111827` surface cards, `#1F2937` hover elevated surfaces) accented by **Zoomit Vibrant Red** (`#E11D48`), **Cyber Neon Cyan** (`#00D1FF`), and **Electric Emerald** (`#10B981`), backed by a 66-palette dynamic switcher (33 dark and 33 light palettes).
-- **Typography**: Editorial Iranian font scale utilizing self-hosted **Vazirmatn** with options for **Yekan Bakh** and **Dana**, paired with **JetBrains Mono** for technical specs, timestamps, and metric data.
-- **Surface Math & Structure**: Hairline borders (`1px solid rgba(255,255,255,0.08)`), subtle glassmorphism blur (`backdrop-filter: blur(12px)`), $12\text{px}$ card radius, and clean unboxed typographic metadata.
+3. **سیستم پیشرفته مدیریت کاربران و اکانت‌ها در پیشخوان فرانت‌اند (Frontend User & Account Lifecycle Hub):**
+   - ایجاد دستی اکانت برای کاربران جدید توسط مدیران از طریق فرانت‌اند با قابلیت تعیین نقش (`role`)، مشخصات و دسترسی‌ها.
+   - پایش، جستجو، فیلتر و رصد حساب‌های کاربری فعال، معلق یا ثبت‌نام‌شده.
+   - ویرایش، ارتقای نقش کاربری، بازنشانی رمز عبور و حذف امن اکانت‌ها.
+   - پشتیبانی از حساب‌های کاربری عمومی و حساب‌های تخصصی هر صنف (وکلا، پزشکان، مدرسان، طراحان، نویسندگان، مشتریان و مدیران کل).
 
-### 10 Core Landing Page Sections (Elementor Flexbox Containers)
-1. **Sticky Glass Header & Reading Progress Bar**: Real-time reading progress line, designer live availability pulse indicator, theme toggle, and drawer navigation.
-2. **Horizontal Video & Demo Stories Bar**: Touch-snap carousel of 30-second vertical demo reels and customer testimonials with gradient neon rings.
-3. **Asymmetrical Bento Hero Grid**: 2/3 flagship project showcase with $16:9$ media and executive summary + 1/3 vertical column of numbered tech insights (`01`, `02`, `03`).
-4. **Hot Topics Pill Bar**: Interactive filter chips (`#NoCode`, `#WooCommerce`, `#ElementorPro`) triggering instant client-side project filtering.
-5. **Interactive Services & 3D Tech Bento**: 3D interactive world clock globe, live jalali/gregorian/hijri chrono clock, and instant project scope cost calculator.
-6. **Flagship Case Studies & Pros/Cons Matrix**: Zoomit-style 60-second quick-take summary boxes, dual-column solved challenges, and $9.8/10$ performance review badges.
-7. **Retro Cyber Entertainment Hub**: Pure Vanilla JS Chrome Dino runner with local high-score tracking and cyberpunk music player with SVG audio visualizer.
-8. **Editorial Tech Magazine Grid**: Responsive article cards with local bookmarks (no-login), reading time, and author bio.
-9. **VIP Lead Capture & Order Inquiry Portal**: Hardened consultation intake form with automatic guest account provisioning and instant `SR-XXXXX` tracking code generation.
-10. **Multi-Column Editorial Footer**: System HUD status, dual-language switch (FA/EN), social handles (`@sedrazavi`), and copyright.
+4. **نصب و راه‌اندازی افزونه‌ها از داخل پیشخوان فرانت‌اند (In-Dashboard 1-Click Installer):**
+   - اتصال مستقیم به سیستم فایل وردپرس (`WP_Filesystem`) جهت نصب و فعال‌سازی افزونه هسته و بسته‌های همراه با یک کلیک از داخل فرانت‌اند.
 
 ---
 
-## 3. Key Product Decisions & Trade-Offs
+### ۲. فازبندی گام‌به‌گام اجرایی
 
-- **Decision 1: Standalone Theme + Bundled Core Plugin**:
-  - *Chosen Approach*: The theme (`sedrazavi-designer-theme`) and vertical core plugin (`sedrazavi-designer-core`) are packaged as separate folders for distribution. Additionally, `sedrazavi-designer-core.zip` is bundled inside `sedrazavi-designer-theme/inc/plugins/` with an AJAX-powered 1-click installer in the front-end Designer Cockpit and WP admin.
-  - *Why*: Allows standalone portability (the theme runs gracefully with built-in fallbacks if the plugin is deactivated), while providing a friction-free 1-click installation experience for new sites.
-  - *Alternatives Considered*: Hardcoding all functionality inside the theme only (violates WordPress best practices for data persistence when switching themes) or forcing manual zip uploads in `/wp-admin/` (cumbersome for designers).
-- **Decision 2: Zero React in Theme/Plugin Frontend**:
-  - *Chosen Approach*: 100% native WordPress PHP templates, semantic HTML5, CSS3 Custom Properties, and Vanilla ES6+ JS (<15KB).
-  - *Why*: Guarantees instant sub-800ms loading speeds, eliminates build-step dependencies on live hosts, and ensures 100% compatibility with the Elementor visual editor.
-- **Decision 3: Single Source of Truth (SSOT) via `sedrazavi_config`**:
-  - *Chosen Approach*: Configuration data is authored and saved to a dedicated CPT `sedrazavi_config` with slug `master-config`, version locking (`_sr_config_version`), and SHA-256 integrity verification (`_sr_config_sha256`), with automatic snapshots for instant rollback.
+#### گام ۱: بازآرایی و تبدیل پوسته‌ها به ساختار کاملاً مستقل (Zero Child Themes)
+- ایجاد دایرکتوری اختصاصی برای هر یک از پوسته‌های مستقل:
+  1. `wordpress-themes/sedrazavi-master-theme/` (پوسته جامع پایه)
+  2. `wordpress-themes/sedrazavi-designer-theme/` (پوسته اختصاصی لندینگ طراح)
+  3. `wordpress-themes/sedrazavi-lawyer-theme/` (پوسته مستقل وکالت و پرونده‌های حقوقی)
+  4. `wordpress-themes/sedrazavi-agency-theme/` (پوسته مستقل آژانس طراحی و خدمات)
+  5. `wordpress-themes/sedrazavi-clinic-theme/` (پوسته مستقل پزشکی، پزشکان و نوبت‌دهی)
+  6. `wordpress-themes/sedrazavi-corporate-theme/` (پوسته مستقل شرکتی و مشاوره سازمانی)
+  7. `wordpress-themes/sedrazavi-education-theme/` (پوسته مستقل آموزشی و LMS)
+  8. `wordpress-themes/sedrazavi-news-theme/` (پوسته مستقل خبرگزاری و نشریه)
+  9. `wordpress-themes/sedrazavi-store-theme/` (پوسته مستقل فروشگاهی و تجارت مدرن)
+- پاک‌سازی متادیتای `Template: sedrazavi-theme` از تمام فایل‌های `style.css`.
+- تجهیز هر پوسته به فایل‌های بومی کامل: `header.php`, `footer.php`, `index.php`, `single.php`, `page.php`, `archive.php`, `functions.php`, توکن‌های طراحی CSS و `screenshot.webp`.
+
+#### گام ۲: پیاده‌سازی هسته پیشخوان فرانت‌اند (Frontend Management Cockpit Engine)
+- ایجاد ماژول مدیریت فرانت‌اند در قالب فایل `inc/frontend-cockpit-engine.php` شامل:
+  - هوک‌های احراز هویت دیتابیس بومی وردپرس (`is_user_logged_in()`, `wp_signon()`, `wp_logout()`).
+  - رندرر تب‌های پیشخوان:
+    - **داشبورد و آمار:** خلاصه وضعیت سایت، تعداد پست‌ها، پرونده‌ها، کاربران و سفارش‌ها.
+    - **مدیریت محتوا (CPT & Metaboxes):** فهرست تعاملی پست‌ها با دکمه ایجاد جدید، ویرایش فیلدهای متاباکس سفارشی، ذخیره آنی با Nonce و بازخوانی زنده.
+    - **مدیریت کاربران (User Accounts Hub):** فرم ساخت کاربر جدید توسط مدیر، جدول فیلترپذیر و سرچ کاربران، تغییر نقش، ویرایش اطلاعات و حذف کاربر.
+    - **مدیریت افزونه‌ها و نصب:** نمایش وضعیت افزونه‌های متناظر با دکمه نصب و فعال‌سازی ۱-کلیکی بدون نیاز به ورود به `wp-admin`.
+- افزودن تمپلیت اختصاصی فرانت‌اند `page-frontend-cockpit.php` و شرت‌کد بومی `[sedrazavi_frontend_cockpit]`.
+
+#### گام ۳: به‌روزرسانی پکیج منیجر و صادرات بسته‌های ZIP مستقل
+- به‌روزرسانی اسکریپت `scripts/pack-theme-zips.cjs` جهت کامپایل و فشرده‌سازی هر تم مستقل در یک فایل زیپ کاملاً خودکفا در پوشه `public/themes/`.
+- بازتولید آرشیوهای توزیع و محاسبه اثر انگشت SHA-256 مجزا برای هر تم.
+
+#### گام ۴: به‌روزرسانی سوئیت‌های آزمون و راستی‌آزمایی (Test Suites & Audit)
+- به‌روزرسانی آزمون فاز ۱۱ (`test-phase11-vertical-packs.cjs`) به آزمون پوسته‌های مستقل (`test-autonomous-themes.cjs`).
+- ایجاد آزمون اختصاصی پیشخوان فرانت‌اند (`test-frontend-management-cockpit.cjs`) جهت اعتبارسنجی:
+  - صحت احراز هویت دیتابیس در فرانت‌اند.
+  - عملیات CRUD پست‌تایپ‌ها و ذخیره متاباکس‌ها.
+  - امنیت دسترسی مدیران به ساخت و حذف اکانت کاربران.
+  - استقلال کامل تم‌ها و عدم وجود هدر چایلد تم.
+- اجرای کامل `npm run test:all` و اطمینان از پاس شدن ۱۰۰٪ آزمون‌ها.
 
 ---
 
-## 4. Technical Architecture & System Flow
+### ۳. جدول چه فازهایی باقیمانده است؟
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                   SEDRAZAVI DESIGNER THEME & CORE                       │
-└────────────────────────────────────┬───────────────────────────────────┘
-                                     │
-         ┌───────────────────────────┴───────────────────────────┐
-         ▼                                                       ▼
-┌──────────────────────────────────┐   ┌─────────────────────────────────┐
-│     sedrazavi-designer-theme     │   │      sedrazavi-designer-core    │
-│  - style.css (100% Standalone)   │   │  - sedrazavi-core.php           │
-│  - header.php / footer.php       │   │  - inc/database-installer.php   │
-│  - front-page.php (10 Sections)  │   │  - inc/auto-provisioning.php    │
-│  - 12 Dynamic Page Templates     │   │  - inc/custom-post-types.php    │
-│  - single.php (4 Layout Archetypes)  │  - inc/settings-sync.php (SSOT) │
-│  - inc/starfield-warp.php        │   │  - inc/lead-manager.php         │
-│  - inc/plugin-installer.php      │   │  - inc/auth-guard.php           │
-│  - inc/local-font-loader.php     │   │  - 4 Elementor Widgets          │
-│  - inc/plugins/core-bundle.zip   │   │  - 33 Elementor JSON Templates  │
-└────────────────┬─────────────────┘   └────────────────┬────────────────┘
-                 │                                      │
-                 └───────────────────┬──────────────────┘
-                                     ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                      FRONT-END APPLICATION LAYERS                      │
-├────────────────────────────────────────────────────────────────────────┤
-│  1. Interstellar Warp Starfield Canvas (Pure Cosmic Space Engine)      │
-│  2. Front-End Designer Cockpit (1-Click Core Install + Font Studio)    │
-│  3. Front-End Client Dashboard (Order Status + Designer Messages)      │
-│  4. Public Inquiry Tracker (/track-order/?tracking_code=SR-XXXXX)      │
-│  5. 100% Elementor Theme Builder Locations (header/footer/single/arch) │
-└────────────────────────────────────────────────────────────────────────┘
-```
+| ردیف | فاز | وضعیت | شرح عملیات |
+| :---: | :--- | :---: | :--- |
+| **۱** | ارتقای پوسته‌ها به ساختار ۱۰۰٪ مستقل (Standalone Themes) | در انتظار تأیید پلن | تبدیل ۸ پوسته به تم‌های مستقل والد و حذف چایلد تم |
+| **۲** | هسته پیشخوان فرانت‌اند (CPT & Metaboxes CRUD) | در انتظار تأیید پلن | ساخت رابط کاربری فرانت‌اند برای مدیریت پست‌تایپ‌ها و متاباکس‌ها |
+| **۳** | هاب مدیریت کاربران و اکانت‌ها در فرانت‌اند | در انتظار تأیید پلن | ایجاد دستی اکانت توسط ادمین، پایش، جستجو، ویرایش و حذف |
+| **۴** | سیستم نصب افزونه و بسته‌ها از داخل پیشخوان فرانت‌اند | در انتظار تأیید پلن | نصب ۱-کلیکی افزونه هسته از طریق رابط کاربری فرانت‌اند |
+| **۵** | بسته‌بندی، آزمون‌های جامع و شواهد نهایی | در انتظار تأیید پلن | تست‌های خودکار، تولید فایل‌های ZIP مستقل و به‌روزرسانی اسناد |
 
-### Key Modules to Create / Upgrade:
-1. **`inc/starfield-warp.php` & `assets/js/starfield-warp.js`**: Implement the pure cosmic interstellar starfield engine with acceleration formula $V(t) = \min(V_{\text{warp}} + |\Delta Y| \times 0.22, 18.0)$, exponential damping ($\lambda = 0.92$), and light streak tails.
-2. **`inc/plugin-installer.php`**: Built-in 1-click plugin extraction and activation handler supporting both the front-end Designer Cockpit and WP admin.
-3. **`inc/font-studio.php`**: Front-end font uploader and switcher supporting Vazirmatn, Yekan Bakh, Dana, and IRANYekanX with dynamic `@font-face` injection.
-4. **Theme & Core Distribution**: Update packaging script (`scripts/pack-theme-zips.cjs`) to embed `sedrazavi-designer-core.zip` inside `sedrazavi-designer-theme/inc/plugins/` and build release bundles.
-5. **Automated Verification**: Extend test suite (`scripts/test-designer-landing-ecosystem.cjs`) to verify the starfield engine, plugin installer, font studio, and 100% compliance with master prompt v30.0.
+پس از فشردن دکمه **Proceed** توسط شما، فازهای فوق به‌ترتیب و با بالاترین دقت اجرا خواهند شد.

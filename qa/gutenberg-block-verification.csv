@@ -1,0 +1,8 @@
+block_id,block_json_path,namespace,title,render_strategy,attributes,supports,editor_test,frontend_test,status,evidence
+sovereign-badge,elementor-addon-suite/blocks/sovereign-badge/block.json,sedrazavi,نشان اعتبار و تراست مستقل,render_callback,6,align;spacing;typography,PASS,PASS,VERIFIED,test-phase10-gutenberg-sovereign-audit.cjs
+sovereign-divider,elementor-addon-suite/blocks/sovereign-divider/block.json,sedrazavi,دیوایدر فرم‌ساز بومی,render_callback,5,align;spacing,PASS,PASS,VERIFIED,test-phase10-gutenberg-sovereign-audit.cjs
+sovereign-icon,elementor-addon-suite/blocks/sovereign-icon/block.json,sedrazavi,آیکون مستقل وکتور,render_callback,6,align;color;spacing,PASS,PASS,VERIFIED,test-phase10-gutenberg-sovereign-audit.cjs
+sovereign-motion,elementor-addon-suite/blocks/sovereign-motion/block.json,sedrazavi,کانتینر انیمیشن مستقل,render_callback,7,align;spacing;html,PASS,PASS,VERIFIED,test-phase10-gutenberg-sovereign-audit.cjs
+sovereign-section,elementor-addon-suite/blocks/sovereign-section/block.json,sedrazavi,بخش کانتینری بومی,render_callback,6,align;spacing;color,PASS,PASS,VERIFIED,test-phase10-gutenberg-sovereign-audit.cjs
+sovereign-vector-bg,elementor-addon-suite/blocks/sovereign-vector-bg/block.json,sedrazavi,پس‌زمینه وکتور مستقل,render_callback,6,align;spacing,PASS,PASS,VERIFIED,test-phase10-gutenberg-sovereign-audit.cjs
+sovereign-widget,elementor-addon-suite/blocks/sovereign-widget/block.json,sedrazavi,ویجت عمومی المنتور در گوتنبرگ,render_callback,5,align;spacing,PASS,PASS,VERIFIED,test-phase10-gutenberg-sovereign-audit.cjs

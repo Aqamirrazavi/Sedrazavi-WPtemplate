@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "sedrazavi/sovereign-widget",
+  "title": "ابزارک بومی مستقل (۷۲ ویجت تخصصی)",
+  "category": "sedrazavi-sovereign",
+  "icon": "shield-alt",
+  "description": "درج هر یک از ویجت‌های مستقل حقوقی، مهندسی، پزشکی، بازرگانی، امنیتی و هوش مصنوعی با رندر بومی.",
+  "keywords": ["widget", "sedrazavi", "elementor", "native"],
+  "version": "6.0.0",
+  "textdomain": "universal-elementor-suite",
+  "attributes": {
+    "widgetId": {
+      "type": "number",
+      "default": 1
+    },
+    "accentColor": {
+      "type": "string",
+      "default": "#D4AF37"
+    },
+    "title": {
+      "type": "string",
+      "default": ""
+    },
+    "theme": {
+      "type": "string",
+      "default": "dark"
+    }
+  },
+  "supports": {
+    "align": true,
+    "html": false,
+    "customClassName": true
+  }
+}

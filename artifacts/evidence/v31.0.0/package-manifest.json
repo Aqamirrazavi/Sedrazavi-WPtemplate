@@ -1,0 +1,100 @@
+{
+  "ecosystem": "SedRazavi Sovereign WordPress & Elementor Suite",
+  "version": "31.0.0",
+  "author": "Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)",
+  "build_timestamp": "2026-11-11T03:00:00Z",
+  "packages": [
+    {
+      "id": "sedrazavi-theme",
+      "filename": "sedrazavi-theme.zip",
+      "type": "wordpress-theme",
+      "name": "SedRazavi Master Theme",
+      "description": "قالب مادر فوق سبک، واکنش‌گرا و مدرن وردپرس با موتور ستاره‌ای، هدر و فوتر شیشه‌ای، و یکپارچگی کامل با المنتور.",
+      "version": "6.0.0",
+      "php_requires": ">=7.4",
+      "wp_requires": ">=6.0",
+      "elementor_requires": ">=3.10"
+    },
+    {
+      "id": "elementor-addon-suite",
+      "filename": "elementor-addon-suite.zip",
+      "type": "wordpress-plugin",
+      "name": "Universal Elementor Addon Suite",
+      "description": "مجموعه ۳۱ ویجت بومی المنتور، ۳۳ قالب آماده، ۷ بلوک گوتنبرگ، تم‌بیلدر بریج و پکیج منیجر مستقل.",
+      "version": "6.0.0",
+      "php_requires": ">=7.4",
+      "wp_requires": ">=6.0",
+      "elementor_requires": ">=3.10"
+    },
+    {
+      "id": "sedrazavi-addons",
+      "filename": "sedrazavi-addons.zip",
+      "type": "wordpress-plugin",
+      "name": "SedRazavi Addons (Vertical Specialization)",
+      "description": "ماژول تخصصی فرم‌ها، ویجت‌های سفارشی و ابزارهای حقوقی و وکالتی متناسب با پورتال مشتریان.",
+      "version": "6.0.0",
+      "php_requires": ">=7.4",
+      "wp_requires": ">=6.0"
+    },
+    {
+      "id": "sedrazavi-companion",
+      "filename": "sedrazavi-companion.zip",
+      "type": "wordpress-plugin",
+      "name": "SedRazavi Companion Core Hub",
+      "description": "هاب درون‌ریزی دموها، پورتال امن اسناد و اوراق موکلین، و داشبورد هماهنگی اکوسیستم.",
+      "version": "6.0.0",
+      "php_requires": ">=7.4",
+      "wp_requires": ">=6.0"
+    },
+    {
+      "id": "sedrazavi-designer-core",
+      "filename": "sedrazavi-designer-core.zip",
+      "type": "wordpress-plugin",
+      "name": "SedRazavi Designer Core (Dedicated Plugin)",
+      "description": "پلاگین مستقل فرانت‌اند طراح وردپرس با ۴ ویجت اختصاصی تعاملی، پخش‌کننده صوتی وب، بازی دایناسور نئونی و ساعت جهانی.",
+      "version": "6.0.0",
+      "php_requires": ">=7.4",
+      "wp_requires": ">=6.0"
+    },
+    {
+      "id": "sedrazavi-designer-theme",
+      "filename": "sedrazavi-designer-theme.zip",
+      "type": "wordpress-theme",
+      "name": "SedRazavi Designer Dedicated Theme",
+      "description": "قالب اختصاصی تک‌صفحه‌ای لندینگ طراح وردپرس با استایل سایبرپانک، ستاره‌های فضایی و فرانت‌اند بومی ES6.",
+      "version": "6.0.0",
+      "php_requires": ">=7.4",
+      "wp_requires": ">=6.0"
+    },
+    {
+      "id": "sedrazavi-designer-bundle",
+      "filename": "sedrazavi-designer-bundle.zip",
+      "type": "bundle",
+      "name": "SedRazavi Designer Dedicated Bundle",
+      "description": "پکیج کامل قالب طراح وردپرس به‌همراه پلاگین هسته تعبیه‌شده در پوشه inc/plugins با نصب ۱-کلیکی از پیشخوان.",
+      "version": "6.0.0",
+      "php_requires": ">=7.4",
+      "wp_requires": ">=6.0"
+    },
+    {
+      "id": "sedrazavi-complete-ecosystem",
+      "filename": "sedrazavi-complete-ecosystem.zip",
+      "type": "suite",
+      "name": "SedRazavi Master Complete Ecosystem Suite",
+      "description": "بسته جامع تمامی پوسته‌ها، افزونه‌های سه‌گانه، ۸ قالب فرزند تخصصی و راهنمای کامل نصب آفلاین.",
+      "version": "6.0.0",
+      "php_requires": ">=7.4",
+      "wp_requires": ">=6.0"
+    }
+  ],
+  "child_themes": [
+    "agency-designer",
+    "clinic-medical",
+    "corporate-pro",
+    "education-lms",
+    "legal-firm",
+    "news-editorial",
+    "sedrazavi-lawyer-child",
+    "store-modern"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "sedrazavi/sovereign-divider",
+  "title": "جداکننده سکشن وکتور (۶۶ مدل SVG)",
+  "category": "sedrazavi-sovereign",
+  "icon": "minus",
+  "description": "جداکننده‌های گرافیکی مقعر، محدب، ارگانیک و هندسی بین سکشن‌ها.",
+  "keywords": ["divider", "shape", "svg", "sedrazavi"],
+  "version": "6.0.0",
+  "textdomain": "universal-elementor-suite",
+  "attributes": {
+    "dividerId": { "type": "number", "default": 1 },
+    "height": { "type": "number", "default": 80 },
+    "fill": { "type": "string", "default": "#0F172A" },
+    "flipX": { "type": "boolean", "default": false },
+    "flipY": { "type": "boolean", "default": false },
+    "position": { "type": "string", "default": "bottom" }
+  },
+  "supports": { "align": ["full"], "html": false }
+}

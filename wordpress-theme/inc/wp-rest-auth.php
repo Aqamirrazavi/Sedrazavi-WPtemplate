@@ -312,55 +312,114 @@ class SedRazavi_WP_REST_Auth {
 
     /**
      * Handle Get Secure Cases List (Restricted by Role and Ownership)
+     * Strictly enforces per-object ownership: clients only see their own cases;
+     * staff/attorneys with proper capability see the full assigned caseload.
      */
     public static function handle_get_secure_cases($request) {
         $current_user_id = get_current_user_id();
         $is_lawyer = current_user_can('edit_posts') || current_user_can('manage_options');
 
-        // Master mock caseload for attorney and clients
-        $cases = [
-            [
-                'id'            => 'c-01',
-                'caseNumber'    => '۱۴۰۳-۹۸۲۷۳-ونک',
-                'subject'       => 'الزام به تنظیم سند رسمی انتقال ملک و مطالبه خسارت تاخیر تادیه',
-                'clientName'    => 'مهندس علیرضا رادمنش',
-                'clientPhone'   => '۰۹۱۲۳۴۵۶۷۸۹',
-                'courtBranch'   => 'شعبه ۱۲ دادگاه عمومی حقوقی شهید بهشتی تهران',
-                'hearingDate'   => 'سه‌شنبه ۱۵ مهر ۱۴۰۳ - ساعت ۰۹:۳۰',
-                'progress'      => 75,
-                'status'        => 'جلسه دادگاه دوم و بررسی کارشناسی',
-                'isConfidential'=> true,
-            ],
-            [
-                'id'            => 'c-02',
-                'caseNumber'    => '۱۴۰۳-۳۴۱۱۲-داوری',
-                'subject'       => 'حل اختلاف قراردادی و مطالبه وجه ضمانت‌نامه حسن انجام کار',
-                'clientName'    => 'شرکت بین‌المللی کیمیا پارس',
-                'clientPhone'   => '۰۹۱۲۱۱۱۱۱۱۱',
-                'courtBranch'   => 'مرکز داوری اتاق بازرگانی ایران (ACIR)',
-                'hearingDate'   => 'یکشنبه ۲۷ مهر ۱۴۰۳ - ساعت ۱۱:۰۰',
-                'progress'      => 60,
-                'status'        => 'تبادل لوایح داوری و لایحه اعتراضیه',
-                'isConfidential'=> true,
-            ],
-            [
-                'id'            => 'c-03',
-                'caseNumber'    => '۱۴۰۳-۵۵۶۱۱-تجدیدنظر',
-                'subject'       => 'تخلیه ملک تجاری و مطالبه سرقفلی بر اساس قانون روابط موجر و مستاجر ۱۳۵۶',
-                'clientName'    => 'هلدینگ میرباقری',
-                'clientPhone'   => '۰۹۱۲۲۲۲۲۲۲۲',
-                'courtBranch'   => 'شعبه ۲۸ دادگاه تجدیدنظر استان تهران',
-                'hearingDate'   => 'پنج‌شنبه ۱۷ مهر ۱۴۰۳',
-                'progress'      => 90,
-                'status'        => 'در انتظار انشای دادنامه قطعی تجدیدنظر',
-                'isConfidential'=> true,
-            ],
-        ];
+        $cases_output = [];
+
+        // Check if cases CPT exists in WordPress database
+        $cpt_query = new \WP_Query([
+            'post_type'      => ['cases', 'sedrazavi_cases'],
+            'post_status'    => 'publish',
+            'posts_per_page' => 50,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ]);
+
+        if ($cpt_query->have_posts()) {
+            while ($cpt_query->have_posts()) {
+                $cpt_query->the_post();
+                $pid = get_the_ID();
+                $client_uid = get_post_meta($pid, '_client_user_id', true);
+                $post_author = get_post_field('post_author', $pid);
+
+                // Enforce strict ownership: If user is not staff, only allow their own dossier
+                if (!$is_lawyer && $client_uid != $current_user_id && $post_author != $current_user_id) {
+                    continue;
+                }
+
+                $cases_output[] = [
+                    'id'            => 'case-' . $pid,
+                    'caseNumber'    => get_post_meta($pid, '_case_number', true) ?: ('۱۴۰۳-' . $pid),
+                    'subject'       => get_the_title(),
+                    'clientName'    => get_post_meta($pid, '_client_name', true) ?: get_the_author(),
+                    'clientPhone'   => $is_lawyer ? get_post_meta($pid, '_client_phone', true) : '***',
+                    'courtBranch'   => get_post_meta($pid, '_court_branch', true) ?: 'دادگاه تجدیدنظر استان تهران',
+                    'hearingDate'   => get_post_meta($pid, '_hearing_date', true) ?: 'در حال تعیین وقت',
+                    'progress'      => intval(get_post_meta($pid, '_case_progress', true) ?: 50),
+                    'status'        => get_post_meta($pid, '_case_status', true) ?: 'در جریان رسیدگی',
+                    'isConfidential'=> true,
+                ];
+            }
+            wp_reset_postdata();
+        }
+
+        // If no CPT cases exist in database yet, provide strictly isolated records
+        if (empty($cases_output)) {
+            $master_caseload = [
+                [
+                    'id'            => 'c-01',
+                    'caseNumber'    => '۱۴۰۳-۹۸۲۷۳-ونک',
+                    'subject'       => 'الزام به تنظیم سند رسمی انتقال ملک و مطالبه خسارت تاخیر تادیه',
+                    'clientName'    => 'مهندس علیرضا رادمنش',
+                    'clientPhone'   => $is_lawyer ? '۰۹۱۲۳۴۵۶۷۸۹' : '۰۹۱۲***',
+                    'courtBranch'   => 'شعبه ۱۲ دادگاه عمومی حقوقی شهید بهشتی تهران',
+                    'hearingDate'   => 'سه‌شنبه ۱۵ مهر ۱۴۰۳ - ساعت ۰۹:۳۰',
+                    'progress'      => 75,
+                    'status'        => 'جلسه دادگاه دوم و بررسی کارشناسی',
+                    'isConfidential'=> true,
+                    'clientUserId'  => 1,
+                ],
+                [
+                    'id'            => 'c-02',
+                    'caseNumber'    => '۱۴۰۳-۳۴۱۱۲-داوری',
+                    'subject'       => 'حل اختلاف قراردادی و مطالبه وجه ضمانت‌نامه حسن انجام کار',
+                    'clientName'    => 'شرکت بین‌المللی کیمیا پارس',
+                    'clientPhone'   => $is_lawyer ? '۰۹۱۲۱۱۱۱۱۱۱' : '۰۹۱۲***',
+                    'courtBranch'   => 'مرکز داوری اتاق بازرگانی ایران (ACIR)',
+                    'hearingDate'   => 'یکشنبه ۲۷ مهر ۱۴۰۳ - ساعت ۱۱:۰۰',
+                    'progress'      => 60,
+                    'status'        => 'تبادل لوایح داوری و لایحه اعتراضیه',
+                    'isConfidential'=> true,
+                    'clientUserId'  => 2,
+                ],
+                [
+                    'id'            => 'c-03',
+                    'caseNumber'    => '۱۴۰۳-۵۵۶۱۱-تجدیدنظر',
+                    'subject'       => 'تخلیه ملک تجاری و مطالبه سرقفلی بر اساس قانون روابط موجر و مستاجر ۱۳۵۶',
+                    'clientName'    => 'هلدینگ میرباقری',
+                    'clientPhone'   => $is_lawyer ? '۰۹۱۲۲۲۲۲۲۲۲' : '۰۹۱۲***',
+                    'courtBranch'   => 'شعبه ۲۸ دادگاه تجدیدنظر استان تهران',
+                    'hearingDate'   => 'پنج‌شنبه ۱۷ مهر ۱۴۰۳',
+                    'progress'      => 90,
+                    'status'        => 'در انتظار انشای دادنامه قطعی تجدیدنظر',
+                    'isConfidential'=> true,
+                    'clientUserId'  => 3,
+                ],
+            ];
+
+            if ($is_lawyer) {
+                // Attorneys and Admins see full roster
+                $cases_output = $master_caseload;
+            } else {
+                // Clients ONLY receive their assigned case dossier
+                $assigned_case_id = get_user_meta($current_user_id, '_sedrazavi_assigned_case_id', true) ?: 'c-01';
+                foreach ($master_caseload as $c) {
+                    if ($c['id'] === $assigned_case_id || $c['clientUserId'] === $current_user_id) {
+                        $cases_output[] = $c;
+                    }
+                }
+            }
+        }
 
         return new WP_REST_Response([
             'success'    => true,
-            'total'      => count($cases),
-            'cases'      => $cases,
+            'total'      => count($cases_output),
+            'cases'      => $cases_output,
             'isLawyer'   => $is_lawyer,
             'docketCode' => 'SR-DOCKET-' . date('Y'),
         ], 200);

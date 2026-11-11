@@ -54,6 +54,24 @@ class Package_Manager {
             'callback'            => [$this, 'rest_build_custom_bundle'],
             'permission_callback' => [$this, 'check_admin_permission'],
         ]);
+
+        register_rest_route('sedrazavi/v1', '/packages/preflight', [
+            'methods'             => 'POST',
+            'callback'            => [$this, 'rest_preflight_check'],
+            'permission_callback' => [$this, 'check_admin_permission'],
+        ]);
+
+        register_rest_route('sedrazavi/v1', '/packages/import', [
+            'methods'             => 'POST',
+            'callback'            => [$this, 'rest_import_package'],
+            'permission_callback' => [$this, 'check_admin_permission'],
+        ]);
+
+        register_rest_route('sedrazavi/v1', '/packages/rollback', [
+            'methods'             => 'POST',
+            'callback'            => [$this, 'rest_rollback_package'],
+            'permission_callback' => [$this, 'check_admin_permission'],
+        ]);
     }
 
     public function check_admin_permission() {
@@ -167,7 +185,17 @@ class Package_Manager {
         $main_plugin_content = $this->generate_standalone_plugin_header($target_package, $clean_slug);
         $zip->addFromString($clean_slug . '/' . $clean_slug . '.php', $main_plugin_content);
 
-        // 3. Add widget file if defined
+        // 3. Add Core widget base & category definition so widget runs in standalone site
+        $base_php = UAS_PATH . 'includes/class-widget-base.php';
+        if (file_exists($base_php)) {
+            $zip->addFile($base_php, $clean_slug . '/includes/class-widget-base.php');
+        }
+        $core_css = UAS_PATH . 'assets/css/widgets-core.css';
+        if (file_exists($core_css)) {
+            $zip->addFile($core_css, $clean_slug . '/assets/css/widgets-core.css');
+        }
+
+        // 4. Add widget file if defined
         if (!empty($target_package['components']['widget'])) {
             $widget_name = $target_package['components']['widget'];
             $widget_filename = 'class-widget-' . str_replace('uas_', '', str_replace('_', '-', $widget_name)) . '.php';
@@ -333,18 +361,56 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Category fallback definition if parent suite is not active
+if (!class_exists('\\UniversalElementorSuite\\Plugin')) {
+    class UniversalElementorSuite_Plugin_Fallback {
+        const CATEGORY_SLUG = 'sedrazavi-sovereign-suite';
+    }
+    class_alias('UniversalElementorSuite_Plugin_Fallback', 'UniversalElementorSuite\\Plugin');
+}
+
+add_action('elementor/elements/categories_registered', function($elements_manager) {
+    $elements_manager->add_category(
+        'sedrazavi-sovereign-suite',
+        [
+            'title' => esc_html__('سوییت مستقل سیدرضوی (SedRazavi)', '{$slug}'),
+            'icon'  => 'fa fa-plug',
+        ]
+    );
+});
+
 add_action('elementor/widgets/register', function(\$widgets_manager) {
+    if (file_exists(__DIR__ . '/includes/class-widget-base.php')) {
+        require_once __DIR__ . '/includes/class-widget-base.php';
+    }
+
     if (file_exists(__DIR__ . '/includes/')) {
-        foreach (glob(__DIR__ . '/includes/*.php') as \$file) {
+        foreach (glob(__DIR__ . '/includes/class-widget-*.php') as \$file) {
             require_once \$file;
+        }
+    }
+
+    \$classes = get_declared_classes();
+    foreach (\$classes as \$cls) {
+        if (strpos(\$cls, 'UniversalElementorSuite\\\\Widgets\\\\') === 0 && is_subclass_of(\$cls, '\\\\Elementor\\\\Widget_Base')) {
+            if (method_exists(\$widgets_manager, 'register')) {
+                \$widgets_manager->register(new \$cls());
+            } elseif (method_exists(\$widgets_manager, 'register_widget_type')) {
+                \$widgets_manager->register_widget_type(new \$cls());
+            }
         }
     }
 });
 
 add_action('wp_enqueue_scripts', function() {
+    if (file_exists(__DIR__ . '/assets/css/widgets-core.css')) {
+        wp_enqueue_style('{$slug}-core', plugins_url('assets/css/widgets-core.css', __FILE__));
+    }
     if (file_exists(__DIR__ . '/assets/css/')) {
         foreach (glob(__DIR__ . '/assets/css/*.css') as \$css) {
-            wp_enqueue_style('{$slug}-' . basename(\$css, '.css'), plugins_url('assets/css/' . basename(\$css), __FILE__));
+            if (basename(\$css) !== 'widgets-core.css') {
+                wp_enqueue_style('{$slug}-' . basename(\$css, '.css'), plugins_url('assets/css/' . basename(\$css), __FILE__));
+            }
         }
     }
     if (file_exists(__DIR__ . '/assets/js/')) {
@@ -588,6 +654,18 @@ add_action('wp_enqueue_scripts', function() {
             if (file_exists($t_file)) {
                 $zip->addFile($t_file, $project_slug . '/templates/' . basename($t_file));
             }
+        }
+
+        // 5b. Add Sovereign Fonts and Palettes if available for zero-lockin self-containment
+        $fonts_dir = UAS_PATH . 'assets/fonts/';
+        if (is_dir($fonts_dir)) {
+            foreach (glob($fonts_dir . '*.*') as $font_file) {
+                $zip->addFile($font_file, $project_slug . '/assets/fonts/' . basename($font_file));
+            }
+        }
+        $palettes_css = UAS_PATH . 'assets/css/palettes.css';
+        if (file_exists($palettes_css)) {
+            $zip->addFile($palettes_css, $project_slug . '/assets/css/palettes.css');
         }
 
         // 6. If Theme Builder Bridge is enabled
@@ -989,6 +1067,343 @@ add_action('wp_enqueue_scripts', function() {
     }
 
     /**
+     * Verify package archive security (P0-03: Anti-Zip-Slip, Extension Whitelist, Size Quotas)
+     *
+     * @param string $zip_filepath
+     * @return array [ 'safe' => bool, 'error' => string, 'manifest' => array|null, 'files_count' => int, 'total_size' => int ]
+     */
+    public function verify_archive_security($zip_filepath) {
+        if (!file_exists($zip_filepath) || !is_readable($zip_filepath)) {
+            return ['safe' => false, 'error' => 'فایل بسته وجود ندارد یا قابل خواندن نیست.'];
+        }
+
+        if (!class_exists('\ZipArchive')) {
+            return ['safe' => false, 'error' => 'ماژول ZipArchive در تنظیمات PHP سرور فعال نیست.'];
+        }
+
+        $zip = new \ZipArchive();
+        $open_res = $zip->open($zip_filepath);
+        if ($open_res !== true) {
+            return ['safe' => false, 'error' => sprintf('قالب فایل فشرده معتبر نیست یا باز نشد (کد: %s).', (string)$open_res)];
+        }
+
+        $allowed_extensions = ['php', 'json', 'css', 'js', 'png', 'jpg', 'jpeg', 'svg', 'webp', 'woff', 'woff2', 'ttf', 'eot', 'txt', 'md'];
+        $max_entries = 500;
+        $max_total_size = 50 * 1024 * 1024; // 50MB
+        $total_size = 0;
+        $num_files = $zip->numFiles;
+
+        if ($num_files > $max_entries) {
+            $zip->close();
+            return ['safe' => false, 'error' => sprintf('تعداد فایل‌های داخل بسته (%d) بیش از حد مجاز (%d) است.', $num_files, $max_entries)];
+        }
+
+        $manifest_content = null;
+
+        for ($i = 0; $i < $num_files; $i++) {
+            $stat = $zip->statIndex($i);
+            if (!$stat) continue;
+
+            $filename = $stat['name'];
+            $size = $stat['size'];
+            $total_size += $size;
+
+            if ($total_size > $max_total_size) {
+                $zip->close();
+                return ['safe' => false, 'error' => 'حجم مجموع فایل‌های بازشده بیش از حد مجاز (۵۰ مگابایت) است (Zero Zip Bomb protection).'];
+            }
+
+            // Anti Zip-Slip: prevent path traversal attacks
+            if (
+                strpos($filename, '../') !== false ||
+                strpos($filename, '..\\') !== false ||
+                strpos($filename, '/..') !== false ||
+                strpos($filename, '\\..') !== false ||
+                strpos($filename, ':/') !== false ||
+                strpos($filename, ':\\') !== false ||
+                strpos($filename, '/') === 0 ||
+                strpos($filename, '\\') === 0
+            ) {
+                $zip->close();
+                return ['safe' => false, 'error' => sprintf('نقض امنیتی: پیمایش مسیر غیرمجاز (Zip Slip Traversal) در ورودی «%s» شناسایی شد.', $filename)];
+            }
+
+            // Is it a directory entry?
+            if (substr($filename, -1) === '/' || substr($filename, -1) === '\\') {
+                continue;
+            }
+
+            // Extension Whitelist check
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            if (!in_array($ext, $allowed_extensions, true)) {
+                $zip->close();
+                return ['safe' => false, 'error' => sprintf('فرمت فایل غیرمجاز «%s» در بسته شناسایی گردید.', $filename)];
+            }
+
+            // Check for manifest
+            if (basename($filename) === 'manifest.json') {
+                $manifest_content = $zip->getFromIndex($i);
+            }
+        }
+
+        if (!$manifest_content) {
+            $zip->close();
+            return ['safe' => false, 'error' => 'فایل مانیفست استاندارد (manifest.json) در بسته یافت نشد.'];
+        }
+
+        $manifest = json_decode($manifest_content, true);
+        if (!is_array($manifest) || empty($manifest['id'])) {
+            $zip->close();
+            return ['safe' => false, 'error' => 'فرمت داده‌های JSON درون manifest.json معتبر نیست.'];
+        }
+
+        $zip->close();
+
+        return [
+            'safe'        => true,
+            'manifest'    => $manifest,
+            'files_count' => $num_files,
+            'total_size'  => $total_size,
+        ];
+    }
+
+    /**
+     * Comprehensive Preflight Environment & Dependency Check (P1-04)
+     *
+     * @param string|array $target Package ID string or manifest array
+     * @return array
+     */
+    public function preflight_check($target) {
+        $manifest = null;
+        if (is_string($target)) {
+            $packages = $this->get_portable_packages();
+            foreach ($packages as $pkg) {
+                if ($pkg['id'] === $target) {
+                    $manifest = $pkg;
+                    break;
+                }
+            }
+            if (!$manifest) {
+                return [
+                    'pass'   => false,
+                    'errors' => [sprintf('پکیج با شناسه «%s» در رجیستری یافت نشد.', $target)],
+                ];
+            }
+        } elseif (is_array($target)) {
+            $manifest = $target;
+        } else {
+            return ['pass' => false, 'errors' => ['داده‌های مانیفست نامعتبر است.']];
+        }
+
+        $errors   = [];
+        $warnings = [];
+
+        // 1. Manifest Structure Validation
+        $manifest_check = $this->validate_manifest($manifest);
+        if (!$manifest_check['valid']) {
+            $errors = array_merge($errors, $manifest_check['errors']);
+        }
+        $warnings = array_merge($warnings, $manifest_check['warnings']);
+
+        // 2. Dependency Resolution
+        $package_id = $manifest['id'] ?? '';
+        $resolved_deps = [];
+        if (!empty($package_id)) {
+            $dep_check = $this->resolve_package_dependencies($package_id);
+            if (!$dep_check['success']) {
+                $errors = array_merge($errors, $dep_check['errors']);
+            } else {
+                $resolved_deps = $dep_check['resolved'];
+            }
+        }
+
+        // 3. Conflict Detection
+        if (!empty($package_id)) {
+            $conflict_check = $this->check_package_conflicts($package_id);
+            if ($conflict_check['conflict']) {
+                $errors = array_merge($errors, $conflict_check['messages']);
+            }
+        }
+
+        return [
+            'pass'         => empty($errors),
+            'package_id'   => $package_id,
+            'manifest'     => $manifest,
+            'dependencies' => $resolved_deps,
+            'errors'       => $errors,
+            'warnings'     => $warnings,
+            'environment'  => [
+                'php_version'       => PHP_VERSION,
+                'wp_version'        => function_exists('get_bloginfo') ? get_bloginfo('version') : '6.7.0',
+                'elementor_active'  => defined('ELEMENTOR_VERSION'),
+                'elementor_version' => defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : null,
+            ],
+        ];
+    }
+
+    /**
+     * Import a portable package archive with dry-run and atomic rollback support (P0-03, P1-04)
+     *
+     * @param string $zip_filepath
+     * @param bool $dry_run
+     * @param string|null $target_dir
+     * @return array
+     */
+    public function import_package_archive($zip_filepath, $dry_run = false, $target_dir = null) {
+        // 1. Security Verification
+        $sec_audit = $this->verify_archive_security($zip_filepath);
+        if (!$sec_audit['safe']) {
+            return [
+                'success' => false,
+                'stage'   => 'security_audit',
+                'error'   => $sec_audit['error'],
+            ];
+        }
+
+        $manifest = $sec_audit['manifest'];
+
+        // 2. Preflight Check
+        $preflight = $this->preflight_check($manifest);
+        if (!$preflight['pass']) {
+            return [
+                'success'   => false,
+                'stage'     => 'preflight_failed',
+                'errors'    => $preflight['errors'],
+                'warnings'  => $preflight['warnings'],
+            ];
+        }
+
+        // Dry-run mode: return success after audit without writing files
+        if ($dry_run) {
+            return [
+                'success'     => true,
+                'dry_run'     => true,
+                'manifest'    => $manifest,
+                'files_count' => $sec_audit['files_count'],
+                'total_size'  => $sec_audit['total_size'],
+                'warnings'    => $preflight['warnings'],
+                'message'     => 'بررسی پیش‌پرواز (Preflight) با موفقیت تأیید شد و هیچ تداخلی وجود ندارد.',
+            ];
+        }
+
+        // 3. Extraction Destination
+        $upload_dir = wp_upload_dir();
+        if (!$target_dir) {
+            $base_install = trailingslashit($upload_dir['basedir']) . 'uas-standalone-packages/installed/';
+            $target_dir = $base_install . sanitize_key($manifest['id']) . '/';
+        }
+
+        if (!wp_mkdir_p($target_dir)) {
+            return [
+                'success' => false,
+                'stage'   => 'filesystem_error',
+                'error'   => sprintf('امکان ایجاد پوشه نصب در مسیر %s وجود ندارد.', $target_dir),
+            ];
+        }
+
+        // 4. Safe atomic extraction
+        $zip = new \ZipArchive();
+        if ($zip->open($zip_filepath) !== true) {
+            return ['success' => false, 'error' => 'خطا در بازگشایی بسته جهت استخراج نهایی.'];
+        }
+
+        $extracted_files = [];
+        $failed = false;
+        $fail_reason = '';
+
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $filename = $zip->getNameIndex($i);
+            if (substr($filename, -1) === '/' || substr($filename, -1) === '\\') {
+                continue;
+            }
+
+            // Strip top-level slug folder if present
+            $parts = explode('/', str_replace('\\', '/', $filename));
+            if (count($parts) > 1 && $parts[0] === sanitize_key($manifest['id'])) {
+                array_shift($parts);
+            }
+            $relative_dest = implode('/', $parts);
+            $full_dest = $target_dir . $relative_dest;
+            $parent_dir = dirname($full_dest);
+
+            if (!is_dir($parent_dir) && !wp_mkdir_p($parent_dir)) {
+                $failed = true;
+                $fail_reason = sprintf('خطا در ساخت زیرپوشه %s', $parent_dir);
+                break;
+            }
+
+            $content = $zip->getFromIndex($i);
+            if ($content === false || @file_put_contents($full_dest, $content) === false) {
+                $failed = true;
+                $fail_reason = sprintf('خطا در نوشتن فایل %s', $full_dest);
+                break;
+            }
+
+            $extracted_files[] = $full_dest;
+        }
+
+        $zip->close();
+
+        // 5. Atomic Rollback on failure
+        if ($failed) {
+            foreach ($extracted_files as $f) {
+                if (file_exists($f)) {
+                    @unlink($f);
+                }
+            }
+            return [
+                'success' => false,
+                'stage'   => 'atomic_rollback_executed',
+                'error'   => $fail_reason,
+            ];
+        }
+
+        $sha256 = hash_file('sha256', $zip_filepath);
+
+        return [
+            'success'         => true,
+            'dry_run'         => false,
+            'package_id'      => $manifest['id'],
+            'installed_path'  => $target_dir,
+            'files_extracted' => count($extracted_files),
+            'sha256'          => $sha256,
+            'manifest'        => $manifest,
+            'message'         => sprintf('بسته مستقل «%s» با موفقیت استخراج و مستقر گردید.', $manifest['name']),
+        ];
+    }
+
+    /**
+     * REST endpoint: Run Preflight Check
+     */
+    public function rest_preflight_check($request) {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $target = $params['package_id'] ?? ($params['manifest'] ?? '');
+        $res = $this->preflight_check($target);
+        return rest_ensure_response($res);
+    }
+
+    /**
+     * REST endpoint: Import package archive
+     */
+    public function rest_import_package($request) {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $zip_path = sanitize_text_field($params['zip_path'] ?? '');
+        $dry_run = !empty($params['dry_run']);
+        $res = $this->import_package_archive($zip_path, $dry_run);
+        return rest_ensure_response($res);
+    }
+
+    /**
+     * REST endpoint: Rollback package
+     */
+    public function rest_rollback_package($request) {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $package_id = sanitize_key($params['package_id'] ?? '');
+        $res = $this->rollback_package_installation($package_id);
+        return rest_ensure_response($res);
+    }
+
+    /**
      * Rollback package installation or export
      * Deletes exported zip artifacts, flushes transients, and restores clean state
      *
@@ -1022,3 +1437,4 @@ add_action('wp_enqueue_scripts', function() {
         ];
     }
 }
+

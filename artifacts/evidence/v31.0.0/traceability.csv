@@ -1,0 +1,16 @@
+requirement_id,category,description,target_file,class_or_symbol,test_file,verification_status
+P0-01,Security,REST Nonce-Only Auth Remediation (Enforce is_user_logged_in and capability),wordpress-theme/inc/wp-rest-auth.php,check_logged_in_permission(),scripts/test-mandatory-audit-remediation.cjs,PASS
+P0-02,Security,Confidential Legal Case Object Ownership Enforcement,wordpress-theme/inc/wp-rest-auth.php,check_case_access_permission(),scripts/test-mandatory-audit-remediation.cjs,PASS
+P0-03,Security,Package Manager Anti-Zip-Slip & Archive Traversal Protection,elementor-addon-suite/includes/class-package-manager.php,verify_archive_security(),scripts/test-portability-lifecycle.cjs,PASS
+P0-04,Evidence,Evidence Integrity & Static-vs-Execution Disambiguation,artifacts/evidence/v31.0.0/,environment.json;checksums.sha256,scripts/test-phase12-release-hardening.cjs,PASS
+P1-01,Architecture,Plugin Boundary Consolidation & Single Source of Truth,elementor-addon-suite/includes/class-plugin.php,Plugin::instance(),scripts/test-mpca-architecture.cjs,PASS
+P1-02,Elementor,Native Elementor Widget Base & Control Registration,elementor-addon-suite/includes/widgets/,Universal_Widget_Base,scripts/test-phase10-controlled-banks.cjs,PASS
+P1-03,Architecture,Shortcode Deprecation as Sole Renderer,elementor-addon-suite/includes/widgets/class-widget-client-portal.php,Universal_Client_Portal_Widget::render(),scripts/test-portability-lifecycle.cjs,PASS
+P1-04,Packaging,Package Manager Lifecycle Resolution & Rollback Engine,elementor-addon-suite/includes/class-package-manager.php,resolve_package_dependencies();rollback_package_installation(),scripts/test-portability-lifecycle.cjs,PASS
+P1-05,Compatibility,Compatibility Truth & Verified Tested Matrix,artifacts/evidence/v31.0.0/environment.json,tested_versions,scripts/test-production-hardening.cjs,PASS
+P2-01,CI/CD,Comprehensive Automated Test Suites & Clean Reproducible Build,package.json,npm run test:all,scripts/test-production-hardening.cjs,PASS
+PHASE-08,Portability,Cross-Site Standalone Package Self-Containment (Site A to Site B),elementor-addon-suite/includes/class-package-manager.php,export_standalone_package(),scripts/test-portability-lifecycle.cjs,PASS
+PHASE-09,Lifecycle,Package Preflight Dry-Run & Atomic Staged Installation,elementor-addon-suite/includes/class-package-manager.php,preflight_check();import_package_archive(),scripts/test-portability-lifecycle.cjs,PASS
+PHASE-10,Banks,Controlled Banks Ledgers for 31 Widgets 33 Templates 7 Blocks,qa/elementor-widget-verification.csv;qa/elementor-template-verification.csv;qa/gutenberg-block-verification.csv,Ledger Registry,scripts/test-phase10-controlled-banks.cjs,PASS
+PHASE-11,Verticals,Vertical Child Theme Packs Domain Isolation (8 Child Themes),wordpress-theme/child-themes/,agency-designer;clinic-medical;corporate-pro;education-lms;legal-firm;news-editorial;sedrazavi-lawyer-child;store-modern,scripts/test-phase11-vertical-packs.cjs,PASS
+PHASE-12,Release,Hardening SBOM & Release Evidence Manifests,artifacts/evidence/v31.0.0/,sbom.json;release-notes.md,scripts/test-phase12-release-hardening.cjs,PASS

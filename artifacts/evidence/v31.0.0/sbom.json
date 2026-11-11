@@ -1,0 +1,57 @@
+{
+  "$schema": "https://spdx.org/spdx-spec/v2.3/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "SedRazavi-Sovereign-Ecosystem-v31.0.0-SBOM",
+  "documentNamespace": "https://github.com/sedrazavi/wordpress-theme/spdx/v31.0.0",
+  "creationInfo": {
+    "created": "2026-11-11T03:00:00Z",
+    "creators": [
+      "Person: Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)",
+      "Tool: SedRazavi-Ecosystem-Builder-6.0.0"
+    ]
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-Theme",
+      "name": "sedrazavi-theme",
+      "versionInfo": "6.0.0",
+      "downloadLocation": "https://github.com/sedrazavi/wordpress-theme/releases/download/v31.0.0/sedrazavi-theme.zip",
+      "filesAnalyzed": true,
+      "licenseConcluded": "GPL-2.0-or-later",
+      "licenseDeclared": "GPL-2.0-or-later",
+      "copyrightText": "Copyright 2026 Seyyed Amir Hossein Razavi Fordoei"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-ElementorSuite",
+      "name": "elementor-addon-suite",
+      "versionInfo": "6.0.0",
+      "downloadLocation": "https://github.com/sedrazavi/wordpress-theme/releases/download/v31.0.0/elementor-addon-suite.zip",
+      "filesAnalyzed": true,
+      "licenseConcluded": "GPL-2.0-or-later",
+      "licenseDeclared": "GPL-2.0-or-later",
+      "copyrightText": "Copyright 2026 Seyyed Amir Hossein Razavi Fordoei"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Addons",
+      "name": "sedrazavi-addons",
+      "versionInfo": "6.0.0",
+      "downloadLocation": "https://github.com/sedrazavi/wordpress-theme/releases/download/v31.0.0/sedrazavi-addons.zip",
+      "filesAnalyzed": true,
+      "licenseConcluded": "GPL-2.0-or-later",
+      "licenseDeclared": "GPL-2.0-or-later",
+      "copyrightText": "Copyright 2026 Seyyed Amir Hossein Razavi Fordoei"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Companion",
+      "name": "sedrazavi-companion",
+      "versionInfo": "6.0.0",
+      "downloadLocation": "https://github.com/sedrazavi/wordpress-theme/releases/download/v31.0.0/sedrazavi-companion.zip",
+      "filesAnalyzed": true,
+      "licenseConcluded": "GPL-2.0-or-later",
+      "licenseDeclared": "GPL-2.0-or-later",
+      "copyrightText": "Copyright 2026 Seyyed Amir Hossein Razavi Fordoei"
+    }
+  ]
+}

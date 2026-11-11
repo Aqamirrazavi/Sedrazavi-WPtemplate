@@ -1,0 +1,19 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "sedrazavi/sovereign-motion",
+  "title": "لفاف انیمیشن ۶۰ فریم (۶۶ الگوی حرکتی)",
+  "category": "sedrazavi-sovereign",
+  "icon": "controls-repeat",
+  "description": "اعمال انیمیشن‌های سخت‌افزاری شناور، نبض نوری، چرخش هولوگرافیک و ماتریس.",
+  "keywords": ["motion", "animation", "gpu", "sedrazavi"],
+  "version": "6.0.0",
+  "textdomain": "universal-elementor-suite",
+  "attributes": {
+    "motionId": { "type": "number", "default": 1 },
+    "duration": { "type": "number", "default": 4 },
+    "delay": { "type": "number", "default": 0 },
+    "repeat": { "type": "string", "default": "infinite" }
+  },
+  "supports": { "align": ["wide", "full"], "html": false }
+}
