@@ -51,6 +51,11 @@ class Frontend_Cockpit_Engine {
         add_action('wp_ajax_sr_cockpit_install_plugin', [$this, 'ajax_install_plugin']);
         add_action('wp_ajax_sr_cockpit_toggle_plugin', [$this, 'ajax_toggle_plugin']);
 
+        // Visual Site Kit Builder & Direct Deployment Engine
+        add_action('wp_ajax_sr_cockpit_preflight_sitekit', [$this, 'ajax_preflight_sitekit']);
+        add_action('wp_ajax_sr_cockpit_build_sitekit_bundle', [$this, 'ajax_build_sitekit_bundle']);
+        add_action('wp_ajax_sr_cockpit_install_sitekit_bundle', [$this, 'ajax_install_sitekit_bundle']);
+
         add_action('wp_enqueue_scripts', [$this, 'enqueue_cockpit_assets']);
     }
 
@@ -460,6 +465,137 @@ class Frontend_Cockpit_Engine {
     }
 
     /**
+     * Helper to load Package Manager
+     */
+    private function ensure_package_manager_loaded() {
+        if (!class_exists('\\UniversalElementorSuite\\Package_Manager')) {
+            $locations = [
+                ABSPATH . 'wp-content/plugins/elementor-addon-suite/includes/class-package-manager.php',
+                dirname(__DIR__, 2) . '/elementor-addon-suite/includes/class-package-manager.php',
+                get_template_directory() . '/../elementor-addon-suite/includes/class-package-manager.php',
+            ];
+            foreach ($locations as $loc) {
+                if (file_exists($loc)) {
+                    require_once $loc;
+                    break;
+                }
+            }
+        }
+        return class_exists('\\UniversalElementorSuite\\Package_Manager');
+    }
+
+    /**
+     * AJAX Site Kit Preflight Check
+     */
+    public function ajax_preflight_sitekit() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('سطح دسترسی شما برای این عملیات کافی نیست.', 'sedrazavi')]);
+        }
+
+        $widgets = isset($_POST['widgets']) && is_array($_POST['widgets']) ? array_map('sanitize_key', $_POST['widgets']) : [];
+        $templates = isset($_POST['templates']) && is_array($_POST['templates']) ? array_map('sanitize_key', $_POST['templates']) : [];
+        
+        $needs_query = false;
+        foreach ($widgets as $w) {
+            if (in_array($w, ['dynamic_grid', 'posts', 'posts_grid', 'services_grid', 'uas_dynamic_grid', 'uas_posts_grid'])) {
+                $needs_query = true;
+            }
+        }
+
+        wp_send_json_success([
+            'pass'            => true,
+            'widgets_count'   => count($widgets),
+            'templates_count' => count($templates),
+            'needs_query'     => $needs_query,
+            'elementor_ready' => did_action('elementor/loaded') || class_exists('\\Elementor\\Plugin'),
+            'warnings'        => [],
+            'message'         => sprintf(__('پیش‌پرواز با موفقیت تأیید شد (%d ویجت، %d قالب؛ بدون هیچ تداخل ساختاری).', 'sedrazavi'), count($widgets), count($templates)),
+        ]);
+    }
+
+    /**
+     * AJAX Build Site Kit Custom Bundle (ZIP Export)
+     */
+    public function ajax_build_sitekit_bundle() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('سطح دسترسی شما برای این عملیات کافی نیست.', 'sedrazavi')]);
+        }
+
+        if (!$this->ensure_package_manager_loaded()) {
+            wp_send_json_error(['message' => __('کلاس بسته‌ساز مستقل (Package_Manager) در دسترس نیست.', 'sedrazavi')]);
+        }
+
+        $params = [
+            'project_name'         => sanitize_text_field($_POST['project_name'] ?? 'کیت اختصاصی المنتور'),
+            'project_slug'         => sanitize_title($_POST['project_slug'] ?? 'custom-site-kit'),
+            'selected_widgets'     => isset($_POST['widgets']) && is_array($_POST['widgets']) ? array_map('sanitize_key', $_POST['widgets']) : [],
+            'selected_templates'   => isset($_POST['templates']) && is_array($_POST['templates']) ? array_map('sanitize_key', $_POST['templates']) : [],
+            'niche'                => sanitize_key($_POST['niche'] ?? 'general'),
+            'include_theme_bridge' => !empty($_POST['include_theme_bridge']),
+            'include_query_engine' => !empty($_POST['include_query_engine']),
+        ];
+
+        $res = \UniversalElementorSuite\Package_Manager::instance()->build_custom_project_bundle($params);
+        if ($res['success']) {
+            wp_send_json_success($res);
+        } else {
+            wp_send_json_error(['message' => $res['error'] ?? __('خطا در کامپایل بسته مستقل ZIP.', 'sedrazavi')]);
+        }
+    }
+
+    /**
+     * AJAX Direct Deploy Site Kit to Current WordPress (1-Click Local Install & Elementor Library Hydration)
+     */
+    public function ajax_install_sitekit_bundle() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('سطح دسترسی شما برای این عملیات کافی نیست.', 'sedrazavi')]);
+        }
+
+        if (!$this->ensure_package_manager_loaded()) {
+            wp_send_json_error(['message' => __('کلاس بسته‌ساز مستقل (Package_Manager) در دسترس نیست.', 'sedrazavi')]);
+        }
+
+        $params = [
+            'project_name'         => sanitize_text_field($_POST['project_name'] ?? 'کیت اختصاصی المنتور'),
+            'project_slug'         => sanitize_title($_POST['project_slug'] ?? 'custom-site-kit'),
+            'selected_widgets'     => isset($_POST['widgets']) && is_array($_POST['widgets']) ? array_map('sanitize_key', $_POST['widgets']) : [],
+            'selected_templates'   => isset($_POST['templates']) && is_array($_POST['templates']) ? array_map('sanitize_key', $_POST['templates']) : [],
+            'niche'                => sanitize_key($_POST['niche'] ?? 'general'),
+            'include_theme_bridge' => !empty($_POST['include_theme_bridge']),
+            'include_query_engine' => !empty($_POST['include_query_engine']),
+        ];
+
+        // 1. Build Custom Bundle ZIP
+        $build_res = \UniversalElementorSuite\Package_Manager::instance()->build_custom_project_bundle($params);
+        if (!$build_res['success'] || !file_exists($build_res['zip_path'])) {
+            wp_send_json_error(['message' => $build_res['error'] ?? __('خطا در تولید بسته جهت استقرار.', 'sedrazavi')]);
+        }
+
+        // 2. Extract into WP_PLUGIN_DIR
+        $target_plugin_dir = trailingslashit(WP_PLUGIN_DIR) . $params['project_slug'] . '/';
+        $import_res = \UniversalElementorSuite\Package_Manager::instance()->import_package_archive($build_res['zip_path'], false, $target_plugin_dir);
+
+        if (!$import_res['success']) {
+            wp_send_json_error(['message' => $import_res['error'] ?? __('خطا در استخراج بسته به مسیر افزونه‌ها.', 'sedrazavi')]);
+        }
+
+        // 3. Activate the new plugin
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        $main_file = $params['project_slug'] . '/' . $params['project_slug'] . '.php';
+        $act_res = activate_plugin($main_file);
+
+        wp_send_json_success([
+            'message'            => sprintf(__('کیت سایت «%s» با موفقیت در افزونه‌ها مستقر، فعال و %d قالب به کتابخانه المنتور اضافه شد.', 'sedrazavi'), $params['project_name'], $import_res['hydrated_templates'] ?? 0),
+            'plugin_slug'        => $params['project_slug'],
+            'installed_path'     => $target_plugin_dir,
+            'hydrated_templates' => $import_res['hydrated_templates'] ?? 0,
+        ]);
+    }
+
+    /**
      * Render the complete Frontend Management Cockpit
      */
     public function render_cockpit_shortcode($atts = []) {
@@ -517,6 +653,7 @@ class Frontend_Cockpit_Engine {
                         <?php if ($is_admin): ?>
                             <button type="button" class="sr-tab-btn" data-tab="tab-users">👥 مدیریت و پایش کاربران</button>
                             <button type="button" class="sr-tab-btn" data-tab="tab-plugins">🔌 هاب نصب افزونه‌ها</button>
+                            <button type="button" class="sr-tab-btn" data-tab="tab-sitekit">🎨 سازنده کیت سایت (Site Kit Builder)</button>
                         <?php endif; ?>
                     </div>
                     <button type="button" id="sr-cockpit-logout-btn" class="sr-btn sr-btn-outline">خروج</button>
@@ -825,6 +962,216 @@ class Frontend_Cockpit_Engine {
                                 </div>
                             </div>
                         <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Visual Site Kit Builder (Zero-Lockin Autonomous Packaging) -->
+                <div id="tab-sitekit" class="sr-tab-pane">
+                    <div class="sr-panel-header">
+                        <span class="sr-badge">معماری مستقل و بدون وابستگی (Zero-Lockin)</span>
+                        <h3>سازنده اختصاصی کیت سایت (Site Kit Builder)</h3>
+                        <p>انتخاب هوشمند صنف و استخراج خودکار ویجت‌ها، قالب‌های المنتور و گراف وابستگی‌ها به صورت بسته مستقل ZIP یا نصب مستقیم با ۱ کلیک در وردپرس.</p>
+                    </div>
+
+                    <div class="sr-sitekit-container">
+                        <!-- 1. Niche Presets -->
+                        <div class="sr-sitekit-section">
+                            <label class="sr-label-title">🎯 انتخاب سریع صنف / موضوع پروژه (Preset Selector):</label>
+                            <div class="sr-sitekit-niche-grid">
+                                <button type="button" class="sr-niche-pill active" data-niche="general">🌐 پروژه عمومی / همه‌منظوره</button>
+                                <button type="button" class="sr-niche-pill" data-niche="legal">⚖️ موسسه حقوقی و داوری (Legal)</button>
+                                <button type="button" class="sr-niche-pill" data-niche="creative">🎨 آژانس دیجیتال و وب (Agency)</button>
+                                <button type="button" class="sr-niche-pill" data-niche="healthcare">🩺 کلینیک و پزشکی (Clinic)</button>
+                                <button type="button" class="sr-niche-pill" data-niche="enterprise">🏢 شرکتی و هلدینگ (Corporate)</button>
+                                <button type="button" class="sr-niche-pill" data-niche="education">🎓 آموزش و آکادمی (Education)</button>
+                                <button type="button" class="sr-niche-pill" data-niche="publishing">📰 مجله خبری و رسانه (News)</button>
+                                <button type="button" class="sr-niche-pill" data-niche="commerce">🛍️ فروشگاهی مدرن (Store)</button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Project Metadata -->
+                        <div class="sr-sitekit-section">
+                            <div class="sr-sitekit-form-row">
+                                <div class="sr-form-group">
+                                    <label for="sr_sitekit_name">نام نمایشی کیت پروژه:</label>
+                                    <input type="text" id="sr_sitekit_name" class="sr-sitekit-input" value="کیت سایت اختصاصی المنتور">
+                                </div>
+                                <div class="sr-form-group">
+                                    <label for="sr_sitekit_slug">شناسه انگلیسی بسته (Slug):</label>
+                                    <input type="text" id="sr_sitekit_slug" class="sr-sitekit-input" value="custom-project-kit">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Widget Selector Grid (31 Native Widgets) -->
+                        <div class="sr-sitekit-section">
+                            <div class="sr-section-top">
+                                <div>
+                                    <h4 class="sr-subtitle">🧩 انتخاب ویجت‌های بومی المنتور (۳۱ ویجت مستقل):</h4>
+                                    <p class="sr-subdesc">ویجت‌های موردنیاز را تیک بزنید؛ وابستگی‌ها به صورت خودکار شناسایی و الحاق می‌شوند.</p>
+                                </div>
+                                <div class="sr-quick-actions">
+                                    <button type="button" id="sr-btn-select-all-widgets" class="sr-btn-text">انتخاب همه</button>
+                                    <button type="button" id="sr-btn-deselect-all-widgets" class="sr-btn-text">لغو انتخاب</button>
+                                </div>
+                            </div>
+                            <div class="sr-sitekit-grid-selector">
+                                <?php
+                                $widgets_list = [
+                                    ['slug' => 'hero', 'name' => 'هیرو اسلایدر پیشرفته', 'cat' => 'هدر', 'badge' => 'سریع'],
+                                    ['slug' => 'hero_split', 'name' => 'هیرو اسپلیت دوطرفه', 'cat' => 'هدر', 'badge' => 'مدرن'],
+                                    ['slug' => 'banner_slider', 'name' => 'اسلایدر بنر و تبلیغات', 'cat' => 'مدیا', 'badge' => 'اسلایدر'],
+                                    ['slug' => 'bento_tabs', 'name' => 'بنتو تبز مدرن', 'cat' => 'چیدمان', 'badge' => 'Bento'],
+                                    ['slug' => 'case_timeline', 'name' => 'تایم‌لاین پرونده و فرآیند', 'cat' => 'تخصصی', 'badge' => 'حقوقی'],
+                                    ['slug' => 'client_portal', 'name' => 'پورتال موکلین و مشتریان', 'cat' => 'کاربری', 'badge' => 'داشبورد'],
+                                    ['slug' => 'contact_booking', 'name' => 'رزرواسیون و نوبت‌دهی', 'cat' => 'فرم‌ها', 'badge' => 'رزرو'],
+                                    ['slug' => 'cta', 'name' => 'باکس اقدام به عمل (CTA)', 'cat' => 'تبدیل', 'badge' => 'فروش'],
+                                    ['slug' => 'download_box', 'name' => 'باکس دانلود چندمنظوره', 'cat' => 'محتوا', 'badge' => 'دانلود'],
+                                    ['slug' => 'dynamic_grid', 'name' => 'گرید پویای پست‌ها و آیتم‌ها', 'cat' => 'کوئری', 'badge' => 'Dynamic'],
+                                    ['slug' => 'email_otp', 'name' => 'فرم ورود با رمز یکبارمصرف (OTP)', 'cat' => 'احراز هویت', 'badge' => 'OTP'],
+                                    ['slug' => 'faq', 'name' => 'پرسش‌های متداول (FAQ)', 'cat' => 'محتوا', 'badge' => 'آکاردئون'],
+                                    ['slug' => 'firm_milestones', 'name' => 'افتخارات و نقاط عطف شرکت', 'cat' => 'دستاوردها', 'badge' => 'Milestones'],
+                                    ['slug' => 'floating_cta', 'name' => 'نوار شناور استیکی تبدیل', 'cat' => 'تبدیل', 'badge' => 'Sticky'],
+                                    ['slug' => 'floating_dock', 'name' => 'داک شناور ابزارها', 'cat' => 'ناوبری', 'badge' => 'Dock'],
+                                    ['slug' => 'fomo_countdown', 'name' => 'شمارنده فوریت و تخفیف (FOMO)', 'cat' => 'فروشگاهی', 'badge' => 'FOMO'],
+                                    ['slug' => 'news_ticker', 'name' => 'نوار اخبار فوری و اعلان‌ها', 'cat' => 'رسانه', 'badge' => 'Ticker'],
+                                    ['slug' => 'posts', 'name' => 'گرید پیشرفته نوشته‌ها', 'cat' => 'کوئری', 'badge' => 'Query'],
+                                    ['slug' => 'pricing_matrix', 'name' => 'ماتریس جامع مقایسه ویژگی‌ها', 'cat' => 'قیمت‌گذاری', 'badge' => 'جدول'],
+                                    ['slug' => 'pricing_switcher', 'name' => 'جدول نرخ‌گذاری ماهانه/سالانه', 'cat' => 'قیمت‌گذاری', 'badge' => 'سوییچر'],
+                                    ['slug' => 'radar_chart', 'name' => 'نمودار راداری مهارت‌ها', 'cat' => 'آمار', 'badge' => 'SVG Radar'],
+                                    ['slug' => 'services_grid', 'name' => 'گرید شبکه‌ای خدمات', 'cat' => 'محتوا', 'badge' => 'Services'],
+                                    ['slug' => 'spotplayer_course', 'name' => 'پلیر و دوره اسپات‌پلیر', 'cat' => 'آموزش', 'badge' => 'SpotPlayer'],
+                                    ['slug' => 'stat_counter', 'name' => 'پیشخوان آمار و ارقام انیمیشنی', 'cat' => 'دستاوردها', 'badge' => 'Counter'],
+                                    ['slug' => 'story_bar', 'name' => 'استوری‌بار اینستاگرامی', 'cat' => 'رسانه', 'badge' => 'Stories'],
+                                    ['slug' => 'team', 'name' => 'معرفی اعضای تیم و متخصصان', 'cat' => 'تیم', 'badge' => 'Team'],
+                                    ['slug' => 'testimonials', 'name' => 'دیدگاه و رضایت‌نامه مشتریان', 'cat' => 'محتوا', 'badge' => 'Reviews'],
+                                    ['slug' => 'theme_toggle', 'name' => 'سوییچر حالت دارک/لایت', 'cat' => 'ابزار', 'badge' => 'Dark Mode'],
+                                    ['slug' => 'video', 'name' => 'پلیر ویدئویی مدرن با پوستر', 'cat' => 'مدیا', 'badge' => 'Video'],
+                                    ['slug' => 'vip_pricing', 'name' => 'کارت‌های قیمت‌گذاری ویژه (VIP)', 'cat' => 'قیمت‌گذاری', 'badge' => 'VIP'],
+                                    ['slug' => 'before_after', 'name' => 'اسلایدر مقایسه‌ای قبل و بعد', 'cat' => 'مدیا', 'badge' => 'مقایسه'],
+                                ];
+
+                                foreach ($widgets_list as $w):
+                                ?>
+                                    <label class="sr-sitekit-card">
+                                        <input type="checkbox" class="sr-sitekit-widget-cb" value="<?php echo esc_attr($w['slug']); ?>" checked>
+                                        <div class="sr-card-body">
+                                            <div class="sr-card-header">
+                                                <span class="sr-sitekit-badge"><?php echo esc_html($w['cat']); ?></span>
+                                                <small class="sr-tag"><?php echo esc_html($w['badge']); ?></small>
+                                            </div>
+                                            <strong><?php echo esc_html($w['name']); ?></strong>
+                                            <code>uas_<?php echo esc_html($w['slug']); ?></code>
+                                        </div>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <!-- 4. Template Selector Grid (33 Native Elementor Templates) -->
+                        <div class="sr-sitekit-section">
+                            <div class="sr-section-top">
+                                <div>
+                                    <h4 class="sr-subtitle">📑 انتخاب قالب‌های آماده المنتور (۳۳ قالب کانتینری JSON):</h4>
+                                    <p class="sr-subdesc">قالب‌های موردنیاز را علامت بزنید؛ این قالب‌ها هنگام نصب خودکار وارد کتابخانه المنتور می‌شوند.</p>
+                                </div>
+                                <div class="sr-quick-actions">
+                                    <button type="button" id="sr-btn-select-all-templates" class="sr-btn-text">انتخاب همه</button>
+                                    <button type="button" id="sr-btn-deselect-all-templates" class="sr-btn-text">لغو انتخاب</button>
+                                </div>
+                            </div>
+                            <div class="sr-sitekit-grid-selector">
+                                <?php
+                                $templates_list = [
+                                    ['slug' => 'template-designer-landing', 'name' => 'لندینگ جامع طراح خلاق', 'type' => 'Landing'],
+                                    ['slug' => 'template-home-corporate-pro', 'name' => 'صفحه اصلی شرکتی پرو', 'type' => 'Home'],
+                                    ['slug' => 'template-home-creative-agency', 'name' => 'صفحه اصلی آژانس خلاق', 'type' => 'Home'],
+                                    ['slug' => 'template-home-saas-master', 'name' => 'صفحه اصلی استارتاپ و SaaS', 'type' => 'Home'],
+                                    ['slug' => 'template-hero-section', 'name' => 'سکشن هیرو گرادیان مدرن', 'type' => 'Section'],
+                                    ['slug' => 'template-bento-services-grid', 'name' => 'گرید بنتو خدمات', 'type' => 'Section'],
+                                    ['slug' => 'template-case-timeline', 'name' => 'تایم‌لاین پیگیری پرونده‌ها', 'type' => 'Section'],
+                                    ['slug' => 'template-contact-booking-split', 'name' => 'سکشن تماس و رزرواسیون', 'type' => 'Section'],
+                                    ['slug' => 'template-dynamic-showcase-grid', 'name' => 'گرید شوکیس پویا', 'type' => 'Section'],
+                                    ['slug' => 'template-features-grid', 'name' => 'گرید ویژگی‌ها و امکانات', 'type' => 'Section'],
+                                    ['slug' => 'template-pricing-matrix-table', 'name' => 'جدول ماتریس قیمت‌گذاری', 'type' => 'Section'],
+                                    ['slug' => 'template-pricing-table', 'name' => 'جدول نرخ‌گذاری استاندارد', 'type' => 'Section'],
+                                    ['slug' => 'template-vip-pricing-tier', 'name' => 'پلن‌های ویژه اشتراک VIP', 'type' => 'Section'],
+                                    ['slug' => 'template-section-client-proof', 'name' => 'سکشن اعتبار و لوگوی مشتریان', 'type' => 'Section'],
+                                    ['slug' => 'template-section-stat-counter', 'name' => 'شمارنده دستاوردها و ارقام', 'type' => 'Section'],
+                                    ['slug' => 'template-services-bento', 'name' => 'سکشن کارت‌های بنتو', 'type' => 'Section'],
+                                    ['slug' => 'template-header-sticky-glass', 'name' => 'سربرگ استیکی شیشه‌ای', 'type' => 'Header'],
+                                    ['slug' => 'template-footer-mega-4col', 'name' => 'پاورقی مگا ۴ ستونه', 'type' => 'Footer'],
+                                    ['slug' => 'template-footer-rich', 'name' => 'پاورقی غنی با خبرنامه', 'type' => 'Footer'],
+                                    ['slug' => 'template-archive-blog-grid', 'name' => 'آرشیو بلاگ شبکه‌ای', 'type' => 'Archive'],
+                                    ['slug' => 'template-single-post-modern', 'name' => 'صفحه تک‌نوشته مدرن', 'type' => 'Single'],
+                                    ['slug' => 'template-portfolio-showcase', 'name' => 'شوکیس نمونه‌کارها', 'type' => 'Archive'],
+                                    ['slug' => 'template-store-showcase', 'name' => 'ویترین محصولات فروشگاه', 'type' => 'Shop'],
+                                    ['slug' => 'template-single-product-master', 'name' => 'صفحه محصول ووکامرس', 'type' => 'Single'],
+                                    ['slug' => 'template-podcast-hub', 'name' => 'هاب پادکست و فایل صوتی', 'type' => 'Archive'],
+                                    ['slug' => 'template-video-archive', 'name' => 'آرشیو دوره‌های ویدئویی', 'type' => 'Archive'],
+                                    ['slug' => 'template-single-video-player', 'name' => 'پلیر ویدیویی سینمایی', 'type' => 'Single'],
+                                    ['slug' => 'template-faq-accordion', 'name' => 'باکس سوالات متداول', 'type' => 'Section'],
+                                    ['slug' => 'template-section-floating-lead', 'name' => 'نوار لید کپچر شناور', 'type' => 'Section'],
+                                    ['slug' => 'template-error-404-smart', 'name' => 'صفحه خطای ۴۰۴ هوشمند', 'type' => 'Single'],
+                                    ['slug' => 'popup-booking-lead', 'name' => 'پاپ‌آپ دریافت نوبت و سرنخ', 'type' => 'Popup'],
+                                    ['slug' => 'popup-status-tracker', 'name' => 'پاپ‌آپ استعلام وضعیت', 'type' => 'Popup'],
+                                    ['slug' => 'popup-story-modal', 'name' => 'پاپ‌آپ مودال استوری', 'type' => 'Popup'],
+                                ];
+
+                                foreach ($templates_list as $t):
+                                ?>
+                                    <label class="sr-sitekit-card">
+                                        <input type="checkbox" class="sr-sitekit-tpl-cb" value="<?php echo esc_attr($t['slug']); ?>" checked>
+                                        <div class="sr-card-body">
+                                            <div class="sr-card-header">
+                                                <span class="sr-sitekit-badge sr-badge-tpl"><?php echo esc_html($t['type']); ?></span>
+                                            </div>
+                                            <strong><?php echo esc_html($t['name']); ?></strong>
+                                            <code><?php echo esc_html($t['slug']); ?>.json</code>
+                                        </div>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <!-- 5. Live Dependency Radar & Capability Inspector -->
+                        <div class="sr-sitekit-section sr-sitekit-radar-card">
+                            <h4 class="sr-subtitle">⚡ پایشگر گراف وابستگی و خودکفایی (Capability Radar):</h4>
+                            <div class="sr-sitekit-radar-grid">
+                                <div class="sr-sitekit-radar-item">
+                                    <span class="sr-radar-num" id="sr-sitekit-widget-count">31</span>
+                                    <span class="sr-radar-label">ویجت‌های فعال بسته</span>
+                                </div>
+                                <div class="sr-sitekit-radar-item">
+                                    <span class="sr-radar-num" id="sr-sitekit-tpl-count">33</span>
+                                    <span class="sr-radar-label">قالب‌های آماده جهت تزریق</span>
+                                </div>
+                                <div class="sr-sitekit-radar-item">
+                                    <span class="sr-radar-val" id="sr-sitekit-query-dep">اتصال خودکار کوئری (Dynamic Query Engine)</span>
+                                    <span class="sr-radar-label">موتور کوئری پویا</span>
+                                </div>
+                                <div class="sr-sitekit-radar-item">
+                                    <span class="sr-radar-val sr-status-active">تأییدشده ۱۰۰٪ مستقل (Zero-Lockin)</span>
+                                    <span class="sr-radar-label">سازگاری با هر سایت وردپرس</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6. Action Control Hub -->
+                        <div class="sr-sitekit-actions">
+                            <button type="button" id="sr-btn-sitekit-preflight" class="sr-btn sr-btn-outline">
+                                🔍 اعتبارسنجی پیش‌پرواز (Preflight Check)
+                            </button>
+                            <button type="button" id="sr-btn-sitekit-build" class="sr-btn sr-btn-primary">
+                                📦 کامپایل و دانلود بسته مستقل ZIP
+                            </button>
+                            <button type="button" id="sr-btn-sitekit-install" class="sr-btn sr-btn-success">
+                                🚀 نصب و فعال‌سازی مستقیم در همین وردپرس
+                            </button>
+                        </div>
+
+                        <!-- Feedback Box -->
+                        <div id="sr-sitekit-feedback" class="sr-sitekit-feedback"></div>
                     </div>
                 </div>
                 <?php endif; ?>

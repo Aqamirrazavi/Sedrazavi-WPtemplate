@@ -210,5 +210,255 @@
       });
     });
 
+    // 11. Visual Site Kit Builder Interactivity
+    const nichePresets = {
+      general: {
+        slug: 'custom-general-kit',
+        widgets: ['hero', 'cta', 'faq', 'posts', 'testimonials', 'stat_counter', 'contact_booking'],
+        templates: ['template-home-saas-master', 'template-header-sticky-glass', 'template-footer-rich', 'template-contact-booking-split']
+      },
+      legal: {
+        slug: 'sedrazavi-legal-kit',
+        widgets: ['case_timeline', 'client_portal', 'contact_booking', 'faq', 'firm_milestones', 'hero', 'services_grid', 'testimonials'],
+        templates: ['template-case-timeline', 'template-contact-booking-split', 'template-header-sticky-glass', 'template-footer-mega-4col', 'popup-status-tracker']
+      },
+      creative: {
+        slug: 'sedrazavi-agency-kit',
+        widgets: ['hero_split', 'bento_tabs', 'radar_chart', 'stat_counter', 'story_bar', 'video', 'before_after', 'theme_toggle'],
+        templates: ['template-designer-landing', 'template-home-creative-agency', 'template-bento-services-grid', 'template-portfolio-showcase', 'popup-story-modal']
+      },
+      healthcare: {
+        slug: 'sedrazavi-clinic-kit',
+        widgets: ['contact_booking', 'faq', 'services_grid', 'team', 'testimonials', 'stat_counter', 'hero', 'before_after'],
+        templates: ['template-contact-booking-split', 'template-header-sticky-glass', 'template-footer-rich', 'popup-booking-lead']
+      },
+      enterprise: {
+        slug: 'sedrazavi-corporate-kit',
+        widgets: ['hero', 'firm_milestones', 'pricing_matrix', 'pricing_switcher', 'team', 'testimonials', 'dynamic_grid', 'posts'],
+        templates: ['template-home-corporate-pro', 'template-pricing-matrix-table', 'template-footer-mega-4col', 'template-header-sticky-glass']
+      },
+      education: {
+        slug: 'sedrazavi-education-kit',
+        widgets: ['spotplayer_course', 'video', 'faq', 'stat_counter', 'testimonials', 'pricing_switcher', 'download_box'],
+        templates: ['template-single-video-player', 'template-video-archive', 'template-pricing-table', 'template-podcast-hub']
+      },
+      publishing: {
+        slug: 'sedrazavi-news-kit',
+        widgets: ['news_ticker', 'posts', 'story_bar', 'theme_toggle', 'banner_slider', 'video'],
+        templates: ['template-archive-blog-grid', 'template-single-post-modern', 'template-header-sticky-glass', 'template-footer-rich']
+      },
+      commerce: {
+        slug: 'sedrazavi-store-kit',
+        widgets: ['fomo_countdown', 'pricing_switcher', 'vip_pricing', 'pricing_matrix', 'cta', 'banner_slider', 'before_after'],
+        templates: ['template-store-showcase', 'template-single-product-master', 'template-vip-pricing-tier', 'template-pricing-table']
+      }
+    };
+
+    function updateRadarStats() {
+      const widgetCount = $('.sr-sitekit-widget-cb:checked').length;
+      const tplCount = $('.sr-sitekit-tpl-cb:checked').length;
+      $('#sr-sitekit-widget-count').text(widgetCount);
+      $('#sr-sitekit-tpl-count').text(tplCount);
+
+      // Check if any query widget is selected
+      let needsQuery = false;
+      $('.sr-sitekit-widget-cb:checked').each(function() {
+        const val = $(this).val();
+        if (['dynamic_grid', 'posts', 'services_grid'].includes(val)) {
+          needsQuery = true;
+        }
+      });
+
+      if (needsQuery) {
+        $('#sr-sitekit-query-dep').text('فعال (نیاز به Dynamic Query Engine)').css('color', '#3B82F6');
+      } else {
+        $('#sr-sitekit-query-dep').text('سبک (بدون نیاز به موتور کوئری)').css('color', '#10B981');
+      }
+    }
+
+    $('.sr-niche-pill').on('click', function() {
+      $('.sr-niche-pill').removeClass('active');
+      $(this).addClass('active');
+
+      const niche = $(this).data('niche');
+      const preset = nichePresets[niche];
+      if (preset) {
+        $('#sr_sitekit_slug').val(preset.slug);
+
+        // Update widget checkboxes
+        $('.sr-sitekit-widget-cb').each(function() {
+          const val = $(this).val();
+          $(this).prop('checked', preset.widgets.includes(val));
+        });
+
+        // Update template checkboxes
+        $('.sr-sitekit-tpl-cb').each(function() {
+          const val = $(this).val();
+          $(this).prop('checked', preset.templates.includes(val));
+        });
+
+        updateRadarStats();
+      }
+    });
+
+    $('.sr-sitekit-widget-cb, .sr-sitekit-tpl-cb').on('change', function() {
+      updateRadarStats();
+    });
+
+    $('#sr-btn-select-all-widgets').on('click', function() {
+      $('.sr-sitekit-widget-cb').prop('checked', true);
+      updateRadarStats();
+    });
+
+    $('#sr-btn-deselect-all-widgets').on('click', function() {
+      $('.sr-sitekit-widget-cb').prop('checked', false);
+      updateRadarStats();
+    });
+
+    $('#sr-btn-select-all-templates').on('click', function() {
+      $('.sr-sitekit-tpl-cb').prop('checked', true);
+      updateRadarStats();
+    });
+
+    $('#sr-btn-deselect-all-templates').on('click', function() {
+      $('.sr-sitekit-tpl-cb').prop('checked', false);
+      updateRadarStats();
+    });
+
+    function getSelectedWidgets() {
+      const arr = [];
+      $('.sr-sitekit-widget-cb:checked').each(function() {
+        arr.push($(this).val());
+      });
+      return arr;
+    }
+
+    function getSelectedTemplates() {
+      const arr = [];
+      $('.sr-sitekit-tpl-cb:checked').each(function() {
+        arr.push($(this).val());
+      });
+      return arr;
+    }
+
+    function showSitekitFeedback(msg, isSuccess) {
+      const $fb = $('#sr-sitekit-feedback');
+      $fb.text(msg).css({
+        display: 'block',
+        background: isSuccess ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+        color: isSuccess ? '#10B981' : '#EF4444',
+        border: '1px solid ' + (isSuccess ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)')
+      });
+    }
+
+    // 12. Preflight Check
+    $('#sr-btn-sitekit-preflight').on('click', function() {
+      const $btn = $(this);
+      const widgets = getSelectedWidgets();
+      const templates = getSelectedTemplates();
+
+      $btn.prop('disabled', true).text('در حال اجرای ممیزی پیش‌پرواز...');
+
+      $.post(ajaxUrl, {
+        action: 'sr_cockpit_preflight_sitekit',
+        nonce: nonce,
+        widgets: widgets,
+        templates: templates
+      }, function(res) {
+        $btn.prop('disabled', false).text('🔍 اعتبارسنجی پیش‌پرواز (Preflight Check)');
+        if (res.success) {
+          showSitekitFeedback(res.data.message, true);
+        } else {
+          showSitekitFeedback(res.data.message || 'خطا در ارزیابی پیش‌پرواز', false);
+        }
+      }).fail(function() {
+        $btn.prop('disabled', false).text('🔍 اعتبارسنجی پیش‌پرواز (Preflight Check)');
+        showSitekitFeedback('خطای ارتباط با سرور هنگام پیش‌پرواز.', false);
+      });
+    });
+
+    // 13. Build & Download Custom Bundle ZIP
+    $('#sr-btn-sitekit-build').on('click', function() {
+      const $btn = $(this);
+      const name = $('#sr_sitekit_name').val();
+      const slug = $('#sr_sitekit_slug').val();
+      const niche = $('.sr-niche-pill.active').data('niche') || 'general';
+      const widgets = getSelectedWidgets();
+      const templates = getSelectedTemplates();
+
+      if (widgets.length === 0 && templates.length === 0) {
+        alert('لطفاً حداقل یک ویجت یا یک قالب را انتخاب کنید.');
+        return;
+      }
+
+      $btn.prop('disabled', true).text('در حال کامپایل بسته مستقل ZIP...');
+
+      $.post(ajaxUrl, {
+        action: 'sr_cockpit_build_sitekit_bundle',
+        nonce: nonce,
+        project_name: name,
+        project_slug: slug,
+        niche: niche,
+        widgets: widgets,
+        templates: templates,
+        include_theme_bridge: 1,
+        include_query_engine: 1
+      }, function(res) {
+        $btn.prop('disabled', false).text('📦 کامپایل و دانلود بسته مستقل ZIP');
+        if (res.success) {
+          showSitekitFeedback(res.data.message + ' دانلود آغاز شد...', true);
+          if (res.data.zip_url) {
+            window.location.href = res.data.zip_url;
+          }
+        } else {
+          showSitekitFeedback(res.data.message || 'خطا در ساخت بسته مستقل', false);
+        }
+      }).fail(function() {
+        $btn.prop('disabled', false).text('📦 کامپایل و دانلود بسته مستقل ZIP');
+        showSitekitFeedback('خطای اتصال به سرور در تولید بسته.', false);
+      });
+    });
+
+    // 14. 1-Click Direct Local Installation & Elementor Library Hydration
+    $('#sr-btn-sitekit-install').on('click', function() {
+      const $btn = $(this);
+      const name = $('#sr_sitekit_name').val();
+      const slug = $('#sr_sitekit_slug').val();
+      const niche = $('.sr-niche-pill.active').data('niche') || 'general';
+      const widgets = getSelectedWidgets();
+      const templates = getSelectedTemplates();
+
+      if (!confirm(`آیا از استقرار مستقیم کیت «${name}» در افزونه‌های همین سایت اطمینان دارید؟`)) {
+        return;
+      }
+
+      $btn.prop('disabled', true).text('در حال استقرار، فعال‌سازی و تزریق قالب‌ها...');
+
+      $.post(ajaxUrl, {
+        action: 'sr_cockpit_install_sitekit_bundle',
+        nonce: nonce,
+        project_name: name,
+        project_slug: slug,
+        niche: niche,
+        widgets: widgets,
+        templates: templates,
+        include_theme_bridge: 1,
+        include_query_engine: 1
+      }, function(res) {
+        $btn.prop('disabled', false).text('🚀 نصب و فعال‌سازی مستقیم در همین وردپرس');
+        if (res.success) {
+          showSitekitFeedback(res.data.message, true);
+          setTimeout(() => {
+            window.location.reload();
+          }, 1800);
+        } else {
+          showSitekitFeedback(res.data.message || 'خطا در نصب مستقیم بسته', false);
+        }
+      }).fail(function() {
+        $btn.prop('disabled', false).text('🚀 نصب و فعال‌سازی مستقیم در همین وردپرس');
+        showSitekitFeedback('خطای سرور در استقرار مستقیم افزونه.', false);
+      });
+    });
+
   });
 })(jQuery);

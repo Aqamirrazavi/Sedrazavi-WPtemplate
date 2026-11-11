@@ -180,6 +180,38 @@ assert(
 );
 
 // -------------------------------------------------------------
+// Test Group 7: Visual Site Kit Builder & Direct Deployment
+// -------------------------------------------------------------
+console.log('\n🔍 Test Group 7: Visual Site Kit Builder & Direct Deployment');
+
+assert(
+  engineCode.includes("add_action('wp_ajax_sr_cockpit_preflight_sitekit'") &&
+  engineCode.includes("add_action('wp_ajax_sr_cockpit_build_sitekit_bundle'") &&
+  engineCode.includes("add_action('wp_ajax_sr_cockpit_install_sitekit_bundle'"),
+  'Site Kit Builder AJAX endpoints are registered'
+);
+
+assert(
+  engineCode.includes('build_custom_project_bundle($params)') &&
+  engineCode.includes('import_package_archive'),
+  'Site Kit Builder connects to Package Manager for export and local installation'
+);
+
+assert(
+  engineCode.includes('id="tab-sitekit"') &&
+  engineCode.includes('sr-sitekit-container') &&
+  engineCode.includes('sr-sitekit-niche-grid'),
+  'Visual Site Kit Builder markup is integrated into Cockpit interface'
+);
+
+assert(
+  jsContent.includes('sr_cockpit_preflight_sitekit') &&
+  jsContent.includes('sr_cockpit_build_sitekit_bundle') &&
+  jsContent.includes('sr_cockpit_install_sitekit_bundle'),
+  'JavaScript handles Site Kit preflight, custom bundle compilation, and 1-click deployment'
+);
+
+// -------------------------------------------------------------
 // Test Summary
 // -------------------------------------------------------------
 console.log('\n========================================================================');

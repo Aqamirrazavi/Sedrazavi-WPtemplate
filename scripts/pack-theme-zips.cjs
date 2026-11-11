@@ -121,27 +121,56 @@ async function buildZips() {
   console.log(`✅ sedrazavi-designer-bundle.zip created: ${(designerBundleBuffer.length / 1024 / 1024).toFixed(2)} MB`);
 
 
-  // 5. Individual Autonomous Standalone Themes
-  const childThemesDir = path.join(__dirname, '../wordpress-theme/child-themes');
-  const childZipBuffers = {};
-  if (fs.existsSync(childThemesDir)) {
-    const childFolders = fs.readdirSync(childThemesDir);
-    const childOutDir = path.join(publicDir, 'child-themes');
-    const standaloneOutDir = path.join(publicDir, 'themes');
-    if (!fs.existsSync(childOutDir)) fs.mkdirSync(childOutDir, { recursive: true });
-    if (!fs.existsSync(standaloneOutDir)) fs.mkdirSync(standaloneOutDir, { recursive: true });
+  // 5. Individual Autonomous Standalone Themes (Single Source of Truth)
+  const standaloneThemesDir = path.join(__dirname, '../standalone-themes');
+  const legacyThemesDir = path.join(__dirname, '../wordpress-theme/child-themes');
+  const standaloneZipBuffers = {};
+  const standaloneOutDir = path.join(publicDir, 'themes');
+  const legacyOutDir = path.join(publicDir, 'child-themes');
+  if (!fs.existsSync(standaloneOutDir)) fs.mkdirSync(standaloneOutDir, { recursive: true });
+  if (!fs.existsSync(legacyOutDir)) fs.mkdirSync(legacyOutDir, { recursive: true });
 
-    for (const folder of childFolders) {
-      const folderPath = path.join(childThemesDir, folder);
+  // 5a. Canonical Standalone Themes
+  if (fs.existsSync(standaloneThemesDir)) {
+    const sFolders = fs.readdirSync(standaloneThemesDir);
+    for (const folder of sFolders) {
+      const folderPath = path.join(standaloneThemesDir, folder);
       if (fs.statSync(folderPath).isDirectory()) {
         const czip = new JSZip();
         addDirectoryToZip(czip, folderPath, folder);
         const cbuf = await czip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
-        fs.writeFileSync(path.join(childOutDir, `${folder}.zip`), cbuf);
         fs.writeFileSync(path.join(standaloneOutDir, `${folder}.zip`), cbuf);
-        childZipBuffers[folder] = cbuf;
+        standaloneZipBuffers[folder] = cbuf;
         console.log(`   📦 Standalone theme ${folder}.zip created: ${(cbuf.length / 1024).toFixed(1)} KB`);
       }
+    }
+  }
+
+  // 5b. Pack Slugs & Compatibility Aliases
+  const slugAliases = {
+    'agency-designer': 'sedrazavi-agency-theme',
+    'clinic-medical': 'sedrazavi-clinic-theme',
+    'corporate-pro': 'sedrazavi-corporate-theme',
+    'education-lms': 'sedrazavi-education-theme',
+    'legal-firm': 'sedrazavi-legal-theme',
+    'news-editorial': 'sedrazavi-news-theme',
+    'sedrazavi-lawyer-child': 'sedrazavi-lawyer-theme',
+    'store-modern': 'sedrazavi-store-theme',
+  };
+
+  for (const [slug, canon] of Object.entries(slugAliases)) {
+    if (standaloneZipBuffers[canon]) {
+      fs.writeFileSync(path.join(standaloneOutDir, `${slug}.zip`), standaloneZipBuffers[canon]);
+      fs.writeFileSync(path.join(legacyOutDir, `${slug}.zip`), standaloneZipBuffers[canon]);
+      standaloneZipBuffers[slug] = standaloneZipBuffers[canon];
+    } else if (fs.existsSync(path.join(legacyThemesDir, slug))) {
+      const folderPath = path.join(legacyThemesDir, slug);
+      const czip = new JSZip();
+      addDirectoryToZip(czip, folderPath, slug);
+      const cbuf = await czip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+      fs.writeFileSync(path.join(standaloneOutDir, `${slug}.zip`), cbuf);
+      fs.writeFileSync(path.join(legacyOutDir, `${slug}.zip`), cbuf);
+      standaloneZipBuffers[slug] = cbuf;
     }
   }
 
@@ -154,7 +183,7 @@ async function buildZips() {
   suiteZip.file('4-پوسته-اصلی-sedrazavi-theme.zip', themeBuffer);
 
   const standaloneThemesFolderInSuite = suiteZip.folder('پوسته‌های-مستقل-Standalone-Themes');
-  for (const [name, buf] of Object.entries(childZipBuffers)) {
+  for (const [name, buf] of Object.entries(standaloneZipBuffers)) {
     standaloneThemesFolderInSuite.file(`${name}.zip`, buf);
   }
 
