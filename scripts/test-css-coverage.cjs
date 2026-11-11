@@ -37,6 +37,14 @@ phpFiles.forEach(f => {
 });
 
 let allCss = fs.readFileSync(path.join(themeDir, 'style.css'), 'utf8') + ' ' + fs.readFileSync(path.join(themeDir, 'assets/css/rtl.css'), 'utf8');
+const assetsCssDir = path.join(themeDir, 'assets/css');
+if (fs.existsSync(assetsCssDir)) {
+  fs.readdirSync(assetsCssDir).forEach(cf => {
+    if (cf.endsWith('.css')) {
+      allCss += ' ' + fs.readFileSync(path.join(assetsCssDir, cf), 'utf8');
+    }
+  });
+}
 const appDistCss = path.join(themeDir, 'app-dist/index.css');
 if (fs.existsSync(appDistCss)) {
   allCss += ' ' + fs.readFileSync(appDistCss, 'utf8');

@@ -1792,3 +1792,15 @@ img {
 /* Utilities & Maker Staging */
 .tabpane { display: block; }
 .danger { color: #dc2626; }
+
+/* WordPress Core Template Hierarchy Styles */
+.site-logo { display: inline-flex; align-items: center; text-decoration: none; font-weight: 800; font-size: 20px; color: #fff; }
+.site-branding { display: flex; align-items: center; }
+.main-navigation { display: flex; align-items: center; gap: 16px; }
+.entry-title { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 16px; }
+.entry-content { line-height: 1.8; color: #cbd5e1; font-size: 16px; }
+.site-header { width: 100%; position: relative; }
+.site-footer { width: 100%; position: relative; }
+.site-main { width: 100%; position: relative; }
+.sr-standalone-theme { min-height: 100vh; background: #0b0f19; color: #f8fafc; }
+

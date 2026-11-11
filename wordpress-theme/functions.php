@@ -851,3 +851,9 @@ add_action('init', function() {
     }
 });
 
+// 9. Load Universal Frontend Management Cockpit Engine
+if (file_exists(SEDRAZAVI_THEME_DIR . '/inc/frontend-cockpit-engine.php')) {
+    require_once SEDRAZAVI_THEME_DIR . '/inc/frontend-cockpit-engine.php';
+}
+
+

@@ -121,13 +121,15 @@ async function buildZips() {
   console.log(`✅ sedrazavi-designer-bundle.zip created: ${(designerBundleBuffer.length / 1024 / 1024).toFixed(2)} MB`);
 
 
-  // 5. Individual Child Themes
+  // 5. Individual Autonomous Standalone Themes
   const childThemesDir = path.join(__dirname, '../wordpress-theme/child-themes');
   const childZipBuffers = {};
   if (fs.existsSync(childThemesDir)) {
     const childFolders = fs.readdirSync(childThemesDir);
     const childOutDir = path.join(publicDir, 'child-themes');
+    const standaloneOutDir = path.join(publicDir, 'themes');
     if (!fs.existsSync(childOutDir)) fs.mkdirSync(childOutDir, { recursive: true });
+    if (!fs.existsSync(standaloneOutDir)) fs.mkdirSync(standaloneOutDir, { recursive: true });
 
     for (const folder of childFolders) {
       const folderPath = path.join(childThemesDir, folder);
@@ -136,8 +138,9 @@ async function buildZips() {
         addDirectoryToZip(czip, folderPath, folder);
         const cbuf = await czip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
         fs.writeFileSync(path.join(childOutDir, `${folder}.zip`), cbuf);
+        fs.writeFileSync(path.join(standaloneOutDir, `${folder}.zip`), cbuf);
         childZipBuffers[folder] = cbuf;
-        console.log(`   📦 Child theme ${folder}.zip created: ${(cbuf.length / 1024).toFixed(1)} KB`);
+        console.log(`   📦 Standalone theme ${folder}.zip created: ${(cbuf.length / 1024).toFixed(1)} KB`);
       }
     }
   }
@@ -150,9 +153,9 @@ async function buildZips() {
   suiteZip.file('3-افزونه-هسته-و-ایمپورت-sedrazavi-companion.zip', companionBuffer);
   suiteZip.file('4-پوسته-اصلی-sedrazavi-theme.zip', themeBuffer);
 
-  const childThemesFolderInSuite = suiteZip.folder('پوسته‌های-فرزند-Child-Themes');
+  const standaloneThemesFolderInSuite = suiteZip.folder('پوسته‌های-مستقل-Standalone-Themes');
   for (const [name, buf] of Object.entries(childZipBuffers)) {
-    childThemesFolderInSuite.file(`${name}.zip`, buf);
+    standaloneThemesFolderInSuite.file(`${name}.zip`, buf);
   }
 
   suiteZip.file('راهنمای_سریع_نصب_و_همگام_سازی.txt', `========================================================================
