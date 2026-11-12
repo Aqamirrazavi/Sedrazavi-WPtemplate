@@ -66,23 +66,27 @@ if (fs.existsSync(capRegistryPath)) {
 }
 
 // Test Group 3: Package Manager & Dependency Resolver
-console.log('\n🔍 Test Group 3: Package Manager (class-package-manager.php)');
+console.log('\n🔍 Test Group 3: Package Manager (class-package-manager.php + includes/packaging/)');
 const pkgManagerPath = path.join(__dirname, '..', 'elementor-addon-suite', 'includes', 'class-package-manager.php');
+const pkgSubDir = path.join(__dirname, '..', 'elementor-addon-suite', 'includes', 'packaging');
 assert(fs.existsSync(pkgManagerPath), 'class-package-manager.php exists');
+const pkgSubFiles = fs.existsSync(pkgSubDir) ? fs.readdirSync(pkgSubDir).filter(f => f.endsWith('.php')).sort() : [];
+const contentPkgBundle = fs.existsSync(pkgManagerPath)
+  ? [fs.readFileSync(pkgManagerPath, 'utf8'), ...pkgSubFiles.map(f => fs.readFileSync(path.join(pkgSubDir, f), 'utf8'))].join('\n')
+  : '';
 if (fs.existsSync(pkgManagerPath)) {
-  const content = fs.readFileSync(pkgManagerPath, 'utf8');
-  assert(content.includes('class Package_Manager'), 'Package_Manager class is defined');
-  assert(content.includes('validate_manifest'), 'Manifest validation method exists');
-  assert(content.includes('get_portable_packages'), 'get_portable_packages method exists');
-  assert(content.includes('package-pricing-switcher'), 'Portable package package-pricing-switcher is declared');
-  assert(content.includes('package-fomo-countdown'), 'Portable package package-fomo-countdown is declared');
-  assert(content.includes('package-before-after'), 'Portable package package-before-after is declared');
-  assert(content.includes('package-stat-counter'), 'Portable package package-stat-counter is declared');
-  assert(content.includes('package-floating-cta'), 'Portable package package-floating-cta is declared');
-  assert(content.includes('package-pricing-matrix'), 'Portable package package-pricing-matrix is declared');
-  assert(content.includes('package-hero-split'), 'Portable package package-hero-split is declared');
-  assert(content.includes('package-bento-tabs'), 'Portable package package-bento-tabs is declared');
-  assert(content.includes("register_rest_route('sedrazavi/v1', '/packages'"), 'REST route /sedrazavi/v1/packages is declared');
+  assert(contentPkgBundle.includes('class Package_Manager'), 'Package_Manager class is defined');
+  assert(contentPkgBundle.includes('validate_manifest'), 'Manifest validation method exists');
+  assert(contentPkgBundle.includes('get_portable_packages'), 'get_portable_packages method exists');
+  assert(contentPkgBundle.includes('package-pricing-switcher'), 'Portable package package-pricing-switcher is declared');
+  assert(contentPkgBundle.includes('package-fomo-countdown'), 'Portable package package-fomo-countdown is declared');
+  assert(contentPkgBundle.includes('package-before-after'), 'Portable package package-before-after is declared');
+  assert(contentPkgBundle.includes('package-stat-counter'), 'Portable package package-stat-counter is declared');
+  assert(contentPkgBundle.includes('package-floating-cta'), 'Portable package package-floating-cta is declared');
+  assert(contentPkgBundle.includes('package-pricing-matrix'), 'Portable package package-pricing-matrix is declared');
+  assert(contentPkgBundle.includes('package-hero-split'), 'Portable package package-hero-split is declared');
+  assert(contentPkgBundle.includes('package-bento-tabs'), 'Portable package package-bento-tabs is declared');
+  assert(contentPkgBundle.includes("register_rest_route('sedrazavi/v1', '/packages'"), 'REST route /sedrazavi/v1/packages is declared');
 }
 
 // Test Group 4: Contract Registry & Schemas
@@ -189,12 +193,11 @@ assert(fs.existsSync(tplBentoPath), 'template-bento-services-grid.json exists');
 
 // Test Group 9: Phase 7 Standalone ZIP Package Exporter & Downloader
 console.log('\n🔍 Test Group 9: Phase 7 Standalone ZIP Package Exporter & Downloader');
-const contentPkg = fs.readFileSync(pkgManagerPath, 'utf8');
-assert(contentPkg.includes('export_standalone_package'), 'Package_Manager has export_standalone_package method');
-assert(contentPkg.includes('handle_package_download'), 'Package_Manager has handle_package_download method');
-assert(contentPkg.includes('ajax_export_package'), 'Package_Manager has ajax_export_package method');
-assert(contentPkg.includes('uas_download_package_nonce'), 'Package download enforces security nonce');
-assert(contentPkg.includes('generate_standalone_plugin_header'), 'Standalone plugin loader generator is implemented');
+assert(contentPkgBundle.includes('export_standalone_package'), 'Package_Manager / Exporter has export_standalone_package method');
+assert(contentPkgBundle.includes('handle_package_download'), 'Package_Manager has handle_package_download method');
+assert(contentPkgBundle.includes('ajax_export_package'), 'Package_Manager has ajax_export_package method');
+assert(contentPkgBundle.includes('uas_download_package_nonce'), 'Package download enforces security nonce');
+assert(contentPkgBundle.includes('generate_standalone_plugin_header'), 'Standalone plugin loader generator is implemented');
 
 // Test Group 10: Phase 8 Dynamic Query Engine & Dynamic Grid Widget
 console.log('\n🔍 Test Group 10: Phase 8 Dynamic Query Engine & Dynamic Grid Widget');

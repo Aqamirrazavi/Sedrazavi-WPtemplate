@@ -67,11 +67,17 @@ class SedRazavi_Legal_Intake_Appointments {
             'permission_callback' => [$this, 'check_staff_permission'],
         ]);
 
-        // Authenticated Appointment Booking Execution
+        // Public Appointment Booking Execution (Honeypot + Rate-Limited + Mobile Validated)
         register_rest_route('sedrazavi/v1', '/appointments/book', [
             'methods'  => 'POST',
             'callback' => [$this, 'rest_book_appointment'],
-            'permission_callback' => '__return_true', // Validated via client token / nonce
+            'permission_callback' => '__return_true',
+            'args'     => [
+                'slot_id'      => ['required' => true, 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field'],
+                'name'         => ['required' => true, 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field'],
+                'phone'        => ['required' => true, 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field'],
+                'meeting_type' => ['required' => false, 'default' => 'secure_video', 'enum' => ['secure_video', 'in_person', 'phone'], 'sanitize_callback' => 'sanitize_key'],
+            ],
         ]);
     }
 
@@ -312,13 +318,29 @@ class SedRazavi_Legal_Intake_Appointments {
      * REST: Book Appointment (Double-Booking Protected)
      */
     public function rest_book_appointment($request) {
+        if (!empty($request->get_param('sr_website_trap'))) {
+            return new WP_Error('spam_detected', 'درخواست شما مسدود شد.', ['status' => 403]);
+        }
+
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $rate_key = 'sr_book_rate_' . md5($ip . wp_salt('auth'));
+        $attempts = (int) get_transient($rate_key);
+        if ($attempts >= 5) {
+            return new WP_Error('rate_limited', 'تعداد درخواست‌های رزرو نوبت بیش از حد مجاز است. لطفاً ۱۰ دقیقه بعد مجدداً تلاش نمایید.', ['status' => 429]);
+        }
+        set_transient($rate_key, $attempts + 1, 10 * MINUTE_IN_SECONDS);
+
         $slot_id   = sanitize_text_field($request->get_param('slot_id') ?: '');
         $name      = sanitize_text_field($request->get_param('name') ?: '');
-        $phone     = sanitize_text_field($request->get_param('phone') ?: '');
-        $type      = sanitize_text_field($request->get_param('meeting_type') ?: 'secure_video');
+        $phone     = $this->normalize_iranian_phone(sanitize_text_field($request->get_param('phone') ?: ''));
+        $type      = sanitize_key($request->get_param('meeting_type') ?: 'secure_video');
 
         if (empty($slot_id) || empty($name) || empty($phone)) {
             return new WP_Error('missing_data', 'کلیه اطلاعات نوبت‌دهی الزامی است.', ['status' => 400]);
+        }
+
+        if (!preg_match('/^09[0-9]{9}$/', $phone)) {
+            return new WP_Error('invalid_phone', 'شماره موبایل وارد شده معتبر نمی‌باشد (فرمت استاندارد: ۰۹۱۲۳۴۵۶۷۸۹).', ['status' => 400]);
         }
 
         // Concurrency Lock via Transient (Prevent Race Condition)
@@ -334,7 +356,7 @@ class SedRazavi_Legal_Intake_Appointments {
             'booking_id'   => $booking_id,
             'slot_id'      => $slot_id,
             'client_name'  => $name,
-            'phone'        => $this->normalize_iranian_phone($phone),
+            'phone'        => $phone,
             'meeting_type' => $type,
             'status'       => 'scheduled',
             'created_at'   => gmdate('Y-m-d H:i:s'),

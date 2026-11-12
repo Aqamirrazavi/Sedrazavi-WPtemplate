@@ -150,14 +150,47 @@ class Universal_VIP_Pricing_Widget extends Universal_Widget_Base {
 
     protected function render() {
         $settings = $this->get_settings_for_display();
-        $title = $settings['header_title'];
+        $title = !empty($settings['header_title']) ? $settings['header_title'] : esc_html__('پلن‌های عضویت ویژه و دانلود نامحدود', 'universal-elementor-suite');
+        $show_m = !isset($settings['show_monthly']) || $settings['show_monthly'] === 'yes';
+        $show_q = !isset($settings['show_quarterly']) || $settings['show_quarterly'] === 'yes';
+        $show_y = !isset($settings['show_yearly']) || $settings['show_yearly'] === 'yes';
         ?>
-        <div class="uas-vip-pricing-custom uas-widget-container" dir="rtl" style="border: 1px solid rgba(255,255,255,0.1); padding: 24px; border-radius: 16px;">
+        <div class="uas-vip-pricing-custom uas-widget-container" dir="rtl" style="border: 1px solid rgba(255,255,255,0.1); padding: 24px; border-radius: 16px; background: #0f172a; color: #f8fafc;">
             <?php
-            echo do_shortcode(sprintf(
-                '[sedrazavi_vip_pricing title="%s"]',
-                esc_attr($title)
-            ));
+            if (shortcode_exists('sedrazavi_vip_pricing')) {
+                echo do_shortcode(sprintf(
+                    '[sedrazavi_vip_pricing title="%s"]',
+                    esc_attr($title)
+                ));
+            } else {
+                ?>
+                <h3 style="margin: 0 0 20px; text-align: center; font-size: 20px; font-weight: 800; color: #fff;"><?php echo esc_html($title); ?></h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px;">
+                    <?php if ($show_m): ?>
+                        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center;">
+                            <div style="font-size: 14px; color: #94a3b8; margin-bottom: 8px;">اشتراک ۱ ماهه پایه</div>
+                            <div style="font-size: 24px; font-weight: 900; color: #3b82f6; margin-bottom: 12px;">۲۹۰,۰۰۰ تومان</div>
+                            <a href="#subscribe-monthly" style="display: inline-block; padding: 8px 18px; border-radius: 8px; background: #1e293b; color: #fff; text-decoration: none; font-size: 13px;">انتخاب پلن</a>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($show_q): ?>
+                        <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.45); border-radius: 12px; padding: 20px; text-align: center;">
+                            <span class="badge-gold" style="display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 9999px; background: #f59e0b; color: #0f172a; font-weight: 700; margin-bottom: 8px;">پیشنهادی</span>
+                            <div style="font-size: 14px; color: #fde68a; margin-bottom: 8px;">اشتراک ۳ ماهه حرفه‌ای</div>
+                            <div style="font-size: 24px; font-weight: 900; color: #fff; margin-bottom: 12px;">۶۹۰,۰۰۰ تومان</div>
+                            <a href="#subscribe-quarterly" style="display: inline-block; padding: 8px 18px; border-radius: 8px; background: #f59e0b; color: #0f172a; text-decoration: none; font-weight: 700; font-size: 13px;">شروع اشتراک</a>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($show_y): ?>
+                        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center;">
+                            <div style="font-size: 14px; color: #94a3b8; margin-bottom: 8px;">اشتراک ۱ ساله طلایی VIP</div>
+                            <div style="font-size: 24px; font-weight: 900; color: #10b981; margin-bottom: 12px;">۱,۹۹۰,۰۰۰ تومان</div>
+                            <a href="#subscribe-yearly" style="display: inline-block; padding: 8px 18px; border-radius: 8px; background: #10b981; color: #fff; text-decoration: none; font-weight: 700; font-size: 13px;">انتخاب پلن طلایی</a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <?php
+            }
             ?>
         </div>
         <?php

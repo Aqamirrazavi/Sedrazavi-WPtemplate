@@ -29,13 +29,19 @@ if (!function_exists('sedrazavi_register_case_cpt')) {
         );
 
         $args = array(
-            'labels'             => $labels,
-            'public'             => false, // Private to lawyer/clients
-            'show_ui'            => true,
-            'show_in_menu'       => true,
-            'menu_icon'          => 'dashicons-portfolio',
-            'supports'           => array('title', 'custom-fields'),
-            'show_in_rest'       => true,
+            'labels'              => $labels,
+            'public'              => false,
+            'publicly_queryable'  => false,
+            'exclude_from_search' => true,
+            'show_ui'             => true,
+            'show_in_menu'        => true,
+            'show_in_nav_menus'   => false,
+            'has_archive'         => false,
+            'rewrite'             => false,
+            'query_var'           => false,
+            'menu_icon'           => 'dashicons-portfolio',
+            'supports'            => array('title', 'custom-fields'),
+            'show_in_rest'        => false,
         );
 
         register_post_type('sedrazavi_case', $args);
@@ -49,13 +55,19 @@ if (!function_exists('sedrazavi_register_case_cpt')) {
                 'all_items'     => esc_html__('همه نوبت‌ها', 'sedrazavi'),
             );
             register_post_type('sedrazavi_appointment', array(
-                'labels'        => $appointment_labels,
-                'public'        => false,
-                'show_ui'       => true,
-                'show_in_menu'  => true,
-                'menu_icon'     => 'dashicons-calendar-alt',
-                'supports'      => array('title', 'editor', 'custom-fields'),
-                'show_in_rest'  => true,
+                'labels'              => $appointment_labels,
+                'public'              => false,
+                'publicly_queryable'  => false,
+                'exclude_from_search' => true,
+                'show_ui'             => true,
+                'show_in_menu'        => true,
+                'show_in_nav_menus'   => false,
+                'has_archive'         => false,
+                'rewrite'             => false,
+                'query_var'           => false,
+                'menu_icon'           => 'dashicons-calendar-alt',
+                'supports'            => array('title', 'editor', 'custom-fields'),
+                'show_in_rest'        => false,
             ));
         }
     }
@@ -80,9 +92,15 @@ if (!function_exists('sedrazavi_ajax_track_case')) {
         $case_number  = isset($_POST['case_number']) ? sanitize_text_field(wp_unslash($_POST['case_number'])) : '';
         $client_phone = isset($_POST['client_phone']) ? sanitize_text_field(wp_unslash($_POST['client_phone'])) : '';
 
-        if (empty($case_number)) {
-            wp_send_json_error(array('message' => esc_html__('لطفاً شماره پرونده را وارد فرمایید.', 'sedrazavi')));
+        if (empty($case_number) || empty($client_phone)) {
+            wp_send_json_error(array('message' => esc_html__('لطفاً شماره پرونده و شماره تلفن ثبت‌شده موکل را وارد فرمایید.', 'sedrazavi')), 400);
         }
+
+        $norm_phone = function($num) {
+            $num = str_replace(array('۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'), array('0','1','2','3','4','5','6','7','8','9'), $num);
+            return ltrim(preg_replace('/[^\d]/', '', $num), '0');
+        };
+        $clean_phone = $norm_phone($client_phone);
 
         $query = new WP_Query(array(
             'post_type'      => 'sedrazavi_case',
@@ -100,21 +118,26 @@ if (!function_exists('sedrazavi_ajax_track_case')) {
         if ($query->have_posts()) {
             $query->the_post();
             $post_id = get_the_ID();
+            $stored_phone = get_post_meta($post_id, '_sedrazavi_client_phone', true);
+            $clean_stored = $norm_phone($stored_phone);
+
+            if (empty($clean_stored) || !hash_equals($clean_stored, $clean_phone)) {
+                wp_reset_postdata();
+                wp_send_json_error(array('message' => esc_html__('پرونده‌ای با این شماره و تلفن همراه یافت نشد.', 'sedrazavi')), 404);
+            }
 
             $response = array(
                 'found'            => true,
                 'case_number'      => $case_number,
-                'client_name'      => get_the_title(),
                 'case_type'        => get_post_meta($post_id, '_sedrazavi_case_type', true) ?: 'حقوقی',
                 'status'           => get_post_meta($post_id, '_sedrazavi_case_status', true) ?: 'در جریان',
                 'next_session'     => get_post_meta($post_id, '_sedrazavi_next_session', true) ?: 'تعیین نشده',
-                'notes'            => get_post_meta($post_id, '_sedrazavi_case_notes', true) ?: 'در حال پیگیری توسط وکیل',
-                'documents_count'  => get_post_meta($post_id, '_sedrazavi_docs_count', true) ?: 0,
+                'documents_count'  => (int) (get_post_meta($post_id, '_sedrazavi_docs_count', true) ?: 0),
             );
             wp_reset_postdata();
             wp_send_json_success($response);
         } else {
-            wp_send_json_error(array('message' => esc_html__('پرونده‌ای با این مشخصات یافت نشد.', 'sedrazavi')));
+            wp_send_json_error(array('message' => esc_html__('پرونده‌ای با این مشخصات یافت نشد.', 'sedrazavi')), 404);
         }
     }
     add_action('wp_ajax_sedrazavi_track_case', 'sedrazavi_ajax_track_case');

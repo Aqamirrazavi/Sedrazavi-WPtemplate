@@ -1,6 +1,6 @@
 <?php
 /**
- * SedRazavi Legal Firm Child Theme Functions
+ * SedRazavi Legal Firm Standalone Parent Theme Functions
  *
  * @package SedRazavi_Child_Legal
  * @version 5.0.0

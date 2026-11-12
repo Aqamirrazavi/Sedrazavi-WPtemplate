@@ -65,7 +65,7 @@ class SedRazavi_Offline_Queue {
             'permission_callback' => '__return_true',
         ]);
 
-        register_rest_route('sedrazavi/v1', '/inquiry/track/(?P<token>[a-zA-Z0-9_-]+)', [
+        register_rest_route('sedrazavi/v1', '/inquiry/track/(?P<token>[a-f0-9]{64})', [
             'methods'             => 'GET',
             'callback'            => [$this, 'rest_track_inquiry'],
             'permission_callback' => '__return_true',
@@ -103,6 +103,12 @@ class SedRazavi_Offline_Queue {
         // Salted HMAC of IP for rate limiting
         $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
         $ip_hash = hash_hmac('sha256', $ip, wp_salt('auth'));
+        $rate_key = 'sr_inq_submit_' . substr($ip_hash, 0, 32);
+        $attempts = (int) get_transient($rate_key);
+        if ($attempts >= 5) {
+            return new WP_Error('rate_limited', __('تعداد درخواست‌های ثبت استعلام بیش از حد مجاز است. لطفاً ۱۰ دقیقه بعد تلاش نمایید.', 'sedrazavi-companion'), ['status' => 429]);
+        }
+        set_transient($rate_key, $attempts + 1, 10 * MINUTE_IN_SECONDS);
 
         // Generate cryptographically secure guest lead token
         $raw_token  = bin2hex(random_bytes(16));
@@ -148,7 +154,18 @@ class SedRazavi_Offline_Queue {
     }
 
     public function rest_track_inquiry($request) {
-        $token = sanitize_text_field($request->get_param('token'));
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $rate_key = 'sr_inq_track_' . md5($ip . wp_salt('auth'));
+        $attempts = (int) get_transient($rate_key);
+        if ($attempts >= 20) {
+            return new WP_Error('rate_limited', __('تعداد درخواست‌های رهگیری بیش از حد مجاز است. لطفاً چند دقیقه صبر کنید.', 'sedrazavi-companion'), ['status' => 429]);
+        }
+        set_transient($rate_key, $attempts + 1, 10 * MINUTE_IN_SECONDS);
+
+        $token = strtolower(sanitize_text_field($request->get_param('token')));
+        if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
+            return new WP_Error('invalid_token', __('کد رهگیری نامعتبر است.', 'sedrazavi-companion'), ['status' => 400]);
+        }
 
         global $wpdb;
         $table_name = $wpdb->prefix . self::INQUIRY_TABLE;

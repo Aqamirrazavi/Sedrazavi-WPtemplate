@@ -223,19 +223,19 @@ class Capability_Registry {
             ],
         ]);
 
-        // 4. Sovereign 66+ Design Asset Banks
+        // 4. Sovereign Design Asset Banks & Shortcode Presets
         $this->register_capability('uas_sovereign_asset_banks', [
             'id'           => 'uas_sovereign_asset_banks',
-            'name'         => 'بانک جامع دارایی‌های ۶۶گانه مستقل و Zero-CDN',
-            'description'  => '۶۶ بک‌گراند وکتور، ۷۲ ویجت، ۶۶ دیوایدر کانتینر، ۶۶ نشان اعتماد، ۶۶ سکشن، ۶۶ موشن، و ۶۶ آیکون SVG خالص.',
+            'name'         => 'بانک جامع دارایی‌های طراحی و آیکون‌های مستقل (Zero-CDN)',
+            'description'  => '۳۱ ویجت بومی المنتور، ۷ بلوک گوتنبرگ، ۳۳ تمپلیت JSON، و بانک‌های طراحی شامل ۶۶ بک‌گراند وکتور، ۶۶ دیوایدر، ۶۶ نشان اعتماد، ۶۶ سکشن، ۶۶ موشن، ۶۶ آیکون SVG و ۷۲ شورت‌کد پریست.',
             'category'     => 'asset_banks',
             'package_type' => 'full_feature',
             'version'      => '6.0.0',
             'author'       => 'Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)',
-            'widgets'      => ['sedrazavi_vector_bg', 'sedrazavi_shape_divider', 'sedrazavi_trust_badge'],
-            'blocks'       => ['sedrazavi/sovereign-vector-bg', 'sedrazavi/sovereign-widget', 'sedrazavi/sovereign-divider'],
-            'shortcodes'   => ['sedrazavi_vector_bg', 'sedrazavi_widget', 'sedrazavi_section'],
-            'rest_routes'  => ['/sedrazavi/v1/widgets-bank', '/sedrazavi/v1/assets-bank', '/sedrazavi/v1/patterns'],
+            'widgets'      => array_keys(class_exists('\UniversalElementorSuite\Plugin') ? Plugin::get_widgets_map() : []),
+            'blocks'       => ['sedrazavi/sovereign-vector-bg', 'sedrazavi/sovereign-widget', 'sedrazavi/sovereign-divider', 'sedrazavi/sovereign-badge', 'sedrazavi/sovereign-section', 'sedrazavi/sovereign-motion', 'sedrazavi/sovereign-icon'],
+            'shortcodes'   => ['sedrazavi_vector_bg', 'sedrazavi_widget', 'sedrazavi_section', 'sedrazavi_icon', 'sedrazavi_motion'],
+            'rest_routes'  => ['/sedrazavi/v1/widgets-bank', '/sedrazavi/v1/assets-bank', '/sedrazavi/v1/patterns', '/sedrazavi/v1/icons-bank', '/sedrazavi/v1/sections-bank', '/sedrazavi/v1/motion-presets'],
             'status'       => 'active',
             'portable'     => true,
             'dependencies' => [
@@ -248,7 +248,7 @@ class Capability_Registry {
         $this->register_capability('uas_template_library', [
             'id'           => 'uas_template_library',
             'name'         => 'کتابخانه الگوهای آماده و موتور درون‌ریزی ایدم‌پوتنت',
-            'description'  => '۲۳ الگوی بومی و کانتینری المنتور شامل صفحات لندینگ، تم‌بیلدر (هدر، فوتر، سینگل، آرشیو، 404) و سکشن‌ها.',
+            'description'  => '۳۳ الگوی واقعی JSON المنتور (شامل ۳۰ قالب کانتینری و تم‌بیلدر هدر/فوتر/سینگل/آرشیو/404 و ۳ پاپ‌آپ) با بررسی خودکار وابستگی ویجت‌ها.',
             'category'     => 'template_systems',
             'package_type' => 'service',
             'version'      => '6.0.0',
@@ -382,6 +382,30 @@ class Capability_Registry {
     }
 
     /**
+     * Collect real filesystem & registry counts across the suite.
+     *
+     * @return array
+     */
+    public function get_unified_ecosystem_inventory() {
+        $widget_files = glob(UAS_PATH . 'includes/widgets/class-widget-*.php');
+        $root_templates = glob(UAS_PATH . 'templates/*.json');
+        $popup_templates = glob(UAS_PATH . 'templates/popups/*.json');
+
+        $elementor_count = is_array($widget_files) ? count($widget_files) : 0;
+        $templates_count = (is_array($root_templates) ? count($root_templates) : 0)
+            + (is_array($popup_templates) ? count($popup_templates) : 0);
+
+        return [
+            'elementor_widgets'   => $elementor_count,
+            'elementor_templates' => $templates_count,
+            'gutenberg_blocks'    => 7,
+            'portable_packages'   => class_exists('\UniversalElementorSuite\Package_Manager')
+                ? count(Package_Manager::instance()->get_portable_packages())
+                : 0,
+        ];
+    }
+
+    /**
      * REST endpoint: Health and diagnostics audit
      */
     public function rest_get_health_diagnostics($request) {
@@ -399,6 +423,7 @@ class Capability_Registry {
                 'is_rtl'            => is_rtl(),
                 'memory_limit'      => ini_get('memory_limit'),
             ],
+            'inventory' => $this->get_unified_ecosystem_inventory(),
             'capabilities_summary' => [
                 'total'       => count($this->capabilities),
                 'active'      => count(array_filter($this->capabilities, function($c) { return $c['status'] === 'active'; })),

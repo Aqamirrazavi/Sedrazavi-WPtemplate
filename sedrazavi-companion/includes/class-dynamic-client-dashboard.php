@@ -128,7 +128,7 @@ class SedRazavi_Dynamic_Client_Dashboard {
         register_rest_route('sedrazavi/v1', '/portal/summary', [
             'methods'             => 'GET',
             'callback'            => [$this, 'rest_get_portal_summary'],
-            'permission_callback' => '__return_true',
+            'permission_callback' => 'is_user_logged_in',
         ]);
     }
 

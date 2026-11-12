@@ -121,9 +121,8 @@ async function buildZips() {
   console.log(`✅ sedrazavi-designer-bundle.zip created: ${(designerBundleBuffer.length / 1024 / 1024).toFixed(2)} MB`);
 
 
-  // 5. Individual Autonomous Standalone Themes (Single Source of Truth)
+  // 5. Individual Autonomous Standalone Themes (Exclusive Single Source of Truth: standalone-themes/)
   const standaloneThemesDir = path.join(__dirname, '../standalone-themes');
-  const legacyThemesDir = path.join(__dirname, '../wordpress-theme/child-themes');
   const standaloneZipBuffers = {};
   const standaloneOutDir = path.join(publicDir, 'themes');
   const legacyOutDir = path.join(publicDir, 'child-themes');
@@ -131,22 +130,23 @@ async function buildZips() {
   if (!fs.existsSync(legacyOutDir)) fs.mkdirSync(legacyOutDir, { recursive: true });
 
   // 5a. Canonical Standalone Themes
-  if (fs.existsSync(standaloneThemesDir)) {
-    const sFolders = fs.readdirSync(standaloneThemesDir);
-    for (const folder of sFolders) {
-      const folderPath = path.join(standaloneThemesDir, folder);
-      if (fs.statSync(folderPath).isDirectory()) {
-        const czip = new JSZip();
-        addDirectoryToZip(czip, folderPath, folder);
-        const cbuf = await czip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
-        fs.writeFileSync(path.join(standaloneOutDir, `${folder}.zip`), cbuf);
-        standaloneZipBuffers[folder] = cbuf;
-        console.log(`   📦 Standalone theme ${folder}.zip created: ${(cbuf.length / 1024).toFixed(1)} KB`);
-      }
+  if (!fs.existsSync(standaloneThemesDir)) {
+    throw new Error('Missing canonical standalone-themes/ directory. Run scripts/convert-to-standalone-themes.cjs first.');
+  }
+  const sFolders = fs.readdirSync(standaloneThemesDir);
+  for (const folder of sFolders) {
+    const folderPath = path.join(standaloneThemesDir, folder);
+    if (fs.statSync(folderPath).isDirectory()) {
+      const czip = new JSZip();
+      addDirectoryToZip(czip, folderPath, folder);
+      const cbuf = await czip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+      fs.writeFileSync(path.join(standaloneOutDir, `${folder}.zip`), cbuf);
+      standaloneZipBuffers[folder] = cbuf;
+      console.log(`   📦 Standalone theme ${folder}.zip created: ${(cbuf.length / 1024).toFixed(1)} KB`);
     }
   }
 
-  // 5b. Pack Slugs & Compatibility Aliases
+  // 5b. Compatibility Slug Aliases (Strictly copied from canonical standalone buffers)
   const slugAliases = {
     'agency-designer': 'sedrazavi-agency-theme',
     'clinic-medical': 'sedrazavi-clinic-theme',
@@ -159,19 +159,12 @@ async function buildZips() {
   };
 
   for (const [slug, canon] of Object.entries(slugAliases)) {
-    if (standaloneZipBuffers[canon]) {
-      fs.writeFileSync(path.join(standaloneOutDir, `${slug}.zip`), standaloneZipBuffers[canon]);
-      fs.writeFileSync(path.join(legacyOutDir, `${slug}.zip`), standaloneZipBuffers[canon]);
-      standaloneZipBuffers[slug] = standaloneZipBuffers[canon];
-    } else if (fs.existsSync(path.join(legacyThemesDir, slug))) {
-      const folderPath = path.join(legacyThemesDir, slug);
-      const czip = new JSZip();
-      addDirectoryToZip(czip, folderPath, slug);
-      const cbuf = await czip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
-      fs.writeFileSync(path.join(standaloneOutDir, `${slug}.zip`), cbuf);
-      fs.writeFileSync(path.join(legacyOutDir, `${slug}.zip`), cbuf);
-      standaloneZipBuffers[slug] = cbuf;
+    if (!standaloneZipBuffers[canon]) {
+      throw new Error(`Missing canonical standalone buffer for ${canon}`);
     }
+    fs.writeFileSync(path.join(standaloneOutDir, `${slug}.zip`), standaloneZipBuffers[canon]);
+    fs.writeFileSync(path.join(legacyOutDir, `${slug}.zip`), standaloneZipBuffers[canon]);
+    standaloneZipBuffers[slug] = standaloneZipBuffers[canon];
   }
 
   // 6. Complete All-in-One Ecosystem Suite ZIP
@@ -194,8 +187,8 @@ async function buildZips() {
 این پکیج بر اساس نیاز شما به صورت ۱۰۰٪ ماژولار و مستقل تفکیک شده است:
 
 ۱. افزونه مستقل ویجت‌های المنتور (elementor-addon-suite.zip):
-   - شامل ۲۴+ ویجت پیشرفته المنتور و المنتور پرو
-   - بانک تمپلیت‌های آماده JSON با قابلیت درون‌ریزی تک‌کلیکی (Landing, Hero, Bento, Timeline, VIP Pricing, Popups)
+   - شامل ۳۱ ویجت پیشرفته المنتور و المنتور پرو
+   - بانک تمپلیت‌های آماده JSON با قابلیت درون‌ریزی تک‌کلیکی و اسکن خودکار وابستگی‌ها
    - پنل تنظیمات پیشخوان وردپرس اختصاصی با استایل دارک و بهینه‌سازی سرعت
    - قابل نصب روی هر قالب دلخواه وردپرس (بدون وابستگی به قالب خاص)
 
@@ -208,16 +201,15 @@ async function buildZips() {
    - سیستم مدیریت توکن‌های طراحی (Design Tokens)
    - موتور پایش سلامت سیستم و ابزارهای توسعه‌دهنده
 
-۴. پوسته اصلی مستقل (sedrazavi-theme.zip) به همراه ۸ پوسته فرزند:
-   - مناسب برای آژانس، کلینیک، حقوقی، فروشگاه، آموزشی و مجله خبری
+۴. پوسته اصلی مستقل (sedrazavi-theme.zip) به همراه ۸ پوسته کاملاً مستقل تخصصی (Standalone Parent Themes):
+   - مناسب برای آژانس، کلینیک، حقوقی، فروشگاه، آموزشی، شرکتی، وکالت و مجله خبری (بدون هیچ وابستگی به پوسته والد)
 
 ------------------------------------------------------------------------
 مراحل نصب در پیشخوان وردپرس:
 ۱. از منوی «افزونه‌ها > افزودن افزونه جدید > بارگذاری افزونه» هر کدام از افزونه‌های مورد نیاز را نصب و فعال فرمایید.
-۲. در صورت تمایل به استفاده از پوسته، فایل «4-پوسته-اصلی-sedrazavi-theme.zip» را از بخش «نمایش > پوسته‌ها» نصب کنید.
-۳. در منوی پیشخوان به بخش «Universal Suite» بروید تا ویجت‌ها را مدیریت یا تمپلیت‌ها را به صورت خودکار ایمپورت نمایید.
-========================================================================
-`);
+۲. در صورت تمایل به استفاده از پوسته، هر یک از پوسته‌های مستقل را مستقیماً از بخش «نمایش > پوسته‌ها» نصب و فعال کنید.
+۳. در منوی پیشخوان یا صفحه /frontend-cockpit/ به ابزارهای مدیریت و سازنده کیت سایت دسترسی خواهید داشت.
+========================================================================`);
 
   const suiteBuffer = await suiteZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
   fs.writeFileSync(path.join(publicDir, 'sedrazavi-complete-ecosystem.zip'), suiteBuffer);

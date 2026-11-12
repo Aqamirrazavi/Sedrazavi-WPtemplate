@@ -38,19 +38,22 @@ class SedRazavi_Comprehensive_Dashboard {
         ];
 
         $args = [
-            'labels'             => $labels,
-            'public'             => false,
-            'show_ui'            => true,
-            'show_in_menu'       => true,
-            'query_var'          => true,
-            'rewrite'            => ['slug' => 'sedrazavi-hub'],
-            'capability_type'    => 'post',
-            'has_archive'        => false,
-            'hierarchical'       => false,
-            'menu_position'      => 2,
-            'menu_icon'          => 'dashicons-shield-alt',
-            'supports'           => ['title', 'editor', 'thumbnail', 'custom-fields'],
-            'show_in_rest'       => true,
+            'labels'              => $labels,
+            'public'              => false,
+            'publicly_queryable'  => false,
+            'exclude_from_search' => true,
+            'show_ui'             => true,
+            'show_in_menu'        => true,
+            'show_in_nav_menus'   => false,
+            'query_var'           => false,
+            'rewrite'             => false,
+            'capability_type'     => 'post',
+            'has_archive'         => false,
+            'hierarchical'        => false,
+            'menu_position'       => 2,
+            'menu_icon'           => 'dashicons-shield-alt',
+            'supports'            => ['title', 'editor', 'thumbnail', 'custom-fields'],
+            'show_in_rest'        => false,
         ];
 
         register_post_type('sedrazavi_dashboard', $args);
@@ -175,27 +178,34 @@ class SedRazavi_Comprehensive_Dashboard {
     /**
      * ثبت اندپوینت‌های REST API برای اتصال اپلیکیشن فرانت‌اند React
      */
+    public function check_staff_permission() {
+        return is_user_logged_in() && (current_user_can('edit_posts') || current_user_can('manage_options'));
+    }
+
     public function register_rest_routes() {
         register_rest_route('sedrazavi/v1', '/dashboard-stats', [
-            'methods'  => 'GET',
-            'callback' => [$this, 'rest_get_dashboard_stats'],
-            'permission_callback' => '__return_true',
+            'methods'             => 'GET',
+            'callback'            => [$this, 'rest_get_dashboard_stats'],
+            'permission_callback' => [$this, 'check_staff_permission'],
         ]);
 
         register_rest_route('sedrazavi/v1', '/cases', [
-            'methods'  => 'GET',
-            'callback' => [$this, 'rest_get_cases'],
-            'permission_callback' => '__return_true',
+            'methods'             => 'GET',
+            'callback'            => [$this, 'rest_get_cases'],
+            'permission_callback' => [$this, 'check_staff_permission'],
         ]);
     }
 
     public function rest_get_dashboard_stats() {
+        $counts = wp_count_posts('sedrazavi_dashboard');
+        $published = isset($counts->publish) ? (int) $counts->publish : 0;
+        $private   = isset($counts->private) ? (int) $counts->private : 0;
         return rest_ensure_response([
-            'success' => true,
-            'total_cases' => wp_count_posts('sedrazavi_dashboard')->publish ?? 48,
-            'active_cases' => 32,
-            'closed_success' => 14,
-            'timestamp' => current_time('mysql'),
+            'success'        => true,
+            'total_cases'    => $published + $private,
+            'active_cases'   => $published,
+            'private_cases'  => $private,
+            'timestamp'      => current_time('mysql'),
         ]);
     }
 

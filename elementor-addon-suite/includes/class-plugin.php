@@ -134,35 +134,29 @@ class Plugin {
     }
 
     /**
-     * Register Widgets in Elementor
+     * Single Source of Truth: 31 Production-Ready Native Visual Elementor Widgets
      *
-     * @param \Elementor\Widgets_Manager $widgets_manager
+     * @return array
      */
-    public function register_widgets($widgets_manager) {
-        // 1. Core Widget Base Class
-        require_once UAS_PATH . 'includes/class-widget-base.php';
-
-        $disabled_widgets = (array) get_option('uas_disabled_widgets', []);
-
-        // 2. Load 31 Production-Ready Native Visual Elementor Widgets (Topic-Agnostic & Specialized Industry)
-        $widgets_map = [
-            'uas_hero'            => ['file' => 'class-widget-hero.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Hero_Widget'],
-            'uas_services_grid'   => ['file' => 'class-widget-services-grid.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Services_Grid_Widget'],
-            'uas_testimonials'    => ['file' => 'class-widget-testimonials.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Testimonials_Widget'],
-            'uas_posts_grid'      => ['file' => 'class-widget-posts.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Posts_Widget'],
-            'uas_video'           => ['file' => 'class-widget-video.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Video_Widget'],
-            'uas_story_bar'       => ['file' => 'class-widget-story-bar.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Story_Bar_Widget'],
-            'uas_team'            => ['file' => 'class-widget-team.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Team_Widget'],
-            'uas_faq'             => ['file' => 'class-widget-faq.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Faq_Widget'],
-            'uas_contact_booking' => ['file' => 'class-widget-contact-booking.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Contact_Booking_Widget'],
-            'uas_cta'             => ['file' => 'class-widget-cta.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_CTA_Widget'],
-            'uas_banner_slider'   => ['file' => 'class-widget-banner-slider.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Banner_Slider_Widget'],
-            'uas_floating_dock'   => ['file' => 'class-widget-floating-dock.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Floating_Dock_Widget'],
-            'uas_theme_toggle'    => ['file' => 'class-widget-theme-toggle.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Theme_Toggle_Widget'],
-            'uas_firm_milestones' => ['file' => 'class-widget-firm-milestones.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Firm_Milestones_Widget'],
-            'uas_case_timeline'   => ['file' => 'class-widget-case-timeline.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Case_Timeline_Widget'],
-            'uas_email_otp'       => ['file' => 'class-widget-email-otp.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Email_OTP_Widget'],
-            'uas_radar_chart'     => ['file' => 'class-widget-radar-chart.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Radar_Chart_Widget'],
+    public static function get_widgets_map() {
+        return [
+            'uas_hero'              => ['file' => 'class-widget-hero.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Hero_Widget'],
+            'uas_services_grid'     => ['file' => 'class-widget-services-grid.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Services_Grid_Widget'],
+            'uas_testimonials'      => ['file' => 'class-widget-testimonials.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Testimonials_Widget'],
+            'uas_posts_grid'        => ['file' => 'class-widget-posts.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Posts_Widget'],
+            'uas_video'             => ['file' => 'class-widget-video.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Video_Widget'],
+            'uas_story_bar'         => ['file' => 'class-widget-story-bar.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Story_Bar_Widget'],
+            'uas_team'              => ['file' => 'class-widget-team.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Team_Widget'],
+            'uas_faq'               => ['file' => 'class-widget-faq.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Faq_Widget'],
+            'uas_contact_booking'   => ['file' => 'class-widget-contact-booking.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Contact_Booking_Widget'],
+            'uas_cta'               => ['file' => 'class-widget-cta.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_CTA_Widget'],
+            'uas_banner_slider'     => ['file' => 'class-widget-banner-slider.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Banner_Slider_Widget'],
+            'uas_floating_dock'     => ['file' => 'class-widget-floating-dock.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Floating_Dock_Widget'],
+            'uas_theme_toggle'      => ['file' => 'class-widget-theme-toggle.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Theme_Toggle_Widget'],
+            'uas_firm_milestones'   => ['file' => 'class-widget-firm-milestones.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Firm_Milestones_Widget'],
+            'uas_case_timeline'     => ['file' => 'class-widget-case-timeline.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Case_Timeline_Widget'],
+            'uas_email_otp'         => ['file' => 'class-widget-email-otp.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Email_OTP_Widget'],
+            'uas_radar_chart'       => ['file' => 'class-widget-radar-chart.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Radar_Chart_Widget'],
             // Multi-Niche Specialized Industry Widgets
             'uas_spotplayer_course' => ['file' => 'class-widget-spotplayer-course.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_SpotPlayer_Course_Widget'],
             'uas_download_box'      => ['file' => 'class-widget-download-box.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Download_Box_Widget'],
@@ -179,6 +173,21 @@ class Plugin {
             'uas_client_portal'     => ['file' => 'class-widget-client-portal.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Client_Portal_Widget'],
             'uas_dynamic_grid'      => ['file' => 'class-widget-dynamic-grid.php', 'class' => '\UniversalElementorSuite\Widgets\Universal_Dynamic_Grid_Widget'],
         ];
+    }
+
+    /**
+     * Register Widgets in Elementor
+     *
+     * @param \Elementor\Widgets_Manager $widgets_manager
+     */
+    public function register_widgets($widgets_manager) {
+        // 1. Core Widget Base Class
+        require_once UAS_PATH . 'includes/class-widget-base.php';
+
+        $disabled_widgets = (array) get_option('uas_disabled_widgets', []);
+
+        // 2. Load 31 Production-Ready Native Visual Elementor Widgets (Topic-Agnostic & Specialized Industry)
+        $widgets_map = self::get_widgets_map();
 
         foreach ($widgets_map as $widget_id => $data) {
             // Check if widget is disabled in admin settings

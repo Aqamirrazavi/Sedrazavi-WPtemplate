@@ -699,7 +699,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({
                     {activeSubTab === 'backup' && 'پشتیبان‌گیری و دیتابیس'}
                     {activeSubTab === 'logs' && 'لاگ‌ها و رویدادهای سیستم'}
                     {activeSubTab === 'react-php-generator' && 'مولد PHP شورت‌کدهای React'}
-                    {activeSubTab === 'wp-packaging-studio' && 'پکیجینگ زیپ وردپرس، افزونه هسته و چایلد‌تم‌ها'}
+                    {activeSubTab === 'wp-packaging-studio' && 'پکیجینگ زیپ وردپرس، افزونه هسته و پوسته‌های مستقل'}
                   </h1>
                 </div>
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * SedRazavi Store Modern Child Theme Functions
+ * SedRazavi Store Modern Standalone Parent Theme Functions
  *
  * @package SedRazavi_Child_Store
  * @version 5.0.0

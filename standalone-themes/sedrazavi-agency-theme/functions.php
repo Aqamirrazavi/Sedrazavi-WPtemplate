@@ -1,6 +1,6 @@
 <?php
 /**
- * SedRazavi Agency Designer Child Theme Functions
+ * SedRazavi Agency Designer Standalone Parent Theme Functions
  *
  * @package SedRazavi_Child_Agency
  * @version 5.0.0
@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// 1. Enqueue parent & child theme assets
+// 1. Enqueue parent & Standalone Parent Theme assets
 add_action('wp_enqueue_scripts', function() {
     wp_enqueue_style('sedrazavi-agency-theme-style', get_stylesheet_uri(), [], '6.0.0');
 }, 20);

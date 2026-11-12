@@ -81,13 +81,18 @@ assert(
 );
 
 const pkgMgrPath = path.join(__dirname, '../elementor-addon-suite/includes/class-package-manager.php');
+const pkgModulesDir = path.join(__dirname, '../elementor-addon-suite/includes/packaging');
 assert(fs.existsSync(pkgMgrPath), 'class-package-manager.php exists');
-const pkgMgrContent = fs.readFileSync(pkgMgrPath, 'utf8');
+const pkgModuleFiles = fs.existsSync(pkgModulesDir) ? fs.readdirSync(pkgModulesDir).filter(f => f.endsWith('.php')).sort() : [];
+const pkgMgrContent = [
+  fs.readFileSync(pkgMgrPath, 'utf8'),
+  ...pkgModuleFiles.map(f => fs.readFileSync(path.join(pkgModulesDir, f), 'utf8')),
+].join('\n');
 
 assert(
   pkgMgrContent.includes('rollback_package_installation') &&
   pkgMgrContent.includes('delete_transient'),
-  'Package_Manager has rollback_package_installation method with cache invalidation'
+  'Package_Manager / Installer has rollback_package_installation method with cache invalidation'
 );
 
 // -------------------------------------------------------------

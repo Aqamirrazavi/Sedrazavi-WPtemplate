@@ -92,6 +92,85 @@ class Contract_Registry {
                 'data'    => 'object (post_id, title, message)',
             ],
         ]);
+
+        // Contract: Package Lifecycle Endpoints
+        $this->register_contract('packages_export', [
+            'type'        => 'REST',
+            'endpoint'    => '/sedrazavi/v1/packages/export',
+            'method'      => 'POST',
+            'capability'  => 'manage_options',
+            'parameters'  => ['package_id' => 'string (required)'],
+            'description' => 'تولید فایل زیپ افزونه مستقل همراه با جدول چک‌سام SHA-256 فایل‌ها در مانیفست.',
+            'response'    => ['success' => 'boolean', 'zip_url' => 'string', 'sha256' => 'string'],
+        ]);
+
+        $this->register_contract('packages_build_custom_bundle', [
+            'type'        => 'REST',
+            'endpoint'    => '/sedrazavi/v1/packages/build-custom-bundle',
+            'method'      => 'POST',
+            'capability'  => 'manage_options',
+            'parameters'  => [
+                'project_name'       => 'string',
+                'project_slug'       => 'string',
+                'selected_widgets'   => 'array',
+                'selected_templates' => 'array',
+                'selected_blocks'    => 'array (Gutenberg sovereign-* slugs)',
+                'selected_cpts'      => 'array (portfolio, services, case_study)',
+                'design_tokens'      => 'object (optional)',
+            ],
+            'description' => 'کامپایل بسته اختصاصی با اسکن AST قالب‌ها، بلوک‌های گوتنبرگ، اسکیمای CPT و تعبیه چک‌سام SHA-256 برای تک‌تک فایل‌ها.',
+            'response'    => ['success' => 'boolean', 'zip_url' => 'string', 'sha256' => 'string', 'checksums_count' => 'integer', 'blocks_count' => 'integer', 'cpts_count' => 'integer'],
+        ]);
+
+        $this->register_contract('packages_preflight', [
+            'type'        => 'REST',
+            'endpoint'    => '/sedrazavi/v1/packages/preflight',
+            'method'      => 'POST',
+            'capability'  => 'manage_options',
+            'parameters'  => ['package_id' => 'string', 'manifest' => 'object'],
+            'description' => 'بررسی سازگاری نسخه PHP، وردپرس، المنتور و تشخیص چرخه وابستگی یا تداخل.',
+            'response'    => ['pass' => 'boolean', 'dependencies' => 'array', 'errors' => 'array'],
+        ]);
+
+        $this->register_contract('packages_import', [
+            'type'        => 'REST',
+            'endpoint'    => '/sedrazavi/v1/packages/import',
+            'method'      => 'POST',
+            'capability'  => 'manage_options',
+            'parameters'  => ['zip_path' => 'string (required)', 'dry_run' => 'boolean'],
+            'description' => 'بازبینی امنیتی آرشیو (Zip Slip، پسوند، Zip Bomb، تطبیق SHA-256) و نصب اتمیک یا Dry-Run.',
+            'response'    => ['success' => 'boolean', 'sha256' => 'string', 'checksum_verified_count' => 'integer'],
+        ]);
+
+        $this->register_contract('packages_rollback', [
+            'type'        => 'REST',
+            'endpoint'    => '/sedrazavi/v1/packages/rollback',
+            'method'      => 'POST',
+            'capability'  => 'manage_options',
+            'parameters'  => ['package_id' => 'string (required)'],
+            'description' => 'غیرفعال‌سازی افزونه و پاک‌سازی کامل فایل‌ها و تمپلیت‌های ثبت‌شده در دیتابیس.',
+            'response'    => ['success' => 'boolean', 'deleted_files' => 'integer', 'deleted_posts' => 'integer'],
+        ]);
+
+        // Contract: Public Read-Only Widgets & Assets Catalog
+        $this->register_contract('get_widgets_bank', [
+            'type'        => 'REST',
+            'endpoint'    => '/sedrazavi/v1/widgets-bank',
+            'method'      => 'GET',
+            'capability'  => 'public_read_only',
+            'description' => 'کاتالوگ خواندنی عمومی ویجت‌های بومی المنتور (۳۱ کلاس) و پریست‌های طراحی.',
+            'response'    => ['success' => 'boolean', 'elementor_widgets_count' => 'integer', 'shortcode_presets_count' => 'integer'],
+        ]);
+
+        // Contract: Authenticated Client Portal Summary
+        $this->register_contract('get_portal_summary', [
+            'type'        => 'REST',
+            'endpoint'    => '/sedrazavi/v1/portal/summary',
+            'method'      => 'GET',
+            'capability'  => 'read (authenticated user)',
+            'description' => 'خلاصه اشتراک VIP و لایسنس‌های کاربر احراز هویت‌شده.',
+            'response'    => ['isLoggedIn' => 'boolean', 'vip' => 'object', 'licenses' => 'array'],
+        ]);
     }
 
     /**

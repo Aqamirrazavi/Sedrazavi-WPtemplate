@@ -148,20 +148,43 @@ class Universal_SpotPlayer_Course_Widget extends Universal_Widget_Base {
 
     protected function render() {
         $settings = $this->get_settings_for_display();
-        $title = $settings['course_title'];
-        $lesson = $settings['lesson_title'];
-        $video_url = $settings['video_url'];
-        $watermark = $settings['show_watermark'] === 'yes';
+        $title = $settings['course_title'] ?? '';
+        $lesson = $settings['lesson_title'] ?? '';
+        $video_url = $settings['video_url'] ?? '';
+        $watermark = ($settings['show_watermark'] ?? 'yes') === 'yes';
         ?>
-        <div class="uas-spotplayer-custom uas-widget-container" dir="rtl" style="border: 1px solid rgba(255,255,255,0.1); overflow: hidden; padding: 20px; border-radius: 16px;">
+        <div class="uas-spotplayer-custom uas-widget-container" dir="rtl" style="border: 1px solid rgba(255,255,255,0.1); overflow: hidden; padding: 20px; border-radius: 16px; background: #0b132b; color: #f8fafc;">
             <?php
-            echo do_shortcode(sprintf(
-                '[sedrazavi_lesson_player course="%s" lesson="%s" video_url="%s" watermark="%s"]',
-                esc_attr($title),
-                esc_attr($lesson),
-                esc_url($video_url),
-                $watermark ? 'yes' : 'no'
-            ));
+            if (shortcode_exists('sedrazavi_lesson_player')) {
+                echo do_shortcode(sprintf(
+                    '[sedrazavi_lesson_player course="%s" lesson="%s" video_url="%s" watermark="%s"]',
+                    esc_attr($title),
+                    esc_attr($lesson),
+                    esc_url($video_url),
+                    $watermark ? 'yes' : 'no'
+                ));
+            } else {
+                $user_label = is_user_logged_in() ? wp_get_current_user()->user_login : 'Protected-Stream';
+                ?>
+                <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                        <h3 style="margin: 0 0 4px; font-size: 18px; color: #fff;"><?php echo esc_html($title); ?></h3>
+                        <div style="font-size: 13px; color: #94a3b8;"><?php echo esc_html($lesson); ?></div>
+                    </div>
+                    <span class="badge" style="padding: 4px 10px; border-radius: 9999px; background: #3b82f6; color: #fff; font-size: 11px; font-weight: 700;">پخش امن دوره</span>
+                </div>
+                <div style="position: relative; border-radius: 12px; overflow: hidden; background: #020617;">
+                    <video controls preload="metadata" style="width: 100%; display: block; max-height: 420px;">
+                        <source src="<?php echo esc_url($video_url); ?>" type="video/mp4">
+                    </video>
+                    <?php if ($watermark): ?>
+                        <div style="position: absolute; top: 12px; left: 14px; font-size: 11px; color: rgba(255,255,255,0.55); pointer-events: none; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 6px;">
+                            🔒 <?php echo esc_html($user_label); ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <?php
+            }
             ?>
         </div>
         <?php

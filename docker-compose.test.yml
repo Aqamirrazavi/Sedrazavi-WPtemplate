@@ -1,0 +1,85 @@
+# SedRazavi WordPress Ecosystem — Isolated Live E2E Verification Stack
+# Runs isolated WordPress 6.7 (PHP 8.2) + MariaDB 10.11 + WP-CLI for Site A -> Site B verification.
+# Usage:
+#   docker compose -f docker-compose.test.yml up -d db wordpress
+#   docker compose -f docker-compose.test.yml run --rm wpcli /scripts/wp-e2e-verify.sh
+#   docker compose -f docker-compose.test.yml down -v
+
+services:
+  db:
+    image: mariadb:10.11
+    container_name: sedrazavi_e2e_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: wordpress_e2e
+      MYSQL_USER: wp_e2e
+      MYSQL_PASSWORD: wp_e2e_secret_password
+      MYSQL_ROOT_PASSWORD: root_e2e_secret_password
+    volumes:
+      - wp_e2e_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  wordpress:
+    image: wordpress:6.7-php8.2-apache
+    container_name: sedrazavi_e2e_wp
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8088:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wp_e2e
+      WORDPRESS_DB_PASSWORD: wp_e2e_secret_password
+      WORDPRESS_DB_NAME: wordpress_e2e
+      WORDPRESS_DEBUG: 1
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG_LOG', true);
+        define('WP_DEBUG_DISPLAY', false);
+        define('FS_METHOD', 'direct');
+    volumes:
+      - wp_e2e_core:/var/www/html
+      - ./wordpress-theme:/var/www/html/wp-content/themes/sedrazavi-theme
+      - ./standalone-themes:/var/www/html/wp-content/themes/sedrazavi-standalone-pool:ro
+      - ./elementor-addon-suite:/var/www/html/wp-content/plugins/elementor-addon-suite
+      - ./sedrazavi-companion:/var/www/html/wp-content/plugins/sedrazavi-companion
+      - ./sedrazavi-addons:/var/www/html/wp-content/plugins/sedrazavi-addons
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost/wp-login.php >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  wpcli:
+    image: wordpress:cli-2.11-php8.2
+    container_name: sedrazavi_e2e_wpcli
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    user: "33:33"
+    working_dir: /var/www/html
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wp_e2e
+      WORDPRESS_DB_PASSWORD: wp_e2e_secret_password
+      WORDPRESS_DB_NAME: wordpress_e2e
+      WP_SITE_URL: http://wordpress
+    volumes:
+      - wp_e2e_core:/var/www/html
+      - ./wordpress-theme:/var/www/html/wp-content/themes/sedrazavi-theme
+      - ./standalone-themes:/var/www/html/wp-content/themes/sedrazavi-standalone-pool:ro
+      - ./elementor-addon-suite:/var/www/html/wp-content/plugins/elementor-addon-suite
+      - ./sedrazavi-companion:/var/www/html/wp-content/plugins/sedrazavi-companion
+      - ./sedrazavi-addons:/var/www/html/wp-content/plugins/sedrazavi-addons
+      - ./scripts:/scripts:ro
+      - ./artifacts:/artifacts
+    entrypoint: ["bash", "-lc"]
+    command: ["sleep infinity"]
+
+volumes:
+  wp_e2e_db:
+  wp_e2e_core:

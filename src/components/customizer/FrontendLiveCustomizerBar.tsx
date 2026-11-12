@@ -249,7 +249,7 @@ export const FrontendLiveCustomizerBar: React.FC<FrontendLiveCustomizerBarProps>
                 className="w-full py-2 px-3 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/50 text-blue-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
               >
                 <Layers className="w-3.5 h-3.5 text-blue-400" />
-                <span>مدیریت چایلدتم‌ها و لایسنس طراح (OS 5.0)</span>
+                <span>مدیریت پوسته‌های مستقل و لایسنس طراح (OS 6.0)</span>
               </button>
             </div>
           )}

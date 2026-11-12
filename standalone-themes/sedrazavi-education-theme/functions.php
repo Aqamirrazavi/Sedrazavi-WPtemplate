@@ -1,6 +1,6 @@
 <?php
 /**
- * SedRazavi Education Child Theme Functions
+ * SedRazavi Education Standalone Parent Theme Functions
  *
  * @package SedRazavi_Child_Education
  * @version 6.0.0

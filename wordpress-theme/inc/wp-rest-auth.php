@@ -45,18 +45,23 @@ class SedRazavi_WP_REST_Auth {
             'permission_callback' => '__return_true',
         ]);
 
-        // 3. Secure Login: POST /sedrazavi/v1/auth/secure-login
+        // 3. Secure Login: POST /sedrazavi/v1/auth/secure-login (public auth entry, rate-limited)
         register_rest_route(self::REST_NAMESPACE, '/auth/secure-login', [
             'methods'             => ['POST'],
             'callback'            => [__CLASS__, 'handle_secure_login'],
             'permission_callback' => '__return_true',
+            'args'                => [
+                'username' => ['type' => 'string', 'required' => false, 'sanitize_callback' => 'sanitize_user'],
+                'log'      => ['type' => 'string', 'required' => false, 'sanitize_callback' => 'sanitize_user'],
+                'remember' => ['type' => 'boolean', 'required' => false],
+            ],
         ]);
 
-        // 4. Secure Logout: POST /sedrazavi/v1/auth/secure-logout
+        // 4. Secure Logout: POST /sedrazavi/v1/auth/secure-logout (requires authenticated user)
         register_rest_route(self::REST_NAMESPACE, '/auth/secure-logout', [
             'methods'             => ['POST'],
             'callback'            => [__CLASS__, 'handle_secure_logout'],
-            'permission_callback' => '__return_true',
+            'permission_callback' => [__CLASS__, 'check_logged_in_permission'],
         ]);
 
         // 5. Protected Cases List: GET /sedrazavi/v1/cases/secure-list
@@ -244,11 +249,24 @@ class SedRazavi_WP_REST_Auth {
      * Handle Secure Login via REST
      */
     public static function handle_secure_login($request) {
-        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('login_attempt', 5, 300)) {
-            return new WP_REST_Response([
-                'success' => false,
-                'message' => 'تلاش‌های ورود بیش از حد مجاز بوده است. لطفاً ۵ دقیقه بعد مجدداً تلاش فرمایید.',
-            ], 429);
+        if (class_exists('SedRazavi_Rate_Limiter')) {
+            if (!SedRazavi_Rate_Limiter::check_rate_limit('login_attempt', 5, 300)) {
+                return new WP_REST_Response([
+                    'success' => false,
+                    'message' => 'تلاش‌های ورود بیش از حد مجاز بوده است. لطفاً ۵ دقیقه بعد مجدداً تلاش فرمایید.',
+                ], 429);
+            }
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+            $rate_key = 'sr_rest_login_' . md5($ip . wp_salt('auth'));
+            $attempts = (int) get_transient($rate_key);
+            if ($attempts >= 5) {
+                return new WP_REST_Response([
+                    'success' => false,
+                    'message' => 'تلاش‌های ورود بیش از حد مجاز بوده است. لطفاً ۵ دقیقه بعد مجدداً تلاش فرمایید.',
+                ], 429);
+            }
+            set_transient($rate_key, $attempts + 1, 5 * MINUTE_IN_SECONDS);
         }
 
         $params = $request->get_json_params() ?: $request->get_params();

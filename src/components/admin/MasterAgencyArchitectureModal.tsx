@@ -43,7 +43,7 @@ export const MasterAgencyArchitectureModal: React.FC<MasterAgencyArchitectureMod
   onOpenPaymentAdapter,
   onOpenMultiNicheHub,
 }) => {
-  const [activeTab, setActiveTab] = useState<'child-themes' | 'drm-license' | 'github-shield' | 'payment-engine' | 'layout-presets' | 'multi-niche'>('child-themes');
+  const [activeTab, setActiveTab] = useState<'standalone-themes' | 'drm-license' | 'github-shield' | 'payment-engine' | 'layout-presets' | 'multi-niche'>('standalone-themes');
   const [currentTheme, setCurrentTheme] = useState(activeChildTheme);
   const [licenseKey, setLicenseKey] = useState('SR-VIP-2026-ARCHITECT-MASTER');
   const [licenseStatus, setLicenseStatus] = useState<'valid' | 'invalid' | 'dev'>('valid');
@@ -188,7 +188,7 @@ export const MasterAgencyArchitectureModal: React.FC<MasterAgencyArchitectureMod
                 </span>
               </div>
               <p className="text-xs text-gray-400 mt-0.5">
-                تفکیک کامل وابستگی‌ها، چایلدتم‌های چندمنظوره، آپدیت ضد تخریب گیت‌هاب و لایسنسینگ DRM
+                تفکیک کامل وابستگی‌ها، پوسته‌های مستقل چندمنظوره، آپدیت ضد تخریب گیت‌هاب و لایسنسینگ DRM
               </p>
             </div>
           </div>
@@ -203,7 +203,7 @@ export const MasterAgencyArchitectureModal: React.FC<MasterAgencyArchitectureMod
         {/* Navigation Tabs */}
         <div className="flex items-center gap-1.5 px-6 pt-3 border-b border-gray-800 bg-[#070D1E] overflow-x-auto">
           {[
-            { id: 'child-themes', label: 'چایلد‌تم‌های چندمنظوره', icon: Layers },
+            { id: 'standalone-themes', label: 'پوسته‌های مستقل چندمنظوره', icon: Layers },
             { id: 'drm-license', label: 'لایسنس DRM طراح', icon: Key },
             { id: 'github-shield', label: 'محافظ آپدیت گیت‌هاب', icon: RefreshCw },
             { id: 'payment-engine', label: 'درگاه‌های پرداخت دوگانه', icon: CreditCard },
@@ -231,11 +231,11 @@ export const MasterAgencyArchitectureModal: React.FC<MasterAgencyArchitectureMod
 
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1 text-right">
-          {/* TAB 1: CHILD THEMES */}
-          {activeTab === 'child-themes' && (
+          {/* TAB 1: STANDALONE THEMES */}
+          {activeTab === 'standalone-themes' && (
             <div className="space-y-6">
               <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-xs text-blue-300 leading-relaxed">
-                <strong>معماری ایزوله و وراثت پاک:</strong> با فعال‌سازی هر چایلدتم، هسته والد بدون هیچ بار اضافی باقی می‌ماند. کلیه قابلیت‌های وکالت و داوری به چایلدتم حقوقی منتقل شده‌اند و برای مشتریان دیگر (فروشگاهی، شرکتی، طراح) لود نمی‌شوند.
+                <strong>معماری ۱۰۰٪ مستقل (بدون پوسته والد یا چایلدتم):</strong> هر صنف در پوشه و پوسته مستقل خود اجرا می‌شود و هیچ وابستگی اجباری به پوسته والد ندارد. قابلیت‌های وکالت و داوری تنها در پوسته تخصصی حقوقی لود می‌شوند و برای سایر اصناف (فروشگاهی، شرکتی، طراح) سربار صفر دارند.
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -248,7 +248,7 @@ export const MasterAgencyArchitectureModal: React.FC<MasterAgencyArchitectureMod
                       onClick={() => {
                         setCurrentTheme(ct.id);
                         if (onSelectChildTheme) onSelectChildTheme(ct.id);
-                        showToast(`چایلدتم فعال به «${ct.name}» تغییر یافت.`);
+                        showToast(`پوسته مستقل فعال به «${ct.name}» تغییر یافت.`);
                       }}
                       className={`relative p-5 rounded-2xl border cursor-pointer transition-all ${
                         isSelected
@@ -370,7 +370,7 @@ export const MasterAgencyArchitectureModal: React.FC<MasterAgencyArchitectureMod
                   <h3 className="text-sm font-bold text-white">موتور ضد تخریب آپدیت گیت‌هاب (Anti-Wipe Durability Shield)</h3>
                 </div>
                 <p className="text-xs text-gray-400 leading-relaxed">
-                  هنگامی که نسخه جدید قالب را از مخزن GitHub دریافت و آپدیت می‌کنید، سیستم امنیتی ترنزینت‌های وردپرس تنها پوشه هسته والد (<code>sedrazavi-core</code>) را آپدیت می‌کند. چایلدتم فعال، کدهای سفارشی CSS و رکوردهای پایگاه‌داده <code>wp_options</code> بدون کوچک‌ترین خطری حفظ می‌شوند.
+                  هنگامی که نسخه جدید افزونه یا هسته را از مخزن GitHub دریافت و آپدیت می‌کنید، مکانیزم حفاظتی وردپرس فایل‌های سفارشی پوسته مستقل، استایل‌های اختصاصی و رکوردهای پایگاه‌داده <code>wp_options</code> را بدون کوچک‌ترین تخریبی حفظ می‌کند.
                 </p>
 
                 <div className="pt-2 flex flex-wrap items-center gap-3">
@@ -626,7 +626,7 @@ export const MasterAgencyArchitectureModal: React.FC<MasterAgencyArchitectureMod
         {/* Modal Footer */}
         <div className="p-5 border-t border-gray-800 bg-[#070D1E] flex items-center justify-between">
           <div className="text-xs text-gray-400">
-            چایلدتم فعال فعلی: <span className="font-bold text-blue-400">{currentTheme}</span>
+            پوسته مستقل فعال فعلی: <span className="font-bold text-blue-400">{currentTheme}</span>
           </div>
           <button
             onClick={onClose}

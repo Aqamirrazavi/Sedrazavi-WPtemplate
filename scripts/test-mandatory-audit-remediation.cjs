@@ -225,8 +225,13 @@ assert(
 );
 
 const packageManagerPath = path.join(__dirname, '../elementor-addon-suite/includes/class-package-manager.php');
+const packagingSubDir = path.join(__dirname, '../elementor-addon-suite/includes/packaging');
 assert(fs.existsSync(packageManagerPath), 'class-package-manager.php exists');
-const packageManagerContent = fs.readFileSync(packageManagerPath, 'utf8');
+const packagingSubFiles = fs.existsSync(packagingSubDir) ? fs.readdirSync(packagingSubDir).filter(f => f.endsWith('.php')).sort() : [];
+const packageManagerContent = [
+  fs.readFileSync(packageManagerPath, 'utf8'),
+  ...packagingSubFiles.map(f => fs.readFileSync(path.join(packagingSubDir, f), 'utf8')),
+].join('\n');
 
 assert(
   packageManagerContent.includes('!class_exists(\'\\ZipArchive\')') &&
@@ -238,6 +243,188 @@ assert(
   packageManagerContent.includes('resolve_package_dependencies') &&
   packageManagerContent.includes('Circular Dependency'),
   'Package_Manager has recursive dependency resolution and circular dependency detection'
+);
+
+// -------------------------------------------------------------
+// Test Group 6: Phase 1A Confidential CPTs, REST Permissions & Standalone SSOT
+// -------------------------------------------------------------
+console.log('\n🔍 Test Group 6: Phase 1A Confidential CPTs, REST Permissions & Standalone SSOT');
+
+const addonsCptPath = path.join(__dirname, '../sedrazavi-addons/includes/post-types.php');
+const addonsCptContent = fs.readFileSync(addonsCptPath, 'utf8');
+assert(
+  !addonsCptContent.includes("'rewrite'            => array('slug' => 'cases')") &&
+  addonsCptContent.includes("register_post_type('sedrazavi_case'") &&
+  !addonsCptContent.includes("register_post_type('sedrazavi_case', array(\n            'labels'             => $case_labels,\n            'public'             => true"),
+  'sedrazavi-addons sedrazavi_case CPT is strictly private (no public archive/query/REST)'
+);
+
+const caseMgmtPath = path.join(__dirname, '../wordpress-theme/inc/case-management.php');
+const caseMgmtContent = fs.readFileSync(caseMgmtPath, 'utf8');
+assert(
+  !caseMgmtContent.includes("'show_in_rest'       => true") &&
+  !caseMgmtContent.includes("'show_in_rest'  => true") &&
+  caseMgmtContent.includes('hash_equals($clean_stored, $clean_phone)'),
+  'case-management.php disables show_in_rest on sedrazavi_case/appointment and enforces phone verification'
+);
+
+const arbCptPath = path.join(__dirname, '../wordpress-theme/inc/arbitration-cpt.php');
+const arbCptContent = fs.readFileSync(arbCptPath, 'utf8');
+assert(
+  arbCptContent.includes("'public'              => false") &&
+  arbCptContent.includes("'show_in_rest'        => false"),
+  'arbitration_case CPT is strictly private with show_in_rest => false'
+);
+
+const dashCptPath = path.join(__dirname, '../wordpress-theme/inc/class-sedrazavi-dashboard.php');
+const dashCptContent = fs.readFileSync(dashCptPath, 'utf8');
+assert(
+  dashCptContent.includes("'show_in_rest'        => false") &&
+  dashCptContent.includes('check_staff_permission') &&
+  !dashCptContent.includes("'permission_callback' => '__return_true'"),
+  'class-sedrazavi-dashboard.php enforces check_staff_permission on /dashboard-stats and /cases'
+);
+
+const vaultPath = path.join(__dirname, '../wordpress-theme/inc/legal-vault-deadlines.php');
+const vaultContent = fs.readFileSync(vaultPath, 'utf8');
+assert(
+  vaultContent.includes('_sedrazavi_doc_hash') &&
+  vaultContent.includes("preg_match('/^[a-f0-9]{64}$/'"),
+  'legal-vault-deadlines.php verifies real stored SHA-256 hashes in DB'
+);
+
+const restApiPath = path.join(__dirname, '../wordpress-theme/inc/rest-api.php');
+const restApiContent = fs.readFileSync(restApiPath, 'utf8');
+assert(
+  restApiContent.includes("preg_match('/^[a-f0-9]{64}$/'") &&
+  restApiContent.includes('_sedrazavi_doc_hash') &&
+  !restApiContent.includes('دعاوی قراردادهای تجاری (نمونه)'),
+  'rest-api.php enforces real DB lookup on /verify-hash and removes demo fallback from /track-case'
+);
+
+const addonsMainPath = path.join(__dirname, '../sedrazavi-addons/sedrazavi-addons.php');
+const addonsMainContent = fs.readFileSync(addonsMainPath, 'utf8');
+assert(
+  addonsMainContent.includes('sedrazavi_addons_rate_limit_check') &&
+  !addonsMainContent.includes('Access-Control-Allow-Origin: *') &&
+  !addonsMainContent.includes('شعبه ۵ دادگاه تجدیدنظر (نمونه)'),
+  'sedrazavi-addons.php enforces rate limiting, scoped CORS, and no fabricated demo tracking output'
+);
+
+const converterPath = path.join(__dirname, '../scripts/convert-to-standalone-themes.cjs');
+const converterContent = fs.readFileSync(converterPath, 'utf8');
+assert(
+  converterContent.includes('path.join(targetStandaloneDir, cfg.standaloneSlug)'),
+  'convert-to-standalone-themes.cjs operates on standalone-themes/ as exclusive Single Source of Truth'
+);
+
+const cloudCatalogPath = path.join(__dirname, '../wordpress-theme/inc/class-cloud-catalog.php');
+const cloudCatalogContent = fs.readFileSync(cloudCatalogPath, 'utf8');
+assert(
+  cloudCatalogContent.includes('ajax_generate_standalone_theme') &&
+  cloudCatalogContent.includes("check_ajax_referer('sedrazavi_security_nonce', 'nonce')") &&
+  !cloudCatalogContent.includes('Template: sedrazavi-theme'),
+  'class-cloud-catalog.php generates standalone themes (zero Template: sedrazavi-theme) with nonce check'
+);
+
+// -------------------------------------------------------------
+// Test Group 7: Phase 1B Registry Unification, Packaging Modularization & REST/2FA Hardening
+// -------------------------------------------------------------
+console.log('\n🔍 Test Group 7: Phase 1B Registry Unification, Modular Packaging & Remaining Security Hardening');
+
+const pluginSsotCode = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/includes/class-plugin.php'), 'utf8');
+assert(
+  pluginSsotCode.includes('public static function get_widgets_map()'),
+  'Plugin::get_widgets_map() serves as single source of truth for the 31 Elementor Widget_Base classes'
+);
+
+const sovereignRegCode = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/includes/class-sovereign-widgets-registry.php'), 'utf8');
+assert(
+  sovereignRegCode.includes('get_verified_elementor_widgets') &&
+  sovereignRegCode.includes('Plugin::get_widgets_map()') &&
+  sovereignRegCode.includes('shortcode_presets_count') &&
+  sovereignRegCode.includes('elementor_widgets_count'),
+  'Sovereign_Widgets_Registry transparently separates 31 Elementor classes from 72 shortcode presets'
+);
+
+const capRegCode = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/includes/class-capability-registry.php'), 'utf8');
+assert(
+  capRegCode.includes('get_unified_ecosystem_inventory') &&
+  !capRegCode.includes('۲۳ الگوی بومی'),
+  'Capability_Registry exposes live get_unified_ecosystem_inventory() and removes stale 23-template claim'
+);
+
+const contractRegCode = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/includes/class-contract-registry.php'), 'utf8');
+assert(
+  contractRegCode.includes('packages_export') &&
+  contractRegCode.includes('packages_build_custom_bundle') &&
+  contractRegCode.includes('packages_preflight') &&
+  contractRegCode.includes('packages_import') &&
+  contractRegCode.includes('packages_rollback') &&
+  contractRegCode.includes('get_widgets_bank') &&
+  contractRegCode.includes('get_portal_summary'),
+  'Contract_Registry documents Package Lifecycle, Widgets Bank, and Portal Summary REST contracts'
+);
+
+assert(
+  packagingSubFiles.length === 6 &&
+  packageManagerContent.includes('compute_file_checksums') &&
+  packageManagerContent.includes('verify_manifest_checksums'),
+  'Package Manager decomposed into 6 single-responsibility modules with per-file SHA-256 verification'
+);
+
+const githubSyncCode = fs.readFileSync(path.join(__dirname, '../wordpress-theme/inc/class-github-sync.php'), 'utf8');
+assert(
+  githubSyncCode.match(/github\/status[\s\S]{0,220}current_user_can\('edit_posts'\)/) &&
+  githubSyncCode.includes('webhook_secret_not_configured') &&
+  githubSyncCode.includes('missing_signature') &&
+  githubSyncCode.includes('hash_equals'),
+  'class-github-sync.php gates /github/status and enforces fail-closed HMAC-SHA256 webhook verification'
+);
+
+assert(
+  restAuthContent.includes("'/auth/secure-logout'") &&
+  !restAuthContent.match(/secure-logout[\s\S]{0,200}__return_true/),
+  'wp-rest-auth.php replaces __return_true on /auth/secure-logout with check_logged_in_permission'
+);
+
+const dualAuthCode = fs.readFileSync(path.join(__dirname, '../wordpress-theme/includes/class-sedrazavi-auth-dual-mode.php'), 'utf8');
+assert(
+  dualAuthCode.includes('code_hash') &&
+  dualAuthCode.includes("hash('sha256'") &&
+  dualAuthCode.includes("hash_equals((string) $pending['code_hash']") &&
+  dualAuthCode.includes('sedrazavi_send_2fa_code'),
+  'class-sedrazavi-auth-dual-mode.php verifies 2FA OTP via SHA-256 hash_equals and rate-limit lockouts'
+);
+
+const paymentCode = fs.readFileSync(path.join(__dirname, '../wordpress-theme/includes/class-sedrazavi-payment-adapter.php'), 'utf8');
+assert(
+  paymentCode.includes('sr_pay_rate_') &&
+  paymentCode.includes('429') &&
+  paymentCode.includes("'enum' => ['zarinpal']"),
+  'class-sedrazavi-payment-adapter.php enforces IP rate limiting and enum gateway validation'
+);
+
+const clientDashCode = fs.readFileSync(path.join(__dirname, '../sedrazavi-companion/includes/class-dynamic-client-dashboard.php'), 'utf8');
+const licenseMgrCode = fs.readFileSync(path.join(__dirname, '../sedrazavi-companion/includes/class-license-manager.php'), 'utf8');
+const demoImpCode = fs.readFileSync(path.join(__dirname, '../sedrazavi-companion/includes/class-demo-importer.php'), 'utf8');
+assert(
+  !clientDashCode.includes("'permission_callback' => '__return_true'") &&
+  !licenseMgrCode.includes("'permission_callback' => '__return_true'") &&
+  !demoImpCode.includes("'permission_callback' => '__return_true'"),
+  'sedrazavi-companion removes __return_true from /portal/summary, /license/status, and /demo/list'
+);
+
+const intakeCode = fs.readFileSync(path.join(__dirname, '../sedrazavi-companion/includes/class-legal-intake-appointments.php'), 'utf8');
+const offlineQueueCode = fs.readFileSync(path.join(__dirname, '../sedrazavi-companion/includes/class-offline-queue.php'), 'utf8');
+const wcShetabCode = fs.readFileSync(path.join(__dirname, '../sedrazavi-companion/includes/class-woocommerce-shetab-gateway.php'), 'utf8');
+assert(
+  intakeCode.includes('sr_website_trap') &&
+  intakeCode.includes('rate_limited') &&
+  offlineQueueCode.includes('set_transient($rate_key') &&
+  offlineQueueCode.includes('(?P<token>[a-f0-9]{64})') &&
+  !wcShetabCode.includes('sample-1'),
+  'Intake, offline queue (64-hex token + rate limit), and WooCommerce Shetab (zero fake cart) are hardened'
 );
 
 console.log('========================================================================');

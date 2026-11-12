@@ -182,19 +182,18 @@ export const CloudThemeCatalogModal: React.FC<CloudThemeCatalogModalProps> = ({
       if (onApplyPreset) {
         onApplyPreset(item.id);
       }
-      success(`پکیج و چایلدتم "${item.title}" با موفقیت نصب و روی سایت فعال شد!`);
+      success(`پکیج و پوسته مستقل "${item.title}" با موفقیت نصب و روی سایت فعال شد!`);
     }, 1400);
   };
 
   const handleDownloadZip = (item: IndustryCatalogItem) => {
-    success(`دانلود فایل زیپ "${item.id}-child-theme.zip" آغاز شد.`);
-    // Generate simulated zip download blob
+    success(`دانلود فایل زیپ پوسته مستقل "${item.id}-standalone.zip" آغاز شد.`);
     const element = document.createElement("a");
     const file = new Blob([
-      `/*\nTheme Name: ${item.title}\nTheme URI: https://sedrazavi.ir\nTemplate: sedrazavi-theme\nVersion: ${item.version}\nAuthor: ${item.author}\n*/\n\n@import url("../sedrazavi-theme/style.css");\n:root { --primary-hue: ${item.accentColor}; }`
+      `/*\nTheme Name: ${item.title}\nTheme URI: https://sedrazavi.ir\nVersion: ${item.version}\nAuthor: ${item.author}\nText Domain: ${item.id}\n*/\n\n:root { --primary-hue: ${item.accentColor}; }`
     ], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
-    element.download = `${item.id}-child-theme.zip`;
+    element.download = `${item.id}-standalone.txt`;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -224,7 +223,7 @@ export const CloudThemeCatalogModal: React.FC<CloudThemeCatalogModalProps> = ({
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <h3 className="text-base sm:text-lg font-bold text-white">
-                  کاتالوگ ابری چایلدتم‌ها و پکیج‌های اصناف (Cloud Presets Store)
+                  کاتالوگ ابری پوسته‌های مستقل و پکیج‌های اصناف (Cloud Presets Store)
                 </h3>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
@@ -384,7 +383,7 @@ export const CloudThemeCatalogModal: React.FC<CloudThemeCatalogModalProps> = ({
                       type="button"
                       onClick={() => handleDownloadZip(item)}
                       className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors flex items-center gap-1"
-                      title="دانلود مستقیم زیپ چایلدتم"
+                      title="دانلود فایل مشخصات پوسته مستقل"
                     >
                       <Download className="w-4 h-4" />
                       <span className="text-[10px] font-mono">{item.zipSize}</span>

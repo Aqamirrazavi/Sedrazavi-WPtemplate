@@ -188,19 +188,50 @@ class Universal_Download_Box_Widget extends Universal_Widget_Base {
 
     protected function render() {
         $settings = $this->get_settings_for_display();
+        $title = $settings['box_title'] ?? '';
+        $version = $settings['version'] ?? '';
+        $filesize = $settings['filesize'] ?? '';
+        $os = $settings['os'] ?? '';
+        $password = $settings['password'] ?? '';
+        $direct_url = $settings['direct_url'] ?? '#';
+        $mirror_url = $settings['mirror_url'] ?? '#';
         ?>
-        <div class="uas-dl-box-custom uas-widget-container" dir="rtl" style="border: 1px solid rgba(255,255,255,0.1); overflow: hidden;">
+        <div class="uas-dl-box-custom uas-widget-container" dir="rtl" style="border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 20px; background: #0f172a; color: #e2e8f0; overflow: hidden;">
             <?php
-            echo do_shortcode(sprintf(
-                '[sedrazavi_download_box title="%s" version="%s" filesize="%s" os="%s" password="%s" direct_url="%s" mirror_url="%s"]',
-                esc_attr($settings['box_title']),
-                esc_attr($settings['version']),
-                esc_attr($settings['filesize']),
-                esc_attr($settings['os']),
-                esc_attr($settings['password']),
-                esc_url($settings['direct_url']),
-                esc_url($settings['mirror_url'])
-            ));
+            if (shortcode_exists('sedrazavi_download_box')) {
+                echo do_shortcode(sprintf(
+                    '[sedrazavi_download_box title="%s" version="%s" filesize="%s" os="%s" password="%s" direct_url="%s" mirror_url="%s"]',
+                    esc_attr($title),
+                    esc_attr($version),
+                    esc_attr($filesize),
+                    esc_attr($os),
+                    esc_attr($password),
+                    esc_url($direct_url),
+                    esc_url($mirror_url)
+                ));
+            } else {
+                ?>
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px; margin-bottom: 14px;">
+                    <div>
+                        <h3 class="uas-dl-title" style="margin: 0 0 6px; font-size: 18px; font-weight: 800; color: #3b82f6;"><?php echo esc_html($title); ?></h3>
+                        <div style="font-size: 13px; color: #94a3b8; display: flex; flex-wrap: wrap; gap: 14px;">
+                            <?php if ($version): ?><span>نسخه: <strong style="color: #fff;"><?php echo esc_html($version); ?></strong></span><?php endif; ?>
+                            <?php if ($filesize): ?><span>حجم: <strong style="color: #fff;"><?php echo esc_html($filesize); ?></strong></span><?php endif; ?>
+                            <?php if ($os): ?><span>پلتفرم: <strong style="color: #fff;"><?php echo esc_html($os); ?></strong></span><?php endif; ?>
+                        </div>
+                    </div>
+                    <?php if ($password): ?>
+                        <div style="background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 8px; font-size: 12px;">
+                            رمز فایل: <code style="color: #10b981; font-weight: 700;"><?php echo esc_html($password); ?></code>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <a href="<?php echo esc_url($direct_url); ?>" class="uas-btn-direct" style="padding: 10px 18px; border-radius: 8px; background: #2563eb; color: #fff; text-decoration: none; font-weight: 700; font-size: 13px;">⬇️ دانلود لینک مستقیم (سرور ۱)</a>
+                    <a href="<?php echo esc_url($mirror_url); ?>" style="padding: 10px 18px; border-radius: 8px; background: rgba(255,255,255,0.08); color: #f8fafc; text-decoration: none; font-weight: 600; font-size: 13px;">🔁 سرور کمکی (سرور ۲)</a>
+                </div>
+                <?php
+            }
             ?>
         </div>
         <?php

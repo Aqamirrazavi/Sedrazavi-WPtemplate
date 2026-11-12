@@ -231,7 +231,7 @@ class Admin_Settings {
                 <span>📦</span> <?php esc_html_e('مدیریت بسته‌ها (MPCA)', 'universal-elementor-suite'); ?>
             </a>
             <a href="<?php echo esc_url(admin_url('admin.php?page=universal-elementor-templates')); ?>" class="uas-nav-tab <?php echo ($active_tab === 'templates') ? 'active' : ''; ?>">
-                <span>🎨</span> <?php esc_html_e('بانک قالب‌ها و صفحات (۳۰ الگو)', 'universal-elementor-suite'); ?>
+                <span>🎨</span> <?php esc_html_e('بانک قالب‌ها و صفحات (۳۳ الگو)', 'universal-elementor-suite'); ?>
             </a>
             <a href="<?php echo esc_url(admin_url('admin.php?page=universal-elementor-settings')); ?>" class="uas-nav-tab <?php echo ($active_tab === 'widgets') ? 'active' : ''; ?>">
                 <span>🧩</span> <?php esc_html_e('ویجت‌ها و بلوک‌ها', 'universal-elementor-suite'); ?>
@@ -263,7 +263,7 @@ class Admin_Settings {
                     <div class="uas-hero-content">
                         <span class="uas-hero-badge">★ اکوسیستم بدون قفل‌شدگی (Zero-Lockin)</span>
                         <h2 class="uas-hero-title">مرکز مدیریت اکوسیستم SedRazavi</h2>
-                        <p class="uas-hero-desc">مدیریت حرفه‌ای، سریع و هوشمندانه وب‌سایت شما بدون نیاز به کدنویسی؛ مجهز به ۳۰ قالب آماده تم‌بیلدر و ۲۳ ویجت تخصصی المنتور با معماری مستقل MPCA.</p>
+                        <p class="uas-hero-desc">مدیریت حرفه‌ای، سریع و هوشمندانه وب‌سایت شما بدون نیاز به کدنویسی؛ مجهز به ۳۳ قالب آماده تم‌بیلدر، ۳۱ ویجت تخصصی المنتور و ۷ بلوک بومی گوتنبرگ با معماری مستقل MPCA.</p>
                         <div class="uas-hero-actions">
                             <a href="<?php echo esc_url(admin_url('admin.php?page=universal-elementor-templates')); ?>" class="uas-btn-primary">
                                 <span>⚡</span> شروع راه‌اندازی سریع
@@ -696,7 +696,7 @@ class Admin_Settings {
                             📚 <?php esc_html_e('بانک قالب‌های لندینگ‌پیج و Theme Builder المنتور پرو', 'universal-elementor-suite'); ?>
                         </h2>
                         <p style="font-size:12px; color:var(--uas-text-muted); margin:0; line-height:1.6;">
-                            مجموعه ۳۰ الگو و تمپلیت استاندارد و پرسرعت برای طراحی یکپارچه هدر، مگافوتر، صفحات لندینگ، وبلاگ، فروشگاه و کارت‌های بنتو بدون وابستگی به کدنویسی.
+                            مجموعه ۳۳ الگو و تمپلیت استاندارد و پرسرعت برای طراحی یکپارچه هدر، مگافوتر، صفحات لندینگ، وبلاگ، فروشگاه و پاپ‌آپ بدون وابستگی به کدنویسی.
                         </p>
                     </div>
                     <div style="display:flex; gap:10px;">
@@ -834,7 +834,7 @@ class Admin_Settings {
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:28px;">
                 <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; border-right:4px solid #3b82f6;">
                     <div style="font-size:11px; color:#64748b; font-weight:700;">لایه ۱: رابط کاربری</div>
-                    <div style="font-size:15px; font-weight:800; color:#0f172a; margin-top:4px;">۷۲ ویجت + ۷ بلوک</div>
+                    <div style="font-size:15px; font-weight:800; color:#0f172a; margin-top:4px;">۳۱ ویجت + ۷ بلوک + ۳۳ الگو</div>
                 </div>
                 <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; border-right:4px solid #10b981;">
                     <div style="font-size:11px; color:#64748b; font-weight:700;">لایه ۲: قراردادها (Contracts)</div>
@@ -865,6 +865,9 @@ class Admin_Settings {
             require_once UAS_PATH . 'includes/class-template-importer.php';
             $all_kit_widgets   = self::get_all_widgets_list();
             $all_kit_templates = \UniversalElementorSuite\Template_Importer::get_templates_manifest();
+            $pkg_mgr           = class_exists('\UniversalElementorSuite\Package_Manager') ? \UniversalElementorSuite\Package_Manager::instance() : null;
+            $all_kit_blocks    = $pkg_mgr ? $pkg_mgr->get_gutenberg_blocks_catalog() : [];
+            $all_kit_cpts      = $pkg_mgr ? $pkg_mgr->get_cpt_schemas_catalog() : [];
             ?>
             <div class="uas-admin-card uas-kit-studio-card" style="margin-bottom:30px; border:2px solid #6366f1; background:linear-gradient(135deg, rgba(99,102,241,0.04) 0%, rgba(139,92,246,0.02) 100%);">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px; border-bottom:1px solid var(--uas-border-color); padding-bottom:18px;">
@@ -876,12 +879,12 @@ class Admin_Settings {
                             🧰 استودیوی ساخت جعبه‌ابزار سفارشی و قابل حمل (Custom Project Kit Studio)
                         </h2>
                         <p style="font-size:13px; color:var(--uas-text-muted); margin:0; max-width:860px; line-height:1.7;">
-                            اگر پروژه جدیدی برای مشتری (شرکتی، پزشکی، فروشگاهی، آموزشی، حقوقی یا آژانس) تحویل گرفته‌اید، پس از نصب وردپرس و المنتور خام، بدون نیاز به نصب کل اکوسیستم یا قالب‌های سنگین، دقیقاً ویجت‌ها، قالب‌ها و قابلیت‌های مورد نیاز آن سایت را انتخاب کنید. سیستم با ۱ کلیک یک افزونه مستقل وردپرسی (Standalone ZIP Plugin) کامپایل می‌کند که با بارگذاری آن در هاست مشتری، قالب‌ها خودکار در کتابخانه المنتور ثبت و تمام ویجت‌ها آماده استفاده می‌شوند (۱۰۰٪ بدون ری‌اکت و کاملاً سازگار با المنتور).
+                            اگر پروژه جدیدی برای مشتری (شرکتی، پزشکی، فروشگاهی، آموزشی، حقوقی یا آژانس) تحویل گرفته‌اید، پس از نصب وردپرس و المنتور خام، بدون نیاز به نصب کل اکوسیستم یا قالب‌های سنگین، دقیقاً ویجت‌ها، بلوک‌های گوتنبرگ، اسکیماهای CPT و قالب‌های مورد نیاز آن سایت را انتخاب کنید. سیستم با ۱ کلیک یک افزونه مستقل وردپرسی (Standalone ZIP Plugin) همراه با چک‌سام SHA-256 کامپایل می‌کند که با بارگذاری آن در هاست مشتری، قالب‌ها خودکار در کتابخانه المنتور ثبت و تمام ماژول‌ها آماده استفاده می‌شوند.
                         </p>
                     </div>
                     <div style="background:var(--uas-bg-card); border:1px solid var(--uas-border-color); padding:10px 16px; border-radius:12px; text-align:center;">
                         <span style="font-size:11px; color:var(--uas-text-muted); display:block;">موجودی قابل انتخاب</span>
-                        <strong style="font-size:16px; color:var(--uas-primary);"><?php echo count($all_kit_widgets); ?> ویجت + <?php echo count($all_kit_templates); ?> الگو</strong>
+                        <strong style="font-size:15px; color:var(--uas-primary);"><?php echo count($all_kit_widgets); ?> ویجت + <?php echo count($all_kit_blocks); ?> بلوک + <?php echo count($all_kit_templates); ?> الگو + <?php echo count($all_kit_cpts); ?> CPT</strong>
                     </div>
                 </div>
 
@@ -986,6 +989,53 @@ class Admin_Settings {
                                 <span style="font-size:10px; padding:2px 6px; border-radius:4px; color:#fff; background:<?php echo esc_attr($badge_color); ?>; flex-shrink:0;">
                                     <?php echo esc_html($tpl['type']); ?>
                                 </span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- SECTION C: SELECT GUTENBERG BLOCKS -->
+                <div style="margin-bottom:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                        <h3 style="font-size:15px; font-weight:800; color:var(--uas-text-main); margin:0;">
+                            🧱 ۳. انتخاب بلوک‌های بومی گوتنبرگ (<span id="uas-kit-blocks-selected-count"><?php echo count($all_kit_blocks); ?></span> از <?php echo count($all_kit_blocks); ?> انتخاب‌شده):
+                        </h3>
+                        <div style="display:flex; gap:8px;">
+                            <button type="button" id="uas-kit-select-all-blocks" class="button" style="font-size:11px; padding:2px 10px; height:auto;">انتخاب همه</button>
+                            <button type="button" id="uas-kit-deselect-all-blocks" class="button" style="font-size:11px; padding:2px 10px; height:auto;">عدم انتخاب همه</button>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px; padding:12px; background:var(--uas-bg-card); border:1px solid var(--uas-border-color); border-radius:10px;">
+                        <?php foreach ($all_kit_blocks as $b_slug => $b_data) : ?>
+                            <label style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 12px; border:1px solid var(--uas-border-color); border-radius:8px; background:var(--uas-bg-card-subtle); cursor:pointer; font-size:12px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <input type="checkbox" name="uas_kit_blocks[]" value="<?php echo esc_attr($b_slug); ?>" checked class="uas-kit-block-cb" style="accent-color:#6366f1; width:16px; height:16px;" />
+                                    <span style="font-weight:700; color:var(--uas-text-main);"><?php echo esc_html($b_data['title']); ?></span>
+                                </div>
+                                <span style="font-size:10px; padding:2px 6px; border-radius:4px; color:#4338ca; background:#e0e7ff;"><?php echo esc_html($b_data['badge']); ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- SECTION D: SELECT PORTABLE CPT SCHEMAS -->
+                <div style="margin-bottom:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                        <h3 style="font-size:15px; font-weight:800; color:var(--uas-text-main); margin:0;">
+                            🗂️ ۴. انتخاب اسکیمای پست‌تایپ‌های قابل حمل (<span id="uas-kit-cpts-selected-count"><?php echo count($all_kit_cpts); ?></span> از <?php echo count($all_kit_cpts); ?> انتخاب‌شده):
+                        </h3>
+                        <span style="font-size:11px; color:var(--uas-text-muted);">ثبت خودکار CPTها و تاکسونومی‌ها در سایت مقصد بدون حذف داده‌های قبلی</span>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; padding:12px; background:var(--uas-bg-card); border:1px solid var(--uas-border-color); border-radius:10px;">
+                        <?php foreach ($all_kit_cpts as $c_slug => $c_data) : ?>
+                            <label style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid var(--uas-border-color); border-radius:8px; background:var(--uas-bg-card-subtle); cursor:pointer; font-size:12px;">
+                                <input type="checkbox" name="uas_kit_cpts[]" value="<?php echo esc_attr($c_slug); ?>" checked class="uas-kit-cpt-cb" style="accent-color:#6366f1; width:16px; height:16px; margin-top:2px;" />
+                                <div>
+                                    <div style="font-weight:700; color:var(--uas-text-main);"><?php echo esc_html($c_data['title']); ?></div>
+                                    <div style="font-size:11px; color:var(--uas-text-muted); margin-top:2px;"><?php echo esc_html($c_data['description']); ?></div>
+                                </div>
                             </label>
                         <?php endforeach; ?>
                     </div>

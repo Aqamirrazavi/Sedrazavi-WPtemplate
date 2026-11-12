@@ -1,6 +1,6 @@
 <?php
 /**
- * SedRazavi Corporate Pro Child Theme Functions
+ * SedRazavi Corporate Pro Standalone Parent Theme Functions
  *
  * @package SedRazavi_Child_Corporate
  * @version 5.0.0

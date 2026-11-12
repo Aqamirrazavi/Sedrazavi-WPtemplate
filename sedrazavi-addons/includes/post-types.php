@@ -64,28 +64,32 @@ if (!function_exists('sedrazavi_addons_register_post_types')) {
             'not_found'             => esc_html__('پرونده‌ای یافت نشد', 'sedrazavi-addons'),
         );
         register_post_type('sedrazavi_case', array(
-            'labels'             => $case_labels,
-            'public'             => true,
-            'publicly_queryable' => true,
-            'show_ui'            => true,
-            'show_in_menu'       => true,
-            'menu_icon'          => 'dashicons-portfolio',
-            'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
-            'has_archive'        => true,
-            'rewrite'            => array('slug' => 'cases'),
-            'show_in_rest'       => true,
+            'labels'              => $case_labels,
+            'public'              => false,
+            'publicly_queryable'  => false,
+            'exclude_from_search' => true,
+            'show_ui'             => true,
+            'show_in_menu'        => true,
+            'show_in_nav_menus'   => false,
+            'menu_icon'           => 'dashicons-portfolio',
+            'supports'            => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
+            'has_archive'         => false,
+            'rewrite'             => false,
+            'query_var'           => false,
+            'show_in_rest'        => false,
         ));
 
         register_taxonomy('case_category', 'sedrazavi_case', array(
             'labels'            => array(
                 'name'          => esc_html__('حوزه دعاوی', 'sedrazavi-addons'),
-                'singular_name' => esc_html__('حوزه دعوی', 'sedrazavi-addons'),
+                'singular_name' => esc_html__('حوزه دعوی', 'sedrazavi'),
             ),
             'hierarchical'      => true,
+            'public'            => false,
             'show_ui'           => true,
             'show_admin_column' => true,
-            'rewrite'           => array('slug' => 'case-category'),
-            'show_in_rest'      => true,
+            'rewrite'           => false,
+            'show_in_rest'      => false,
         ));
 
         // ۳. پست‌تایپ نظرات و رضایت موکلان (Testimonials)
@@ -194,21 +198,33 @@ if (!function_exists('sedrazavi_addons_register_post_types')) {
             'all_items'             => esc_html__('همه نوبت‌های رزرو', 'sedrazavi-addons'),
         );
         register_post_type('sedrazavi_appointment', array(
-            'labels'             => $appointment_labels,
-            'public'             => false,
-            'show_ui'            => true,
-            'show_in_menu'       => true,
-            'menu_icon'          => 'dashicons-calendar-alt',
-            'supports'           => array('title', 'editor', 'custom-fields'),
-            'show_in_rest'       => true,
+            'labels'              => $appointment_labels,
+            'public'              => false,
+            'publicly_queryable'  => false,
+            'exclude_from_search' => true,
+            'show_ui'             => true,
+            'show_in_menu'        => true,
+            'show_in_nav_menus'   => false,
+            'has_archive'         => false,
+            'rewrite'             => false,
+            'query_var'           => false,
+            'menu_icon'           => 'dashicons-calendar-alt',
+            'supports'            => array('title', 'editor', 'custom-fields'),
+            'show_in_rest'        => false,
         ));
         register_post_type('sedrazavi_booking', array(
-            'labels'             => $appointment_labels,
-            'public'             => false,
-            'show_ui'            => false,
-            'show_in_menu'       => false,
-            'supports'           => array('title', 'editor', 'custom-fields'),
-            'show_in_rest'       => true,
+            'labels'              => $appointment_labels,
+            'public'              => false,
+            'publicly_queryable'  => false,
+            'exclude_from_search' => true,
+            'show_ui'             => false,
+            'show_in_menu'        => false,
+            'show_in_nav_menus'   => false,
+            'has_archive'         => false,
+            'rewrite'             => false,
+            'query_var'           => false,
+            'supports'            => array('title', 'editor', 'custom-fields'),
+            'show_in_rest'        => false,
         ));
     }
 }

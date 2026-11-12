@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      run_live_e2e:
+        description: 'Run live Docker WordPress + WP-CLI E2E suite (wp-live-e2e)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-and-package:
@@ -48,20 +54,47 @@ jobs:
           test -f wordpress-theme/template-podcast.php || { echo "Missing template-podcast.php"; exit 1; }
           echo "All theme, companion plugin, and Elementor multi-niche widgets are present and valid."
 
-      - name: Run Complete Test Suite
-        run: bun run test:all
+      - name: Convert Autonomous Standalone Themes & Sync Cockpit
+        run: node scripts/convert-to-standalone-themes.cjs
 
       - name: Create Production ZIP Packages
         run: |
-          mkdir -p release-artifacts
+          mkdir -p release-artifacts/themes
           node scripts/pack-theme-zips.cjs
-          cp -f *.zip release-artifacts/
+          cp -f public/*.zip release-artifacts/
+          cp -f public/themes/*.zip release-artifacts/themes/
           ls -la release-artifacts/
           echo "All ZIP artifacts built successfully with canonical WordPress directory structure."
+
+      - name: Run Complete Test Suite (Validating Fresh Built ZIPs)
+        run: bun run test:all
+
+      - name: Verify Distribution Checksums
+        run: sha256sum -c artifacts/evidence/v31.0.0/checksums.sha256
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: sedrazavi-production-suite
-          path: release-artifacts/*
+          path: release-artifacts/**/*
           retention-days: 30
+
+  wp-live-e2e:
+    name: Live WordPress + WP-CLI E2E Verification
+    needs: build-and-package
+    if: github.event_name == 'workflow_dispatch' && inputs.run_live_e2e == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Boot WordPress + MariaDB E2E Stack
+        run: docker compose -f docker-compose.test.yml up -d db wordpress
+
+      - name: Run WP-CLI Live E2E Verification Script
+        run: docker compose -f docker-compose.test.yml run --rm wpcli bash /scripts/wp-e2e-verify.sh
+
+      - name: Tear Down Test Stack
+        if: always()
+        run: docker compose -f docker-compose.test.yml down -v

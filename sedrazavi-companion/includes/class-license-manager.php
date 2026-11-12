@@ -53,7 +53,9 @@ class SedRazavi_License_Manager {
         register_rest_route('sedrazavi/v1', '/license/status', [
             'methods'             => 'GET',
             'callback'            => [$this, 'rest_get_license_status'],
-            'permission_callback' => '__return_true',
+            'permission_callback' => function() {
+                return current_user_can('manage_options');
+            },
         ]);
     }
 

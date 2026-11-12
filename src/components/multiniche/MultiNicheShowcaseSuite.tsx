@@ -66,7 +66,7 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
     },
     {
       orderId: 'ORD-1082',
-      courseTitle: 'معماری چایلدتم‌ها و سیستم‌های ضد تخریب گیت‌هاب',
+      courseTitle: 'معماری پوسته‌های مستقل و سیستم‌های ضد تخریب گیت‌هاب',
       licenseKey: 'SP-73C2-19EA-55D4',
       createdAt: '۱۴۰۳/۰۷/۲۰',
     },
@@ -146,7 +146,7 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
 
     setTimeout(() => {
       setImportProgress(40);
-      setImportLogs(prev => [...prev, 'دانلود و تطبیق ساختار چایلدتم متناظر...']);
+      setImportLogs(prev => [...prev, 'دانلود و تطبیق ساختار پوسته مستقل متناظر...']);
     }, 400);
 
     setTimeout(() => {
@@ -272,7 +272,7 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300">
-                  چایلدتم فعال فعلی: <strong className="text-emerald-400 font-sans">{importedActiveTheme}</strong>
+                  پوسته مستقل فعال فعلی: <strong className="text-emerald-400 font-sans">{importedActiveTheme}</strong>
                 </span>
               </div>
             </div>
@@ -637,7 +637,7 @@ export const MultiNicheShowcaseSuite: React.FC<MultiNicheShowcaseSuiteProps> = (
                         <span>•</span>
                         <span>حجم: ۴۸.۵ مگابایت</span>
                         <span>•</span>
-                        <span>شامل ۴ چایلدتم + افزونه همراه</span>
+                        <span>شامل ۸ پوسته مستقل + افزونه‌های همراه</span>
                       </div>
                     </div>
                   </div>

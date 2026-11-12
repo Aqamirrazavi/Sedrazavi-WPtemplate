@@ -70,7 +70,7 @@
       var $btn = $(this);
       var $status = $('#uas-reimport-status');
 
-      $btn.prop('disabled', true).text('در حال درون‌ریزی ۳۰ قالب آماده...');
+      $btn.prop('disabled', true).text('در حال درون‌ریزی ۳۳ قالب آماده...');
       $status.removeClass('notice-error notice-success').addClass('notice notice-info').html('<p>در حال بارگذاری فایل‌های JSON و ثبت در کتابخانه المنتور...</p>').show();
 
       $.ajax({
@@ -81,7 +81,7 @@
           nonce: uasAdminVars.nonce
         },
         success: function(response) {
-          $btn.prop('disabled', false).text('همگام‌سازی تمامی ۳۰ قالب');
+          $btn.prop('disabled', false).text('همگام‌سازی تمامی ۳۳ قالب');
           if (response.success) {
             $status.removeClass('notice-info').addClass('notice notice-success').html(
               '<p><strong>عملیات موفق!</strong> تمامی قالب‌ها و تم‌بیلدر با موفقیت درون‌ریزی شدند. (ایمپورت‌شده: ' + response.data.imported + ' | از پیش موجود: ' + response.data.skipped + ')</p>'
@@ -93,7 +93,7 @@
           }
         },
         error: function() {
-          $btn.prop('disabled', false).text('همگام‌سازی تمامی ۳۰ قالب');
+          $btn.prop('disabled', false).text('همگام‌سازی تمامی ۳۳ قالب');
           $status.removeClass('notice-info').addClass('notice notice-error').html('<p>خطا در برقراری ارتباط با سرور.</p>');
         }
       });
@@ -153,9 +153,15 @@
 
       var tCount = $('.uas-kit-template-cb:checked').length;
       $('#uas-kit-templates-selected-count').text(tCount);
+
+      var bCount = $('.uas-kit-block-cb:checked').length;
+      $('#uas-kit-blocks-selected-count').text(bCount);
+
+      var cCount = $('.uas-kit-cpt-cb:checked').length;
+      $('#uas-kit-cpts-selected-count').text(cCount);
     }
 
-    $(document).on('change', '.uas-kit-widget-cb, .uas-kit-template-cb', function() {
+    $(document).on('change', '.uas-kit-widget-cb, .uas-kit-template-cb, .uas-kit-block-cb, .uas-kit-cpt-cb', function() {
       updateKitCounters();
     });
 
@@ -183,6 +189,18 @@
       updateKitCounters();
     });
 
+    $('#uas-kit-select-all-blocks').on('click', function(e) {
+      e.preventDefault();
+      $('.uas-kit-block-cb').prop('checked', true);
+      updateKitCounters();
+    });
+
+    $('#uas-kit-deselect-all-blocks').on('click', function(e) {
+      e.preventDefault();
+      $('.uas-kit-block-cb').prop('checked', false);
+      updateKitCounters();
+    });
+
     $('#uas-btn-build-custom-bundle').on('click', function(e) {
       e.preventDefault();
       var $btn = $(this);
@@ -204,8 +222,18 @@
         selectedTemplates.push($(this).val());
       });
 
-      if (selectedWidgets.length === 0 && selectedTemplates.length === 0) {
-        alert('لطفاً حداقل یک ویجت یا یک الگوی آماده را برای بسته سفارشی انتخاب فرمایید.');
+      var selectedBlocks = [];
+      $('.uas-kit-block-cb:checked').each(function() {
+        selectedBlocks.push($(this).val());
+      });
+
+      var selectedCpts = [];
+      $('.uas-kit-cpt-cb:checked').each(function() {
+        selectedCpts.push($(this).val());
+      });
+
+      if (selectedWidgets.length === 0 && selectedTemplates.length === 0 && selectedBlocks.length === 0 && selectedCpts.length === 0) {
+        alert('لطفاً حداقل یک ویجت، بلوک، CPT یا الگوی آماده را برای بسته سفارشی انتخاب فرمایید.');
         return;
       }
 
@@ -217,7 +245,7 @@
         '<span class="spinner is-active" style="float:none; margin:0;"></span>' +
         '<strong style="color:var(--uas-primary); font-size:13px;">سیستم در حال بسته‌بندی افزونه مستقل...</strong>' +
         '</div>' +
-        '<p style="font-size:12px; color:var(--uas-text-muted); margin:0;">در حال جمع‌آوری ویجت‌های انتخاب‌شده (' + selectedWidgets.length + ')، الگوهای JSON (' + selectedTemplates.length + ') و تولید فایل‌های بارگذار خودکار وردپرس...</p>' +
+        '<p style="font-size:12px; color:var(--uas-text-muted); margin:0;">در حال جمع‌آوری ویجت‌ها (' + selectedWidgets.length + ')، بلوک‌ها (' + selectedBlocks.length + ')، CPTها (' + selectedCpts.length + ')، الگوهای JSON (' + selectedTemplates.length + ') و محاسبه چک‌سام SHA-256...</p>' +
         '</div>'
       );
 
@@ -233,7 +261,9 @@
           include_theme_bridge: themeBridge,
           include_query_engine: queryEngine,
           widgets: selectedWidgets,
-          templates: selectedTemplates
+          templates: selectedTemplates,
+          blocks: selectedBlocks,
+          cpts: selectedCpts
         },
         success: function(response) {
           $btn.prop('disabled', false).html(originalBtnText);
@@ -247,8 +277,11 @@
               '<div style="display:flex; flex-wrap:wrap; gap:12px; font-size:12px; color:#334155;">' +
               '<span>📦 <strong>نام فایل:</strong> <code>' + data.filename + '</code></span>' +
               '<span>⚖️ <strong>حجم بسته:</strong> ' + data.filesize + '</span>' +
-              '<span>🧩 <strong>تعداد ویجت‌ها:</strong> ' + data.widgets_count + '</span>' +
-              '<span>📐 <strong>تعداد قالب‌ها:</strong> ' + data.templates_count + '</span>' +
+              '<span>🧩 <strong>ویجت‌ها:</strong> ' + data.widgets_count + '</span>' +
+              '<span>🧱 <strong>بلوک‌ها:</strong> ' + (data.blocks_count || 0) + '</span>' +
+              '<span>🗂️ <strong>CPTها:</strong> ' + (data.cpts_count || 0) + '</span>' +
+              '<span>📐 <strong>قالب‌ها:</strong> ' + data.templates_count + '</span>' +
+              '<span>🔐 <strong>چک‌سام فایل‌ها:</strong> ' + (data.checksums_count || 0) + ' SHA-256</span>' +
               '</div>' +
               '</div>' +
               '<a href="' + data.zip_url + '" download class="button button-primary" style="padding:8px 20px; font-size:13px; font-weight:700; height:auto; background:#10b981; border-color:#059669; display:inline-flex; align-items:center; gap:6px;">' +

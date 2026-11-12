@@ -1,6 +1,6 @@
 <?php
 /**
- * SedRazavi News & Editorial Child Theme Functions
+ * SedRazavi News & Editorial Standalone Parent Theme Functions
  *
  * @package SedRazavi_Child_News
  * @version 6.0.0

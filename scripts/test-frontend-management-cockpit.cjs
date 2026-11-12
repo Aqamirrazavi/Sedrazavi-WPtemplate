@@ -212,6 +212,94 @@ assert(
 );
 
 // -------------------------------------------------------------
+// Test Group 8: Site Kit Rollback & Bulk CSV User Import/Export
+// -------------------------------------------------------------
+console.log('\n🔍 Test Group 8: Site Kit Rollback & Bulk CSV User Import/Export');
+
+assert(
+  engineCode.includes("add_action('wp_ajax_sr_cockpit_bulk_import_users'") &&
+  engineCode.includes("add_action('wp_ajax_sr_cockpit_export_users_csv'") &&
+  engineCode.includes("add_action('wp_ajax_sr_cockpit_rollback_sitekit'"),
+  'AJAX actions for bulk CSV user import, CSV export, and Site Kit rollback are registered'
+);
+
+assert(
+  engineCode.includes('rollback_package_installation($slug)'),
+  'Site Kit rollback AJAX delegates directly to Package_Manager::rollback_package_installation()'
+);
+
+assert(
+  engineCode.includes('id="sr-btn-export-users-csv"') &&
+  engineCode.includes('id="sr-btn-open-bulk-users"') &&
+  engineCode.includes('id="sr-bulk-users-modal"') &&
+  engineCode.includes('id="sr-btn-sitekit-rollback"'),
+  'Cockpit UI renders Bulk CSV import modal, CSV export button, and Site Kit rollback button'
+);
+
+assert(
+  jsContent.includes('sr_cockpit_bulk_import_users') &&
+  jsContent.includes('sr_cockpit_export_users_csv') &&
+  jsContent.includes('sr_cockpit_rollback_sitekit'),
+  'JavaScript wires Bulk CSV import, CSV export download, and Site Kit rollback actions'
+);
+
+assert(
+  cssContent.includes('.sr-btn-danger') &&
+  cssContent.includes('.sr-panel-actions') &&
+  cssContent.includes('.sr-bulk-textarea'),
+  'CSS styles all Bulk CSV and Site Kit rollback cockpit elements'
+);
+
+// -------------------------------------------------------------
+// Test Group 9: Phase 2 DB Parity (CPT Edit Hydration, Site Settings & Gutenberg/CPT Site Kit)
+// -------------------------------------------------------------
+console.log('\n🔍 Test Group 9: Phase 2 DB Parity, Site Settings & Gutenberg/CPT Site Kit');
+
+assert(
+  engineCode.includes("add_action('wp_ajax_sr_cockpit_get_cpt_data'") &&
+  engineCode.includes('function ajax_get_cpt_data()') &&
+  engineCode.includes('sr-btn-edit-cpt'),
+  'CPT edit hydration endpoint ajax_get_cpt_data and .sr-btn-edit-cpt action are implemented'
+);
+
+assert(
+  engineCode.includes("add_action('wp_ajax_sr_cockpit_save_site_settings'") &&
+  engineCode.includes('function ajax_save_site_settings()') &&
+  engineCode.includes('id="tab-settings"') &&
+  engineCode.includes('id="sr-site-settings-form"'),
+  'Site Settings tab and AJAX persistence handler (wp_options + theme_mods) are wired'
+);
+
+assert(
+  engineCode.includes('sr-sitekit-block-cb') &&
+  engineCode.includes('sr-sitekit-cpt-cb') &&
+  engineCode.includes('id="sr-sitekit-block-count"') &&
+  engineCode.includes('id="sr-sitekit-cpt-count"'),
+  'Visual Site Kit Builder exposes granular Gutenberg block and CPT schema selectors + counters'
+);
+
+assert(
+  engineCode.includes("sr_cockpit_deployed_kits") &&
+  engineCode.includes('sr-deployed-kits-list'),
+  'Site Kit installation and rollback persist deployed kit ledger in wp_options (sr_cockpit_deployed_kits)'
+);
+
+assert(
+  jsContent.includes('sr_cockpit_get_cpt_data') &&
+  jsContent.includes('sr_cockpit_save_site_settings') &&
+  jsContent.includes('getSelectedBlocks') &&
+  jsContent.includes('getSelectedCpts'),
+  'Frontend Cockpit JS wires CPT edit hydration, Site Settings persistence, and Gutenberg/CPT payload submission'
+);
+
+assert(
+  cssContent.includes('.sr-btn-edit') &&
+  cssContent.includes('.sr-settings-grid') &&
+  cssContent.includes('.sr-deployed-kits-list'),
+  'Cockpit CSS defines styles for CPT edit controls, settings grid, and deployed kits ledger'
+);
+
+// -------------------------------------------------------------
 // Test Summary
 // -------------------------------------------------------------
 console.log('\n========================================================================');

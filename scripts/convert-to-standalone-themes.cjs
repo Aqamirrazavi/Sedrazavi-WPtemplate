@@ -12,7 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const themesRoot = path.join(__dirname, '../wordpress-theme/child-themes');
+const legacyThemesRoot = path.join(__dirname, '../wordpress-theme/child-themes');
 const targetStandaloneDir = path.join(__dirname, '../standalone-themes');
 if (!fs.existsSync(targetStandaloneDir)) {
   fs.mkdirSync(targetStandaloneDir, { recursive: true });
@@ -86,12 +86,19 @@ const themeConfigs = [
 ];
 
 themeConfigs.forEach(cfg => {
-  const dirPath = path.join(themesRoot, cfg.folder);
-  if (!fs.existsSync(dirPath)) return;
+  const dirPath = path.join(targetStandaloneDir, cfg.standaloneSlug);
+  const legacyDirPath = path.join(legacyThemesRoot, cfg.folder);
+  if (!fs.existsSync(dirPath)) {
+    if (fs.existsSync(legacyDirPath)) {
+      fs.cpSync(legacyDirPath, dirPath, { recursive: true });
+    } else {
+      return;
+    }
+  }
 
-  console.log(`Processing Standalone Theme: ${cfg.name}...`);
+  console.log(`Synchronizing Canonical Standalone Theme: ${cfg.name}...`);
 
-  // 1. Update style.css - Remove Template: line
+  // 1. Update style.css in standalone-themes/ - Ensure zero Template: line
   const stylePath = path.join(dirPath, 'style.css');
   let styleContent = fs.readFileSync(stylePath, 'utf8');
 
@@ -262,17 +269,52 @@ if (file_exists(get_template_directory() . '/inc/frontend-cockpit-engine.php')) 
 `;
   }
 
+  // Clean any legacy 'Child Theme' comments in style.css and functions.php
+  styleContent = styleContent.replace(/Child Theme/gi, 'Standalone Parent Theme');
+  fs.writeFileSync(stylePath, styleContent);
+
+  funcContent = funcContent.replace(/Child Theme/gi, 'Standalone Parent Theme');
   fs.writeFileSync(functionsPath, funcContent);
 
-  // Also duplicate to standalone-themes/ directory for dedicated root export
-  const standaloneDest = path.join(targetStandaloneDir, cfg.standaloneSlug);
-  if (!fs.existsSync(standaloneDest)) {
-    fs.mkdirSync(standaloneDest, { recursive: true });
-  }
+  // Embed Universal Frontend Cockpit files directly into canonical standalone theme
+  const wpThemeRoot = path.join(__dirname, '../wordpress-theme');
+  const cockpitFiles = [
+    { src: 'inc/frontend-cockpit-engine.php', dest: 'inc/frontend-cockpit-engine.php' },
+    { src: 'page-frontend-cockpit.php', dest: 'page-frontend-cockpit.php' },
+    { src: 'assets/css/frontend-cockpit.css', dest: 'assets/css/frontend-cockpit.css' },
+    { src: 'assets/js/frontend-cockpit.js', dest: 'assets/js/frontend-cockpit.js' },
+  ];
 
-  // Copy files to standalone-themes/
-  fs.cpSync(dirPath, standaloneDest, { recursive: true });
-  console.log(`✅ ${cfg.name} converted to 100% standalone parent theme!`);
+  cockpitFiles.forEach(cf => {
+    const srcPath = path.join(wpThemeRoot, cf.src);
+    const destPath = path.join(dirPath, cf.dest);
+    if (fs.existsSync(srcPath)) {
+      fs.mkdirSync(path.dirname(destPath), { recursive: true });
+      fs.copyFileSync(srcPath, destPath);
+    }
+  });
+
+  console.log(`✅ ${cfg.name} synchronized & equipped with self-contained Frontend Cockpit!`);
 });
+
+// Also sync Frontend Cockpit files to sedrazavi-designer-theme
+const wpThemeRoot = path.join(__dirname, '../wordpress-theme');
+const designerThemeDir = path.join(__dirname, '../sedrazavi-designer-theme');
+if (fs.existsSync(designerThemeDir)) {
+  [
+    'inc/frontend-cockpit-engine.php',
+    'page-frontend-cockpit.php',
+    'assets/css/frontend-cockpit.css',
+    'assets/js/frontend-cockpit.js',
+  ].forEach(rel => {
+    const srcPath = path.join(wpThemeRoot, rel);
+    const destPath = path.join(designerThemeDir, rel);
+    if (fs.existsSync(srcPath)) {
+      fs.mkdirSync(path.dirname(destPath), { recursive: true });
+      fs.copyFileSync(srcPath, destPath);
+    }
+  });
+  console.log('✅ Frontend Cockpit synced to sedrazavi-designer-theme!');
+}
 
 console.log('\n🎉 ALL 8 VERTICAL THEMES CONVERTED TO 100% AUTONOMOUS STANDALONE PARENT THEMES!');

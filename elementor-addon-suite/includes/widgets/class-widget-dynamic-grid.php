@@ -109,8 +109,29 @@ class Universal_Dynamic_Grid_Widget extends Universal_Widget_Base {
         ];
 
         $cache_ttl = intval($settings['query_cache_ttl'] ?? 3600);
-        $result = Dynamic_Query_Engine::instance()->execute_query($query_args, $cache_ttl);
-        $posts  = $result['posts'] ?? [];
+        if (class_exists('\UniversalElementorSuite\Dynamic_Query_Engine')) {
+            $result = Dynamic_Query_Engine::instance()->execute_query($query_args, $cache_ttl);
+            $posts  = $result['posts'] ?? [];
+        } else {
+            $posts = [];
+            $wp_q = new \WP_Query(array_merge($query_args, ['post_status' => 'publish', 'ignore_sticky_posts' => true]));
+            if ($wp_q->have_posts()) {
+                while ($wp_q->have_posts()) {
+                    $wp_q->the_post();
+                    $cats = get_the_category();
+                    $posts[] = [
+                        'title'     => get_the_title(),
+                        'permalink' => get_permalink(),
+                        'thumbnail' => get_the_post_thumbnail_url(get_the_ID(), 'medium_large') ?: '',
+                        'category'  => !empty($cats) ? $cats[0]->name : '',
+                        'date'      => get_the_date('Y/m/d'),
+                        'author'    => get_the_author(),
+                        'excerpt'   => wp_trim_words(get_the_excerpt(), 22),
+                    ];
+                }
+                wp_reset_postdata();
+            }
+        }
         $btn_label = esc_html($settings['btn_text'] ?? 'مشاهده');
         ?>
         <div class="uas-dynamic-grid-container uas-widget-container" dir="rtl">

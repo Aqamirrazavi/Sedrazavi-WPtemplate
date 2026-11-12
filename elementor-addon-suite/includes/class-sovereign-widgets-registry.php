@@ -6,9 +6,11 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Sovereign Widgets & Blocks Registry (66+ Suite)
- * Handles registration of 72+ Elementor widgets, Gutenberg block equivalents,
- * standalone shortcodes, and REST API catalog.
+ * Sovereign Shortcode Presets & Design Asset Registry
+ *
+ * Publishes the unified inventory across 31 native Elementor Widget_Base classes,
+ * 7 native Gutenberg blocks, 33 JSON Elementor templates, and 72 shortcode design presets
+ * + 66-preset design banks without inflating Elementor class counts.
  *
  * @package Universal_Elementor_Suite
  * @author Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)
@@ -37,14 +39,14 @@ class Sovereign_Widgets_Registry {
         $elements_manager->add_category(
             'sedrazavi-sovereign-suite',
             [
-                'title' => esc_html__('👑 جعبه ابزار ۶۶گانه سید رضوی (Sovereign 66+ Suite)', 'universal-elementor-suite'),
+                'title' => esc_html__('جعبه ابزار طراحی سید رضوی (Sovereign Suite)', 'universal-elementor-suite'),
                 'icon'  => 'fa fa-crown',
             ]
         );
     }
 
     /**
-     * Register REST API routes
+     * Register read-only public catalog REST API routes (no PII or configuration state).
      */
     public function register_rest_routes() {
         register_rest_route('sedrazavi/v1', '/widgets-bank', [
@@ -60,54 +62,102 @@ class Sovereign_Widgets_Registry {
     }
 
     /**
-     * REST Handler for widgets bank
+     * Resolve actual native Elementor Widget_Base classes from Plugin::get_widgets_map()
+     *
+     * @return array
+     */
+    public function get_verified_elementor_widgets() {
+        if (!class_exists('\UniversalElementorSuite\Plugin')) {
+            require_once UAS_PATH . 'includes/class-plugin.php';
+        }
+        if (class_exists('\UniversalElementorSuite\Plugin') && method_exists('\UniversalElementorSuite\Plugin', 'get_widgets_map')) {
+            return Plugin::get_widgets_map();
+        }
+        return [];
+    }
+
+    /**
+     * REST Handler for widgets & shortcode presets bank
      */
     public function rest_get_widgets_bank($request) {
-        $widgets = $this->get_widgets_catalog();
+        $shortcode_presets = $this->get_widgets_catalog();
+        $elementor_widgets = $this->get_verified_elementor_widgets();
+
         return rest_ensure_response([
-            'success' => true,
-            'total'   => count($widgets),
-            'widgets' => $widgets,
+            'success'                 => true,
+            'elementor_widgets_count' => count($elementor_widgets),
+            'elementor_widgets'       => array_keys($elementor_widgets),
+            'gutenberg_blocks_count'  => 7,
+            'templates_count'         => 33,
+            'shortcode_presets_count' => count($shortcode_presets),
+            'total'                   => count($shortcode_presets),
+            'widgets'                 => $shortcode_presets,
         ]);
     }
 
     /**
-     * REST Handler for sovereign assets bank (66 Dividers, 66 Badges, 66 Sections, 66 Motions)
+     * REST Handler for unified sovereign assets bank
      */
     public function rest_get_assets_bank($request) {
+        $elementor_count = count($this->get_verified_elementor_widgets());
+        $shortcode_count = count($this->get_widgets_catalog());
+
         return rest_ensure_response([
             'success'   => true,
             'architect' => 'Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)',
-            'suite'     => 'Sovereign 66+ Design Assets',
+            'suite'     => 'SedRazavi Unified Design & Widget Inventory',
             'banks'     => [
-                'vector_backgrounds' => [
-                    'count' => 66,
-                    'endpoint' => '/sedrazavi/v1/patterns',
-                    'desc'  => '۶۶ مدل پترن وکتور پس‌زمینه ثابت و متحرک (Zero-CPU & GPU-Accelerated)',
-                ],
-                'widgets_and_blocks' => [
-                    'count' => 72,
+                'elementor_widgets' => [
+                    'count'    => $elementor_count,
                     'endpoint' => '/sedrazavi/v1/widgets-bank',
-                    'desc'  => '۷۲ ویجت المنتور و بلوک گوتنبرگ در ۱۲ دپارتمان تخصصی',
+                    'desc'     => 'ویجت‌های بومی واقعی Elementor\\Widget_Base با کنترل‌های Content و Style',
                 ],
-                'shape_dividers'     => [
+                'gutenberg_blocks' => [
+                    'count' => 7,
+                    'desc'  => 'بلوک‌های بومی ثبت‌شده در گوتنبرگ',
+                ],
+                'elementor_templates' => [
+                    'count' => 33,
+                    'desc'  => 'تمپلیت‌های واقعی JSON المنتور (۳۰ کانتینری و تم‌بیلدر + ۳ پاپ‌آپ)',
+                ],
+                'shortcode_presets' => [
+                    'count'    => $shortcode_count,
+                    'endpoint' => '/sedrazavi/v1/widgets-bank',
+                    'desc'     => '۷۲ شورت‌کد پریست طراحی در ۱۲ دپارتمان تخصصی (شورت‌کد مستقل)',
+                ],
+                'vector_backgrounds' => [
+                    'count'    => 66,
+                    'endpoint' => '/sedrazavi/v1/patterns',
+                    'desc'     => '۶۶ مدل پترن وکتور پس‌زمینه ثابت و متحرک',
+                ],
+                'shape_dividers' => [
                     'count' => 66,
                     'desc'  => '۶۶ مدل دیوایدر و کانتینر برش SVG اختصاصی',
                 ],
-                'trust_badges'       => [
+                'trust_badges' => [
                     'count' => 66,
                     'desc'  => '۶۶ نشان، مهر اعتبار، مدال و گواهی اعتماد',
                 ],
                 'section_blueprints' => [
                     'count' => 66,
-                    'desc'  => '۶۶ بلوپرینت و ساختار آماده سکشن‌ها و بنرهای مدرن',
+                    'desc'  => '۶۶ بلوپرینت و ساختار آماده سکشن‌ها',
                 ],
-                'motion_presets'     => [
+                'motion_presets' => [
                     'count' => 66,
-                    'desc'  => '۶۶ پریست انیمیشن و موشن برای المنتور و CSS3',
+                    'desc'  => '۶۶ پریست انیمیشن و موشن CSS3',
+                ],
+                'svg_icons' => [
+                    'count'    => 66,
+                    'endpoint' => '/sedrazavi/v1/icons-bank',
+                    'desc'     => '۶۶ آیکون وکتور خطی Zero-CDN',
                 ],
             ],
-            'total_assets' => 66 + 72 + 66 + 66 + 66 + 66, // 402 sovereign assets
+            'verified_core_totals' => [
+                'elementor_widgets'   => $elementor_count,
+                'elementor_templates' => 33,
+                'gutenberg_blocks'    => 7,
+                'shortcode_presets'   => $shortcode_count,
+            ],
         ]);
     }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Child Theme Functions & Definitions
+ * Standalone Parent Theme Functions & Definitions
  *
  * @package SedRazavi_Lawyer_Child
  */

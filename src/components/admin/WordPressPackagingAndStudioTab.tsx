@@ -150,30 +150,57 @@ Ready for direct ZIP installation in wp-admin -> Appearance -> Themes -> Add New
       pluginFolder.file('includes/realtime-notification-engine.php', `<?php
 /**
  * Real-Time Notification & Lead Alert Engine
- * Handles instant alerts, database queue, and Webhook/Audio chime dispatch
+ * Handles instant alerts, database queue, and validated lead capture with rate limiting
  */
 if (!defined('ABSPATH')) exit;
 
 add_action('rest_api_init', function () {
     register_rest_route('sedrazavi/v1', '/leads/submit', [
-        'methods' => 'POST',
-        'callback' => 'sedrazavi_handle_lead_submission',
-        'permission_callback' => '__return_true',
+        'methods'             => 'POST',
+        'callback'            => 'sedrazavi_handle_lead_submission',
+        'permission_callback' => 'sedrazavi_verify_public_lead_request',
+        'args'                => [
+            'clientName' => ['required' => true, 'type' => 'string'],
+            'phone'      => ['required' => true, 'type' => 'string'],
+            'subject'    => ['required' => false, 'type' => 'string'],
+        ],
     ]);
 });
 
+function sedrazavi_verify_public_lead_request($request) {
+    $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : 'unknown';
+    $rate_key = 'sr_lead_rate_' . md5($ip);
+    $count = (int) get_transient($rate_key);
+    if ($count >= 10) {
+        return new WP_Error('rate_limited', 'تعداد درخواست‌های ثبت شده بیش از حد مجاز است.', ['status' => 429]);
+    }
+    set_transient($rate_key, $count + 1, 300);
+    $honeypot = (string) $request->get_param('_hp_website');
+    if ($honeypot !== '') {
+        return new WP_Error('spam_detected', 'درخواست نامعتبر است.', ['status' => 403]);
+    }
+    return true;
+}
+
 function sedrazavi_handle_lead_submission($request) {
-    $params = $request->get_json_params();
-    $name = sanitize_text_field($params['clientName'] ?? 'مراجع جدید');
-    $phone = sanitize_text_field($params['phone'] ?? '');
+    $params  = $request->get_json_params() ?: $request->get_params();
+    $name    = sanitize_text_field($params['clientName'] ?? '');
+    $phone   = preg_replace('/[^0-9+]/', '', (string) ($params['phone'] ?? ''));
     $subject = sanitize_text_field($params['subject'] ?? 'درخواست جدید');
 
-    // Save as CPT or Option Queue
+    if (empty($name) || strlen($phone) < 7) {
+        return new WP_Error('invalid_payload', 'نام و شماره تماس معتبر الزامی است.', ['status' => 400]);
+    }
+
+    // Store as private confidential lead record (never publicly exposed)
     $post_id = wp_insert_post([
-        'post_title' => $name . ' - ' . $subject,
-        'post_type' => 'sedrazavi_lead',
-        'post_status' => 'publish'
+        'post_title'  => $name . ' - ' . $subject,
+        'post_type'   => 'sedrazavi_lead',
+        'post_status' => 'private'
     ]);
+    if (is_wp_error($post_id) || !$post_id) {
+        return new WP_Error('insert_failed', 'خطا در ثبت اطلاعات.', ['status' => 500]);
+    }
     update_post_meta($post_id, '_client_phone', $phone);
     update_post_meta($post_id, '_created_at', current_time('mysql'));
 
@@ -193,25 +220,24 @@ function sedrazavi_handle_lead_submission($request) {
     }
   };
 
-  // 3. Generate & Download Custom Child-Theme ZIP
+  // 3. Generate & Download Custom Standalone Parent Theme ZIP (Zero Child-Theme Lock-in)
   const handleDownloadChildThemeZip = async () => {
     setIsZipping(true);
-    setDownloadProgressMessage(`در حال ساخت چایلد‌تم مستقل برای صنف «${industryName}»...`);
+    setDownloadProgressMessage(`در حال ساخت پوسته کاملاً مستقل برای صنف «${industryName}»...`);
     try {
       const zip = new JSZip();
-      const childFolderName = `sedrazavi-child-${industrySlug}`;
-      const childFolder = zip.folder(childFolderName) || zip;
+      const standaloneFolderName = `sedrazavi-standalone-${industrySlug}`;
+      const themeFolder = zip.folder(standaloneFolderName) || zip;
 
-      // style.css for Child Theme
+      // style.css for Autonomous Standalone Theme (NO Template: header)
       const styleCss = `/*
-Theme Name: SedRazavi Child - ${industryName}
+Theme Name: SedRazavi Standalone - ${industryName}
 Theme URI: https://sedrazavi.ir/themes/${industrySlug}
-Description: پوسته فرزند اختصاصی برای صنف ${industryName} برگرفته از هسته چندمنظوره SedRazavi.
-Author: SedRazavi Architecture Engine
+Description: پوسته کاملاً مستقل (بدون نیاز به پوسته والد یا چایلدتم) اختصاصی برای صنف ${industryName}.
+Author: Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)
 Author URI: https://sedrazavi.ir/
-Template: sedrazavi-theme
-Version: 1.0.0
-Text Domain: sedrazavi-child-${industrySlug}
+Version: 6.0.0
+Text Domain: ${standaloneFolderName}
 */
 
 :root {
@@ -224,20 +250,31 @@ body.industry-${industrySlug} {
   --accent-color: ${primaryColor};
 }
 `;
-      childFolder.file('style.css', styleCss);
+      themeFolder.file('style.css', styleCss);
 
-      // functions.php for Child Theme
+      // Autonomous Template Hierarchy
+      themeFolder.file('header.php', `<!DOCTYPE html><html <?php language_attributes(); ?> dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>"><head><meta charset="<?php bloginfo('charset'); ?>"><meta name="viewport" content="width=device-width, initial-scale=1.0"><?php wp_head(); ?></head><body <?php body_class('industry-${industrySlug}'); ?>><?php wp_body_open(); ?>`);
+      themeFolder.file('footer.php', `<?php wp_footer(); ?></body></html>`);
+      themeFolder.file('index.php', `<?php get_header(); ?><main class="site-main"><?php if (have_posts()) : while (have_posts()) : the_post(); the_content(); endwhile; endif; ?></main><?php get_footer(); ?>`);
+      themeFolder.file('page.php', `<?php get_header(); ?><main class="site-main"><?php while (have_posts()) : the_post(); the_content(); endwhile; ?></main><?php get_footer(); ?>`);
+      themeFolder.file('single.php', `<?php get_header(); ?><main class="site-main"><?php while (have_posts()) : the_post(); the_title('<h1>','</h1>'); the_content(); endwhile; ?></main><?php get_footer(); ?>`);
+
+      // functions.php for Autonomous Standalone Theme
       const functionsPhp = `<?php
 /**
- * SedRazavi Child Theme Functions for: ${industryName}
+ * SedRazavi Standalone Theme Functions for: ${industryName}
  */
 if (!defined('ABSPATH')) exit;
 
-add_action('wp_enqueue_scripts', 'sedrazavi_child_enqueue_styles');
-function sedrazavi_child_enqueue_styles() {
-    wp_enqueue_style('sedrazavi-parent-style', get_template_directory_uri() . '/style.css');
-    wp_enqueue_style('sedrazavi-child-style', get_stylesheet_uri(), array('sedrazavi-parent-style'));
-}
+add_action('wp_enqueue_scripts', function() {
+    wp_enqueue_style('${standaloneFolderName}-style', get_stylesheet_uri(), array(), '6.0.0');
+});
+
+add_action('after_setup_theme', function() {
+    add_theme_support('title-tag');
+    add_theme_support('post-thumbnails');
+    add_theme_support('html5', array('search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script'));
+});
 
 // Industry Custom Meta & Configuration
 add_filter('sedrazavi_active_preset_config', function($config) {
@@ -256,7 +293,7 @@ add_filter('sedrazavi_active_preset_config', function($config) {
     );
 });
 `;
-      childFolder.file('functions.php', functionsPhp);
+      themeFolder.file('functions.php', functionsPhp);
 
       // industry-config.json for easy import/export
       const configJson = {
@@ -271,24 +308,25 @@ add_filter('sedrazavi_active_preset_config', function($config) {
           inquiry: inquiryLabel
         },
         enabled_blocks: enabledBlocks,
+        standalone: true,
         exported_at: new Date().toISOString()
       };
-      childFolder.file('industry-config.json', JSON.stringify(configJson, null, 2));
+      themeFolder.file('industry-config.json', JSON.stringify(configJson, null, 2));
 
       // README instructions
-      childFolder.file('README.txt', `=== SedRazavi Child Theme: ${industryName} ===
+      themeFolder.file('README.txt', `=== SedRazavi Standalone Theme: ${industryName} ===
 نحوه نصب:
-۱. ابتدا پوسته اصلی sedrazavi-theme.zip را نصب فرمایید.
-۲. سپس این فایل زیپ (${childFolderName}.zip) را در مسیر «پیشخوان وردپرس -> نمایش -> پوسته‌ها -> افزودن -> بارگذاری پوسته» نصب و فعال نمایید.
-۳. تمام تغییرات، رنگ‌ها و واژگان اختصاصی صنف ${industryName} بدون نیاز به تغییر هسته فعال خواهد شد.`);
+۱. این پوسته ۱۰۰٪ مستقل است و به هیچ پوسته والد یا چایلدتم دیگری نیاز ندارد.
+۲. کافیست فایل زیپ (${standaloneFolderName}.zip) را مستقیماً از مسیر «پیشخوان وردپرس -> نمایش -> پوسته‌ها -> افزودن -> بارگذاری پوسته» نصب و فعال نمایید.
+۳. تمام رنگ‌ها، چیدمان و واژگان اختصاصی صنف ${industryName} بلافاصله فعال خواهد شد.`);
 
       const blob = await zip.generateAsync({ type: 'blob' });
-      triggerZipDownload(blob, `${childFolderName}.zip`);
-      setDownloadProgressMessage(`پکیج چایلد‌تم اختصاصی (${childFolderName}.zip) آماده و دانلود گردید.`);
+      triggerZipDownload(blob, `${standaloneFolderName}.zip`);
+      setDownloadProgressMessage(`پکیج پوسته مستقل اختصاصی (${standaloneFolderName}.zip) آماده و دانلود گردید.`);
       setTimeout(() => setDownloadProgressMessage(null), 5000);
     } catch (err) {
       console.error(err);
-      setDownloadProgressMessage('خطا در تولید چایلد‌تم.');
+      setDownloadProgressMessage('خطا در تولید پوسته مستقل.');
     } finally {
       setIsZipping(false);
     }
@@ -329,14 +367,14 @@ add_filter('sedrazavi_active_preset_config', function($config) {
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2.5 h-2.5 rounded-full bg-[#D4AF37] animate-pulse" />
             <span className="text-xs font-bold text-[#D4AF37] tracking-wider uppercase">
-              فاز ۵: استودیوی پکیجینگ زیپ، چایلد‌تم‌ها و شخصی‌سازی اصناف
+              فاز ۵: استودیوی پکیجینگ زیپ، پوسته‌های مستقل و شخصی‌سازی اصناف
             </span>
           </div>
           <h3 className="text-xl sm:text-2xl font-bold font-serif text-[#0B132B] dark:text-white">
             مرکز پکیجینگ زیپ و استودیوی شخصی‌سازی اصناف پیش‌بینی‌نشده
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            تولید و دانلود درجا فایل‌های ZIP استاندارد وردپرس (پوسته، افزونه هسته، و چایلد‌تم‌های اختصاصی برای هر صنف).
+            تولید و دانلود درجا فایل‌های ZIP استاندارد وردپرس (پوسته‌های کاملاً مستقل، افزونه هسته، و بسته‌های اختصاصی برای هر صنف).
           </p>
         </div>
 
@@ -365,7 +403,7 @@ add_filter('sedrazavi_active_preset_config', function($config) {
             }`}
           >
             <Sparkles className="w-4 h-4 text-cyan-500" />
-            <span>استودیوی صنف جدید (تولید چایلد‌تم)</span>
+            <span>استودیوی صنف جدید (تولید پوسته مستقل)</span>
           </button>
 
           <button
@@ -490,17 +528,17 @@ add_filter('sedrazavi_active_preset_config', function($config) {
               onClick={() => setActiveTab('custom_industry_studio')}
               className="px-4 py-2 rounded-xl bg-slate-800 text-white hover:bg-slate-700 text-xs font-bold transition-colors cursor-pointer"
             >
-              طراحی چایلد‌تم صنف جدید ↗
+              طراحی پوسته مستقل صنف جدید ↗
             </button>
           </div>
         </div>
       )}
 
-      {/* TAB 2: Custom Industry Studio & Dynamic Child-Theme Packager */}
+      {/* TAB 2: Custom Industry Studio & Dynamic Standalone Theme Packager */}
       {activeTab === 'custom_industry_studio' && (
         <div className="space-y-6">
           <div className="p-5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-xs text-cyan-900 dark:text-cyan-200 leading-relaxed">
-            <strong>استودیوی اصناف ناشناخته و پیش‌بینی‌نشده:</strong> برای هر حرفه یا پروژه‌ای که تاکنون فکرش را نکرده‌ایم (پزشکی، آموزشی، ساختمانی، مهاجرتی، کریپتو و غیره)، عنوان و عبارات دلخواه را وارد کنید؛ سیستم درجا یک چایلد‌تم استاندارد وردپرس با فایل‌های PHP و JSON آماده می‌کند که از پیشخوان قابل نصب است.
+            <strong>استودیوی اصناف ناشناخته و پیش‌بینی‌نشده:</strong> برای هر حرفه یا پروژه‌ای که تاکنون فکرش را نکرده‌ایم (پزشکی، آموزشی، ساختمانی، مهاجرتی، کریپتو و غیره)، عنوان و عبارات دلخواه را وارد کنید؛ سیستم درجا یک پوسته کاملاً مستقل استاندارد وردپرس (بدون نیاز به پوسته والد) با فایل‌های PHP و JSON آماده می‌کند که از پیشخوان قابل نصب است.
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -640,7 +678,7 @@ add_filter('sedrazavi_active_preset_config', function($config) {
               className="px-5 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs shadow-md shadow-cyan-500/20 hover:opacity-95 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <FolderDown className="w-4 h-4" />
-              <span>تولید و دانلود زیپ چایلد‌تم ({`sedrazavi-child-${industrySlug}.zip`})</span>
+              <span>تولید و دانلود زیپ پوسته مستقل ({`sedrazavi-${industrySlug}-theme.zip`})</span>
             </button>
 
             <button
@@ -707,7 +745,7 @@ add_filter('sedrazavi_active_preset_config', function($config) {
             <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
               سیستم به صورت ماژولار و مبتنی بر توکن طراحی شده است:
               <br />
-              - <strong>چایلد‌تم‌های مستقل:</strong> با تب «استودیوی صنف جدید»، مدیر بدون دانش کدنویسی عنوان، رنگ و واژگان هر شغلی را تایپ می‌کند و چایلدتم آماده دانلود می‌شود.
+              - <strong>پوسته‌های کاملاً مستقل:</strong> با تب «استودیوی صنف جدید»، مدیر بدون دانش کدنویسی عنوان، رنگ و واژگان هر شغلی را تایپ می‌کند و یک پوسته مستقل آماده دانلود می‌شود.
               <br />
               - <strong>نوار ابزار ویرایش زنده (Live Customizer):</strong> مدیر بدون ورود به بک‌اند می‌تواند متون، وضعیت نمایش/پنهان‌سازی بلوک‌ها و رنگ‌ها را در همان صفحه تغییر دهد.
               <br />

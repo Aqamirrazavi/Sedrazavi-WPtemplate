@@ -14,6 +14,13 @@ if (!function_exists('sedrazavi_ajax_track_case')) {
     function sedrazavi_ajax_track_case() {
         check_ajax_referer('sedrazavi_security_nonce', 'nonce');
 
+        if (function_exists('sedrazavi_addons_rate_limit_check') && !sedrazavi_addons_rate_limit_check('ajax_track_case', 12, 300)) {
+            wp_send_json_error(array(
+                'rate_limited' => true,
+                'message'      => esc_html__('تعداد استعلام‌های پی‌درپی بیش از حد مجاز است. لطفاً چند دقیقه دیگر تلاش کنید.', 'sedrazavi-addons')
+            ), 429);
+        }
+
         $case_number = isset($_POST['case_number']) ? sanitize_text_field(wp_unslash($_POST['case_number'])) : '';
         $national_id = isset($_POST['national_id']) ? sanitize_text_field(wp_unslash($_POST['national_id'])) : '';
 

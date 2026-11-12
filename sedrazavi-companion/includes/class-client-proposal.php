@@ -35,6 +35,18 @@ class SedRazavi_Client_Proposal {
             'methods'             => 'POST',
             'callback'            => [$this, 'rest_generate_proposal'],
             'permission_callback' => '__return_true',
+            'args'                => [
+                'project_type' => [
+                    'required'          => false,
+                    'default'           => 'enterprise',
+                    'enum'              => ['standard', 'enterprise', 'crypto_web3'],
+                    'sanitize_callback' => 'sanitize_key',
+                ],
+                'bilingual'     => ['type' => 'boolean', 'required' => false],
+                'speed_opt'     => ['type' => 'boolean', 'required' => false],
+                'custom_portal' => ['type' => 'boolean', 'required' => false],
+                'offline_queue' => ['type' => 'boolean', 'required' => false],
+            ],
         ]);
     }
 
@@ -103,7 +115,23 @@ class SedRazavi_Client_Proposal {
         ];
     }
 
+    private function check_rate_limit() {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $salt = function_exists('wp_salt') ? wp_salt('auth') : 'sedrazavi_prop';
+        $key = 'sr_prop_rate_' . md5($ip . $salt);
+        $attempts = (int) get_transient($key);
+        if ($attempts >= 15) {
+            return false;
+        }
+        set_transient($key, $attempts + 1, 10 * MINUTE_IN_SECONDS);
+        return true;
+    }
+
     public function rest_generate_proposal($request) {
+        if (!$this->check_rate_limit()) {
+            return new WP_Error('rate_limited', 'تعداد درخواست‌های برآورد هزینه بیش از حد مجاز است.', ['status' => 429]);
+        }
+
         $params = $request->get_json_params() ?: $request->get_params();
         $specs  = $this->calculate_specs($params);
 
@@ -114,6 +142,9 @@ class SedRazavi_Client_Proposal {
     }
 
     public function ajax_generate_proposal() {
+        if (!$this->check_rate_limit()) {
+            wp_send_json_error(['message' => 'تعداد درخواست‌های برآورد هزینه بیش از حد مجاز است.'], 429);
+        }
         $data  = $_POST;
         $specs = $this->calculate_specs($data);
         wp_send_json_success($specs);

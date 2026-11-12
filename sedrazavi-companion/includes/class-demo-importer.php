@@ -48,7 +48,9 @@ class SedRazavi_Demo_Importer {
         register_rest_route('sedrazavi/v1', '/demo/list', [
             'methods'             => 'GET',
             'callback'            => [$this, 'rest_get_demo_list'],
-            'permission_callback' => '__return_true',
+            'permission_callback' => function() {
+                return current_user_can('manage_options');
+            },
         ]);
 
         register_rest_route('sedrazavi/v1', '/demo/import', [

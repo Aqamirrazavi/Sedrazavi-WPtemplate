@@ -31,7 +31,9 @@ class SedRazavi_GitHub_Sync {
         register_rest_route('sedrazavi/v1', '/github/status', [
             'methods'             => 'GET',
             'callback'            => [__CLASS__, 'handle_get_status'],
-            'permission_callback' => '__return_true',
+            'permission_callback' => function() {
+                return current_user_can('edit_posts') || current_user_can('manage_options');
+            },
         ]);
 
         register_rest_route('sedrazavi/v1', '/github/sync', [
@@ -113,18 +115,31 @@ class SedRazavi_GitHub_Sync {
     }
 
     /**
-     * Webhook listener with HMAC SHA256 verification
+     * Webhook listener with strict fail-closed HMAC SHA256 verification
      */
     public static function handle_webhook($request) {
-        $secret = get_option(self::OPTION_SECRET, '');
-        $signature = $request->get_header('x-hub-signature-256');
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $rate_key = 'sr_gh_hook_' . md5($ip . wp_salt('auth'));
+        $attempts = (int) get_transient($rate_key);
+        if ($attempts >= 30) {
+            return new WP_Error('rate_limited', 'تعداد درخواست‌های وب‌هوک بیش از حد مجاز است.', ['status' => 429]);
+        }
+        set_transient($rate_key, $attempts + 1, 5 * MINUTE_IN_SECONDS);
 
-        if (!empty($secret) && !empty($signature)) {
-            $payload = $request->get_body();
-            $expected = 'sha256=' . hash_hmac('sha256', $payload, $secret);
-            if (!hash_equals($expected, $signature)) {
-                return new WP_Error('invalid_signature', 'امضای وب‌هوک معتبر نیست.', ['status' => 403]);
-            }
+        $secret = (string) get_option(self::OPTION_SECRET, '');
+        if ($secret === '') {
+            return new WP_Error('webhook_secret_not_configured', 'کلید امنیتی وب‌هوک گیت‌هاب پیکربندی نشده است.', ['status' => 403]);
+        }
+
+        $signature = (string) ($request->get_header('x-hub-signature-256') ?? '');
+        if ($signature === '') {
+            return new WP_Error('missing_signature', 'هدر امضای امنیتی وب‌هوک ارسال نشده است.', ['status' => 403]);
+        }
+
+        $payload  = (string) $request->get_body();
+        $expected = 'sha256=' . hash_hmac('sha256', $payload, $secret);
+        if (!hash_equals($expected, $signature)) {
+            return new WP_Error('invalid_signature', 'امضای وب‌هوک معتبر نیست.', ['status' => 403]);
         }
 
         // Invalidate sync cache
@@ -132,7 +147,7 @@ class SedRazavi_GitHub_Sync {
 
         return rest_ensure_response([
             'success' => true,
-            'event'   => $request->get_header('x-github-event') ?: 'push',
+            'event'   => sanitize_key($request->get_header('x-github-event') ?: 'push'),
             'action'  => 'synced',
         ]);
     }

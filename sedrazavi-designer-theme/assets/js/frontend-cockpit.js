@@ -67,6 +67,10 @@
 
     // 4. Modal Open & Close Controls
     $('#sr-btn-new-cpt').on('click', function() {
+      $('#sr_cpt_post_id').val('');
+      $('#sr-cpt-form')[0].reset();
+      $('#sr-cpt-modal-title').text('ایجاد محتوای جدید');
+      $('#sr-cpt-modal .sr-modal-feedback').text('');
       $('#sr-cpt-modal').fadeIn(200);
     });
 
@@ -82,6 +86,43 @@
       if ($(e.target).hasClass('sr-modal')) {
         $('.sr-modal').fadeOut(200);
       }
+    });
+
+    // 4B. Load Single CPT & Metabox Data for Edit Modal
+    $(document).on('click', '.sr-btn-edit-cpt', function() {
+      const postId = $(this).data('id');
+      const $btn = $(this);
+      $btn.prop('disabled', true);
+
+      $.post(ajaxUrl, {
+        action: 'sr_cockpit_get_cpt_data',
+        post_id: postId,
+        nonce: nonce
+      }, function(res) {
+        $btn.prop('disabled', false);
+        if (res.success && res.data) {
+          const d = res.data;
+          $('#sr_cpt_post_id').val(d.post_id);
+          $('#sr_cpt_post_type').val(d.post_type);
+          $('#sr_cpt_title').val(d.title);
+          $('#sr_cpt_content').val(d.content);
+          const meta = d.meta || {};
+          $('#meta_portfolio_client').val(meta._sr_portfolio_client || '');
+          $('#meta_portfolio_url').val(meta._sr_portfolio_url || '');
+          $('#meta_portfolio_metric_val').val(meta._sr_portfolio_metric_val || '');
+          $('#meta_portfolio_metric_label').val(meta._sr_portfolio_metric_label || '');
+          $('#meta_service_price').val(meta._sr_service_price || '');
+          $('#meta_service_delivery').val(meta._sr_service_delivery_time || '');
+          $('#sr-cpt-modal-title').text('ویرایش محتوا (#' + d.post_id + ')');
+          $('#sr-cpt-modal .sr-modal-feedback').text('');
+          $('#sr-cpt-modal').fadeIn(200);
+        } else {
+          alert((res.data && res.data.message) || 'خطا در بازیابی اطلاعات محتوا.');
+        }
+      }).fail(function() {
+        $btn.prop('disabled', false);
+        alert('خطای ارتباط با سرور هنگام بارگذاری اطلاعات.');
+      });
     });
 
     // 5. CPT Dynamic Form Submission
@@ -257,8 +298,12 @@
     function updateRadarStats() {
       const widgetCount = $('.sr-sitekit-widget-cb:checked').length;
       const tplCount = $('.sr-sitekit-tpl-cb:checked').length;
+      const blockCount = $('.sr-sitekit-block-cb:checked').length;
+      const cptCount = $('.sr-sitekit-cpt-cb:checked').length;
       $('#sr-sitekit-widget-count').text(widgetCount);
       $('#sr-sitekit-tpl-count').text(tplCount);
+      $('#sr-sitekit-block-count').text(blockCount);
+      $('#sr-sitekit-cpt-count').text(cptCount);
 
       // Check if any query widget is selected
       let needsQuery = false;
@@ -301,7 +346,7 @@
       }
     });
 
-    $('.sr-sitekit-widget-cb, .sr-sitekit-tpl-cb').on('change', function() {
+    $('.sr-sitekit-widget-cb, .sr-sitekit-tpl-cb, .sr-sitekit-block-cb, .sr-sitekit-cpt-cb').on('change', function() {
       updateRadarStats();
     });
 
@@ -325,6 +370,16 @@
       updateRadarStats();
     });
 
+    $('#sr-btn-select-all-blocks').on('click', function() {
+      $('.sr-sitekit-block-cb').prop('checked', true);
+      updateRadarStats();
+    });
+
+    $('#sr-btn-deselect-all-blocks').on('click', function() {
+      $('.sr-sitekit-block-cb').prop('checked', false);
+      updateRadarStats();
+    });
+
     function getSelectedWidgets() {
       const arr = [];
       $('.sr-sitekit-widget-cb:checked').each(function() {
@@ -336,6 +391,22 @@
     function getSelectedTemplates() {
       const arr = [];
       $('.sr-sitekit-tpl-cb:checked').each(function() {
+        arr.push($(this).val());
+      });
+      return arr;
+    }
+
+    function getSelectedBlocks() {
+      const arr = [];
+      $('.sr-sitekit-block-cb:checked').each(function() {
+        arr.push($(this).val());
+      });
+      return arr;
+    }
+
+    function getSelectedCpts() {
+      const arr = [];
+      $('.sr-sitekit-cpt-cb:checked').each(function() {
         arr.push($(this).val());
       });
       return arr;
@@ -356,6 +427,8 @@
       const $btn = $(this);
       const widgets = getSelectedWidgets();
       const templates = getSelectedTemplates();
+      const blocks = getSelectedBlocks();
+      const cpts = getSelectedCpts();
 
       $btn.prop('disabled', true).text('در حال اجرای ممیزی پیش‌پرواز...');
 
@@ -363,7 +436,9 @@
         action: 'sr_cockpit_preflight_sitekit',
         nonce: nonce,
         widgets: widgets,
-        templates: templates
+        templates: templates,
+        blocks: blocks,
+        cpts: cpts
       }, function(res) {
         $btn.prop('disabled', false).text('🔍 اعتبارسنجی پیش‌پرواز (Preflight Check)');
         if (res.success) {
@@ -385,9 +460,11 @@
       const niche = $('.sr-niche-pill.active').data('niche') || 'general';
       const widgets = getSelectedWidgets();
       const templates = getSelectedTemplates();
+      const blocks = getSelectedBlocks();
+      const cpts = getSelectedCpts();
 
-      if (widgets.length === 0 && templates.length === 0) {
-        alert('لطفاً حداقل یک ویجت یا یک قالب را انتخاب کنید.');
+      if (widgets.length === 0 && templates.length === 0 && blocks.length === 0 && cpts.length === 0) {
+        alert('لطفاً حداقل یک ویجت، بلوک، CPT یا قالب را انتخاب کنید.');
         return;
       }
 
@@ -401,6 +478,8 @@
         niche: niche,
         widgets: widgets,
         templates: templates,
+        blocks: blocks,
+        cpts: cpts,
         include_theme_bridge: 1,
         include_query_engine: 1
       }, function(res) {
@@ -427,6 +506,8 @@
       const niche = $('.sr-niche-pill.active').data('niche') || 'general';
       const widgets = getSelectedWidgets();
       const templates = getSelectedTemplates();
+      const blocks = getSelectedBlocks();
+      const cpts = getSelectedCpts();
 
       if (!confirm(`آیا از استقرار مستقیم کیت «${name}» در افزونه‌های همین سایت اطمینان دارید؟`)) {
         return;
@@ -442,6 +523,8 @@
         niche: niche,
         widgets: widgets,
         templates: templates,
+        blocks: blocks,
+        cpts: cpts,
         include_theme_bridge: 1,
         include_query_engine: 1
       }, function(res) {
@@ -457,6 +540,119 @@
       }).fail(function() {
         $btn.prop('disabled', false).text('🚀 نصب و فعال‌سازی مستقیم در همین وردپرس');
         showSitekitFeedback('خطای سرور در استقرار مستقیم افزونه.', false);
+      });
+    });
+
+    // 15. Site Kit Rollback Handler
+    $('#sr-btn-sitekit-rollback').on('click', function() {
+      const $btn = $(this);
+      const slug = $('#sr_sitekit_slug').val();
+      if (!slug) {
+        alert('شناسه انگلیسی بسته (Slug) برای عملیات رول‌بک الزامی است.');
+        return;
+      }
+      if (!confirm(`آیا از رول‌بک کامل کیت «${slug}» (غیرفعال‌سازی افزونه، حذف فایل‌ها و پاک‌سازی قالب‌های کتابخانه المنتور) اطمینان دارید؟`)) {
+        return;
+      }
+
+      $btn.prop('disabled', true).text('در حال اجرای رول‌بک کامل...');
+      $.post(ajaxUrl, {
+        action: 'sr_cockpit_rollback_sitekit',
+        nonce: nonce,
+        project_slug: slug
+      }, function(res) {
+        $btn.prop('disabled', false).text('🔄 رول‌بک کامل کیت مستقرشده (Rollback)');
+        if (res.success) {
+          showSitekitFeedback(res.data.message || 'رول‌بک کامل با موفقیت انجام شد.', true);
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } else {
+          showSitekitFeedback((res.data && res.data.message) || 'خطا در اجرای رول‌بک کیت.', false);
+        }
+      }).fail(function() {
+        $btn.prop('disabled', false).text('🔄 رول‌بک کامل کیت مستقرشده (Rollback)');
+        showSitekitFeedback('خطای ارتباط با سرور هنگام اجرای رول‌بک.', false);
+      });
+    });
+
+    // 16. Bulk CSV User Import & Export
+    $('#sr-btn-open-bulk-users').on('click', function() {
+      $('#sr-bulk-users-modal').fadeIn(200);
+    });
+
+    $('#sr-bulk-users-form').on('submit', function(e) {
+      e.preventDefault();
+      const $form = $(this);
+      const $feedback = $form.find('.sr-modal-feedback');
+      const csvData = $('#sr-bulk-users-csv').val();
+
+      $.post(ajaxUrl, {
+        action: 'sr_cockpit_bulk_import_users',
+        nonce: nonce,
+        csv_data: csvData
+      }, function(res) {
+        if (res.success) {
+          $feedback.text(res.data.message).css('color', '#10B981');
+          setTimeout(() => {
+            window.location.reload();
+          }, 1200);
+        } else {
+          $feedback.text((res.data && res.data.message) || 'خطا در درون‌ریزی CSV').css('color', '#EF4444');
+        }
+      }).fail(function() {
+        $feedback.text('خطای ارتباط با سرور هنگام درون‌ریزی CSV.').css('color', '#EF4444');
+      });
+    });
+
+    $('#sr-btn-export-users-csv').on('click', function() {
+      const $btn = $(this);
+      $btn.prop('disabled', true).text('در حال آماده‌سازی CSV...');
+      $.post(ajaxUrl, {
+        action: 'sr_cockpit_export_users_csv',
+        nonce: nonce
+      }, function(res) {
+        $btn.prop('disabled', false).text('📤 خروجی CSV کاربران');
+        if (res.success && res.data && res.data.csv) {
+          const blob = new Blob([res.data.csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.setAttribute('href', url);
+          link.setAttribute('download', res.data.filename || 'sedrazavi-users.csv');
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        } else {
+          alert((res.data && res.data.message) || 'خطا در خروجی CSV کاربران');
+        }
+      }).fail(function() {
+        $btn.prop('disabled', false).text('📤 خروجی CSV کاربران');
+        alert('خطای سرور در تولید خروجی CSV.');
+      });
+    });
+
+    // 17. Save WordPress Site Settings & Design Tokens directly to wp_options
+    $('#sr-site-settings-form').on('submit', function(e) {
+      e.preventDefault();
+      const $form = $(this);
+      const $btn = $form.find('button[type="submit"]');
+      const $fb = $('#sr-site-settings-feedback');
+      const formData = $form.serializeArray();
+      formData.push({ name: 'action', value: 'sr_cockpit_save_site_settings' });
+      formData.push({ name: 'nonce', value: nonce });
+
+      $btn.prop('disabled', true).text('در حال ذخیره در دیتابیس...');
+      $.post(ajaxUrl, formData, function(res) {
+        $btn.prop('disabled', false).text('💾 ذخیره مستقیم در دیتابیس وردپرس (wp_options)');
+        if (res.success) {
+          $fb.text(res.data.message).css('color', '#10B981');
+        } else {
+          $fb.text((res.data && res.data.message) || 'خطا در ذخیره تنظیمات.').css('color', '#EF4444');
+        }
+      }).fail(function() {
+        $btn.prop('disabled', false).text('💾 ذخیره مستقیم در دیتابیس وردپرس (wp_options)');
+        $fb.text('خطای ارتباط با سرور.').css('color', '#EF4444');
       });
     });
 

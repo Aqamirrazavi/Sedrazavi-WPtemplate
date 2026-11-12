@@ -336,8 +336,32 @@ add_action('rest_api_init', function () {
     ));
 });
 
+if (!function_exists('sedrazavi_addons_rate_limit_check')) {
+    function sedrazavi_addons_rate_limit_check($bucket, $limit = 12, $window = 300) {
+        if (class_exists('SedRazavi_Rate_Limiter')) {
+            return SedRazavi_Rate_Limiter::check_rate_limit($bucket, $limit, $window);
+        }
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : 'unknown';
+        $key = 'sr_rl_' . md5($bucket . '|' . $ip);
+        $count = (int) get_transient($key);
+        if ($count >= $limit) {
+            return false;
+        }
+        set_transient($key, $count + 1, $window);
+        return true;
+    }
+}
+
 if (!function_exists('sedrazavi_api_track_case_handler')) {
     function sedrazavi_api_track_case_handler($request) {
+        if (!sedrazavi_addons_rate_limit_check('addons_track_case', 12, 300)) {
+            return new WP_REST_Response(array(
+                'found'        => false,
+                'rate_limited' => true,
+                'message'      => 'تعداد استعلام‌های پی‌درپی بیش از حد مجاز است. لطفاً پس از چند دقیقه مجدداً تلاش نمایید.',
+            ), 429);
+        }
+
         if (class_exists('SedRazavi_REST_API')) {
             return SedRazavi_REST_API::handle_track_case($request);
         }
@@ -355,8 +379,14 @@ if (!function_exists('sedrazavi_api_track_case_handler')) {
             return ltrim(preg_replace('/[^\d]/', '', $p), '0');
         };
 
+        $clean_phone = $norm($phone);
+        if (strlen($clean_phone) < 9) {
+            return new WP_Error('invalid_phone', 'شماره تماس واردشده معتبر نیست.', array('status' => 400));
+        }
+
         $args = array(
             'post_type'      => 'sedrazavi_case',
+            'post_status'    => 'publish',
             'posts_per_page' => 1,
             'meta_query'     => array(
                 array(
@@ -371,7 +401,8 @@ if (!function_exists('sedrazavi_api_track_case_handler')) {
         if ($query->have_posts()) {
             $query->the_post();
             $stored_phone = get_post_meta(get_the_ID(), '_sedrazavi_client_phone', true);
-            if ($norm($stored_phone) === $norm($phone)) {
+            $clean_stored = $norm($stored_phone);
+            if (!empty($clean_stored) && hash_equals($clean_stored, $clean_phone)) {
                 $case_data = array(
                     'found'        => true,
                     'case_number'  => $case_no,
@@ -387,20 +418,6 @@ if (!function_exists('sedrazavi_api_track_case_handler')) {
             wp_reset_postdata();
         }
 
-        if (get_option('sedrazavi_demo_mode', false)) {
-            return rest_ensure_response(array(
-                'found'        => true,
-                'is_demo'      => true,
-                'demo_label'   => 'نمونه فرضی',
-                'case_number'  => $case_no,
-                'case_type'    => 'دعاوی حقوقی (نمونه)',
-                'status'       => 'در جریان تبادل لوایح',
-                'court_branch' => 'شعبه ۵ دادگاه تجدیدنظر (نمونه)',
-                'next_session' => '۱۴۰۳/۰۸/۱۵',
-                'updated_at'   => date('Y/m/d'),
-            ));
-        }
-
         return new WP_REST_Response(array(
             'found'   => false,
             'message' => 'پرونده‌ای با این مشخصات یافت نشد.',
@@ -410,6 +427,14 @@ if (!function_exists('sedrazavi_api_track_case_handler')) {
 
 if (!function_exists('sedrazavi_api_book_appointment_handler')) {
     function sedrazavi_api_book_appointment_handler($request) {
+        if (!sedrazavi_addons_rate_limit_check('addons_book_appointment', 6, 300)) {
+            return new WP_REST_Response(array(
+                'success'      => false,
+                'rate_limited' => true,
+                'message'      => 'تعداد درخواست‌های ثبت نوبت بیش از حد مجاز است. لطفاً چند دقیقه دیگر مجدداً تلاش کنید.',
+            ), 429);
+        }
+
         if (class_exists('SedRazavi_REST_API')) {
             return SedRazavi_REST_API::handle_book_appointment($request);
         }
@@ -426,7 +451,7 @@ if (!function_exists('sedrazavi_api_book_appointment_handler')) {
         $post_id = wp_insert_post(array(
             'post_title'   => 'نوبت مشاوره: ' . $name . ' (' . $phone . ')',
             'post_type'    => 'sedrazavi_appointment',
-            'post_status'  => 'publish',
+            'post_status'  => 'private',
         ));
 
         if (!is_wp_error($post_id) && $post_id) {
@@ -458,9 +483,17 @@ if (!function_exists('sedrazavi_api_book_appointment_handler')) {
     }
 }
 
-// ۹. تنظیم خودکار هدرهای CORS برای درخواست‌های فرانت‌اند
-add_action('init', function () {
-    header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-    header("Access-Control-Allow-Headers: Content-Type, Authorization, X-WP-Nonce");
-});
+// ۹. تنظیم هدرهای CORS ایمن محدود به دامنه اصلی سایت
+add_filter('rest_pre_serve_request', function ($served, $result, $request, $server) {
+    $origin = get_http_origin();
+    $site_url = home_url();
+    $site_host = wp_parse_url($site_url, PHP_URL_HOST);
+    $origin_host = $origin ? wp_parse_url($origin, PHP_URL_HOST) : '';
+    if ($origin && $origin_host && $site_host && strcasecmp($origin_host, $site_host) === 0) {
+        header('Access-Control-Allow-Origin: ' . esc_url_raw($origin));
+        header('Vary: Origin');
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-WP-Nonce');
+    }
+    return $served;
+}, 10, 4);

@@ -75,7 +75,7 @@ function walk(dir, base) {
   fs.readdirSync(dir).forEach(f => {
     const full = path.join(dir, f);
     const rel = path.relative(base, full);
-    if (f.startsWith('.') || f === 'node_modules' || f === 'dist' || f === 'app-dist' || f.endsWith('.zip') || f === 'screenshot.png') return;
+    if (f.startsWith('.') || f === 'node_modules' || f === 'dist' || f === 'app-dist' || f === 'child-themes' || f.endsWith('.zip') || f === 'screenshot.png') return;
     // Exclude the compiled multi-megabyte app bundle inside assets to keep TS files lean
     if (rel === 'assets/index.js' || rel === 'assets/index.css') return;
     const stat = fs.statSync(full);

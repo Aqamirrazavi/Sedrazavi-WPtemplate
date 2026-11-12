@@ -154,11 +154,38 @@ class SedRazavi_Payment_Adapter {
             'methods'             => 'POST',
             'callback'            => [__CLASS__, 'handle_checkout'],
             'permission_callback' => '__return_true',
+            'args'                => [
+                'service_id' => [
+                    'required'          => true,
+                    'type'              => 'string',
+                    'enum'              => [
+                        'consultation_phone',
+                        'consultation_in_person',
+                        'contract_review',
+                        'legal_petition',
+                        'retainer_deposit',
+                    ],
+                    'sanitize_callback' => 'sanitize_key',
+                ],
+                'mobile'  => ['required' => false, 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field'],
+                'gateway' => ['required' => false, 'type' => 'string', 'enum' => ['zarinpal'], 'sanitize_callback' => 'sanitize_key'],
+            ],
         ]);
     }
 
     public static function handle_checkout($request) {
-        $params   = $request->get_json_params() ?: $request->get_params();
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $rate_key = 'sr_pay_rate_' . md5($ip . wp_salt('auth'));
+        $attempts = (int) get_transient($rate_key);
+        if ($attempts >= 10) {
+            return new WP_REST_Response([
+                'success' => false,
+                'message' => 'تعداد درخواست‌های پرداخت بیش از حد مجاز بوده است. لطفاً ۱۰ دقیقه بعد تلاش فرمایید.',
+            ], 429);
+        }
+        set_transient($rate_key, $attempts + 1, 10 * MINUTE_IN_SECONDS);
+
+        $params    = $request->get_json_params() ?: $request->get_params();
         $serviceId = sanitize_key($params['service_id'] ?? '');
 
         // Server-side price table lookup - Amount NEVER from client!

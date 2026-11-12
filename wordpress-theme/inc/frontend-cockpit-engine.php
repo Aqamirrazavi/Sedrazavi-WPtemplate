@@ -46,6 +46,8 @@ class Frontend_Cockpit_Engine {
         add_action('wp_ajax_sr_cockpit_update_user', [$this, 'ajax_update_user']);
         add_action('wp_ajax_sr_cockpit_delete_user', [$this, 'ajax_delete_user']);
         add_action('wp_ajax_sr_cockpit_search_users', [$this, 'ajax_search_users']);
+        add_action('wp_ajax_sr_cockpit_bulk_import_users', [$this, 'ajax_bulk_import_users']);
+        add_action('wp_ajax_sr_cockpit_export_users_csv', [$this, 'ajax_export_users_csv']);
 
         // In-Dashboard Plugin Installer
         add_action('wp_ajax_sr_cockpit_install_plugin', [$this, 'ajax_install_plugin']);
@@ -55,6 +57,10 @@ class Frontend_Cockpit_Engine {
         add_action('wp_ajax_sr_cockpit_preflight_sitekit', [$this, 'ajax_preflight_sitekit']);
         add_action('wp_ajax_sr_cockpit_build_sitekit_bundle', [$this, 'ajax_build_sitekit_bundle']);
         add_action('wp_ajax_sr_cockpit_install_sitekit_bundle', [$this, 'ajax_install_sitekit_bundle']);
+        add_action('wp_ajax_sr_cockpit_rollback_sitekit', [$this, 'ajax_rollback_sitekit']);
+
+        // WordPress DB Site Brand, Colors & Options Persistence
+        add_action('wp_ajax_sr_cockpit_save_site_settings', [$this, 'ajax_save_site_settings']);
 
         add_action('wp_enqueue_scripts', [$this, 'enqueue_cockpit_assets']);
     }
@@ -224,6 +230,99 @@ class Frontend_Cockpit_Engine {
         } else {
             wp_send_json_error(['message' => __('خطا در حذف از پایگاه داده.', 'sedrazavi')]);
         }
+    }
+
+    /**
+     * AJAX Retrieve Single CPT Post & Metabox Data for Frontend Edit Modal
+     */
+    public function ajax_get_cpt_data() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+
+        if (!is_user_logged_in() || !current_user_can('edit_posts')) {
+            wp_send_json_error(['message' => __('سطح دسترسی شما برای دریافت اطلاعات کافی نیست.', 'sedrazavi')]);
+        }
+
+        $post_id = intval($_POST['post_id'] ?? 0);
+        $post = $post_id > 0 ? get_post($post_id) : null;
+        if (!$post) {
+            wp_send_json_error(['message' => __('مورد درخواستی در پایگاه داده یافت نشد.', 'sedrazavi')]);
+        }
+
+        if (!current_user_can('edit_others_posts') && (int) $post->post_author !== (int) get_current_user_id()) {
+            wp_send_json_error(['message' => __('شما اجازه مشاهده یا ویرایش این محتوا را ندارید.', 'sedrazavi')]);
+        }
+
+        $meta_keys = [
+            '_sr_portfolio_client',
+            '_sr_portfolio_url',
+            '_sr_portfolio_metric_val',
+            '_sr_portfolio_metric_label',
+            '_sr_service_price',
+            '_sr_service_delivery_time',
+        ];
+        $meta = [];
+        foreach ($meta_keys as $mk) {
+            $meta[$mk] = (string) get_post_meta($post->ID, $mk, true);
+        }
+
+        wp_send_json_success([
+            'post_id'   => $post->ID,
+            'post_type' => $post->post_type,
+            'title'     => $post->post_title,
+            'content'   => $post->post_content,
+            'status'    => $post->post_status,
+            'meta'      => $meta,
+        ]);
+    }
+
+    /**
+     * AJAX Save Theme Brand, Design Tokens & Office Settings to WordPress wp_options
+     */
+    public function ajax_save_site_settings() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+
+        if (!is_user_logged_in() || !current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('تنها مدیر کل مجاز به تغییر تنظیمات اصلی سایت است.', 'sedrazavi')]);
+        }
+
+        $office_phone    = sanitize_text_field(wp_unslash($_POST['sedrazavi_office_phone'] ?? ''));
+        $office_email    = sanitize_email(wp_unslash($_POST['sedrazavi_office_email'] ?? ''));
+        $office_address  = sanitize_text_field(wp_unslash($_POST['sedrazavi_office_address'] ?? ''));
+        $working_hours   = sanitize_text_field(wp_unslash($_POST['sedrazavi_working_hours'] ?? ''));
+        $primary_gold    = sanitize_hex_color(wp_unslash($_POST['sedrazavi_primary_gold'] ?? '#D4AF37')) ?: '#D4AF37';
+        $secondary_navy  = sanitize_hex_color(wp_unslash($_POST['sedrazavi_secondary_navy'] ?? '#0B132B')) ?: '#0B132B';
+        $font_family     = sanitize_text_field(wp_unslash($_POST['sedrazavi_font_family'] ?? 'Vazirmatn')) ?: 'Vazirmatn';
+        $raw_scenario    = sanitize_key(wp_unslash($_POST['sedrazavi_active_scenario'] ?? 'bento-hud'));
+        $active_scenario = in_array($raw_scenario, ['bento-hud', 'dense-matrix', 'hybrid-executive'], true) ? $raw_scenario : 'bento-hud';
+
+        update_option('sedrazavi_office_phone', $office_phone);
+        update_option('sedrazavi_office_email', $office_email);
+        update_option('sedrazavi_office_address', $office_address);
+        update_option('sedrazavi_working_hours', $working_hours);
+        update_option('sedrazavi_primary_gold', $primary_gold);
+        update_option('sedrazavi_secondary_navy', $secondary_navy);
+        update_option('sedrazavi_gold_color', $primary_gold);
+        update_option('sedrazavi_navy_color', $secondary_navy);
+        update_option('sedrazavi_font_family', $font_family);
+        update_option('sedrazavi_active_scenario', $active_scenario);
+
+        if (function_exists('set_theme_mod')) {
+            set_theme_mod('sedrazavi_office_phone', $office_phone);
+            set_theme_mod('sedrazavi_office_email', $office_email);
+            set_theme_mod('sedrazavi_office_address', $office_address);
+        }
+
+        wp_send_json_success([
+            'message' => __('تنظیمات برند، توکن‌های رنگی و مشخصات دفتر با موفقیت در دیتابیس وردپرس (wp_options) ذخیره شد.', 'sedrazavi'),
+            'settings' => [
+                'sedrazavi_office_phone'    => $office_phone,
+                'sedrazavi_office_email'    => $office_email,
+                'sedrazavi_primary_gold'    => $primary_gold,
+                'sedrazavi_secondary_navy'  => $secondary_navy,
+                'sedrazavi_font_family'     => $font_family,
+                'sedrazavi_active_scenario' => $active_scenario,
+            ],
+        ]);
     }
 
     /**
@@ -409,6 +508,124 @@ class Frontend_Cockpit_Engine {
     }
 
     /**
+     * AJAX Bulk Import Users via CSV (Administrator Action)
+     */
+    public function ajax_bulk_import_users() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+
+        if (!current_user_can('create_users') && !current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('تنها مدیران مجاز به درون‌ریزی گروهی کاربران هستند.', 'sedrazavi')]);
+        }
+
+        $csv_raw = wp_unslash($_POST['csv_data'] ?? '');
+        $lines = preg_split('/\r\n|\r|\n/', trim($csv_raw));
+        if (empty($lines)) {
+            wp_send_json_error(['message' => __('محتوای CSV خالی است.', 'sedrazavi')]);
+        }
+
+        $created = 0;
+        $skipped = 0;
+        $errors  = [];
+
+        foreach ($lines as $idx => $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+            $cols = str_getcsv($line);
+            if ($idx === 0 && isset($cols[0]) && strtolower(trim($cols[0])) === 'username') {
+                continue; // Header row
+            }
+
+            $username = sanitize_user($cols[0] ?? '');
+            $email    = sanitize_email($cols[1] ?? '');
+            $display  = sanitize_text_field($cols[2] ?? $username);
+            $role     = sanitize_key($cols[3] ?? 'subscriber') ?: 'subscriber';
+            $domain   = sanitize_text_field($cols[4] ?? 'general') ?: 'general';
+            $phone    = sanitize_text_field($cols[5] ?? '');
+            $password = !empty($cols[6]) ? $cols[6] : wp_generate_password(12, true);
+
+            if (empty($username) || empty($email) || !is_email($email)) {
+                $skipped++;
+                $errors[] = sprintf(__('ردیف %d: نام کاربری یا ایمیل نامعتبر است.', 'sedrazavi'), $idx + 1);
+                continue;
+            }
+
+            if (username_exists($username) || email_exists($email)) {
+                $skipped++;
+                continue;
+            }
+
+            $user_id = wp_create_user($username, $password, $email);
+            if (is_wp_error($user_id)) {
+                $skipped++;
+                $errors[] = $user_id->get_error_message();
+                continue;
+            }
+
+            $user = new \WP_User($user_id);
+            $user->set_role($role);
+            wp_update_user(['ID' => $user_id, 'display_name' => $display, 'nickname' => $display]);
+            if ($phone !== '') {
+                update_user_meta($user_id, '_sr_user_phone', $phone);
+            }
+            update_user_meta($user_id, '_sr_user_domain_tag', $domain);
+            update_user_meta($user_id, '_sr_created_by_admin', get_current_user_id());
+            update_user_meta($user_id, '_sr_created_via_cockpit', 1);
+            $created++;
+        }
+
+        wp_send_json_success([
+            'created' => $created,
+            'skipped' => $skipped,
+            'errors'  => $errors,
+            'message' => sprintf(__('درون‌ریزی گروهی تکمیل شد: %d کاربر ایجاد و %d ردیف رد شد.', 'sedrazavi'), $created, $skipped),
+        ]);
+    }
+
+    /**
+     * AJAX Export Users as RFC-4180 CSV
+     */
+    public function ajax_export_users_csv() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+
+        if (!current_user_can('list_users') && !current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('سطح دسترسی شما برای خروجی گرفتن از کاربران کافی نیست.', 'sedrazavi')]);
+        }
+
+        $users = get_users(['number' => 500, 'orderby' => 'ID', 'order' => 'ASC']);
+        $rows = [];
+        $rows[] = ['username', 'email', 'display_name', 'role', 'domain_tag', 'phone', 'registered'];
+
+        foreach ($users as $u) {
+            $rows[] = [
+                $u->user_login,
+                $u->user_email,
+                $u->display_name,
+                implode('|', $u->roles),
+                get_user_meta($u->ID, '_sr_user_domain_tag', true) ?: 'general',
+                get_user_meta($u->ID, '_sr_user_phone', true) ?: '',
+                $u->user_registered,
+            ];
+        }
+
+        $handle = fopen('php://temp', 'r+');
+        foreach ($rows as $row) {
+            fputcsv($handle, $row);
+        }
+        rewind($handle);
+        $csv_content = "\xEF\xBB\xBF" . stream_get_contents($handle);
+        fclose($handle);
+
+        wp_send_json_success([
+            'csv'      => $csv_content,
+            'filename' => 'sedrazavi-users-' . gmdate('Ymd-His') . '.csv',
+            'count'    => count($users),
+            'message'  => sprintf(__('فایل CSV شامل %d حساب کاربری آماده دریافت شد.', 'sedrazavi'), count($users)),
+        ]);
+    }
+
+    /**
      * AJAX In-Dashboard 1-Click Plugin Installation
      */
     public function ajax_install_plugin() {
@@ -493,12 +710,14 @@ class Frontend_Cockpit_Engine {
             wp_send_json_error(['message' => __('سطح دسترسی شما برای این عملیات کافی نیست.', 'sedrazavi')]);
         }
 
-        $widgets = isset($_POST['widgets']) && is_array($_POST['widgets']) ? array_map('sanitize_key', $_POST['widgets']) : [];
+        $widgets   = isset($_POST['widgets']) && is_array($_POST['widgets']) ? array_map('sanitize_key', $_POST['widgets']) : [];
         $templates = isset($_POST['templates']) && is_array($_POST['templates']) ? array_map('sanitize_key', $_POST['templates']) : [];
+        $blocks    = isset($_POST['blocks']) && is_array($_POST['blocks']) ? array_map('sanitize_text_field', $_POST['blocks']) : [];
+        $cpts      = isset($_POST['cpts']) && is_array($_POST['cpts']) ? array_map('sanitize_key', $_POST['cpts']) : [];
         
         $needs_query = false;
         foreach ($widgets as $w) {
-            if (in_array($w, ['dynamic_grid', 'posts', 'posts_grid', 'services_grid', 'uas_dynamic_grid', 'uas_posts_grid'])) {
+            if (in_array($w, ['dynamic_grid', 'posts', 'posts_grid', 'services_grid', 'uas_dynamic_grid', 'uas_posts_grid'], true)) {
                 $needs_query = true;
             }
         }
@@ -507,10 +726,12 @@ class Frontend_Cockpit_Engine {
             'pass'            => true,
             'widgets_count'   => count($widgets),
             'templates_count' => count($templates),
+            'blocks_count'    => count($blocks),
+            'cpts_count'      => count($cpts),
             'needs_query'     => $needs_query,
             'elementor_ready' => did_action('elementor/loaded') || class_exists('\\Elementor\\Plugin'),
             'warnings'        => [],
-            'message'         => sprintf(__('پیش‌پرواز با موفقیت تأیید شد (%d ویجت، %d قالب؛ بدون هیچ تداخل ساختاری).', 'sedrazavi'), count($widgets), count($templates)),
+            'message'         => sprintf(__('پیش‌پرواز با موفقیت تأیید شد (%d ویجت، %d بلوک گوتنبرگ، %d CPT و %d قالب؛ آماده استقرار مستقل).', 'sedrazavi'), count($widgets), count($blocks), count($cpts), count($templates)),
         ]);
     }
 
@@ -532,6 +753,13 @@ class Frontend_Cockpit_Engine {
             'project_slug'         => sanitize_title($_POST['project_slug'] ?? 'custom-site-kit'),
             'selected_widgets'     => isset($_POST['widgets']) && is_array($_POST['widgets']) ? array_map('sanitize_key', $_POST['widgets']) : [],
             'selected_templates'   => isset($_POST['templates']) && is_array($_POST['templates']) ? array_map('sanitize_key', $_POST['templates']) : [],
+            'selected_blocks'      => isset($_POST['blocks']) && is_array($_POST['blocks']) ? array_map('sanitize_text_field', $_POST['blocks']) : [],
+            'selected_cpts'        => isset($_POST['cpts']) && is_array($_POST['cpts']) ? array_map('sanitize_key', $_POST['cpts']) : [],
+            'design_tokens'        => [
+                'primary_color'   => get_option('sedrazavi_primary_gold', '#D4AF37'),
+                'secondary_color' => get_option('sedrazavi_secondary_navy', '#0B132B'),
+                'font_family'     => get_option('sedrazavi_font_family', 'Vazirmatn'),
+            ],
             'niche'                => sanitize_key($_POST['niche'] ?? 'general'),
             'include_theme_bridge' => !empty($_POST['include_theme_bridge']),
             'include_query_engine' => !empty($_POST['include_query_engine']),
@@ -563,6 +791,13 @@ class Frontend_Cockpit_Engine {
             'project_slug'         => sanitize_title($_POST['project_slug'] ?? 'custom-site-kit'),
             'selected_widgets'     => isset($_POST['widgets']) && is_array($_POST['widgets']) ? array_map('sanitize_key', $_POST['widgets']) : [],
             'selected_templates'   => isset($_POST['templates']) && is_array($_POST['templates']) ? array_map('sanitize_key', $_POST['templates']) : [],
+            'selected_blocks'      => isset($_POST['blocks']) && is_array($_POST['blocks']) ? array_map('sanitize_text_field', $_POST['blocks']) : [],
+            'selected_cpts'        => isset($_POST['cpts']) && is_array($_POST['cpts']) ? array_map('sanitize_key', $_POST['cpts']) : [],
+            'design_tokens'        => [
+                'primary_color'   => get_option('sedrazavi_primary_gold', '#D4AF37'),
+                'secondary_color' => get_option('sedrazavi_secondary_navy', '#0B132B'),
+                'font_family'     => get_option('sedrazavi_font_family', 'Vazirmatn'),
+            ],
             'niche'                => sanitize_key($_POST['niche'] ?? 'general'),
             'include_theme_bridge' => !empty($_POST['include_theme_bridge']),
             'include_query_engine' => !empty($_POST['include_query_engine']),
@@ -585,7 +820,25 @@ class Frontend_Cockpit_Engine {
         // 3. Activate the new plugin
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
         $main_file = $params['project_slug'] . '/' . $params['project_slug'] . '.php';
-        $act_res = activate_plugin($main_file);
+        activate_plugin($main_file);
+
+        // 4. Persist deployed Site Kit record in wp_options
+        $deployed = get_option('sr_cockpit_deployed_kits', []);
+        if (!is_array($deployed)) {
+            $deployed = [];
+        }
+        $deployed[$params['project_slug']] = [
+            'name'            => $params['project_name'],
+            'slug'            => $params['project_slug'],
+            'niche'           => $params['niche'],
+            'widgets_count'   => $build_res['widgets_count'] ?? 0,
+            'templates_count' => $build_res['templates_count'] ?? 0,
+            'blocks_count'    => $build_res['blocks_count'] ?? 0,
+            'cpts_count'      => $build_res['cpts_count'] ?? 0,
+            'sha256'          => $build_res['sha256'] ?? '',
+            'deployed_at'     => current_time('mysql'),
+        ];
+        update_option('sr_cockpit_deployed_kits', $deployed);
 
         wp_send_json_success([
             'message'            => sprintf(__('کیت سایت «%s» با موفقیت در افزونه‌ها مستقر، فعال و %d قالب به کتابخانه المنتور اضافه شد.', 'sedrazavi'), $params['project_name'], $import_res['hydrated_templates'] ?? 0),
@@ -593,6 +846,37 @@ class Frontend_Cockpit_Engine {
             'installed_path'     => $target_plugin_dir,
             'hydrated_templates' => $import_res['hydrated_templates'] ?? 0,
         ]);
+    }
+
+    /**
+     * AJAX Rollback Installed Site Kit Bundle (Deactivate plugin, remove files, purge templates & caches)
+     */
+    public function ajax_rollback_sitekit() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('سطح دسترسی شما برای عملیات رول‌بک کافی نیست.', 'sedrazavi')]);
+        }
+
+        if (!$this->ensure_package_manager_loaded()) {
+            wp_send_json_error(['message' => __('کلاس بسته‌ساز مستقل (Package_Manager) در دسترس نیست.', 'sedrazavi')]);
+        }
+
+        $slug = sanitize_title($_POST['project_slug'] ?? 'custom-project-kit');
+        if (empty($slug)) {
+            wp_send_json_error(['message' => __('شناسه بسته جهت رول‌بک نامعتبر است.', 'sedrazavi')]);
+        }
+
+        $res = \UniversalElementorSuite\Package_Manager::instance()->rollback_package_installation($slug);
+        if (!empty($res['success'])) {
+            $deployed = get_option('sr_cockpit_deployed_kits', []);
+            if (is_array($deployed) && isset($deployed[$slug])) {
+                unset($deployed[$slug]);
+                update_option('sr_cockpit_deployed_kits', $deployed);
+            }
+            wp_send_json_success($res);
+        } else {
+            wp_send_json_error(['message' => $res['error'] ?? __('خطا در اجرای رول‌بک کامل بسته.', 'sedrazavi')]);
+        }
     }
 
     /**
@@ -654,6 +938,7 @@ class Frontend_Cockpit_Engine {
                             <button type="button" class="sr-tab-btn" data-tab="tab-users">👥 مدیریت و پایش کاربران</button>
                             <button type="button" class="sr-tab-btn" data-tab="tab-plugins">🔌 هاب نصب افزونه‌ها</button>
                             <button type="button" class="sr-tab-btn" data-tab="tab-sitekit">🎨 سازنده کیت سایت (Site Kit Builder)</button>
+                            <button type="button" class="sr-tab-btn" data-tab="tab-settings">⚙️ تنظیمات برند و دیتابیس</button>
                         <?php endif; ?>
                     </div>
                     <button type="button" id="sr-cockpit-logout-btn" class="sr-btn sr-btn-outline">خروج</button>
@@ -785,6 +1070,7 @@ class Frontend_Cockpit_Engine {
                                         <td><span class="sr-status-badge"><?php echo esc_html(get_post_status()); ?></span></td>
                                         <td><?php echo esc_html(get_the_date('Y/m/d')); ?></td>
                                         <td>
+                                            <button type="button" class="sr-btn-action sr-btn-edit sr-btn-edit-cpt" data-id="<?php the_ID(); ?>">ویرایش</button>
                                             <button type="button" class="sr-btn-action sr-btn-delete-cpt" data-id="<?php the_ID(); ?>">حذف</button>
                                         </td>
                                     </tr>
@@ -805,7 +1091,31 @@ class Frontend_Cockpit_Engine {
                 <div id="tab-users" class="sr-tab-pane">
                     <div class="sr-panel-header">
                         <h3>مدیریت و پایش اکانت‌های کاربران</h3>
-                        <button type="button" id="sr-btn-new-user" class="sr-btn sr-btn-primary">+ ایجاد دستی کاربر جدید</button>
+                        <div class="sr-panel-actions">
+                            <button type="button" id="sr-btn-export-users-csv" class="sr-btn sr-btn-outline">📤 خروجی CSV کاربران</button>
+                            <button type="button" id="sr-btn-open-bulk-users" class="sr-btn sr-btn-secondary">📥 درون‌ریزی گروهی CSV</button>
+                            <button type="button" id="sr-btn-new-user" class="sr-btn sr-btn-primary">+ ایجاد دستی کاربر جدید</button>
+                        </div>
+                    </div>
+
+                    <!-- Bulk CSV User Import Modal -->
+                    <div id="sr-bulk-users-modal" class="sr-modal" style="display:none;">
+                        <div class="sr-modal-content">
+                            <span class="sr-modal-close">&times;</span>
+                            <h4>درون‌ریزی گروهی حساب‌های کاربری با CSV</h4>
+                            <p class="sr-bulk-hint">هر سطر یک کاربر با فرمت: <code>username,email,display_name,role,domain_tag,phone,password</code></p>
+                            <form id="sr-bulk-users-form">
+                                <div class="sr-form-group">
+                                    <label for="sr-bulk-users-csv">محتوای CSV کاربران:</label>
+                                    <textarea id="sr-bulk-users-csv" class="sr-bulk-textarea" name="csv_data" rows="6" required placeholder="username,email,display_name,role,domain_tag,phone,password&#10;ali_rezaei,ali@example.com,علی رضایی,client,legal,09120000001,Str0ng!Pass"></textarea>
+                                </div>
+                                <div class="sr-modal-actions">
+                                    <button type="submit" class="sr-btn sr-btn-primary">اجرای درون‌ریزی در دیتابیس</button>
+                                    <button type="button" class="sr-btn sr-btn-secondary sr-modal-cancel">انصراف</button>
+                                </div>
+                                <div class="sr-modal-feedback"></div>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Create User Modal -->
@@ -1134,6 +1444,76 @@ class Frontend_Cockpit_Engine {
                             </div>
                         </div>
 
+                        <!-- 4B. Gutenberg Blocks Selector Grid (7 Native Blocks) -->
+                        <div class="sr-sitekit-section">
+                            <div class="sr-section-top">
+                                <div>
+                                    <h4 class="sr-subtitle">🧱 انتخاب بلوک‌های بومی گوتنبرگ (۷ بلوک مستقل):</h4>
+                                    <p class="sr-subdesc">بلوک‌های ویرایشگر گوتنبرگ جهت استفاده بدون نیاز به المنتور در صفحه‌ساز بومی وردپرس.</p>
+                                </div>
+                                <div class="sr-quick-actions">
+                                    <button type="button" id="sr-btn-select-all-blocks" class="sr-btn-text">انتخاب همه</button>
+                                    <button type="button" id="sr-btn-deselect-all-blocks" class="sr-btn-text">لغو انتخاب</button>
+                                </div>
+                            </div>
+                            <div class="sr-sitekit-grid-selector">
+                                <?php
+                                $blocks_list = [
+                                    ['slug' => 'sovereign-vector-bg', 'name' => 'بک‌گراند وکتور مستقل (۶۶ مدل)', 'badge' => 'Vectors'],
+                                    ['slug' => 'sovereign-widget',    'name' => 'ابزارک بومی مستقل',            'badge' => 'Widget'],
+                                    ['slug' => 'sovereign-divider',   'name' => 'جداکننده سکشن وکتور (۶۶ مدل)', 'badge' => 'Divider'],
+                                    ['slug' => 'sovereign-badge',     'name' => 'نشان اعتبار و مهر امنیتی',     'badge' => 'Badge'],
+                                    ['slug' => 'sovereign-section',   'name' => 'بلوک سکشن آماده (۶۶ سناریو)',   'badge' => 'Section'],
+                                    ['slug' => 'sovereign-motion',    'name' => 'لفاف انیمیشن ۶۰ فریم',          'badge' => 'Motion'],
+                                    ['slug' => 'sovereign-icon',      'name' => 'آیکون برداری بدون CDN',        'badge' => 'Icons'],
+                                ];
+                                foreach ($blocks_list as $blk):
+                                ?>
+                                    <label class="sr-sitekit-card">
+                                        <input type="checkbox" class="sr-sitekit-block-cb" value="<?php echo esc_attr($blk['slug']); ?>" checked>
+                                        <div class="sr-card-body">
+                                            <div class="sr-card-header">
+                                                <span class="sr-sitekit-badge"><?php echo esc_html($blk['badge']); ?></span>
+                                            </div>
+                                            <strong><?php echo esc_html($blk['name']); ?></strong>
+                                            <code>sedrazavi/<?php echo esc_html($blk['slug']); ?></code>
+                                        </div>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <!-- 4C. Portable CPT Schemas Selector -->
+                        <div class="sr-sitekit-section">
+                            <div class="sr-section-top">
+                                <div>
+                                    <h4 class="sr-subtitle">🗂️ انتخاب اسکیمای پست‌تایپ‌های قابل حمل (CPT Schemas):</h4>
+                                    <p class="sr-subdesc">اسکیمای پست‌تایپ‌ها و تاکسونومی‌ها با گارد عدم تداخل (post_type_exists) در سایت مقصد ثبت می‌شود.</p>
+                                </div>
+                            </div>
+                            <div class="sr-sitekit-grid-selector">
+                                <?php
+                                $cpts_list = [
+                                    ['slug' => 'portfolio',  'name' => 'نمونه‌کارها (Portfolio)',         'badge' => 'Public CPT'],
+                                    ['slug' => 'services',   'name' => 'خدمات تخصصی (Services)',           'badge' => 'Public CPT'],
+                                    ['slug' => 'case_study', 'name' => 'دعاوی موفق و مطالعات موردی',       'badge' => 'Public CPT'],
+                                ];
+                                foreach ($cpts_list as $cpt_item):
+                                ?>
+                                    <label class="sr-sitekit-card">
+                                        <input type="checkbox" class="sr-sitekit-cpt-cb" value="<?php echo esc_attr($cpt_item['slug']); ?>" checked>
+                                        <div class="sr-card-body">
+                                            <div class="sr-card-header">
+                                                <span class="sr-sitekit-badge"><?php echo esc_html($cpt_item['badge']); ?></span>
+                                            </div>
+                                            <strong><?php echo esc_html($cpt_item['name']); ?></strong>
+                                            <code><?php echo esc_html($cpt_item['slug']); ?></code>
+                                        </div>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
                         <!-- 5. Live Dependency Radar & Capability Inspector -->
                         <div class="sr-sitekit-section sr-sitekit-radar-card">
                             <h4 class="sr-subtitle">⚡ پایشگر گراف وابستگی و خودکفایی (Capability Radar):</h4>
@@ -1145,6 +1525,14 @@ class Frontend_Cockpit_Engine {
                                 <div class="sr-sitekit-radar-item">
                                     <span class="sr-radar-num" id="sr-sitekit-tpl-count">33</span>
                                     <span class="sr-radar-label">قالب‌های آماده جهت تزریق</span>
+                                </div>
+                                <div class="sr-sitekit-radar-item">
+                                    <span class="sr-radar-num" id="sr-sitekit-block-count">7</span>
+                                    <span class="sr-radar-label">بلوک‌های بومی گوتنبرگ</span>
+                                </div>
+                                <div class="sr-sitekit-radar-item">
+                                    <span class="sr-radar-num" id="sr-sitekit-cpt-count">3</span>
+                                    <span class="sr-radar-label">اسکیمای پست‌تایپ (CPT)</span>
                                 </div>
                                 <div class="sr-sitekit-radar-item">
                                     <span class="sr-radar-val" id="sr-sitekit-query-dep">اتصال خودکار کوئری (Dynamic Query Engine)</span>
@@ -1168,11 +1556,98 @@ class Frontend_Cockpit_Engine {
                             <button type="button" id="sr-btn-sitekit-install" class="sr-btn sr-btn-success">
                                 🚀 نصب و فعال‌سازی مستقیم در همین وردپرس
                             </button>
+                            <button type="button" id="sr-btn-sitekit-rollback" class="sr-btn sr-btn-danger">
+                                🔄 رول‌بک کامل کیت مستقرشده (Rollback)
+                            </button>
                         </div>
 
                         <!-- Feedback Box -->
                         <div id="sr-sitekit-feedback" class="sr-sitekit-feedback"></div>
+
+                        <!-- 7. Persisted Deployed Kits Registry from wp_options -->
+                        <?php
+                        $deployed_kits = get_option('sr_cockpit_deployed_kits', []);
+                        if (is_array($deployed_kits) && !empty($deployed_kits)):
+                        ?>
+                        <div class="sr-sitekit-section sr-deployed-kits-list">
+                            <h4 class="sr-subtitle">📋 فهرست کیت‌های مستقرشده در دیتابیس این سایت (wp_options):</h4>
+                            <div class="sr-table-responsive">
+                                <table class="sr-cockpit-table">
+                                    <thead>
+                                        <tr>
+                                            <th>نام کیت</th>
+                                            <th>Slug</th>
+                                            <th>اجزا</th>
+                                            <th>تاریخ استقرار</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($deployed_kits as $dk): ?>
+                                            <tr>
+                                                <td><strong><?php echo esc_html($dk['name'] ?? ''); ?></strong></td>
+                                                <td><code><?php echo esc_html($dk['slug'] ?? ''); ?></code></td>
+                                                <td><?php echo esc_html(($dk['widgets_count'] ?? 0) . ' ویجت / ' . ($dk['blocks_count'] ?? 0) . ' بلوک / ' . ($dk['templates_count'] ?? 0) . ' قالب'); ?></td>
+                                                <td><?php echo esc_html($dk['deployed_at'] ?? ''); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
+                </div>
+
+                <!-- Tab 6: WordPress DB Brand, Colors & Options Settings -->
+                <div id="tab-settings" class="sr-tab-pane">
+                    <div class="sr-panel-header">
+                        <h3>تنظیمات برند، توکن‌های رنگی و مشخصات دفتر (ذخیره‌سازی مستقیم در wp_options)</h3>
+                    </div>
+                    <form id="sr-site-settings-form" class="sr-sitekit-section">
+                        <div class="sr-settings-grid">
+                            <div class="sr-form-group">
+                                <label for="sr_opt_phone">شماره تلفن مستقیم دفتر:</label>
+                                <input type="text" id="sr_opt_phone" name="sedrazavi_office_phone" value="<?php echo esc_attr(get_option('sedrazavi_office_phone', '۰۲۱-۸۸۹۹۰۰۱۱')); ?>">
+                            </div>
+                            <div class="sr-form-group">
+                                <label for="sr_opt_email">ایمیل رسمی دفتر:</label>
+                                <input type="email" id="sr_opt_email" name="sedrazavi_office_email" value="<?php echo esc_attr(get_option('sedrazavi_office_email', 'info@sedrazavi-law.ir')); ?>">
+                            </div>
+                            <div class="sr-form-group">
+                                <label for="sr_opt_address">نشانی دفتر:</label>
+                                <input type="text" id="sr_opt_address" name="sedrazavi_office_address" value="<?php echo esc_attr(get_option('sedrazavi_office_address', '')); ?>">
+                            </div>
+                            <div class="sr-form-group">
+                                <label for="sr_opt_hours">ساعات پاسخگویی:</label>
+                                <input type="text" id="sr_opt_hours" name="sedrazavi_working_hours" value="<?php echo esc_attr(get_option('sedrazavi_working_hours', 'شنبه تا چهارشنبه ۹ الی ۱۸')); ?>">
+                            </div>
+                            <div class="sr-form-group">
+                                <label for="sr_opt_gold">کد رنگ شاخص اصلی (Hex):</label>
+                                <input type="text" id="sr_opt_gold" name="sedrazavi_primary_gold" value="<?php echo esc_attr(get_option('sedrazavi_primary_gold', '#D4AF37')); ?>">
+                            </div>
+                            <div class="sr-form-group">
+                                <label for="sr_opt_navy">کد رنگ پایه دوم (Hex):</label>
+                                <input type="text" id="sr_opt_navy" name="sedrazavi_secondary_navy" value="<?php echo esc_attr(get_option('sedrazavi_secondary_navy', '#0B132B')); ?>">
+                            </div>
+                            <div class="sr-form-group">
+                                <label for="sr_opt_font">فونت اصلی سامانه:</label>
+                                <input type="text" id="sr_opt_font" name="sedrazavi_font_family" value="<?php echo esc_attr(get_option('sedrazavi_font_family', 'Vazirmatn')); ?>">
+                            </div>
+                            <div class="sr-form-group">
+                                <label for="sr_opt_scenario">سناریوی چیدمان فعال:</label>
+                                <?php $cur_sc = get_option('sedrazavi_active_scenario', 'bento-hud'); ?>
+                                <select id="sr_opt_scenario" name="sedrazavi_active_scenario">
+                                    <option value="bento-hud" <?php selected($cur_sc, 'bento-hud'); ?>>Bento HUD (پیش‌فرض مدرن)</option>
+                                    <option value="dense-matrix" <?php selected($cur_sc, 'dense-matrix'); ?>>Dense Matrix (داده‌محور متراکم)</option>
+                                    <option value="hybrid-executive" <?php selected($cur_sc, 'hybrid-executive'); ?>>Hybrid Executive (ترکیبی مدیریتی)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="sr-modal-actions">
+                            <button type="submit" class="sr-btn sr-btn-primary">💾 ذخیره مستقیم در دیتابیس وردپرس (wp_options)</button>
+                        </div>
+                        <div id="sr-site-settings-feedback" class="sr-form-feedback"></div>
+                    </form>
                 </div>
                 <?php endif; ?>
 

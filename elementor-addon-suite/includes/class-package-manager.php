@@ -1,15 +1,30 @@
 <?php
 namespace UniversalElementorSuite;
 
+use UniversalElementorSuite\Packaging\Archive_Security_Validator;
+use UniversalElementorSuite\Packaging\Dependency_Resolver;
+use UniversalElementorSuite\Packaging\Package_Exporter;
+use UniversalElementorSuite\Packaging\Package_Installer;
+use UniversalElementorSuite\Packaging\Package_Manifest_Validator;
+use UniversalElementorSuite\Packaging\Package_Registry;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once __DIR__ . '/packaging/class-package-registry.php';
+require_once __DIR__ . '/packaging/class-package-manifest-validator.php';
+require_once __DIR__ . '/packaging/class-dependency-resolver.php';
+require_once __DIR__ . '/packaging/class-archive-security-validator.php';
+require_once __DIR__ . '/packaging/class-package-exporter.php';
+require_once __DIR__ . '/packaging/class-package-installer.php';
+
 /**
- * Modular Capability Package Manager & Standalone ZIP Exporter
+ * Modular Capability Package Manager & Standalone ZIP Exporter (Facade / Orchestrator)
  *
- * Implements package manifest parsing, dependency verification, compatibility validation,
- * and one-click standalone ZIP plugin extraction for zero-lockin portability.
+ * Delegates package registry, manifest & SHA-256 checksum validation, dependency graph resolution,
+ * archive security auditing, standalone bundle building, and atomic installation/rollback
+ * to single-responsibility modules under includes/packaging/.
  *
  * @package Universal_Elementor_Suite
  * @author Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)
@@ -17,6 +32,24 @@ if (!defined('ABSPATH')) {
 class Package_Manager {
 
     private static $_instance = null;
+
+    /** @var Package_Registry */
+    private $registry;
+
+    /** @var Package_Manifest_Validator */
+    private $manifest_validator;
+
+    /** @var Dependency_Resolver */
+    private $dependency_resolver;
+
+    /** @var Archive_Security_Validator */
+    private $security_validator;
+
+    /** @var Package_Exporter */
+    private $exporter;
+
+    /** @var Package_Installer */
+    private $installer;
 
     public static function instance() {
         if (is_null(self::$_instance)) {
@@ -26,6 +59,13 @@ class Package_Manager {
     }
 
     public function __construct() {
+        $this->registry            = new Package_Registry();
+        $this->manifest_validator  = new Package_Manifest_Validator();
+        $this->dependency_resolver = new Dependency_Resolver();
+        $this->security_validator  = new Archive_Security_Validator();
+        $this->exporter            = new Package_Exporter();
+        $this->installer           = new Package_Installer();
+
         add_action('rest_api_init', [$this, 'register_rest_routes']);
         add_action('admin_post_uas_download_package', [$this, 'handle_package_download']);
         add_action('admin_post_uas_download_custom_bundle', [$this, 'handle_custom_bundle_download']);
@@ -78,348 +118,85 @@ class Package_Manager {
         return current_user_can('manage_options');
     }
 
-    /**
-     * Validate a package manifest against current environment
-     *
-     * @param array $manifest
-     * @return array [ 'valid' => bool, 'errors' => array, 'warnings' => array ]
-     */
+    public function get_portable_packages() {
+        return $this->registry->get_portable_packages();
+    }
+
     public function validate_manifest(array $manifest) {
-        $errors   = [];
-        $warnings = [];
-
-        // Required keys
-        $required_keys = ['id', 'name', 'version', 'package_type'];
-        foreach ($required_keys as $key) {
-            if (empty($manifest[$key])) {
-                $errors[] = sprintf('کلید الزامی "%s" در فایل مانیفست پکیج یافت نشد.', $key);
-            }
-        }
-
-        // Requirements validation
-        if (!empty($manifest['requirements'])) {
-            $req = $manifest['requirements'];
-
-            // PHP Check
-            if (!empty($req['php'])) {
-                $min_php = ltrim($req['php'], '>=');
-                if (version_compare(PHP_VERSION, $min_php, '<')) {
-                    $errors[] = sprintf('نسخه PHP سرور (%s) پایین‌تر از حداقل نیازمندی این بسته (%s) است.', PHP_VERSION, $min_php);
-                }
-            }
-
-            // WordPress Check
-            if (!empty($req['wordpress'])) {
-                $min_wp = ltrim($req['wordpress'], '>=');
-                $wp_version = get_bloginfo('version');
-                if (version_compare($wp_version, $min_wp, '<')) {
-                    $errors[] = sprintf('نسخه وردپرس (%s) با این بسته سازگار نیست (نیاز به %s دارد).', $wp_version, $min_wp);
-                }
-            }
-
-            // Elementor Pro warning
-            if (!empty($req['elementor_pro']) && !defined('ELEMENTOR_PRO_VERSION')) {
-                $warnings[] = 'این بسته از ویژگی‌های پیشرفته المنتور پرو استفاده می‌کند؛ در نسخه رایگان با فال‌بک کار خواهد کرد.';
-            }
-        }
-
-        return [
-            'valid'    => empty($errors),
-            'errors'   => $errors,
-            'warnings' => $warnings,
-        ];
+        return $this->manifest_validator->validate_manifest($manifest);
     }
 
-    /**
-     * Generate and build a standalone portable WordPress plugin ZIP file
-     *
-     * @param string $package_id
-     * @return array [ 'success' => bool, 'zip_path' => string, 'zip_url' => string, 'filename' => string, 'error' => string ]
-     */
     public function export_standalone_package($package_id) {
-        $packages = $this->get_portable_packages();
-        $target_package = null;
-        foreach ($packages as $pkg) {
-            if ($pkg['id'] === $package_id) {
-                $target_package = $pkg;
-                break;
-            }
-        }
-
-        if (!$target_package) {
-            return ['success' => false, 'error' => 'بسته مورد نظر در رجیستری پکیج‌ها یافت نشد.'];
-        }
-
-        $upload_dir = wp_upload_dir();
-        $export_dir = trailingslashit($upload_dir['basedir']) . 'uas-standalone-packages/';
-        if (!wp_mkdir_p($export_dir)) {
-            return ['success' => false, 'error' => 'امکان ایجاد پوشه خروجی در uploads وجود ندارد.'];
-        }
-
-        $clean_slug = sanitize_key($package_id);
-        $zip_filename = $clean_slug . '-standalone-v' . $target_package['version'] . '.zip';
-        $zip_filepath = $export_dir . $zip_filename;
-        $zip_fileurl  = trailingslashit($upload_dir['baseurl']) . 'uas-standalone-packages/' . $zip_filename;
-
-        // Strictly verify ZipArchive extension is installed
-        if (!class_exists('\ZipArchive')) {
-            return [
-                'success' => false,
-                'error'   => 'ماژول ZipArchive در تنظیمات PHP سرور فعال نیست. امکان ایجاد پکیج زیپ وجود ندارد.',
-            ];
-        }
-
-        $zip = new \ZipArchive();
-        $open_res = $zip->open($zip_filepath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-        if ($open_res !== true) {
-            return [
-                'success' => false,
-                'error'   => sprintf('خطا در ایجاد یا باز کردن فایل فشرده زیپ پکیج (کد خطا: %s).', (string)$open_res),
-            ];
-        }
-
-        // 1. Add manifest.json
-        $zip->addFromString($clean_slug . '/manifest.json', json_encode($target_package, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
-        // 2. Add Main Standalone Plugin File
-        $main_plugin_content = $this->generate_standalone_plugin_header($target_package, $clean_slug);
-        $zip->addFromString($clean_slug . '/' . $clean_slug . '.php', $main_plugin_content);
-
-        // 3. Add Core widget base & category definition so widget runs in standalone site
-        $base_php = UAS_PATH . 'includes/class-widget-base.php';
-        if (file_exists($base_php)) {
-            $zip->addFile($base_php, $clean_slug . '/includes/class-widget-base.php');
-        }
-        $core_css = UAS_PATH . 'assets/css/widgets-core.css';
-        if (file_exists($core_css)) {
-            $zip->addFile($core_css, $clean_slug . '/assets/css/widgets-core.css');
-        }
-
-        // 4. Add widget file if defined
-        if (!empty($target_package['components']['widget'])) {
-            $widget_name = $target_package['components']['widget'];
-            $widget_filename = 'class-widget-' . str_replace('uas_', '', str_replace('_', '-', $widget_name)) . '.php';
-            $widget_src = UAS_PATH . 'includes/widgets/' . $widget_filename;
-            if (file_exists($widget_src)) {
-                $zip->addFile($widget_src, $clean_slug . '/includes/' . $widget_filename);
-            }
-        }
-
-        // 4. Add widget JS file if defined
-        if (!empty($target_package['components']['javascript'])) {
-            $js_file = $target_package['components']['javascript'];
-            $js_src = UAS_PATH . 'assets/js/widgets/' . $js_file;
-            if (file_exists($js_src)) {
-                $zip->addFile($js_src, $clean_slug . '/assets/js/' . $js_file);
-            }
-        }
-
-        // 5. Add widget CSS file if defined
-        if (!empty($target_package['components']['css'])) {
-            $css_file = $target_package['components']['css'];
-            $css_src = UAS_PATH . 'assets/css/widgets/' . $css_file;
-            if (file_exists($css_src)) {
-                $zip->addFile($css_src, $clean_slug . '/assets/css/' . $css_file);
-            }
-        }
-
-        $close_res = $zip->close();
-        if (!$close_res || !file_exists($zip_filepath) || filesize($zip_filepath) === 0) {
-            return [
-                'success' => false,
-                'error'   => 'ساخت فایل زیپ با شکست مواجه شد یا فایل خروجی نهایی خالی است.',
-            ];
-        }
-
-        return [
-            'success'  => true,
-            'zip_path' => $zip_filepath,
-            'zip_url'  => $zip_fileurl,
-            'filename' => $zip_filename,
-        ];
+        return $this->exporter->export_standalone_package(
+            $package_id,
+            $this->get_portable_packages(),
+            $this->manifest_validator
+        );
     }
 
-    /**
-     * Recursive Dependency Resolution Engine
-     * Resolves all dependencies needed for a package and detects conflicts and cycles.
-     *
-     * @param string $package_id
-     * @param array $resolved
-     * @param array $unresolved (for cycle detection)
-     * @return array [ 'success' => bool, 'resolved' => array, 'errors' => array ]
-     */
     public function resolve_package_dependencies($package_id, array &$resolved = [], array &$unresolved = []) {
-        $packages = $this->get_portable_packages();
-        $target = null;
-        foreach ($packages as $pkg) {
-            if ($pkg['id'] === $package_id) {
-                $target = $pkg;
-                break;
-            }
-        }
-
-        if (!$target) {
-            return [
-                'success'  => false,
-                'resolved' => [],
-                'errors'   => [sprintf('پکیج "%s" در رجیستری یافت نشد.', $package_id)],
-            ];
-        }
-
-        $unresolved[$package_id] = true;
-        $dependencies = $target['dependencies'] ?? [];
-
-        foreach ($dependencies as $dep_id) {
-            if (in_array($dep_id, $resolved, true)) {
-                continue;
-            }
-
-            if (!empty($unresolved[$dep_id])) {
-                return [
-                    'success'  => false,
-                    'resolved' => [],
-                    'errors'   => [sprintf('تشخیص چرخه وابستگی دوطرفه (Circular Dependency): بین %s و %s.', $package_id, $dep_id)],
-                ];
-            }
-
-            $sub_res = $this->resolve_package_dependencies($dep_id, $resolved, $unresolved);
-            if (!$sub_res['success']) {
-                return $sub_res;
-            }
-        }
-
-        unset($unresolved[$package_id]);
-        if (!in_array($package_id, $resolved, true)) {
-            $resolved[] = $package_id;
-        }
-
-        return [
-            'success'  => true,
-            'resolved' => $resolved,
-            'errors'   => [],
-        ];
+        return $this->dependency_resolver->resolve_package_dependencies(
+            $package_id,
+            $this->get_portable_packages(),
+            $resolved,
+            $unresolved
+        );
     }
 
-    /**
-     * Check for conflicting packages or incompatibilities
-     *
-     * @param string $package_id
-     * @return array [ 'conflict' => bool, 'messages' => array ]
-     */
     public function check_package_conflicts($package_id) {
-        $packages = $this->get_portable_packages();
-        $target = null;
-        foreach ($packages as $pkg) {
-            if ($pkg['id'] === $package_id) {
-                $target = $pkg;
-                break;
-            }
-        }
-
-        if (!$target) {
-            return ['conflict' => true, 'messages' => ['پکیج یافت نشد.']];
-        }
-
-        $conflicts = [];
-        $conflicts_with = $target['conflicts'] ?? [];
-
-        foreach ($conflicts_with as $conflict_slug) {
-            if (is_plugin_active($conflict_slug) || defined(strtoupper(str_replace('-', '_', $conflict_slug)) . '_VERSION')) {
-                $conflicts[] = sprintf('تداخل ساختاری: پکیج %s با ماژول فعال %s در تضاد است.', $package_id, $conflict_slug);
-            }
-        }
-
-        return [
-            'conflict' => !empty($conflicts),
-            'messages' => $conflicts,
-        ];
+        return $this->dependency_resolver->check_package_conflicts(
+            $package_id,
+            $this->get_portable_packages()
+        );
     }
 
-    /**
-     * Generate standalone WordPress plugin loader PHP code
-     */
-    private function generate_standalone_plugin_header(array $package, $slug) {
-        $name    = esc_html($package['name']);
-        $desc    = esc_html($package['description']);
-        $version = esc_html($package['version']);
-        $min_php = esc_html($package['requirements']['php'] ?? '7.4');
-        $min_wp  = esc_html($package['requirements']['wordpress'] ?? '6.0');
-
-        return "<?php
-/**
- * Plugin Name: Universal {$name} (Standalone Elementor Addon)
- * Plugin URI: https://github.com/sedrazavi/wordpress-theme
- * Description: {$desc}
- * Version: {$version}
- * Author: Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)
- * Text Domain: {$slug}
- * Requires at least: {$min_wp}
- * Requires PHP: {$min_php}
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// Category fallback definition if parent suite is not active
-if (!class_exists('\\UniversalElementorSuite\\Plugin')) {
-    class UniversalElementorSuite_Plugin_Fallback {
-        const CATEGORY_SLUG = 'sedrazavi-sovereign-suite';
-    }
-    class_alias('UniversalElementorSuite_Plugin_Fallback', 'UniversalElementorSuite\\Plugin');
-}
-
-add_action('elementor/elements/categories_registered', function($elements_manager) {
-    $elements_manager->add_category(
-        'sedrazavi-sovereign-suite',
-        [
-            'title' => esc_html__('سوییت مستقل سیدرضوی (SedRazavi)', '{$slug}'),
-            'icon'  => 'fa fa-plug',
-        ]
-    );
-});
-
-add_action('elementor/widgets/register', function(\$widgets_manager) {
-    if (file_exists(__DIR__ . '/includes/class-widget-base.php')) {
-        require_once __DIR__ . '/includes/class-widget-base.php';
+    public function build_custom_project_bundle(array $params) {
+        return $this->exporter->build_custom_project_bundle(
+            $params,
+            $this->registry->get_widget_catalog(),
+            $this->dependency_resolver,
+            $this->manifest_validator,
+            $this->registry
+        );
     }
 
-    if (file_exists(__DIR__ . '/includes/')) {
-        foreach (glob(__DIR__ . '/includes/class-widget-*.php') as \$file) {
-            require_once \$file;
-        }
+    public function get_gutenberg_blocks_catalog() {
+        return $this->registry->get_gutenberg_blocks_catalog();
     }
 
-    \$classes = get_declared_classes();
-    foreach (\$classes as \$cls) {
-        if (strpos(\$cls, 'UniversalElementorSuite\\\\Widgets\\\\') === 0 && is_subclass_of(\$cls, '\\\\Elementor\\\\Widget_Base')) {
-            if (method_exists(\$widgets_manager, 'register')) {
-                \$widgets_manager->register(new \$cls());
-            } elseif (method_exists(\$widgets_manager, 'register_widget_type')) {
-                \$widgets_manager->register_widget_type(new \$cls());
-            }
-        }
+    public function get_cpt_schemas_catalog() {
+        return $this->registry->get_cpt_schemas_catalog();
     }
-});
 
-add_action('wp_enqueue_scripts', function() {
-    if (file_exists(__DIR__ . '/assets/css/widgets-core.css')) {
-        wp_enqueue_style('{$slug}-core', plugins_url('assets/css/widgets-core.css', __FILE__));
+    public function verify_archive_security($zip_filepath) {
+        return $this->security_validator->verify_archive_security(
+            $zip_filepath,
+            $this->manifest_validator
+        );
     }
-    if (file_exists(__DIR__ . '/assets/css/')) {
-        foreach (glob(__DIR__ . '/assets/css/*.css') as \$css) {
-            if (basename(\$css) !== 'widgets-core.css') {
-                wp_enqueue_style('{$slug}-' . basename(\$css, '.css'), plugins_url('assets/css/' . basename(\$css), __FILE__));
-            }
-        }
+
+    public function preflight_check($target) {
+        return $this->installer->preflight_check(
+            $target,
+            $this->registry,
+            $this->manifest_validator,
+            $this->dependency_resolver
+        );
     }
-    if (file_exists(__DIR__ . '/assets/js/')) {
-        foreach (glob(__DIR__ . '/assets/js/*.js') as \$js) {
-            wp_enqueue_script('{$slug}-' . basename(\$js, '.js'), plugins_url('assets/js/' . basename(\$js), __FILE__), ['jquery'], '1.0.0', true);
-        }
+
+    public function import_package_archive($zip_filepath, $dry_run = false, $target_dir = null) {
+        return $this->installer->import_package_archive(
+            $zip_filepath,
+            $dry_run,
+            $target_dir,
+            $this->security_validator,
+            $this->manifest_validator,
+            [$this, 'preflight_check']
+        );
     }
-});
-";
+
+    public function rollback_package_installation($package_id) {
+        return $this->installer->rollback_package_installation($package_id);
     }
 
     /**
@@ -442,7 +219,6 @@ add_action('wp_enqueue_scripts', function() {
             wp_die(esc_html__('خطا در تولید بسته مستقل ZIP.', 'universal-elementor-suite'));
         }
 
-        // Stream ZIP file directly
         header('Content-Type: application/zip');
         header('Content-Disposition: attachment; filename="' . esc_attr($res['filename']) . '"');
         header('Content-Length: ' . filesize($res['zip_path']));
@@ -495,6 +271,9 @@ add_action('wp_enqueue_scripts', function() {
             'project_slug'         => isset($_POST['project_slug']) ? sanitize_title($_POST['project_slug']) : 'custom-project-kit',
             'selected_widgets'     => isset($_POST['widgets']) && is_array($_POST['widgets']) ? array_map('sanitize_key', $_POST['widgets']) : [],
             'selected_templates'   => isset($_POST['templates']) && is_array($_POST['templates']) ? array_map('sanitize_key', $_POST['templates']) : [],
+            'selected_blocks'      => isset($_POST['blocks']) && is_array($_POST['blocks']) ? array_map('sanitize_text_field', $_POST['blocks']) : [],
+            'selected_cpts'        => isset($_POST['cpts']) && is_array($_POST['cpts']) ? array_map('sanitize_key', $_POST['cpts']) : [],
+            'design_tokens'        => isset($_POST['design_tokens']) && is_array($_POST['design_tokens']) ? array_map('sanitize_text_field', $_POST['design_tokens']) : [],
             'niche'                => isset($_POST['niche']) ? sanitize_key($_POST['niche']) : 'general',
             'include_theme_bridge' => !empty($_POST['include_theme_bridge']),
             'include_query_engine' => !empty($_POST['include_query_engine']),
@@ -545,621 +324,6 @@ add_action('wp_enqueue_scripts', function() {
     }
 
     /**
-     * Build Custom Project Bundle on the fly
-     * Compiles selected widgets, templates, and services into a portable standalone WordPress plugin ZIP.
-     *
-     * @param array $params
-     * @return array
-     */
-    public function build_custom_project_bundle(array $params) {
-        if (!class_exists('\ZipArchive')) {
-            return ['success' => false, 'error' => 'ماژول ZipArchive در تنظیمات PHP سرور فعال نیست.'];
-        }
-
-        $project_name = !empty($params['project_name']) ? sanitize_text_field($params['project_name']) : 'پروژه سفارشی المنتور';
-        $project_slug = !empty($params['project_slug']) ? sanitize_title($params['project_slug']) : 'custom-elementor-suite';
-        if (empty($project_slug)) {
-            $project_slug = 'custom-elementor-suite';
-        }
-
-        $widgets = !empty($params['selected_widgets']) && is_array($params['selected_widgets']) ? array_map('sanitize_key', $params['selected_widgets']) : [];
-        $templates = !empty($params['selected_templates']) && is_array($params['selected_templates']) ? array_map('sanitize_key', $params['selected_templates']) : [];
-        $niche = !empty($params['niche']) ? sanitize_key($params['niche']) : 'general';
-        $include_bridge = !empty($params['include_theme_bridge']);
-        $include_query = !empty($params['include_query_engine']);
-
-        $upload_dir = wp_upload_dir();
-        $export_dir = trailingslashit($upload_dir['basedir']) . 'uas-standalone-packages/';
-        wp_mkdir_p($export_dir);
-
-        $zip_filename = $project_slug . '-standalone-kit.zip';
-        $zip_filepath = $export_dir . $zip_filename;
-        $zip_fileurl  = trailingslashit($upload_dir['baseurl']) . 'uas-standalone-packages/' . $zip_filename;
-
-        $zip = new \ZipArchive();
-        if ($zip->open($zip_filepath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
-            return ['success' => false, 'error' => 'امکان ایجاد فایل زیپ در سرور وجود ندارد.'];
-        }
-
-        // 1. Manifest
-        $manifest = [
-            'id'           => $project_slug,
-            'name'         => $project_name,
-            'version'      => '1.0.0',
-            'package_type' => 'custom-project-kit',
-            'niche'        => $niche,
-            'created_at'   => current_time('mysql'),
-            'widgets'      => $widgets,
-            'templates'    => $templates,
-            'capabilities' => [
-                'theme_bridge' => $include_bridge,
-                'query_engine' => $include_query,
-            ],
-            'requirements' => [
-                'php'       => '>=7.4',
-                'wordpress' => '>=6.0',
-                'elementor' => '>=3.10',
-            ],
-        ];
-        $zip->addFromString($project_slug . '/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
-        // 2. Main Plugin Loader PHP
-        $main_plugin = $this->generate_custom_bundle_plugin_file($manifest, $project_slug);
-        $zip->addFromString($project_slug . '/' . $project_slug . '.php', $main_plugin);
-
-        // Authoritative Widget Catalog with Dependency Resolution
-        $widget_catalog = [
-            'banner_slider'     => ['file' => 'class-widget-banner-slider.php',     'js' => 'banner-slider.js',     'css' => 'banner-slider.css'],
-            'before_after'      => ['file' => 'class-widget-before-after.php',      'js' => 'before-after.js',      'css' => 'before-after.css'],
-            'bento_tabs'        => ['file' => 'class-widget-bento-tabs.php',        'js' => 'bento-tabs.js',        'css' => 'bento-tabs.css'],
-            'case_timeline'     => ['file' => 'class-widget-case-timeline.php',     'js' => 'case-timeline.js',     'css' => 'case-timeline.css'],
-            'client_portal'     => ['file' => 'class-widget-client-portal.php',     'js' => 'client-portal.js',     'css' => 'client-portal.css'],
-            'contact_booking'   => ['file' => 'class-widget-contact-booking.php',   'js' => 'contact-booking.js',   'css' => 'contact-booking.css'],
-            'cta'               => ['file' => 'class-widget-cta.php',               'js' => 'cta.js',               'css' => 'cta.css'],
-            'download_box'      => ['file' => 'class-widget-download-box.php',      'js' => 'download-box.js',      'css' => 'download-box.css'],
-            'dynamic_grid'      => ['file' => 'class-widget-dynamic-grid.php',      'js' => 'dynamic-grid.js',      'css' => 'dynamic-grid.css', 'needs_query' => true],
-            'email_otp'         => ['file' => 'class-widget-email-otp.php',         'js' => 'email-otp.js',         'css' => 'email-otp.css'],
-            'faq'               => ['file' => 'class-widget-faq.php',               'js' => 'faq.js',               'css' => 'faq.css'],
-            'firm_milestones'   => ['file' => 'class-widget-firm-milestones.php',   'js' => 'firm-milestones.js',   'css' => 'firm-milestones.css'],
-            'floating_cta'      => ['file' => 'class-widget-floating-cta.php',      'js' => 'floating-cta.js',      'css' => 'floating-cta.css'],
-            'floating_dock'     => ['file' => 'class-widget-floating-dock.php',     'js' => 'floating-dock.js',     'css' => 'floating-dock.css'],
-            'fomo_countdown'    => ['file' => 'class-widget-fomo-countdown.php',    'js' => 'fomo-countdown.js',    'css' => 'fomo-countdown.css'],
-            'hero'              => ['file' => 'class-widget-hero.php',              'js' => 'hero.js',              'css' => 'hero.css'],
-            'hero_split'        => ['file' => 'class-widget-hero-split.php',        'js' => 'hero-split.js',        'css' => 'hero-split.css'],
-            'news_ticker'       => ['file' => 'class-widget-news-ticker.php',       'js' => 'news-ticker.js',       'css' => 'news-ticker.css'],
-            'posts'             => ['file' => 'class-widget-posts.php',             'js' => 'posts.js',             'css' => 'posts.css', 'needs_query' => true],
-            'posts_grid'        => ['file' => 'class-widget-posts.php',             'js' => 'posts.js',             'css' => 'posts.css', 'needs_query' => true],
-            'pricing_matrix'    => ['file' => 'class-widget-pricing-matrix.php',    'js' => 'pricing-matrix.js',    'css' => 'pricing-matrix.css'],
-            'pricing_switcher'  => ['file' => 'class-widget-pricing-switcher.php',  'js' => 'pricing-switcher.js',  'css' => 'pricing-switcher.css'],
-            'radar_chart'       => ['file' => 'class-widget-radar-chart.php',       'js' => 'radar-chart.js',       'css' => 'radar-chart.css'],
-            'services_grid'     => ['file' => 'class-widget-services-grid.php',     'js' => 'services-grid.js',     'css' => 'services-grid.css', 'needs_query' => true],
-            'spotplayer_course' => ['file' => 'class-widget-spotplayer-course.php', 'js' => 'spotplayer-course.js', 'css' => 'spotplayer-course.css'],
-            'stat_counter'      => ['file' => 'class-widget-stat-counter.php',      'js' => 'stat-counter.js',      'css' => 'stat-counter.css'],
-            'story_bar'         => ['file' => 'class-widget-story-bar.php',         'js' => 'story-bar.js',         'css' => 'story-bar.css'],
-            'team'              => ['file' => 'class-widget-team.php',              'js' => 'team.js',              'css' => 'team.css'],
-            'testimonials'      => ['file' => 'class-widget-testimonials.php',      'js' => 'testimonials.js',      'css' => 'testimonials.css'],
-            'theme_toggle'      => ['file' => 'class-widget-theme-toggle.php',      'js' => 'theme-toggle.js',      'css' => 'theme-toggle.css'],
-            'video'             => ['file' => 'class-widget-video.php',             'js' => 'video.js',             'css' => 'video.css'],
-            'vip_pricing'       => ['file' => 'class-widget-vip-pricing.php',       'js' => 'vip-pricing.js',       'css' => 'vip-pricing.css'],
-        ];
-
-        // Auto-detect and resolve dependencies (e.g. Dynamic Query Engine)
-        foreach ($widgets as $w_raw) {
-            $normalized_key = strtolower(str_replace(['uas_', 'class-widget-', '.php', '-'], ['', '', '', '_'], $w_raw));
-            if (!empty($widget_catalog[$normalized_key]['needs_query'])) {
-                $include_query = true;
-            }
-        }
-
-        // 1. Manifest
-        $manifest = [
-            'id'           => $project_slug,
-            'name'         => $project_name,
-            'version'      => '1.0.0',
-            'package_type' => 'custom-project-kit',
-            'niche'        => $niche,
-            'created_at'   => current_time('mysql'),
-            'widgets'      => $widgets,
-            'templates'    => $templates,
-            'capabilities' => [
-                'theme_bridge' => $include_bridge,
-                'query_engine' => $include_query,
-            ],
-            'requirements' => [
-                'php'       => '>=7.4',
-                'wordpress' => '>=6.0',
-                'elementor' => '>=3.10',
-            ],
-        ];
-        $zip->addFromString($project_slug . '/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
-        // 2. Main Plugin Loader PHP
-        $main_plugin = $this->generate_custom_bundle_plugin_file($manifest, $project_slug);
-        $zip->addFromString($project_slug . '/' . $project_slug . '.php', $main_plugin);
-
-        // 3. Add Widget files via Resolved Dependency Catalog
-        foreach ($widgets as $w_raw) {
-            $normalized_key = strtolower(str_replace(['uas_', 'class-widget-', '.php', '-'], ['', '', '', '_'], $w_raw));
-            $w_meta = $widget_catalog[$normalized_key] ?? null;
-
-            if ($w_meta) {
-                $w_file = $w_meta['file'];
-                $src_w = UAS_PATH . 'includes/widgets/' . $w_file;
-                if (file_exists($src_w)) {
-                    $zip->addFile($src_w, $project_slug . '/includes/widgets/' . $w_file);
-                }
-
-                if (!empty($w_meta['js'])) {
-                    $src_js = UAS_PATH . 'assets/js/widgets/' . $w_meta['js'];
-                    if (file_exists($src_js)) {
-                        $zip->addFile($src_js, $project_slug . '/assets/js/' . $w_meta['js']);
-                    }
-                }
-
-                if (!empty($w_meta['css'])) {
-                    $src_css = UAS_PATH . 'assets/css/widgets/' . $w_meta['css'];
-                    if (file_exists($src_css)) {
-                        $zip->addFile($src_css, $project_slug . '/assets/css/' . $w_meta['css']);
-                    }
-                }
-            } else {
-                // Fallback direct name match
-                $base_name = str_replace('uas_', '', str_replace('_', '-', $w_raw));
-                $w_file = 'class-widget-' . $base_name . '.php';
-                $src_w = UAS_PATH . 'includes/widgets/' . $w_file;
-                if (file_exists($src_w)) {
-                    $zip->addFile($src_w, $project_slug . '/includes/widgets/' . $w_file);
-                }
-            }
-        }
-
-        // 4. Add Core widget base & styling
-        $base_php = UAS_PATH . 'includes/class-widget-base.php';
-        if (file_exists($base_php)) {
-            $zip->addFile($base_php, $project_slug . '/includes/class-widget-base.php');
-        }
-        $core_css = UAS_PATH . 'assets/css/widgets-core.css';
-        if (file_exists($core_css)) {
-            $zip->addFile($core_css, $project_slug . '/assets/css/widgets-core.css');
-        }
-
-        // 5. Add Template files
-        foreach ($templates as $t_slug) {
-            $t_file = UAS_PATH . 'templates/' . $t_slug . '.json';
-            if (!file_exists($t_file)) {
-                $t_file = UAS_PATH . 'templates/popups/' . $t_slug . '.json';
-            }
-            if (file_exists($t_file)) {
-                $zip->addFile($t_file, $project_slug . '/templates/' . basename($t_file));
-            }
-        }
-
-        // 5b. Add Sovereign Fonts and Palettes if available for zero-lockin self-containment
-        $fonts_dir = UAS_PATH . 'assets/fonts/';
-        if (is_dir($fonts_dir)) {
-            foreach (glob($fonts_dir . '*.*') as $font_file) {
-                $zip->addFile($font_file, $project_slug . '/assets/fonts/' . basename($font_file));
-            }
-        }
-        $palettes_css = UAS_PATH . 'assets/css/palettes.css';
-        if (file_exists($palettes_css)) {
-            $zip->addFile($palettes_css, $project_slug . '/assets/css/palettes.css');
-        }
-
-        // 6. If Theme Builder Bridge is enabled
-        if ($include_bridge) {
-            $bridge_php = UAS_PATH . 'includes/class-theme-builder-bridge.php';
-            if (file_exists($bridge_php)) {
-                $zip->addFile($bridge_php, $project_slug . '/includes/class-theme-builder-bridge.php');
-            }
-        }
-
-        // 7. If Dynamic Query Engine is enabled
-        if ($include_query) {
-            $query_php = UAS_PATH . 'includes/class-dynamic-query-engine.php';
-            if (file_exists($query_php)) {
-                $zip->addFile($query_php, $project_slug . '/includes/class-dynamic-query-engine.php');
-            }
-        }
-
-        $zip->close();
-
-        if (!file_exists($zip_filepath) || filesize($zip_filepath) === 0) {
-            return ['success' => false, 'error' => 'فایل بسته نهایی ایجاد نشد یا خالی است.'];
-        }
-
-        return [
-            'success'         => true,
-            'zip_path'        => $zip_filepath,
-            'zip_url'         => $zip_fileurl,
-            'filename'        => $zip_filename,
-            'filesize'        => size_format(filesize($zip_filepath)),
-            'widgets_count'   => count($widgets),
-            'templates_count' => count($templates),
-            'message'         => sprintf('بسته مستقل «%s» با موفقیت کامپایل گردید (%s).', $project_name, size_format(filesize($zip_filepath))),
-        ];
-    }
-
-    /**
-     * Generate standalone WordPress plugin loader PHP code for custom project kit
-     */
-    private function generate_custom_bundle_plugin_file(array $manifest, $slug) {
-        $name    = esc_html($manifest['name']);
-        $version = esc_html($manifest['version']);
-        $niche   = esc_html($manifest['niche']);
-        $has_bridge = !empty($manifest['capabilities']['theme_bridge']);
-        $has_query  = !empty($manifest['capabilities']['query_engine']);
-
-        $bridge_code = $has_bridge ? "if (file_exists(__DIR__ . '/includes/class-theme-builder-bridge.php')) {
-    require_once __DIR__ . '/includes/class-theme-builder-bridge.php';
-    if (class_exists('\\\\UniversalElementorSuite\\\\Theme_Builder_Bridge')) {
-        \\\\UniversalElementorSuite\\\\Theme_Builder_Bridge::instance();
-    }
-}" : "";
-
-        $query_code = $has_query ? "if (file_exists(__DIR__ . '/includes/class-dynamic-query-engine.php')) {
-    require_once __DIR__ . '/includes/class-dynamic-query-engine.php';
-    if (class_exists('\\\\UniversalElementorSuite\\\\Dynamic_Query_Engine')) {
-        \\\\UniversalElementorSuite\\\\Dynamic_Query_Engine::instance();
-    }
-}" : "";
-
-        return "<?php
-/**
- * Plugin Name: {$name} (Custom Project Kit)
- * Plugin URI: https://github.com/sedrazavi/wordpress-theme
- * Description: بسته سفارشی، قابل حمل و بهینه‌سازی‌شده برای پروژه ({$niche})؛ تولیدشده توسط استودیوی اکوسیستم SedRazavi.
- * Version: {$version}
- * Author: Seyyed Amir Hossein Razavi Fordoei (@sedrazavi)
- * Text Domain: {$slug}
- * Requires at least: 6.0
- * Requires PHP: 7.4
- */
-
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// Category fallback definition if parent suite is not active (prevents fatal errors on clean destination sites)
-if (!class_exists('\\UniversalElementorSuite\\Plugin')) {
-    class UniversalElementorSuite_Plugin_Fallback {
-        const CATEGORY_SLUG = 'universal-elementor-suite';
-    }
-    class_alias('UniversalElementorSuite_Plugin_Fallback', 'UniversalElementorSuite\\Plugin');
-}
-
-// Ensure Elementor widget category is registered
-add_action('elementor/elements/categories_registered', function(\$elements_manager) {
-    \$elements_manager->add_category(
-        'universal-elementor-suite',
-        [
-            'title' => esc_html__('سوییت مستقل سفارشی سیدرضوی (SedRazavi)', '{$slug}'),
-            'icon'  => 'fa fa-cube',
-        ]
-    );
-    \$elements_manager->add_category(
-        'sedrazavi-sovereign-suite',
-        [
-            'title' => esc_html__('سوییت حاکمیتی سیدرضوی (SedRazavi Sovereign)', '{$slug}'),
-            'icon'  => 'fa fa-cubes',
-        ]
-    );
-});
-
-// 1. Auto-import templates into Elementor Library on Activation
-register_activation_hook(__FILE__, function() {
-    \$tpl_dir = __DIR__ . '/templates/';
-    if (!is_dir(\$tpl_dir)) return;
-    
-    foreach (glob(\$tpl_dir . '*.json') as \$file) {
-        \$slug = basename(\$file, '.json');
-        \$raw = @file_get_contents(\$file);
-        \$data = @json_decode(\$raw, true);
-        if (!is_array(\$data) || empty(\$data['title'])) continue;
-
-        \$exists = get_posts([
-            'post_type'      => 'elementor_library',
-            'post_status'    => 'any',
-            'posts_per_page' => 1,
-            'meta_key'       => '_uas_custom_tpl_slug',
-            'meta_value'     => \$slug,
-        ]);
-
-        if (empty(\$exists)) {
-            \$type = \$data['type'] ?? 'section';
-            \$pid = wp_insert_post([
-                'post_title'   => sanitize_text_field(\$data['title']),
-                'post_type'    => 'elementor_library',
-                'post_status'  => 'publish',
-                'post_content' => '',
-            ]);
-            if (\$pid && !is_wp_error(\$pid)) {
-                if (taxonomy_exists('elementor_library_type')) {
-                    wp_set_object_terms(\$pid, \$type, 'elementor_library_type');
-                }
-                update_post_meta(\$pid, '_elementor_edit_mode', 'builder');
-                update_post_meta(\$pid, '_elementor_template_type', \$type);
-                update_post_meta(\$pid, '_elementor_data', wp_slash(json_encode(\$data['content'])));
-                update_post_meta(\$pid, '_uas_custom_tpl_slug', \$slug);
-                update_post_meta(\$pid, '_uas_package_id', '{$slug}');
-            }
-        }
-    }
-});
-
-// 2. Load Optional Theme Builder Bridge
-{$bridge_code}
-
-// 3. Load Optional Dynamic Query Engine
-{$query_code}
-
-// 4. Register Custom Selected Widgets in Elementor
-add_action('elementor/widgets/register', function(\$widgets_manager) {
-    if (file_exists(__DIR__ . '/includes/class-widget-base.php')) {
-        require_once __DIR__ . '/includes/class-widget-base.php';
-    }
-
-    if (file_exists(__DIR__ . '/includes/widgets/')) {
-        foreach (glob(__DIR__ . '/includes/widgets/*.php') as \$file) {
-            require_once \$file;
-        }
-    }
-
-    \$classes = get_declared_classes();
-    foreach (\$classes as \$cls) {
-        if (strpos(\$cls, 'UniversalElementorSuite\\\\Widgets\\\\') === 0 && is_subclass_of(\$cls, '\\\\Elementor\\\\Widget_Base')) {
-            if (method_exists(\$widgets_manager, 'register')) {
-                \$widgets_manager->register(new \$cls());
-            } elseif (method_exists(\$widgets_manager, 'register_widget_type')) {
-                \$widgets_manager->register_widget_type(new \$cls());
-            }
-        }
-    }
-});
-
-// 5. Enqueue Frontend Scripts & Styles
-add_action('wp_enqueue_scripts', function() {
-    if (file_exists(__DIR__ . '/assets/css/widgets-core.css')) {
-        wp_enqueue_style('{$slug}-core', plugins_url('assets/css/widgets-core.css', __FILE__));
-    }
-    if (file_exists(__DIR__ . '/assets/css/')) {
-        foreach (glob(__DIR__ . '/assets/css/*.css') as \$css) {
-            if (basename(\$css) !== 'widgets-core.css') {
-                wp_enqueue_style('{$slug}-' . basename(\$css, '.css'), plugins_url('assets/css/' . basename(\$css), __FILE__));
-            }
-        }
-    }
-    if (file_exists(__DIR__ . '/assets/js/')) {
-        foreach (glob(__DIR__ . '/assets/js/*.js') as \$js) {
-            wp_enqueue_script('{$slug}-' . basename(\$js, '.js'), plugins_url('assets/js/' . basename(\$js), __FILE__), ['jquery'], '1.0.0', true);
-        }
-    }
-});
-";
-    }
-
-    /**
-     * Get list of all available portable packages
-     *
-     * @return array
-     */
-    public function get_portable_packages() {
-        return [
-            [
-                'id'           => 'package-pricing-switcher',
-                'name'         => 'بسته مستقل جدول قیمت‌گذاری و پلن سوییچر',
-                'package_type' => 'ui',
-                'version'      => '6.0.0',
-                'description'  => 'جدول نرخ‌گذاری مدرن با سوییچ ماهانه/سالانه قابل نصب بر روی هر سایت وردپرسی.',
-                'components'   => [
-                    'widget'     => 'uas_pricing_switcher',
-                    'block'      => 'sedrazavi/pricing-switcher',
-                    'javascript' => 'pricing-switcher.js',
-                ],
-                'requirements' => [
-                    'php'       => '>=7.4',
-                    'wordpress' => '>=6.0',
-                    'elementor' => '>=3.10',
-                ],
-                'portable'     => true,
-                'status'       => 'installed_active',
-            ],
-            [
-                'id'           => 'package-fomo-countdown',
-                'name'         => 'بسته مستقل شمارنده فوریت و نرخ تبدیل (FOMO)',
-                'package_type' => 'ui',
-                'version'      => '6.0.0',
-                'description'  => 'شمارش معکوس تخفیف و پیشنهاد با ذخیره در localStorage کاربر.',
-                'components'   => [
-                    'widget'     => 'uas_fomo_countdown',
-                    'block'      => 'sedrazavi/fomo-countdown',
-                    'javascript' => 'fomo-countdown.js',
-                ],
-                'requirements' => [
-                    'php'       => '>=7.4',
-                    'wordpress' => '>=6.0',
-                    'elementor' => '>=3.10',
-                ],
-                'portable'     => true,
-                'status'       => 'installed_active',
-            ],
-            [
-                'id'           => 'package-before-after',
-                'name'         => 'بسته مستقل اسلایدر مقایسه‌ای قبل و بعد',
-                'package_type' => 'ui',
-                'version'      => '6.0.0',
-                'description'  => 'اسلایدر لمسی دوطرفه تصاویر قبل و بعد با کدهای کامپکت بدون جی‌کوئری.',
-                'components'   => [
-                    'widget'     => 'uas_before_after',
-                    'block'      => 'sedrazavi/before-after',
-                    'javascript' => 'before-after.js',
-                ],
-                'requirements' => [
-                    'php'       => '>=7.4',
-                    'wordpress' => '>=6.0',
-                    'elementor' => '>=3.10',
-                ],
-                'portable'     => true,
-                'status'       => 'installed_active',
-            ],
-            [
-                'id'           => 'package-stat-counter',
-                'name'         => 'بسته مستقل پیشخوان آمار و ارقام انیمیشنی',
-                'package_type' => 'ui',
-                'version'      => '6.0.0',
-                'description'  => 'شمارنده روان ارقام و دستاوردها بر پایه IntersectionObserver و استایل ۳ تبه.',
-                'components'   => [
-                    'widget'     => 'uas_stat_counter',
-                    'block'      => 'sedrazavi/stat-counter',
-                    'javascript' => 'stat-counter.js',
-                ],
-                'requirements' => [
-                    'php'       => '>=7.4',
-                    'wordpress' => '>=6.0',
-                    'elementor' => '>=3.10',
-                ],
-                'portable'     => true,
-                'status'       => 'installed_active',
-            ],
-            [
-                'id'           => 'package-floating-cta',
-                'name'         => 'بسته مستقل نوار شناور و استیکی تبدیل (Floating CTA)',
-                'package_type' => 'ui',
-                'version'      => '6.0.0',
-                'description'  => 'داک چسبان بالای/پایین صفحه با کلید تماس، واتساپ و مشاوره با ترنسپرنسی شیشه‌ای.',
-                'components'   => [
-                    'widget'     => 'uas_floating_cta',
-                    'block'      => 'sedrazavi/floating-cta',
-                    'javascript' => 'floating-cta.js',
-                ],
-                'requirements' => [
-                    'php'       => '>=7.4',
-                    'wordpress' => '>=6.0',
-                    'elementor' => '>=3.10',
-                ],
-                'portable'     => true,
-                'status'       => 'installed_active',
-            ],
-            [
-                'id'           => 'package-pricing-matrix',
-                'name'         => 'بسته مستقل ماتریس مقایسه ویژگی‌ها و قیمت‌ها',
-                'package_type' => 'ui',
-                'version'      => '6.0.0',
-                'description'  => 'جدول مقایسه جامع چندستونه با ردیف‌های سرفصل، علائم تیک و ضربدر، و پاپ‌آپ‌های توضیحی.',
-                'components'   => [
-                    'widget'     => 'uas_pricing_matrix',
-                    'block'      => 'sedrazavi/pricing-matrix',
-                    'javascript' => 'pricing-matrix.js',
-                ],
-                'requirements' => [
-                    'php'       => '>=7.4',
-                    'wordpress' => '>=6.0',
-                    'elementor' => '>=3.10',
-                ],
-                'portable'     => true,
-                'status'       => 'installed_active',
-            ],
-            [
-                'id'           => 'package-hero-split',
-                'name'         => 'بسته مستقل هیرو بنر اسپلیت و جذب لید',
-                'package_type' => 'ui',
-                'version'      => '6.0.0',
-                'description'  => 'هیرو بنر دوطرفه با باکس دریافت شماره تماس، تیک‌های ارزش پیشنهادی و استایل شیشه‌ای.',
-                'components'   => [
-                    'widget'     => 'uas_hero_split',
-                    'block'      => 'sedrazavi/hero-split',
-                    'javascript' => 'hero-split.js',
-                ],
-                'requirements' => [
-                    'php'       => '>=7.4',
-                    'wordpress' => '>=6.0',
-                    'elementor' => '>=3.10',
-                ],
-                'portable'     => true,
-                'status'       => 'installed_active',
-            ],
-            [
-                'id'           => 'package-bento-tabs',
-                'name'         => 'بسته مستقل گرید بنتو با تب‌های دسته‌بندی',
-                'package_type' => 'ui',
-                'version'      => '6.0.0',
-                'description'  => 'کارت‌های بنتو باکس مدرن با فیلتر آنی دسته‌بندی و انیمیشن انتقال آرام.',
-                'components'   => [
-                    'widget'     => 'uas_bento_tabs',
-                    'block'      => 'sedrazavi/bento-tabs',
-                    'javascript' => 'bento-tabs.js',
-                ],
-                'requirements' => [
-                    'php'       => '>=7.4',
-                    'wordpress' => '>=6.0',
-                    'elementor' => '>=3.10',
-                ],
-                'portable'     => true,
-                'status'       => 'installed_active',
-            ],
-            [
-                'id'           => 'package-sovereign-assets',
-                'name'         => 'بسته مستقل دارایی‌های ۶۶گانه طراحی (Zero-CDN)',
-                'package_type' => 'full_feature',
-                'version'      => '6.0.0',
-                'description'  => '۴۰۲ دارایی بصری شامل وکتور بک‌گراند، دیوایدر، آیکون و نشان اعتبار بدون اتصال به شبکه.',
-                'components'   => [
-                    'vector_backgrounds' => 66,
-                    'widgets'            => 72,
-                    'shape_dividers'     => 66,
-                    'trust_badges'       => 66,
-                    'motion_presets'     => 66,
-                    'icons'              => 66,
-                ],
-                'requirements' => [
-                    'php'       => '>=7.4',
-                    'wordpress' => '>=6.0',
-                ],
-                'portable'     => true,
-                'status'       => 'installed_active',
-            ],
-            [
-                'id'           => 'package-dynamic-grid',
-                'name'         => 'بسته مستقل گرید هوشمند کوئری داینامیک و کشینگ',
-                'package_type' => 'ui',
-                'version'      => '6.0.0',
-                'description'  => 'گرید داینامیک پست‌ها و محتوا با سیستم کش ترنزینت قطعی، پشتیبانی ۳ تبه المنتور و Zero-Leakage.',
-                'components'   => [
-                    'widget'     => 'uas_dynamic_grid',
-                    'block'      => 'sedrazavi/dynamic-grid',
-                    'css'        => 'dynamic-grid.css',
-                    'query_core' => 'Dynamic_Query_Engine',
-                ],
-                'requirements' => [
-                    'php'       => '>=7.4',
-                    'wordpress' => '>=6.0',
-                    'elementor' => '>=3.10',
-                ],
-                'portable'     => true,
-                'status'       => 'installed_active',
-            ],
-            [
-                'id'           => 'package-template-vault',
-                'name'         => 'بسته الگوهای کانتینری ۳۰گانه المنتور و تم‌بیلدر',
-                'package_type' => 'service',
-                'version'      => '6.0.0',
-                'description'  => 'کتابخانه ۳۰ قالب آماده شامل هدر، فوتر، صفحات اصلی، سینگل، بلاگ، محصول، گرید و 404.',
-                'components'   => [
-                    'templates_count' => 30,
-                    'importer_engine' => 'Template_Importer',
-                ],
-                'requirements' => [
-                    'php'       => '>=7.4',
-                    'wordpress' => '>=6.0',
-                    'elementor' => '>=3.10',
-                ],
-                'portable'     => true,
-                'status'       => 'installed_active',
-            ],
-        ];
-    }
-
-    /**
      * REST endpoint: Get packages index
      */
     public function rest_get_packages($request) {
@@ -1169,345 +333,6 @@ add_action('wp_enqueue_scripts', function() {
             'total'    => count($packages),
             'packages' => $packages,
         ]);
-    }
-
-    /**
-     * Verify package archive security (P0-03: Anti-Zip-Slip, Extension Whitelist, Size Quotas)
-     *
-     * @param string $zip_filepath
-     * @return array [ 'safe' => bool, 'error' => string, 'manifest' => array|null, 'files_count' => int, 'total_size' => int ]
-     */
-    public function verify_archive_security($zip_filepath) {
-        if (!file_exists($zip_filepath) || !is_readable($zip_filepath)) {
-            return ['safe' => false, 'error' => 'فایل بسته وجود ندارد یا قابل خواندن نیست.'];
-        }
-
-        if (!class_exists('\ZipArchive')) {
-            return ['safe' => false, 'error' => 'ماژول ZipArchive در تنظیمات PHP سرور فعال نیست.'];
-        }
-
-        $zip = new \ZipArchive();
-        $open_res = $zip->open($zip_filepath);
-        if ($open_res !== true) {
-            return ['safe' => false, 'error' => sprintf('قالب فایل فشرده معتبر نیست یا باز نشد (کد: %s).', (string)$open_res)];
-        }
-
-        $allowed_extensions = ['php', 'json', 'css', 'js', 'png', 'jpg', 'jpeg', 'svg', 'webp', 'woff', 'woff2', 'ttf', 'eot', 'txt', 'md'];
-        $max_entries = 500;
-        $max_total_size = 50 * 1024 * 1024; // 50MB
-        $total_size = 0;
-        $num_files = $zip->numFiles;
-
-        if ($num_files > $max_entries) {
-            $zip->close();
-            return ['safe' => false, 'error' => sprintf('تعداد فایل‌های داخل بسته (%d) بیش از حد مجاز (%d) است.', $num_files, $max_entries)];
-        }
-
-        $manifest_content = null;
-
-        for ($i = 0; $i < $num_files; $i++) {
-            $stat = $zip->statIndex($i);
-            if (!$stat) continue;
-
-            $filename = $stat['name'];
-            $size = $stat['size'];
-            $total_size += $size;
-
-            if ($total_size > $max_total_size) {
-                $zip->close();
-                return ['safe' => false, 'error' => 'حجم مجموع فایل‌های بازشده بیش از حد مجاز (۵۰ مگابایت) است (Zero Zip Bomb protection).'];
-            }
-
-            // Anti Zip-Slip: prevent path traversal attacks
-            if (
-                strpos($filename, '../') !== false ||
-                strpos($filename, '..\\') !== false ||
-                strpos($filename, '/..') !== false ||
-                strpos($filename, '\\..') !== false ||
-                strpos($filename, ':/') !== false ||
-                strpos($filename, ':\\') !== false ||
-                strpos($filename, '/') === 0 ||
-                strpos($filename, '\\') === 0
-            ) {
-                $zip->close();
-                return ['safe' => false, 'error' => sprintf('نقض امنیتی: پیمایش مسیر غیرمجاز (Zip Slip Traversal) در ورودی «%s» شناسایی شد.', $filename)];
-            }
-
-            // Is it a directory entry?
-            if (substr($filename, -1) === '/' || substr($filename, -1) === '\\') {
-                continue;
-            }
-
-            // Extension Whitelist check
-            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-            if (!in_array($ext, $allowed_extensions, true)) {
-                $zip->close();
-                return ['safe' => false, 'error' => sprintf('فرمت فایل غیرمجاز «%s» در بسته شناسایی گردید.', $filename)];
-            }
-
-            // Check for manifest
-            if (basename($filename) === 'manifest.json') {
-                $manifest_content = $zip->getFromIndex($i);
-            }
-        }
-
-        if (!$manifest_content) {
-            $zip->close();
-            return ['safe' => false, 'error' => 'فایل مانیفست استاندارد (manifest.json) در بسته یافت نشد.'];
-        }
-
-        $manifest = json_decode($manifest_content, true);
-        if (!is_array($manifest) || empty($manifest['id'])) {
-            $zip->close();
-            return ['safe' => false, 'error' => 'فرمت داده‌های JSON درون manifest.json معتبر نیست.'];
-        }
-
-        $zip->close();
-
-        return [
-            'safe'        => true,
-            'manifest'    => $manifest,
-            'files_count' => $num_files,
-            'total_size'  => $total_size,
-        ];
-    }
-
-    /**
-     * Comprehensive Preflight Environment & Dependency Check (P1-04)
-     *
-     * @param string|array $target Package ID string or manifest array
-     * @return array
-     */
-    public function preflight_check($target) {
-        $manifest = null;
-        if (is_string($target)) {
-            $packages = $this->get_portable_packages();
-            foreach ($packages as $pkg) {
-                if ($pkg['id'] === $target) {
-                    $manifest = $pkg;
-                    break;
-                }
-            }
-            if (!$manifest) {
-                return [
-                    'pass'   => false,
-                    'errors' => [sprintf('پکیج با شناسه «%s» در رجیستری یافت نشد.', $target)],
-                ];
-            }
-        } elseif (is_array($target)) {
-            $manifest = $target;
-        } else {
-            return ['pass' => false, 'errors' => ['داده‌های مانیفست نامعتبر است.']];
-        }
-
-        $errors   = [];
-        $warnings = [];
-
-        // 1. Manifest Structure Validation
-        $manifest_check = $this->validate_manifest($manifest);
-        if (!$manifest_check['valid']) {
-            $errors = array_merge($errors, $manifest_check['errors']);
-        }
-        $warnings = array_merge($warnings, $manifest_check['warnings']);
-
-        // 2. Dependency Resolution
-        $package_id = $manifest['id'] ?? '';
-        $resolved_deps = [];
-        if (!empty($package_id)) {
-            $dep_check = $this->resolve_package_dependencies($package_id);
-            if (!$dep_check['success']) {
-                $errors = array_merge($errors, $dep_check['errors']);
-            } else {
-                $resolved_deps = $dep_check['resolved'];
-            }
-        }
-
-        // 3. Conflict Detection
-        if (!empty($package_id)) {
-            $conflict_check = $this->check_package_conflicts($package_id);
-            if ($conflict_check['conflict']) {
-                $errors = array_merge($errors, $conflict_check['messages']);
-            }
-        }
-
-        return [
-            'pass'         => empty($errors),
-            'package_id'   => $package_id,
-            'manifest'     => $manifest,
-            'dependencies' => $resolved_deps,
-            'errors'       => $errors,
-            'warnings'     => $warnings,
-            'environment'  => [
-                'php_version'       => PHP_VERSION,
-                'wp_version'        => function_exists('get_bloginfo') ? get_bloginfo('version') : '6.7.0',
-                'elementor_active'  => defined('ELEMENTOR_VERSION'),
-                'elementor_version' => defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : null,
-            ],
-        ];
-    }
-
-    /**
-     * Import a portable package archive with dry-run and atomic rollback support (P0-03, P1-04)
-     *
-     * @param string $zip_filepath
-     * @param bool $dry_run
-     * @param string|null $target_dir
-     * @return array
-     */
-    public function import_package_archive($zip_filepath, $dry_run = false, $target_dir = null) {
-        // 1. Security Verification
-        $sec_audit = $this->verify_archive_security($zip_filepath);
-        if (!$sec_audit['safe']) {
-            return [
-                'success' => false,
-                'stage'   => 'security_audit',
-                'error'   => $sec_audit['error'],
-            ];
-        }
-
-        $manifest = $sec_audit['manifest'];
-
-        // 2. Preflight Check
-        $preflight = $this->preflight_check($manifest);
-        if (!$preflight['pass']) {
-            return [
-                'success'   => false,
-                'stage'     => 'preflight_failed',
-                'errors'    => $preflight['errors'],
-                'warnings'  => $preflight['warnings'],
-            ];
-        }
-
-        // Dry-run mode: return success after audit without writing files
-        if ($dry_run) {
-            return [
-                'success'     => true,
-                'dry_run'     => true,
-                'manifest'    => $manifest,
-                'files_count' => $sec_audit['files_count'],
-                'total_size'  => $sec_audit['total_size'],
-                'warnings'    => $preflight['warnings'],
-                'message'     => 'بررسی پیش‌پرواز (Preflight) با موفقیت تأیید شد و هیچ تداخلی وجود ندارد.',
-            ];
-        }
-
-        // 3. Extraction Destination
-        $upload_dir = wp_upload_dir();
-        if (!$target_dir) {
-            $base_install = trailingslashit($upload_dir['basedir']) . 'uas-standalone-packages/installed/';
-            $target_dir = $base_install . sanitize_key($manifest['id']) . '/';
-        }
-
-        if (!wp_mkdir_p($target_dir)) {
-            return [
-                'success' => false,
-                'stage'   => 'filesystem_error',
-                'error'   => sprintf('امکان ایجاد پوشه نصب در مسیر %s وجود ندارد.', $target_dir),
-            ];
-        }
-
-        // 4. Safe atomic extraction
-        $zip = new \ZipArchive();
-        if ($zip->open($zip_filepath) !== true) {
-            return ['success' => false, 'error' => 'خطا در بازگشایی بسته جهت استخراج نهایی.'];
-        }
-
-        $extracted_files = [];
-        $failed = false;
-        $fail_reason = '';
-
-        for ($i = 0; $i < $zip->numFiles; $i++) {
-            $filename = $zip->getNameIndex($i);
-            if (substr($filename, -1) === '/' || substr($filename, -1) === '\\') {
-                continue;
-            }
-
-            // Strip top-level slug folder if present
-            $parts = explode('/', str_replace('\\', '/', $filename));
-            if (count($parts) > 1 && $parts[0] === sanitize_key($manifest['id'])) {
-                array_shift($parts);
-            }
-            $relative_dest = implode('/', $parts);
-            $full_dest = $target_dir . $relative_dest;
-            $parent_dir = dirname($full_dest);
-
-            if (!is_dir($parent_dir) && !wp_mkdir_p($parent_dir)) {
-                $failed = true;
-                $fail_reason = sprintf('خطا در ساخت زیرپوشه %s', $parent_dir);
-                break;
-            }
-
-            $content = $zip->getFromIndex($i);
-            if ($content === false || @file_put_contents($full_dest, $content) === false) {
-                $failed = true;
-                $fail_reason = sprintf('خطا در نوشتن فایل %s', $full_dest);
-                break;
-            }
-
-            $extracted_files[] = $full_dest;
-        }
-
-        $zip->close();
-
-        // 5. Atomic Rollback on failure
-        if ($failed) {
-            foreach ($extracted_files as $f) {
-                if (file_exists($f)) {
-                    @unlink($f);
-                }
-            }
-            return [
-                'success' => false,
-                'stage'   => 'atomic_rollback_executed',
-                'error'   => $fail_reason,
-            ];
-        }
-
-        // 5. Template Library Hydration & State Registration (if templates present)
-        $hydrated_posts = [];
-        $tpl_dir = $target_dir . 'templates/';
-        if (is_dir($tpl_dir) && function_exists('wp_insert_post')) {
-            foreach (glob($tpl_dir . '*.json') as $file) {
-                $slug = basename($file, '.json');
-                $raw = @file_get_contents($file);
-                $data = @json_decode($raw, true);
-                if (!is_array($data) || empty($data['title'])) continue;
-
-                $type = $data['type'] ?? 'section';
-                $pid = wp_insert_post([
-                    'post_title'   => sanitize_text_field($data['title']),
-                    'post_type'    => 'elementor_library',
-                    'post_status'  => 'publish',
-                    'post_content' => '',
-                ]);
-
-                if ($pid && !is_wp_error($pid)) {
-                    if (taxonomy_exists('elementor_library_type')) {
-                        wp_set_object_terms($pid, $type, 'elementor_library_type');
-                    }
-                    update_post_meta($pid, '_elementor_edit_mode', 'builder');
-                    update_post_meta($pid, '_elementor_template_type', $type);
-                    update_post_meta($pid, '_elementor_data', wp_slash(json_encode($data['content'])));
-                    update_post_meta($pid, '_uas_custom_tpl_slug', $slug);
-                    update_post_meta($pid, '_uas_package_id', sanitize_key($manifest['id']));
-                    $hydrated_posts[] = $pid;
-                }
-            }
-        }
-
-        $sha256 = hash_file('sha256', $zip_filepath);
-
-        return [
-            'success'          => true,
-            'dry_run'          => false,
-            'package_id'       => $manifest['id'],
-            'installed_path'   => $target_dir,
-            'files_extracted'  => count($extracted_files),
-            'hydrated_templates' => count($hydrated_posts),
-            'sha256'           => $sha256,
-            'manifest'         => $manifest,
-            'message'          => sprintf('بسته مستقل «%s» با موفقیت استخراج و مستقر گردید (%d تمپلیت در کتابخانه المنتور ثبت شد).', $manifest['name'], count($hydrated_posts)),
-        ];
     }
 
     /**
@@ -1540,72 +365,4 @@ add_action('wp_enqueue_scripts', function() {
         $res = $this->rollback_package_installation($package_id);
         return rest_ensure_response($res);
     }
-
-    /**
-     * Rollback package installation or export
-     * Deletes exported zip artifacts, removes hydrated Elementor Library posts, cleans files, and restores clean state
-     *
-     * @param string $package_id
-     * @return array
-     */
-    public function rollback_package_installation($package_id) {
-        $clean_slug = sanitize_key($package_id);
-        $upload_dir = wp_upload_dir();
-        $export_dir = trailingslashit($upload_dir['basedir']) . 'uas-standalone-packages/';
-        $installed_dir = $export_dir . 'installed/' . $clean_slug . '/';
-
-        $deleted_files = 0;
-        if (is_dir($export_dir)) {
-            $files = glob($export_dir . $clean_slug . '*');
-            foreach ($files as $f) {
-                if (is_file($f) && @unlink($f)) {
-                    $deleted_files++;
-                }
-            }
-        }
-
-        // Clean installed directory if exists
-        if (is_dir($installed_dir)) {
-            $it = new \RecursiveDirectoryIterator($installed_dir, \RecursiveDirectoryIterator::SKIP_DOTS);
-            $files = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
-            foreach ($files as $file) {
-                if ($file->isDir()) {
-                    @rmdir($file->getRealPath());
-                } else {
-                    @unlink($file->getRealPath());
-                    $deleted_files++;
-                }
-            }
-            @rmdir($installed_dir);
-        }
-
-        // True Database Rollback: Purge any Elementor Library posts created by this package
-        $deleted_posts = 0;
-        if (function_exists('get_posts') && function_exists('wp_delete_post')) {
-            $tpl_posts = get_posts([
-                'post_type'      => 'elementor_library',
-                'post_status'    => 'any',
-                'posts_per_page' => -1,
-                'meta_key'       => '_uas_package_id',
-                'meta_value'     => $clean_slug,
-            ]);
-            foreach ($tpl_posts as $tp) {
-                wp_delete_post($tp->ID, true);
-                $deleted_posts++;
-            }
-        }
-
-        // Flush package query transients
-        delete_transient('uas_query_' . $clean_slug);
-        delete_transient('uas_pkg_manifest_' . $clean_slug);
-
-        return [
-            'success'       => true,
-            'package_id'    => $package_id,
-            'deleted_files' => $deleted_files,
-            'deleted_posts' => $deleted_posts,
-            'message'       => sprintf('رول‌بک پکیج %s با موفقیت انجام شد (%d فایل و %d تمپلیت دیتابیس پاک‌سازی شدند).', $package_id, $deleted_files, $deleted_posts),
-        ];
-    }
 }
-

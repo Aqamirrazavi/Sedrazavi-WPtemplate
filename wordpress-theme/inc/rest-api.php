@@ -459,7 +459,7 @@ class SedRazavi_REST_API {
             $clean_stored_phone = $norm_phone($stored_phone);
 
             // Require exact phone match for confidentiality
-            if (!empty($clean_stored_phone) && $clean_stored_phone === $clean_query_phone) {
+            if (!empty($clean_stored_phone) && hash_equals($clean_stored_phone, $clean_query_phone)) {
                 // Return ONLY low-sensitivity fields
                 $res = array(
                     'found'        => true,
@@ -476,22 +476,7 @@ class SedRazavi_REST_API {
             wp_reset_postdata();
         }
 
-        // Demo mode fallback only if explicitly enabled by admin
-        if (get_option('sedrazavi_demo_mode', false)) {
-            return new WP_REST_Response(array(
-                'found'        => true,
-                'is_demo'      => true,
-                'demo_label'   => 'نمونه فرضی (حالت نمایشی فعال است)',
-                'case_number'  => $case_number,
-                'case_type'    => 'دعاوی قراردادهای تجاری (نمونه)',
-                'status'       => 'در جریان تبادل لوایح (نمونه)',
-                'court_branch' => 'شعبه ۵ دادگاه تجدیدنظر (نمونه)',
-                'next_session' => '۱۴۰۳/۰۸/۱۵ (نمونه)',
-                'updated_at'   => date('Y/m/d'),
-            ), 200);
-        }
-
-        // Truthful response: Not found or phone mismatch
+        // Truthful response: Not found or phone mismatch (no demo data leak on operational client tracking)
         return new WP_REST_Response(array(
             'found'   => false,
             'message' => 'پرونده‌ای با این کلاسه و شماره تماس در سامانه یافت نشد.',
@@ -1139,16 +1124,56 @@ class SedRazavi_REST_API {
      * 15. Handle Verify Hash
      */
     public static function handle_verify_hash($request) {
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('verify_hash', 15, 300)) {
+            return new WP_REST_Response(array(
+                'valid'        => false,
+                'rate_limited' => true,
+                'message'      => 'تعداد استعلام‌های اصالت بیش از حد مجاز است. لطفاً کمی بعد تلاش نمایید.',
+            ), 429);
+        }
+
         $params = $request->get_params();
-        $hash   = isset($params['document_hash']) ? sanitize_text_field(wp_unslash($params['document_hash'])) : '';
+        $raw    = isset($params['document_hash']) ? $params['document_hash'] : (isset($params['hash']) ? $params['hash'] : '');
+        $hash   = strtolower(sanitize_text_field(wp_unslash((string) $raw)));
+
+        if (!preg_match('/^[a-f0-9]{64}$/', $hash)) {
+            return new WP_REST_Response(array(
+                'valid'   => false,
+                'status'  => 'invalid_format',
+                'message' => 'فرمت هش ارسالی نامعتبر است؛ کد ۶۴ کاراکتری SHA-256 الزامی است.',
+            ), 400);
+        }
+
+        $matched = get_posts(array(
+            'post_type'      => array('sedrazavi_case', 'sedrazavi_dashboard', 'attachment'),
+            'post_status'    => array('publish', 'private', 'inherit'),
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            'meta_query'     => array(
+                array(
+                    'key'     => '_sedrazavi_doc_hash',
+                    'value'   => $hash,
+                    'compare' => '=',
+                ),
+            ),
+        ));
+
+        if (empty($matched)) {
+            return new WP_REST_Response(array(
+                'valid'     => false,
+                'hash'      => $hash,
+                'algorithm' => 'SHA-256',
+                'status'    => 'سندی با این امضای دیجیتال در بایگانی ثبت نشده است.',
+            ), 404);
+        }
 
         return new WP_REST_Response(array(
             'valid'        => true,
             'hash'         => $hash,
-            'certified_by' => 'دفتر وکالت و داوری دکتر سیده مریم رضوی',
+            'record_id'    => (int) $matched[0],
             'algorithm'    => 'SHA-256',
-            'timestamp'    => date('Y-m-d H:i:s'),
-            'status'       => 'اصالت سند مورد تایید است.',
+            'timestamp'    => current_time('mysql'),
+            'status'       => 'اصالت سند در بایگانی تایید شد.',
         ), 200);
     }
 

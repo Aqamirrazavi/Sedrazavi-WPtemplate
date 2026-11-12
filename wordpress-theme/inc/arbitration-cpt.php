@@ -23,16 +23,20 @@ function sedrazavi_register_arbitration_cpt() {
     );
 
     $args = array(
-        'labels'             => $labels,
-        'public'             => true,
-        'has_archive'        => true,
-        'publicly_queryable' => true,
-        'show_ui'            => true,
-        'show_in_menu'       => true,
-        'menu_icon'          => 'dashicons-hammer',
-        'supports'           => array('title', 'editor', 'custom-fields', 'author'),
-        'capability_type'    => 'post',
-        'show_in_rest'       => true,
+        'labels'              => $labels,
+        'public'              => false,
+        'publicly_queryable'  => false,
+        'exclude_from_search' => true,
+        'has_archive'         => false,
+        'rewrite'             => false,
+        'query_var'           => false,
+        'show_ui'             => true,
+        'show_in_menu'        => true,
+        'show_in_nav_menus'   => false,
+        'menu_icon'           => 'dashicons-hammer',
+        'supports'            => array('title', 'editor', 'custom-fields', 'author'),
+        'capability_type'     => 'post',
+        'show_in_rest'        => false,
     );
 
     register_post_type('arbitration_case', $args);

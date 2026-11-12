@@ -1,12 +1,12 @@
 <?php
 /**
- * SedRazavi Cloud Preset Catalog & Child-Theme Factory
+ * SedRazavi Cloud Preset Catalog & Autonomous Theme Factory
  *
- * Provides backend endpoints to fetch cloud presets, download bespoke child themes,
+ * Provides backend endpoints to fetch cloud presets, generate standalone vertical themes,
  * and activate industry configurations directly inside WordPress.
  *
  * @package SedRazavi
- * @version 3.2.0
+ * @version 6.0.0
  */
 
 if (!defined('ABSPATH')) {
@@ -27,7 +27,8 @@ class SedRazavi_Cloud_Catalog {
     private function __construct() {
         add_action('wp_ajax_sedrazavi_fetch_catalog', array($this, 'ajax_fetch_catalog'));
         add_action('wp_ajax_nopriv_sedrazavi_fetch_catalog', array($this, 'ajax_fetch_catalog'));
-        add_action('wp_ajax_sedrazavi_generate_child_theme', array($this, 'ajax_generate_child_theme'));
+        add_action('wp_ajax_sedrazavi_generate_standalone_theme', array($this, 'ajax_generate_standalone_theme'));
+        add_action('wp_ajax_sedrazavi_generate_child_theme', array($this, 'ajax_generate_standalone_theme'));
     }
 
     public function get_catalog_items() {
@@ -121,60 +122,77 @@ class SedRazavi_Cloud_Catalog {
     }
 
     /**
-     * Create or download a ready-to-use child theme directory
+     * Create a 100% standalone theme directory (zero parent Template dependency)
      */
-    public function ajax_generate_child_theme() {
+    public function ajax_generate_standalone_theme() {
+        check_ajax_referer('sedrazavi_security_nonce', 'nonce');
+
         if (!current_user_can('install_themes')) {
-            wp_send_json_error(array('message' => __('دسترسی نصب پوسته مورد نیاز است.', 'sedrazavi')));
+            wp_send_json_error(array('message' => __('دسترسی نصب پوسته مورد نیاز است.', 'sedrazavi')), 403);
         }
 
         $preset_key = isset($_POST['preset_key']) ? sanitize_key($_POST['preset_key']) : 'law-core';
         $catalog    = $this->get_catalog_items();
 
         if (!isset($catalog[$preset_key])) {
-            wp_send_json_error(array('message' => __('صنف مورد نظر یافت نشد.', 'sedrazavi')));
+            wp_send_json_error(array('message' => __('صنف مورد نظر یافت نشد.', 'sedrazavi')), 404);
         }
 
         $item      = $catalog[$preset_key];
-        $slug      = 'sedrazavi-' . sanitize_title($item['id']) . '-child';
+        $slug      = 'sedrazavi-' . sanitize_title($item['id']) . '-theme';
         $theme_dir = get_theme_root() . '/' . $slug;
 
         if (!file_exists($theme_dir)) {
             wp_mkdir_p($theme_dir);
         }
 
-        // Generate style.css
+        // Generate standalone style.css (NO Template: declaration)
         $style_content = "/*\n"
-            . "Theme Name: " . esc_html($item['title']) . "\n"
+            . "Theme Name: " . esc_html($item['title']) . " (Standalone)\n"
             . "Theme URI: https://sedrazavi.ir\n"
             . "Description: " . esc_html($item['description']) . "\n"
             . "Author: " . esc_html($item['author']) . "\n"
-            . "Template: sedrazavi-theme\n"
             . "Version: " . esc_html($item['version']) . "\n"
             . "Text Domain: " . esc_attr($slug) . "\n"
             . "*/\n\n"
-            . "@import url(\"../sedrazavi-theme/style.css\");\n\n"
             . ":root {\n"
             . "  --primary-hue: " . esc_attr($item['accentColor']) . ";\n"
-            . "}\n";
+            . "}\n"
+            . "body { margin: 0; font-family: 'Vazirmatn', system-ui, sans-serif; background: #0B132B; color: #F8FAFC; }\n";
 
         file_put_contents($theme_dir . '/style.css', $style_content);
 
-        // Generate functions.php
+        // Generate standalone header.php, footer.php, index.php
+        $header_php = "<!DOCTYPE html>\n<html <?php language_attributes(); ?> dir=\"<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>\">\n<head>\n<meta charset=\"<?php bloginfo('charset'); ?>\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<?php wp_head(); ?>\n</head>\n<body <?php body_class('sr-standalone-theme'); ?>>\n<?php wp_body_open(); ?>\n";
+        $footer_php = "<?php wp_footer(); ?>\n</body>\n</html>\n";
+        $index_php  = "<?php get_header(); ?>\n<main id=\"primary\" class=\"site-main\">\n<?php if (have_posts()) : while (have_posts()) : the_post(); the_content(); endwhile; endif; ?>\n</main>\n<?php get_footer(); ?>\n";
+
+        file_put_contents($theme_dir . '/header.php', $header_php);
+        file_put_contents($theme_dir . '/footer.php', $footer_php);
+        file_put_contents($theme_dir . '/index.php', $index_php);
+
+        // Generate standalone functions.php
         $functions_content = "<?php\n"
             . "/**\n"
-            . " * Child theme bootstrap for " . esc_html($item['title']) . "\n"
+            . " * Autonomous standalone theme bootstrap for " . esc_html($item['title']) . "\n"
             . " */\n"
-            . "add_action('wp_enqueue_scripts', function() {\n"
-            . "    wp_enqueue_style('" . esc_attr($slug) . "-style', get_stylesheet_uri(), array('sedrazavi-theme-style'));\n"
+            . "if (!defined('ABSPATH')) { exit; }\n\n"
+            . "add_action('after_setup_theme', function() {\n"
+            . "    add_theme_support('title-tag');\n"
+            . "    add_theme_support('post-thumbnails');\n"
+            . "    add_theme_support('html5', array('search-form', 'comment-form', 'gallery', 'caption', 'style', 'script'));\n"
             . "});\n\n"
-            . "// Auto-configure active preset on theme activation\n"
-            . "update_option('sedrazavi_site_preset', '" . esc_attr($item['presetId']) . "');\n";
+            . "add_action('wp_enqueue_scripts', function() {\n"
+            . "    wp_enqueue_style('" . esc_attr($slug) . "-style', get_stylesheet_uri(), array(), '" . esc_attr($item['version']) . "');\n"
+            . "});\n\n"
+            . "add_action('after_switch_theme', function() {\n"
+            . "    update_option('sedrazavi_site_preset', '" . esc_attr($item['presetId']) . "');\n"
+            . "});\n";
 
         file_put_contents($theme_dir . '/functions.php', $functions_content);
 
         wp_send_json_success(array(
-            'message'    => sprintf(__('چایلدتم «%s» با موفقیت در پوشه پوسته‌های وردپرس ایجاد شد.', 'sedrazavi'), $item['title']),
+            'message'    => sprintf(__('پوسته مستقل «%s» با موفقیت در پوشه پوسته‌های وردپرس ایجاد شد.', 'sedrazavi'), $item['title']),
             'folder'     => $slug,
             'preset'     => $item['presetId'],
             'theme_path' => $theme_dir,

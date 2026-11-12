@@ -115,16 +115,19 @@ class SedRazavi_WooCommerce_Shetab_Gateway {
             }
             $subtotal = WC()->cart->get_cart_subtotal();
         } else {
-            // Sample cart data for headless/designer view
-            $items = [
-                ['key' => 'sample-1', 'title' => 'قالب وردپرس معماری آژانسی SedRazavi', 'quantity' => 1, 'price' => 2450000, 'subtotal' => '۲,۴۵۰,۰۰۰ تومان'],
-                ['key' => 'sample-2', 'title' => 'افزونه اشتراک ویژه VIP و پی‌وال مدیا', 'quantity' => 1, 'price' => 890000, 'subtotal' => '۸۹۰,۰۰۰ تومان'],
-            ];
-            $subtotal = '۳,۳۴۰,۰۰۰ تومان';
+            return rest_ensure_response([
+                'success'     => true,
+                'wcActive'    => false,
+                'items'       => [],
+                'itemCount'   => 0,
+                'subtotal'    => '۰ تومان',
+                'checkoutUrl' => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : home_url('/checkout'),
+            ]);
         }
 
         return rest_ensure_response([
             'success'     => true,
+            'wcActive'    => true,
             'items'       => $items,
             'itemCount'   => count($items),
             'subtotal'    => $subtotal,

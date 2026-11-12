@@ -1,6 +1,6 @@
 <?php
 /**
- * SedRazavi Clinic Child Theme Functions
+ * SedRazavi Clinic Standalone Parent Theme Functions
  *
  * @package SedRazavi_Child_Clinic
  * @version 6.0.0
