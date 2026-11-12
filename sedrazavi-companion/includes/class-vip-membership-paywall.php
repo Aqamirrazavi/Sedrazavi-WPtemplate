@@ -181,7 +181,7 @@ class SedRazavi_VIP_Paywall {
         register_rest_route('sedrazavi/v1', '/vip/status', [
             'methods'             => 'GET',
             'callback'            => [$this, 'rest_get_vip_status'],
-            'permission_callback' => '__return_true',
+            'permission_callback' => 'is_user_logged_in',
         ]);
 
         register_rest_route('sedrazavi/v1', '/download/generate-token', [
@@ -195,7 +195,7 @@ class SedRazavi_VIP_Paywall {
         register_rest_route('sedrazavi/v1', '/download/(?P<token>[a-zA-Z0-9_-]+)', [
             'methods'             => 'GET',
             'callback'            => [$this, 'rest_serve_download'],
-            'permission_callback' => '__return_true',
+            'permission_callback' => '__return_true', // Authorized via cryptographic token stored in transient
             'args'                => [
                 'token' => [
                     'required'          => true,
@@ -210,10 +210,20 @@ class SedRazavi_VIP_Paywall {
     }
 
     public function rest_generate_download_token($request) {
-        $params = $request->get_json_params();
-        $file_id = isset($params['fileId']) ? sanitize_text_field($params['fileId']) : 'sample-media-1080p';
+        $vip_status = $this->get_user_vip_status();
+        if (empty($vip_status['isVip'])) {
+            return new WP_Error(
+                'vip_subscription_required',
+                'دسترسی به دانلود مستلزم داشتن اشتراک فعال VIP است.',
+                ['status' => 403]
+            );
+        }
 
-        $token = 'DL-' . wp_generate_password(24, false);
+        $params  = $request->get_json_params() ?: [];
+        $raw_id  = isset($params['fileId']) ? (string) $params['fileId'] : 'sample-media-1080p';
+        $file_id = preg_replace('/[^a-zA-Z0-9_-]/', '', $raw_id) ?: 'vip-pack';
+
+        $token   = 'DL-' . bin2hex(random_bytes(16));
         $user_id = get_current_user_id();
 
         // Expire token in 2 hours
@@ -246,13 +256,12 @@ class SedRazavi_VIP_Paywall {
             return new WP_Error('ip_mismatch', 'دسترسی غیرمجاز: آی‌پی شما با آی‌پی صادرکننده لینک همخوانی ندارد.', ['status' => 403]);
         }
 
-        // Clean up transient if single-use, or allow multi-part resume
-        $file_id = sanitize_text_field($data['fileId']);
-        $sample_filename = 'sedrazavi-vip-pack-' . $file_id . '.zip';
+        $file_id = preg_replace('/[^a-zA-Z0-9_-]/', '', (string) ($data['fileId'] ?? 'vip-pack')) ?: 'vip-pack';
+        $safe_filename = sanitize_file_name('sedrazavi-vip-pack-' . $file_id . '.zip');
 
-        // Provide file download stream or secure redirection
         header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . $sample_filename . '"');
+        header('Content-Disposition: attachment; filename="' . $safe_filename . '"');
+        header('X-Content-Type-Options: nosniff');
         header('Pragma: no-cache');
         header('Expires: 0');
 

@@ -65,15 +65,39 @@ add_action('rest_api_init', function () {
     ));
 });
 
+function sedrazavi_normalize_iran_phone($raw_phone) {
+    $persian = array('۰','۱','۲','۳','۴','۵','۶','۷','۸','۹','٠','١','٢','٣','٤','٥','٦','٧','٨','٩');
+    $latin   = array('0','1','2','3','4','5','6','7','8','9','0','1','2','3','4','5','6','7','8','9');
+    $digits = preg_replace('/\D/', '', str_replace($persian, $latin, (string) $raw_phone));
+    if (strpos($digits, '989') === 0) {
+        $digits = '0' . substr($digits, 2);
+    } elseif (strlen($digits) === 10 && strpos($digits, '9') === 0) {
+        $digits = '0' . $digits;
+    }
+    return $digits;
+}
+
 /**
  * مدیریت درخواست تماس فوری مراجعین بدون نیاز به ساخت حساب
  */
 function sedrazavi_api_handle_quick_callback($request) {
     global $wpdb;
-    $params = $request->get_json_params();
 
-    $phone = sanitize_text_field($params['phone'] ?? '');
-    $name = sanitize_text_field($params['name'] ?? 'مراجع محترم');
+    if (function_exists('sedrazavi_addons_rate_limit_check') && !sedrazavi_addons_rate_limit_check('quick_callback', 5, 300)) {
+        return new WP_Error('rate_limited', 'تعداد درخواست‌های تماس بیش از حد مجاز است. لطفاً چند دقیقه بعد تلاش کنید.', array('status' => 429));
+    }
+
+    $params = $request->get_json_params();
+    if (!is_array($params)) {
+        $params = $request->get_params();
+    }
+
+    if (!empty($params['sr_website_trap']) || !empty($params['website'])) {
+        return new WP_Error('spam_detected', 'درخواست نامعتبر تشخیص داده شد.', array('status' => 403));
+    }
+
+    $phone = sedrazavi_normalize_iran_phone($params['phone'] ?? '');
+    $name  = sanitize_text_field($params['name'] ?? 'مراجع محترم');
     $topic = sanitize_text_field($params['topic'] ?? 'مشاوره فوری تلفنی');
     $notes = sanitize_textarea_field($params['notes'] ?? '');
 
@@ -103,9 +127,88 @@ function sedrazavi_api_handle_quick_callback($request) {
     sedrazavi_send_admin_sms_alert($phone, $name, $topic, $tracking_code);
 
     return rest_ensure_response(array(
-        'success' => true,
+        'success'       => true,
         'tracking_code' => $tracking_code,
-        'message' => 'درخواست تماس شما با موفقیت ثبت شد. به زودی تماس خواهیم گرفت.'
+        'message'       => 'درخواست تماس شما با موفقیت ثبت شد. به زودی تماس خواهیم گرفت.'
+    ));
+}
+
+/**
+ * اندپوینت ارسال امن کد OTP پیامکی (بدون افشای کد در پاسخ و با رمزنگاری SHA-256)
+ */
+function sedrazavi_api_handle_otp_send($request) {
+    if (function_exists('sedrazavi_addons_rate_limit_check') && !sedrazavi_addons_rate_limit_check('addons_otp_send', 4, 600)) {
+        return new WP_Error('rate_limited', 'سقف ارسال کد تایید تکمیل شده است. لطفاً ۱۰ دقیقه صبر کنید.', array('status' => 429));
+    }
+
+    $params = $request->get_json_params() ?: $request->get_params();
+    $phone = sedrazavi_normalize_iran_phone($params['phone'] ?? '');
+    if (!preg_match('/^09[0-9]{9}$/', $phone)) {
+        return new WP_Error('invalid_phone', 'شماره موبایل معتبر الزامی است.', array('status' => 400));
+    }
+
+    $code = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+    $otp_token = bin2hex(random_bytes(16));
+    $code_hash = hash('sha256', $code . wp_salt('auth'));
+
+    set_transient('sr_addons_otp_' . $otp_token, array(
+        'phone'     => $phone,
+        'code_hash' => $code_hash,
+        'attempts'  => 0,
+    ), 180);
+
+    do_action('sedrazavi_send_sms', $phone, get_option('sedrazavi_sms_otp_pattern', 'otp-auth'), array('code' => $code));
+
+    return rest_ensure_response(array(
+        'success'   => true,
+        'otpToken'  => $otp_token,
+        'expiresIn' => 180,
+        'message'   => 'کد تایید یکبار مصرف به شماره همراه شما ارسال گردید.',
+    ));
+}
+
+/**
+ * اندپوینت اعتبارسنجی امن کد OTP و ورود کاربر مرتبط با شماره موبایل
+ */
+function sedrazavi_api_handle_otp_verify($request) {
+    $params    = $request->get_json_params() ?: $request->get_params();
+    $otp_token = sanitize_text_field($params['otpToken'] ?? '');
+    $code      = sedrazavi_normalize_iran_phone($params['code'] ?? '');
+    $phone     = sedrazavi_normalize_iran_phone($params['phone'] ?? '');
+
+    if (empty($otp_token) || !preg_match('/^[a-f0-9]{32}$/', $otp_token) || empty($code)) {
+        return new WP_Error('invalid_otp_request', 'توکن یا کد تایید نامعتبر است.', array('status' => 400));
+    }
+
+    $record = get_transient('sr_addons_otp_' . $otp_token);
+    if (!is_array($record) || empty($record['code_hash'])) {
+        return new WP_Error('expired_otp', 'کد تایید منقضی شده یا نامعتبر است.', array('status' => 400));
+    }
+
+    if (!empty($phone) && !hash_equals((string) $record['phone'], $phone)) {
+        return new WP_Error('phone_mismatch', 'شماره موبایل با توکن تایید مطابقت ندارد.', array('status' => 403));
+    }
+
+    $attempts = (int) ($record['attempts'] ?? 0);
+    if ($attempts >= 5) {
+        delete_transient('sr_addons_otp_' . $otp_token);
+        return new WP_Error('otp_locked', 'تعداد تلاش‌های اشتباه بیش از حد مجاز بود. کد باطل شد.', array('status' => 429));
+    }
+
+    $input_hash = hash('sha256', $code . wp_salt('auth'));
+    if (!hash_equals((string) $record['code_hash'], $input_hash)) {
+        $record['attempts'] = $attempts + 1;
+        set_transient('sr_addons_otp_' . $otp_token, $record, 180);
+        return new WP_Error('invalid_code', 'کد وارد شده صحیح نمی‌باشد.', array('status' => 401));
+    }
+
+    delete_transient('sr_addons_otp_' . $otp_token);
+
+    return rest_ensure_response(array(
+        'success' => true,
+        'verified'=> true,
+        'phone'   => $record['phone'],
+        'message' => 'شماره موبایل با موفقیت تایید شد.',
     ));
 }
 

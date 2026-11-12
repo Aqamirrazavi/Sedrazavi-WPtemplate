@@ -184,14 +184,15 @@ class Package_Manager {
         );
     }
 
-    public function import_package_archive($zip_filepath, $dry_run = false, $target_dir = null) {
+    public function import_package_archive($zip_filepath, $dry_run = false, $target_dir = null, $overwrite = false) {
         return $this->installer->import_package_archive(
             $zip_filepath,
             $dry_run,
             $target_dir,
             $this->security_validator,
             $this->manifest_validator,
-            [$this, 'preflight_check']
+            [$this, 'preflight_check'],
+            $overwrite
         );
     }
 
@@ -349,10 +350,11 @@ class Package_Manager {
      * REST endpoint: Import package archive
      */
     public function rest_import_package($request) {
-        $params = $request->get_json_params() ?: $request->get_params();
-        $zip_path = sanitize_text_field($params['zip_path'] ?? '');
-        $dry_run = !empty($params['dry_run']);
-        $res = $this->import_package_archive($zip_path, $dry_run);
+        $params    = $request->get_json_params() ?: $request->get_params();
+        $zip_path  = sanitize_text_field($params['zip_path'] ?? '');
+        $dry_run   = !empty($params['dry_run']);
+        $overwrite = !empty($params['overwrite']);
+        $res = $this->import_package_archive($zip_path, $dry_run, null, $overwrite);
         return rest_ensure_response($res);
     }
 

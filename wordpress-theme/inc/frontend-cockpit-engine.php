@@ -138,6 +138,24 @@ class Frontend_Cockpit_Engine {
     }
 
     /**
+     * Allowed CPTs & Metabox Keys for Frontend Cockpit CRUD
+     */
+    private function get_allowed_cpt_types() {
+        return ['post', 'portfolio', 'services', 'case_study'];
+    }
+
+    private function get_allowed_meta_keys() {
+        return [
+            '_sr_portfolio_client',
+            '_sr_portfolio_url',
+            '_sr_portfolio_metric_val',
+            '_sr_portfolio_metric_label',
+            '_sr_service_price',
+            '_sr_service_delivery_time',
+        ];
+    }
+
+    /**
      * AJAX Save CPT Post & Metaboxes from Frontend
      */
     public function ajax_save_cpt_post() {
@@ -153,6 +171,10 @@ class Frontend_Cockpit_Engine {
         $content   = wp_kses_post($_POST['content'] ?? '');
         $status    = in_array($_POST['status'] ?? 'publish', ['publish', 'draft'], true) ? $_POST['status'] : 'publish';
 
+        if (!in_array($post_type, $this->get_allowed_cpt_types(), true)) {
+            wp_send_json_error(['message' => __('نوع پست انتخاب‌شده در این بخش مجاز نیست.', 'sedrazavi')], 403);
+        }
+
         if (empty($title)) {
             wp_send_json_error(['message' => __('عنوان نمی‌تواند خالی باشد.', 'sedrazavi')]);
         }
@@ -160,12 +182,13 @@ class Frontend_Cockpit_Engine {
         // Check ownership if editing existing post
         if ($post_id > 0) {
             $existing = get_post($post_id);
-            if (!$existing) {
-                wp_send_json_error(['message' => __('پست مورد نظر یافت نشد.', 'sedrazavi')]);
+            if (!$existing || !in_array($existing->post_type, $this->get_allowed_cpt_types(), true)) {
+                wp_send_json_error(['message' => __('پست مورد نظر یافت نشد یا مجاز به ویرایش نیست.', 'sedrazavi')], 404);
             }
-            if (!current_user_can('edit_others_posts') && $existing->post_author != get_current_user_id()) {
-                wp_send_json_error(['message' => __('شما اجازه ویرایش این پست را ندارید.', 'sedrazavi')]);
+            if (!current_user_can('edit_others_posts') && (int) $existing->post_author !== (int) get_current_user_id()) {
+                wp_send_json_error(['message' => __('شما اجازه ویرایش این پست را ندارید.', 'sedrazavi')], 403);
             }
+            $post_type = $existing->post_type;
         }
 
         $post_data = [
@@ -187,12 +210,20 @@ class Frontend_Cockpit_Engine {
             wp_send_json_error(['message' => __('خطا در ذخیره اطلاعات در دیتابیس.', 'sedrazavi')]);
         }
 
-        // Save Custom Metaboxes based on post type
-        $meta_fields = $_POST['meta'] ?? [];
+        // Strict Metabox Key Allowlist
+        $allowed_meta = $this->get_allowed_meta_keys();
+        $meta_fields  = $_POST['meta'] ?? [];
         if (is_array($meta_fields)) {
             foreach ($meta_fields as $meta_key => $meta_val) {
                 $clean_key = sanitize_key($meta_key);
-                $clean_val = is_array($meta_val) ? array_map('sanitize_text_field', $meta_val) : sanitize_text_field($meta_val);
+                if (!in_array($clean_key, $allowed_meta, true)) {
+                    continue;
+                }
+                if ($clean_key === '_sr_portfolio_url') {
+                    $clean_val = esc_url_raw((string) $meta_val);
+                } else {
+                    $clean_val = is_array($meta_val) ? array_map('sanitize_text_field', $meta_val) : sanitize_text_field($meta_val);
+                }
                 update_post_meta($saved_id, $clean_key, $clean_val);
             }
         }
@@ -209,19 +240,19 @@ class Frontend_Cockpit_Engine {
     public function ajax_delete_cpt_post() {
         check_ajax_referer('sr_cockpit_nonce', 'nonce');
 
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => __('لطفاً ابتدا وارد حساب کاربری شوید.', 'sedrazavi')]);
+        if (!is_user_logged_in() || !current_user_can('delete_posts')) {
+            wp_send_json_error(['message' => __('سطح دسترسی شما برای حذف کافی نیست.', 'sedrazavi')], 403);
         }
 
         $post_id = intval($_POST['post_id'] ?? 0);
         $post = get_post($post_id);
 
-        if (!$post) {
-            wp_send_json_error(['message' => __('مورد یافت نشد.', 'sedrazavi')]);
+        if (!$post || !in_array($post->post_type, $this->get_allowed_cpt_types(), true)) {
+            wp_send_json_error(['message' => __('مورد معتبر یافت نشد.', 'sedrazavi')], 404);
         }
 
-        if (!current_user_can('delete_others_posts') && $post->post_author != get_current_user_id()) {
-            wp_send_json_error(['message' => __('شما اجازه حذف این مورد را ندارید.', 'sedrazavi')]);
+        if (!current_user_can('delete_others_posts') && (int) $post->post_author !== (int) get_current_user_id()) {
+            wp_send_json_error(['message' => __('شما اجازه حذف این مورد را ندارید.', 'sedrazavi')], 403);
         }
 
         $res = wp_delete_post($post_id, true);
@@ -244,7 +275,7 @@ class Frontend_Cockpit_Engine {
 
         $post_id = intval($_POST['post_id'] ?? 0);
         $post = $post_id > 0 ? get_post($post_id) : null;
-        if (!$post) {
+        if (!$post || !in_array($post->post_type, $this->get_allowed_cpt_types(), true)) {
             wp_send_json_error(['message' => __('مورد درخواستی در پایگاه داده یافت نشد.', 'sedrazavi')]);
         }
 
@@ -252,16 +283,8 @@ class Frontend_Cockpit_Engine {
             wp_send_json_error(['message' => __('شما اجازه مشاهده یا ویرایش این محتوا را ندارید.', 'sedrazavi')]);
         }
 
-        $meta_keys = [
-            '_sr_portfolio_client',
-            '_sr_portfolio_url',
-            '_sr_portfolio_metric_val',
-            '_sr_portfolio_metric_label',
-            '_sr_service_price',
-            '_sr_service_delivery_time',
-        ];
         $meta = [];
-        foreach ($meta_keys as $mk) {
+        foreach ($this->get_allowed_meta_keys() as $mk) {
             $meta[$mk] = (string) get_post_meta($post->ID, $mk, true);
         }
 
@@ -326,6 +349,26 @@ class Frontend_Cockpit_Engine {
     }
 
     /**
+     * Validate target role assignment against privilege escalation
+     */
+    private function is_role_assignable($role) {
+        if (!function_exists('wp_roles') || !wp_roles()->is_role($role)) {
+            return false;
+        }
+        $role_obj = wp_roles()->get_role($role);
+        if (!$role_obj) {
+            return false;
+        }
+        $privileged_caps = ['manage_options', 'edit_users', 'delete_users', 'create_users', 'promote_users'];
+        foreach ($privileged_caps as $cap) {
+            if (!empty($role_obj->capabilities[$cap]) && !current_user_can('manage_options')) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * AJAX Create User Account Manually (Administrator Action)
      */
     public function ajax_create_user() {
@@ -337,14 +380,18 @@ class Frontend_Cockpit_Engine {
 
         $username   = sanitize_user($_POST['username'] ?? '');
         $email      = sanitize_email($_POST['email'] ?? '');
-        $password   = $_POST['password'] ?? '';
+        $password   = (string) ($_POST['password'] ?? '');
         $role       = sanitize_key($_POST['role'] ?? 'subscriber');
         $display    = sanitize_text_field($_POST['display_name'] ?? '');
         $phone      = sanitize_text_field($_POST['phone'] ?? '');
         $domain_tag = sanitize_text_field($_POST['domain_tag'] ?? 'general');
 
-        if (empty($username) || empty($email) || empty($password)) {
-            wp_send_json_error(['message' => __('نام کاربری، ایمیل و رمز عبور الزامی هستند.', 'sedrazavi')]);
+        if (empty($username) || empty($email) || !is_email($email) || strlen($password) < 8) {
+            wp_send_json_error(['message' => __('نام کاربری، ایمیل معتبر و رمز عبور حداقل ۸ کاراکتری الزامی هستند.', 'sedrazavi')]);
+        }
+
+        if (!$this->is_role_assignable($role)) {
+            wp_send_json_error(['message' => __('نقش کاربری انتخاب‌شده معتبر نیست یا خارج از سطح اختیارات شماست.', 'sedrazavi')], 403);
         }
 
         if (username_exists($username)) {
@@ -401,7 +448,16 @@ class Frontend_Cockpit_Engine {
         $is_self  = (get_current_user_id() === $target_user_id);
 
         if (!$is_admin && !$is_self) {
-            wp_send_json_error(['message' => __('شما مجوز ویرایش این حساب کاربری را ندارید.', 'sedrazavi')]);
+            wp_send_json_error(['message' => __('شما مجوز ویرایش این حساب کاربری را ندارید.', 'sedrazavi')], 403);
+        }
+
+        $target_user = get_userdata($target_user_id);
+        if (!$target_user) {
+            wp_send_json_error(['message' => __('کاربر یافت نشد.', 'sedrazavi')], 404);
+        }
+
+        if (!$is_self && in_array('administrator', (array) $target_user->roles, true) && !current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('شما مجوز ویرایش حساب مدیر کل را ندارید.', 'sedrazavi')], 403);
         }
 
         $update_data = ['ID' => $target_user_id];
@@ -409,10 +465,13 @@ class Frontend_Cockpit_Engine {
         if (!empty($_POST['display_name'])) {
             $update_data['display_name'] = sanitize_text_field($_POST['display_name']);
         }
-        if (!empty($_POST['email'])) {
+        if (!empty($_POST['email']) && is_email($_POST['email'])) {
             $update_data['user_email'] = sanitize_email($_POST['email']);
         }
         if (!empty($_POST['password'])) {
+            if (strlen((string) $_POST['password']) < 8) {
+                wp_send_json_error(['message' => __('رمز عبور جدید باید حداقل ۸ کاراکتر باشد.', 'sedrazavi')], 400);
+            }
             $update_data['user_pass'] = $_POST['password'];
         }
 
@@ -421,9 +480,11 @@ class Frontend_Cockpit_Engine {
             wp_send_json_error(['message' => $res->get_error_message()]);
         }
 
-        // Only admins can change roles
         if ($is_admin && !empty($_POST['role'])) {
             $role = sanitize_key($_POST['role']);
+            if (!$this->is_role_assignable($role)) {
+                wp_send_json_error(['message' => __('اختیار ارتقا به این نقش کاربری وجود ندارد.', 'sedrazavi')], 403);
+            }
             $user = new \WP_User($target_user_id);
             $user->set_role($role);
         }
@@ -442,12 +503,20 @@ class Frontend_Cockpit_Engine {
         check_ajax_referer('sr_cockpit_nonce', 'nonce');
 
         if (!current_user_can('delete_users') && !current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('سطح دسترسی شما برای حذف کاربران کافی نیست.', 'sedrazavi')]);
+            wp_send_json_error(['message' => __('سطح دسترسی شما برای حذف کاربران کافی نیست.', 'sedrazavi')], 403);
         }
 
         $target_user_id = intval($_POST['user_id'] ?? 0);
         if ($target_user_id === get_current_user_id()) {
             wp_send_json_error(['message' => __('شما نمی‌توانید حساب کاربری فعال خودتان را حذف کنید.', 'sedrazavi')]);
+        }
+
+        $target_user = get_userdata($target_user_id);
+        if (!$target_user) {
+            wp_send_json_error(['message' => __('کاربر یافت نشد.', 'sedrazavi')], 404);
+        }
+        if (in_array('administrator', (array) $target_user->roles, true) && !current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('شما مجوز حذف مدیر کل را ندارید.', 'sedrazavi')], 403);
         }
 
         require_once ABSPATH . 'wp-admin/includes/user.php';
@@ -551,6 +620,12 @@ class Frontend_Cockpit_Engine {
                 continue;
             }
 
+            if (!$this->is_role_assignable($role)) {
+                $skipped++;
+                $errors[] = sprintf(__('ردیف %d: نقش «%s» مجاز یا معتبر نیست.', 'sedrazavi'), $idx + 1, $role);
+                continue;
+            }
+
             if (username_exists($username) || email_exists($email)) {
                 $skipped++;
                 continue;
@@ -584,6 +659,18 @@ class Frontend_Cockpit_Engine {
     }
 
     /**
+     * Neutralize spreadsheet formula prefixes (=, +, -, @, tab)
+     */
+    private function sanitize_csv_cell($value) {
+        $str = (string) $value;
+        $str = str_replace(["\r\n", "\r", "\n"], ' ', $str);
+        if ($str !== '' && preg_match('/^[=+\-@\t]/', ltrim($str))) {
+            $str = "'" . $str;
+        }
+        return $str;
+    }
+
+    /**
      * AJAX Export Users as RFC-4180 CSV
      */
     public function ajax_export_users_csv() {
@@ -598,7 +685,7 @@ class Frontend_Cockpit_Engine {
         $rows[] = ['username', 'email', 'display_name', 'role', 'domain_tag', 'phone', 'registered'];
 
         foreach ($users as $u) {
-            $rows[] = [
+            $rows[] = array_map([$this, 'sanitize_csv_cell'], [
                 $u->user_login,
                 $u->user_email,
                 $u->display_name,
@@ -606,7 +693,7 @@ class Frontend_Cockpit_Engine {
                 get_user_meta($u->ID, '_sr_user_domain_tag', true) ?: 'general',
                 get_user_meta($u->ID, '_sr_user_phone', true) ?: '',
                 $u->user_registered,
-            ];
+            ]);
         }
 
         $handle = fopen('php://temp', 'r+');
@@ -626,7 +713,7 @@ class Frontend_Cockpit_Engine {
     }
 
     /**
-     * AJAX In-Dashboard 1-Click Plugin Installation
+     * AJAX In-Dashboard 1-Click Plugin Installation (Allowlisted Slugs Only)
      */
     public function ajax_install_plugin() {
         check_ajax_referer('sr_cockpit_nonce', 'nonce');
@@ -636,6 +723,10 @@ class Frontend_Cockpit_Engine {
         }
 
         $plugin_slug = sanitize_key($_POST['plugin_slug'] ?? 'sedrazavi-designer-core');
+        $allowed_plugins = ['sedrazavi-designer-core', 'elementor-addon-suite', 'sedrazavi-addons', 'sedrazavi-companion'];
+        if (!in_array($plugin_slug, $allowed_plugins, true)) {
+            wp_send_json_error(['message' => __('شناسه افزونه انتخاب‌شده در فهرست مجاز اکوسیستم نیست.', 'sedrazavi')], 403);
+        }
 
         // Locate bundled zip in theme inc/plugins/ or public/
         $candidates = [
@@ -702,7 +793,7 @@ class Frontend_Cockpit_Engine {
     }
 
     /**
-     * AJAX Site Kit Preflight Check
+     * AJAX Site Kit Preflight Check (Delegated to Package_Manager)
      */
     public function ajax_preflight_sitekit() {
         check_ajax_referer('sr_cockpit_nonce', 'nonce');
@@ -710,29 +801,49 @@ class Frontend_Cockpit_Engine {
             wp_send_json_error(['message' => __('سطح دسترسی شما برای این عملیات کافی نیست.', 'sedrazavi')]);
         }
 
-        $widgets   = isset($_POST['widgets']) && is_array($_POST['widgets']) ? array_map('sanitize_key', $_POST['widgets']) : [];
-        $templates = isset($_POST['templates']) && is_array($_POST['templates']) ? array_map('sanitize_key', $_POST['templates']) : [];
-        $blocks    = isset($_POST['blocks']) && is_array($_POST['blocks']) ? array_map('sanitize_text_field', $_POST['blocks']) : [];
-        $cpts      = isset($_POST['cpts']) && is_array($_POST['cpts']) ? array_map('sanitize_key', $_POST['cpts']) : [];
-        
-        $needs_query = false;
-        foreach ($widgets as $w) {
-            if (in_array($w, ['dynamic_grid', 'posts', 'posts_grid', 'services_grid', 'uas_dynamic_grid', 'uas_posts_grid'], true)) {
-                $needs_query = true;
+        $project_slug = sanitize_title($_POST['project_slug'] ?? 'custom-site-kit');
+        $widgets      = isset($_POST['widgets']) && is_array($_POST['widgets']) ? array_map('sanitize_key', $_POST['widgets']) : [];
+        $templates    = isset($_POST['templates']) && is_array($_POST['templates']) ? array_map('sanitize_key', $_POST['templates']) : [];
+        $blocks       = isset($_POST['blocks']) && is_array($_POST['blocks']) ? array_map('sanitize_text_field', $_POST['blocks']) : [];
+        $cpts         = isset($_POST['cpts']) && is_array($_POST['cpts']) ? array_map('sanitize_key', $_POST['cpts']) : [];
+
+        if ($this->ensure_package_manager_loaded()) {
+            $synthetic_manifest = [
+                'id'                   => $project_slug ?: 'custom-site-kit',
+                'name'                 => sanitize_text_field($_POST['project_name'] ?? 'کیت اختصاصی المنتور'),
+                'version'              => '1.0.0',
+                'package_type'         => 'custom-project-kit',
+                'widgets'              => $widgets,
+                'templates'            => $templates,
+                'gutenberg_blocks'     => $blocks,
+                'cpt_schemas'          => $cpts,
+                'includes_theme_bridge'=> !empty($_POST['include_theme_bridge']),
+                'includes_query_engine'=> !empty($_POST['include_query_engine']),
+            ];
+            $preflight = \UniversalElementorSuite\Package_Manager::instance()->preflight_check($synthetic_manifest);
+            if (empty($preflight['pass'])) {
+                wp_send_json_error([
+                    'pass'     => false,
+                    'errors'   => $preflight['errors'] ?? [],
+                    'warnings' => $preflight['warnings'] ?? [],
+                    'message'  => !empty($preflight['errors']) ? implode(' | ', $preflight['errors']) : __('بررسی پیش‌پرواز با خطا مواجه شد.', 'sedrazavi'),
+                ]);
             }
+            wp_send_json_success([
+                'pass'               => true,
+                'widgets_count'      => count($widgets),
+                'templates_count'    => count($templates),
+                'blocks_count'       => count($blocks),
+                'cpts_count'         => count($cpts),
+                'auto_added_widgets' => $preflight['auto_added_widgets'] ?? [],
+                'collision_detected' => !empty($preflight['collision_detected']),
+                'elementor_ready'    => !empty($preflight['environment']['elementor_active']),
+                'warnings'           => $preflight['warnings'] ?? [],
+                'message'            => sprintf(__('پیش‌پرواز با موفقیت تأیید شد (%d ویجت، %d بلوک گوتنبرگ، %d CPT و %d قالب؛ آماده استقرار مستقل).', 'sedrazavi'), count($widgets), count($blocks), count($cpts), count($templates)),
+            ]);
         }
 
-        wp_send_json_success([
-            'pass'            => true,
-            'widgets_count'   => count($widgets),
-            'templates_count' => count($templates),
-            'blocks_count'    => count($blocks),
-            'cpts_count'      => count($cpts),
-            'needs_query'     => $needs_query,
-            'elementor_ready' => did_action('elementor/loaded') || class_exists('\\Elementor\\Plugin'),
-            'warnings'        => [],
-            'message'         => sprintf(__('پیش‌پرواز با موفقیت تأیید شد (%d ویجت، %d بلوک گوتنبرگ، %d CPT و %d قالب؛ آماده استقرار مستقل).', 'sedrazavi'), count($widgets), count($blocks), count($cpts), count($templates)),
-        ]);
+        wp_send_json_error(['message' => __('کلاس بسته‌ساز مستقل (Package_Manager) برای بررسی پیش‌پرواز در دسترس نیست.', 'sedrazavi')]);
     }
 
     /**
@@ -803,26 +914,23 @@ class Frontend_Cockpit_Engine {
             'include_query_engine' => !empty($_POST['include_query_engine']),
         ];
 
+        $overwrite = isset($_POST['overwrite']) ? !empty($_POST['overwrite']) : true;
+
         // 1. Build Custom Bundle ZIP
         $build_res = \UniversalElementorSuite\Package_Manager::instance()->build_custom_project_bundle($params);
         if (!$build_res['success'] || !file_exists($build_res['zip_path'])) {
             wp_send_json_error(['message' => $build_res['error'] ?? __('خطا در تولید بسته جهت استقرار.', 'sedrazavi')]);
         }
 
-        // 2. Extract into WP_PLUGIN_DIR
+        // 2. Atomic Extraction, Activation Verification & Elementor Library Hydration
         $target_plugin_dir = trailingslashit(WP_PLUGIN_DIR) . $params['project_slug'] . '/';
-        $import_res = \UniversalElementorSuite\Package_Manager::instance()->import_package_archive($build_res['zip_path'], false, $target_plugin_dir);
+        $import_res = \UniversalElementorSuite\Package_Manager::instance()->import_package_archive($build_res['zip_path'], false, $target_plugin_dir, $overwrite);
 
-        if (!$import_res['success']) {
-            wp_send_json_error(['message' => $import_res['error'] ?? __('خطا در استخراج بسته به مسیر افزونه‌ها.', 'sedrazavi')]);
+        if (empty($import_res['success'])) {
+            wp_send_json_error(['message' => $import_res['error'] ?? __('خطا در استخراج یا فعال‌سازی بسته.', 'sedrazavi')]);
         }
 
-        // 3. Activate the new plugin
-        require_once ABSPATH . 'wp-admin/includes/plugin.php';
-        $main_file = $params['project_slug'] . '/' . $params['project_slug'] . '.php';
-        activate_plugin($main_file);
-
-        // 4. Persist deployed Site Kit record in wp_options
+        // 3. Persist deployed Site Kit record in wp_options
         $deployed = get_option('sr_cockpit_deployed_kits', []);
         if (!is_array($deployed)) {
             $deployed = [];
@@ -844,6 +952,7 @@ class Frontend_Cockpit_Engine {
             'message'            => sprintf(__('کیت سایت «%s» با موفقیت در افزونه‌ها مستقر، فعال و %d قالب به کتابخانه المنتور اضافه شد.', 'sedrazavi'), $params['project_name'], $import_res['hydrated_templates'] ?? 0),
             'plugin_slug'        => $params['project_slug'],
             'installed_path'     => $target_plugin_dir,
+            'plugin_activated'   => !empty($import_res['plugin_activated']),
             'hydrated_templates' => $import_res['hydrated_templates'] ?? 0,
         ]);
     }

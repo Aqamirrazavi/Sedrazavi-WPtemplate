@@ -77,9 +77,13 @@ class Package_Exporter {
             $widget_name = $target_package['components']['widget'];
             $widget_filename = 'class-widget-' . str_replace('uas_', '', str_replace('_', '-', $widget_name)) . '.php';
             $widget_src = UAS_PATH . 'includes/widgets/' . $widget_filename;
-            if (file_exists($widget_src)) {
-                $bundle_files['includes/' . $widget_filename] = (string) file_get_contents($widget_src);
+            if (!file_exists($widget_src)) {
+                return [
+                    'success' => false,
+                    'error'   => sprintf('فایل کلاس ویجت «%s» برای بسته‌بندی یافت نشد (%s).', $widget_name, $widget_filename),
+                ];
             }
+            $bundle_files['includes/' . $widget_filename] = (string) file_get_contents($widget_src);
             if (in_array($widget_name, ['uas_dynamic_grid', 'uas_posts_grid', 'uas_services_grid'], true)) {
                 $query_src = UAS_PATH . 'includes/class-dynamic-query-engine.php';
                 if (file_exists($query_src)) {

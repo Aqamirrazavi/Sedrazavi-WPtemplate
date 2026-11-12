@@ -126,6 +126,7 @@ class SedRazavi_WP_REST_Auth {
         }
 
         $current_user_id = get_current_user_id();
+        $allowed_post_types = ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'];
 
         // 1. Staff with manage_options or edit_posts have global authorized access
         if (current_user_can('manage_options') || current_user_can('edit_posts')) {
@@ -136,10 +137,13 @@ class SedRazavi_WP_REST_Auth {
         if ($request) {
             $case_id = sanitize_text_field($request->get_param('case_id') ?: $request->get_param('id'));
             if (!empty($case_id)) {
-                // If numeric post ID, verify author / assigned client
                 if (is_numeric($case_id)) {
                     $case_post = get_post(intval($case_id));
-                    if (!$case_post || ($case_post->post_author != $current_user_id && get_post_meta($case_post->ID, '_client_user_id', true) != $current_user_id)) {
+                    if (
+                        !$case_post ||
+                        !in_array($case_post->post_type, $allowed_post_types, true) ||
+                        ((int) $case_post->post_author !== $current_user_id && (int) get_post_meta($case_post->ID, '_client_user_id', true) !== $current_user_id)
+                    ) {
                         return new WP_Error(
                             'rest_case_forbidden',
                             esc_html__('شما اجازه دسترسی به این پرونده قضایی محرمانه را ندارید.', 'sedrazavi'),
@@ -147,9 +151,36 @@ class SedRazavi_WP_REST_Auth {
                         );
                     }
                 } else {
-                    // String identifier mapping: ensure client can only query their designated dossier
-                    $client_allowed_dossier = get_user_meta($current_user_id, '_sedrazavi_assigned_case_id', true);
-                    if (!empty($client_allowed_dossier) && $client_allowed_dossier !== $case_id) {
+                    // String identifier mapping: fail closed unless client has an explicit matching dossier assignment
+                    $client_allowed_dossier = (string) get_user_meta($current_user_id, '_sedrazavi_assigned_case_id', true);
+                    $owned_posts = get_posts([
+                        'post_type'      => $allowed_post_types,
+                        'post_status'    => ['publish', 'private'],
+                        'posts_per_page' => 1,
+                        'fields'         => 'ids',
+                        'meta_query'     => [
+                            'relation' => 'AND',
+                            [
+                                'relation' => 'OR',
+                                [
+                                    'key'     => '_sedrazavi_case_number',
+                                    'value'   => $case_id,
+                                    'compare' => '=',
+                                ],
+                                [
+                                    'key'     => '_case_number',
+                                    'value'   => $case_id,
+                                    'compare' => '=',
+                                ],
+                            ],
+                            [
+                                'key'     => '_client_user_id',
+                                'value'   => $current_user_id,
+                                'compare' => '=',
+                            ],
+                        ],
+                    ]);
+                    if (empty($owned_posts) && (empty($client_allowed_dossier) || !hash_equals($client_allowed_dossier, $case_id))) {
                         return new WP_Error(
                             'rest_case_forbidden',
                             esc_html__('دسترسی غیرمجاز: این پرونده متعلق به حساب کاربری شما نمی‌باشد.', 'sedrazavi'),
@@ -160,7 +191,7 @@ class SedRazavi_WP_REST_Auth {
             }
         }
 
-        // 3. For list endpoints, only allow users who have read capability
+        // 3. For list endpoints, only allow users who have read capability (list is filtered per-object in handler)
         if (current_user_can('read')) {
             return true;
         }
@@ -336,13 +367,13 @@ class SedRazavi_WP_REST_Auth {
     public static function handle_get_secure_cases($request) {
         $current_user_id = get_current_user_id();
         $is_lawyer = current_user_can('edit_posts') || current_user_can('manage_options');
+        $allowed_post_types = ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'];
 
         $cases_output = [];
 
-        // Check if cases CPT exists in WordPress database
         $cpt_query = new \WP_Query([
-            'post_type'      => ['cases', 'sedrazavi_cases'],
-            'post_status'    => 'publish',
+            'post_type'      => $allowed_post_types,
+            'post_status'    => ['publish', 'private'],
             'posts_per_page' => 50,
             'orderby'        => 'date',
             'order'          => 'DESC',
@@ -352,86 +383,35 @@ class SedRazavi_WP_REST_Auth {
             while ($cpt_query->have_posts()) {
                 $cpt_query->the_post();
                 $pid = get_the_ID();
-                $client_uid = get_post_meta($pid, '_client_user_id', true);
-                $post_author = get_post_field('post_author', $pid);
+                $client_uid = (int) get_post_meta($pid, '_client_user_id', true);
+                $post_author = (int) get_post_field('post_author', $pid);
+                $case_num = get_post_meta($pid, '_sedrazavi_case_number', true) ?: get_post_meta($pid, '_case_number', true);
+                $assigned_dossier = (string) get_user_meta($current_user_id, '_sedrazavi_assigned_case_id', true);
 
-                // Enforce strict ownership: If user is not staff, only allow their own dossier
-                if (!$is_lawyer && $client_uid != $current_user_id && $post_author != $current_user_id) {
+                // Enforce strict ownership: non-staff only see dossiers explicitly assigned to them
+                $is_owner = ($client_uid === $current_user_id)
+                    || ($post_author === $current_user_id)
+                    || (!empty($assigned_dossier) && ($assigned_dossier === (string) $pid || (!empty($case_num) && $assigned_dossier === (string) $case_num)));
+
+                if (!$is_lawyer && !$is_owner) {
                     continue;
                 }
 
+                $phone = get_post_meta($pid, '_sedrazavi_client_phone', true) ?: get_post_meta($pid, '_client_phone', true);
                 $cases_output[] = [
-                    'id'            => 'case-' . $pid,
-                    'caseNumber'    => get_post_meta($pid, '_case_number', true) ?: ('۱۴۰۳-' . $pid),
-                    'subject'       => get_the_title(),
-                    'clientName'    => get_post_meta($pid, '_client_name', true) ?: get_the_author(),
-                    'clientPhone'   => $is_lawyer ? get_post_meta($pid, '_client_phone', true) : '***',
-                    'courtBranch'   => get_post_meta($pid, '_court_branch', true) ?: 'دادگاه تجدیدنظر استان تهران',
-                    'hearingDate'   => get_post_meta($pid, '_hearing_date', true) ?: 'در حال تعیین وقت',
-                    'progress'      => intval(get_post_meta($pid, '_case_progress', true) ?: 50),
-                    'status'        => get_post_meta($pid, '_case_status', true) ?: 'در جریان رسیدگی',
-                    'isConfidential'=> true,
+                    'id'             => (string) $pid,
+                    'caseNumber'     => $case_num ?: ('SR-' . $pid),
+                    'subject'        => get_the_title(),
+                    'clientName'     => get_post_meta($pid, '_sedrazavi_client_name', true) ?: get_post_meta($pid, '_client_name', true) ?: get_the_author(),
+                    'clientPhone'    => $is_lawyer ? $phone : '***',
+                    'courtBranch'    => get_post_meta($pid, '_sedrazavi_court_branch', true) ?: get_post_meta($pid, '_court_branch', true) ?: '',
+                    'hearingDate'    => get_post_meta($pid, '_sedrazavi_next_session', true) ?: get_post_meta($pid, '_hearing_date', true) ?: '',
+                    'progress'       => intval(get_post_meta($pid, '_sedrazavi_progress', true) ?: get_post_meta($pid, '_case_progress', true) ?: 0),
+                    'status'         => get_post_meta($pid, '_sedrazavi_case_status', true) ?: get_post_meta($pid, '_case_status', true) ?: 'در جریان رسیدگی',
+                    'isConfidential' => true,
                 ];
             }
             wp_reset_postdata();
-        }
-
-        // If no CPT cases exist in database yet, provide strictly isolated records
-        if (empty($cases_output)) {
-            $master_caseload = [
-                [
-                    'id'            => 'c-01',
-                    'caseNumber'    => '۱۴۰۳-۹۸۲۷۳-ونک',
-                    'subject'       => 'الزام به تنظیم سند رسمی انتقال ملک و مطالبه خسارت تاخیر تادیه',
-                    'clientName'    => 'مهندس علیرضا رادمنش',
-                    'clientPhone'   => $is_lawyer ? '۰۹۱۲۳۴۵۶۷۸۹' : '۰۹۱۲***',
-                    'courtBranch'   => 'شعبه ۱۲ دادگاه عمومی حقوقی شهید بهشتی تهران',
-                    'hearingDate'   => 'سه‌شنبه ۱۵ مهر ۱۴۰۳ - ساعت ۰۹:۳۰',
-                    'progress'      => 75,
-                    'status'        => 'جلسه دادگاه دوم و بررسی کارشناسی',
-                    'isConfidential'=> true,
-                    'clientUserId'  => 1,
-                ],
-                [
-                    'id'            => 'c-02',
-                    'caseNumber'    => '۱۴۰۳-۳۴۱۱۲-داوری',
-                    'subject'       => 'حل اختلاف قراردادی و مطالبه وجه ضمانت‌نامه حسن انجام کار',
-                    'clientName'    => 'شرکت بین‌المللی کیمیا پارس',
-                    'clientPhone'   => $is_lawyer ? '۰۹۱۲۱۱۱۱۱۱۱' : '۰۹۱۲***',
-                    'courtBranch'   => 'مرکز داوری اتاق بازرگانی ایران (ACIR)',
-                    'hearingDate'   => 'یکشنبه ۲۷ مهر ۱۴۰۳ - ساعت ۱۱:۰۰',
-                    'progress'      => 60,
-                    'status'        => 'تبادل لوایح داوری و لایحه اعتراضیه',
-                    'isConfidential'=> true,
-                    'clientUserId'  => 2,
-                ],
-                [
-                    'id'            => 'c-03',
-                    'caseNumber'    => '۱۴۰۳-۵۵۶۱۱-تجدیدنظر',
-                    'subject'       => 'تخلیه ملک تجاری و مطالبه سرقفلی بر اساس قانون روابط موجر و مستاجر ۱۳۵۶',
-                    'clientName'    => 'هلدینگ میرباقری',
-                    'clientPhone'   => $is_lawyer ? '۰۹۱۲۲۲۲۲۲۲۲' : '۰۹۱۲***',
-                    'courtBranch'   => 'شعبه ۲۸ دادگاه تجدیدنظر استان تهران',
-                    'hearingDate'   => 'پنج‌شنبه ۱۷ مهر ۱۴۰۳',
-                    'progress'      => 90,
-                    'status'        => 'در انتظار انشای دادنامه قطعی تجدیدنظر',
-                    'isConfidential'=> true,
-                    'clientUserId'  => 3,
-                ],
-            ];
-
-            if ($is_lawyer) {
-                // Attorneys and Admins see full roster
-                $cases_output = $master_caseload;
-            } else {
-                // Clients ONLY receive their assigned case dossier
-                $assigned_case_id = get_user_meta($current_user_id, '_sedrazavi_assigned_case_id', true) ?: 'c-01';
-                foreach ($master_caseload as $c) {
-                    if ($c['id'] === $assigned_case_id || $c['clientUserId'] === $current_user_id) {
-                        $cases_output[] = $c;
-                    }
-                }
-            }
         }
 
         return new WP_REST_Response([
@@ -439,34 +419,103 @@ class SedRazavi_WP_REST_Auth {
             'total'      => count($cases_output),
             'cases'      => $cases_output,
             'isLawyer'   => $is_lawyer,
-            'docketCode' => 'SR-DOCKET-' . date('Y'),
+            'docketCode' => 'SR-DOCKET-' . gmdate('Y'),
         ], 200);
     }
 
     /**
-     * Handle Get Secure Case Detail
+     * Handle Get Secure Case Detail (Strict DB Lookup + Anti-IDOR)
      */
     public static function handle_get_secure_case_detail($request) {
-        $case_id = sanitize_text_field($request->get_param('case_id') ?: 'c-01');
+        $case_id = sanitize_text_field($request->get_param('case_id') ?: $request->get_param('id'));
+        if (empty($case_id)) {
+            return new WP_Error(
+                'rest_missing_case_id',
+                esc_html__('شناسه پرونده الزامی است.', 'sedrazavi'),
+                ['status' => 400]
+            );
+        }
 
+        $current_user_id = get_current_user_id();
+        $is_lawyer = current_user_can('edit_posts') || current_user_can('manage_options');
+        $allowed_post_types = ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'];
+
+        $case_post = null;
+        if (is_numeric($case_id)) {
+            $candidate = get_post(intval($case_id));
+            if ($candidate && in_array($candidate->post_type, $allowed_post_types, true)) {
+                $case_post = $candidate;
+            }
+        } else {
+            $matches = get_posts([
+                'post_type'      => $allowed_post_types,
+                'post_status'    => ['publish', 'private'],
+                'posts_per_page' => 1,
+                'meta_query'     => [
+                    'relation' => 'OR',
+                    [
+                        'key'     => '_sedrazavi_case_number',
+                        'value'   => $case_id,
+                        'compare' => '=',
+                    ],
+                    [
+                        'key'     => '_case_number',
+                        'value'   => $case_id,
+                        'compare' => '=',
+                    ],
+                ],
+            ]);
+            if (!empty($matches)) {
+                $case_post = $matches[0];
+            }
+        }
+
+        if (!$case_post) {
+            return new WP_Error(
+                'rest_case_not_found',
+                esc_html__('پرونده‌ای با این مشخصات در پایگاه داده یافت نشد.', 'sedrazavi'),
+                ['status' => 404]
+            );
+        }
+
+        $pid = $case_post->ID;
+        $client_uid = (int) get_post_meta($pid, '_client_user_id', true);
+        $post_author = (int) $case_post->post_author;
+        $case_num = (string) (get_post_meta($pid, '_sedrazavi_case_number', true) ?: get_post_meta($pid, '_case_number', true) ?: $pid);
+        $assigned_dossier = (string) get_user_meta($current_user_id, '_sedrazavi_assigned_case_id', true);
+
+        $is_owner = ($client_uid === $current_user_id)
+            || ($post_author === $current_user_id)
+            || (!empty($assigned_dossier) && ($assigned_dossier === (string) $pid || $assigned_dossier === $case_num));
+
+        if (!$is_lawyer && !$is_owner) {
+            return new WP_Error(
+                'rest_case_forbidden',
+                esc_html__('شما اجازه دسترسی به جزئیات این پرونده محرمانه را ندارید.', 'sedrazavi'),
+                ['status' => 403]
+            );
+        }
+
+        $docs = get_post_meta($pid, '_sedrazavi_documents', true);
+        if (!is_array($docs)) {
+            $docs = [];
+        }
+
+        $phone = get_post_meta($pid, '_sedrazavi_client_phone', true) ?: get_post_meta($pid, '_client_phone', true);
         $case_detail = [
-            'id'            => $case_id,
-            'caseNumber'    => '۱۴۰۳-۹۸۲۷۳-ونک',
-            'subject'       => 'الزام به تنظیم سند رسمی انتقال ملک و مطالبه خسارت تاخیر تادیه',
-            'clientName'    => 'مهندس علیرضا رادمنش',
-            'clientPhone'   => '۰۹۱۲۳۴۵۶۷۸۹',
-            'courtBranch'   => 'شعبه ۱۲ دادگاه عمومی حقوقی شهید بهشتی تهران',
-            'hearingDate'   => 'سه‌شنبه ۱۵ مهر ۱۴۰۳ - ساعت ۰۹:۳۰',
-            'progress'      => 75,
-            'status'        => 'جلسه دادگاه دوم و بررسی کارشناسی',
-            'totalFee'      => '۳۵۰,۰۰۰,۰۰۰ تومان',
-            'paidAmount'    => '۲۵۰,۰۰۰,۰۰۰ تومان',
-            'remainingFee'  => '۱۰۰,۰۰۰,۰۰۰ تومان',
-            'documents'     => [
-                ['title' => 'دادخواست بدوی ثبت‌شده', 'date' => '۱۴۰۳/۰۳/۱۵', 'size' => '۲.۴ MB'],
-                ['title' => 'نظریه کارشناس رسمی دادگستری', 'date' => '۱۴۰۳/۰۵/۱۰', 'size' => '۴.۱ MB'],
-                ['title' => 'لایحه دفاعیه وکیل دکتر رضوی', 'date' => '۱۴۰۳/۰۶/۲۵', 'size' => '۱.۸ MB'],
-            ],
+            'id'           => (string) $pid,
+            'caseNumber'   => $case_num,
+            'subject'      => get_the_title($pid),
+            'clientName'   => get_post_meta($pid, '_sedrazavi_client_name', true) ?: get_post_meta($pid, '_client_name', true) ?: '',
+            'clientPhone'  => $is_lawyer ? $phone : '***',
+            'courtBranch'  => get_post_meta($pid, '_sedrazavi_court_branch', true) ?: get_post_meta($pid, '_court_branch', true) ?: '',
+            'hearingDate'  => get_post_meta($pid, '_sedrazavi_next_session', true) ?: get_post_meta($pid, '_hearing_date', true) ?: '',
+            'progress'     => intval(get_post_meta($pid, '_sedrazavi_progress', true) ?: get_post_meta($pid, '_case_progress', true) ?: 0),
+            'status'       => get_post_meta($pid, '_sedrazavi_case_status', true) ?: get_post_meta($pid, '_case_status', true) ?: 'در جریان رسیدگی',
+            'totalFee'     => ($is_lawyer || $is_owner) ? (get_post_meta($pid, '_sedrazavi_total_fee', true) ?: '') : '',
+            'paidAmount'   => ($is_lawyer || $is_owner) ? (get_post_meta($pid, '_sedrazavi_paid_amount', true) ?: '') : '',
+            'remainingFee' => ($is_lawyer || $is_owner) ? (get_post_meta($pid, '_sedrazavi_remaining_fee', true) ?: '') : '',
+            'documents'    => $docs,
         ];
 
         return new WP_REST_Response([

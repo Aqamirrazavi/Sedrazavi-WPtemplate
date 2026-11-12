@@ -66,16 +66,19 @@ class SedRazavi_Legal_Intelligence {
      * جستجوی سریع در بانک آرای وحدت رویه
      */
     public function ajax_search_precedents() {
-        $keyword = sanitize_text_field($_GET['keyword'] ?? '');
-        $category = sanitize_text_field($_GET['category'] ?? '');
+        check_ajax_referer('sedrazavi_intel_nonce', 'security');
+
+        $keyword  = sanitize_text_field($_REQUEST['keyword'] ?? '');
+        $category = sanitize_key($_REQUEST['category'] ?? '');
 
         $args = array(
             'post_type'      => 'legal_precedent',
+            'post_status'    => 'publish',
             'posts_per_page' => 15,
             's'              => $keyword,
         );
 
-        if (!empty($category)) {
+        if (!empty($category) && term_exists($category, 'precedent_category')) {
             $args['tax_query'] = array(
                 array(
                     'taxonomy' => 'precedent_category',

@@ -1464,67 +1464,100 @@ class SedRazavi_REST_API {
     }
 
     /**
-     * 20. Handle Lawyer Notifications
+     * Sanitize CSV cell against spreadsheet formula injection
+     */
+    private static function sanitize_csv_cell($value) {
+        $str = (string) $value;
+        $str = str_replace(array("\r\n", "\r", "\n"), ' ', $str);
+        if ($str !== '' && preg_match('/^[=+\-@\t]/', ltrim($str))) {
+            $str = "'" . $str;
+        }
+        return '"' . str_replace('"', '""', $str) . '"';
+    }
+
+    /**
+     * 20. Handle Lawyer Notifications (Real DB query)
      */
     public static function handle_lawyer_notifications($request) {
-        $notifications = array(
-            array(
-                'id'            => 'notif-1',
-                'type'          => 'court_deadline',
-                'title'         => 'موعد بسیار فوری: جلسه دادگاه شعبه ۱۲ بدوی',
-                'message'       => 'جلسه رسیدگی به پرونده الزام به تنظیم سند ملک ونک (موکل: مهندس رادمنش).',
-                'timestamp'     => '۱۰ دقیقه پیش',
-                'caseNumber'    => '۱۴۰۳-۹۸۲۷۳-ونک',
-                'clientName'    => 'مهندس علیرضا رادمنش',
-                'courtBranch'   => 'شعبه ۱۲ دادگاه عمومی حقوقی شهید بهشتی',
-                'deadlineDate'  => 'سه‌شنبه ۱۵ مهر ۱۴۰۳ - ساعت ۰۹:۳۰',
-                'daysRemaining' => 1,
-                'urgency'       => 'critical',
-                'isRead'        => false,
-            ),
-            array(
-                'id'            => 'notif-2',
-                'type'          => 'client_message',
-                'title'         => 'پیام جدید موکل: ارسال فیش واریز کارشناسی',
-                'message'       => 'مهندس جهانبخش: «رسید فیش واریزی کارشناسی ۳ نفره در سامانه آپلود شد.»',
-                'timestamp'     => '۲۵ دقیقه پیش',
-                'caseNumber'    => '۱۴۰۳-۳۴۱۱۲-داوری',
-                'clientName'    => 'مهندس آرش جهانبخش',
-                'urgency'       => 'normal',
-                'isRead'        => false,
-            ),
-            array(
-                'id'            => 'notif-3',
-                'type'          => 'court_deadline',
-                'title'         => 'موعد تجدیدنظرخواهی: مهلت ماده ۳۶۴ آیین دادرسی',
-                'message'       => 'آخرین مهلت تقدیم دادخواست تجدیدنظر پرونده سرقفلی پاساژ ونک.',
-                'timestamp'     => '۱ ساعت پیش',
-                'caseNumber'    => '۱۴۰۳-۵۵۶۱۱-تجدیدنظر',
-                'clientName'    => 'هلدینگ میرباقری',
-                'courtBranch'   => 'دادگاه تجدیدنظر استان تهران',
-                'deadlineDate'  => 'پنج‌شنبه ۱۷ مهر ۱۴۰۳',
-                'daysRemaining' => 3,
-                'urgency'       => 'warning',
-                'isRead'        => false,
-            ),
-        );
+        $notifications = array();
+
+        $cases = get_posts(array(
+            'post_type'      => array('sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'),
+            'post_status'    => array('publish', 'private'),
+            'posts_per_page' => 20,
+            'orderby'        => 'modified',
+            'order'          => 'DESC',
+        ));
+
+        foreach ($cases as $post) {
+            $pid = $post->ID;
+            $next_session = get_post_meta($pid, '_sedrazavi_next_session', true) ?: get_post_meta($pid, '_sedrazavi_hearing_date', true);
+            $case_num     = get_post_meta($pid, '_sedrazavi_case_number', true) ?: ('SR-' . $pid);
+            $client_name  = get_post_meta($pid, '_sedrazavi_client_name', true) ?: '';
+            $court_branch = get_post_meta($pid, '_sedrazavi_court_branch', true) ?: '';
+
+            if (!empty($next_session) || !empty($case_num)) {
+                $notifications[] = array(
+                    'id'           => 'case-notif-' . $pid,
+                    'type'         => !empty($next_session) ? 'court_deadline' : 'case_update',
+                    'title'        => get_the_title($pid),
+                    'message'      => !empty($next_session) ? ('موعد رسیدگی: ' . $next_session) : 'به‌روزرسانی وضعیت پرونده در سیستم',
+                    'timestamp'    => get_the_modified_date('Y-m-d H:i', $pid),
+                    'caseNumber'   => $case_num,
+                    'clientName'   => $client_name,
+                    'courtBranch'  => $court_branch,
+                    'deadlineDate' => $next_session ?: '',
+                    'urgency'      => !empty($next_session) ? 'warning' : 'normal',
+                    'isRead'       => false,
+                );
+            }
+        }
 
         return new WP_REST_Response($notifications, 200);
     }
 
     /**
-     * 21. Handle Lawyer Caseload CSV Export
+     * 21. Handle Lawyer Caseload CSV Export (Real DB query + Formula Injection Guard)
      */
     public static function handle_lawyer_export_csv($request) {
         $lawyer_name = get_option('sedrazavi_lawyer_name', 'دکتر سیده مریم رضوی');
-        $date = date('Y-m-d');
-        
-        $output  = "\xEF\xBB\xBF"; // UTF-8 BOM for Persian Excel compatibility
-        $output .= "\"گزارش کارتابل پرونده‌های وکالت و مراجعین\",\"{$lawyer_name}\",\"{$date}\"\n\n";
-        $output .= "\"شماره پرونده\",\"نام موکل\",\"تلفن\",\"موضوع دعوا\",\"مرجع رسیدگی\",\"وضعیت\",\"جلسه آینده\"\n";
-        $output .= "\"۱۴۰۳-۹۸۲۷۳-ونک\",\"مهندس علیرضا رادمنش\",\"۰۹۱۲۳۴۵۶۷۸۹\",\"الزام به تنظیم سند رسمی\",\"شعبه ۱۲ بهشتی\",\"در جریان\",\"سه‌شنبه ۱۵ مهر ساعت ۰۹:۳۰\"\n";
-        $output .= "\"۱۴۰۳-۳۴۱۱۲-داوری\",\"شرکت کیمیا پارس\",\"۰۹۱۲۱۱۱۱۱۱۱\",\"اختلاف ضمانت‌نامه بین‌المللی\",\"مرکز داوری اتاق بازرگانی\",\"تبادل لوایح\",\"یکشنبه ۲۷ مهر ساعت ۱۱:۰۰\"\n";
-        $output .= "\"۱۴۰۳-۵۵۶۱۱-تجدیدنظر\",\"هلدینگ میرباقری\",\"۰۹۱۲۲۲۲۲۲۲۲\",\"تخلیه و سرقفلی ملک تجاری\",\"شعبه ۲۸ تجدیدنظر\",\"مهلت تجدیدنظرخواهی\",\"پنج‌شنبه ۱۷ مهر\"\n";
+        $date = gmdate('Y-m-d');
+
+        $output  = "\xEF\xBB\xBF";
+        $output .= self::sanitize_csv_cell('گزارش کارتابل پرونده‌های وکالت و مراجعین') . ','
+            . self::sanitize_csv_cell($lawyer_name) . ','
+            . self::sanitize_csv_cell($date) . "\n\n";
+        $output .= implode(',', array(
+            self::sanitize_csv_cell('شماره پرونده'),
+            self::sanitize_csv_cell('نام موکل'),
+            self::sanitize_csv_cell('تلفن'),
+            self::sanitize_csv_cell('موضوع دعوا'),
+            self::sanitize_csv_cell('مرجع رسیدگی'),
+            self::sanitize_csv_cell('وضعیت'),
+            self::sanitize_csv_cell('جلسه آینده'),
+        )) . "\n";
+
+        $cases = get_posts(array(
+            'post_type'      => array('sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'),
+            'post_status'    => array('publish', 'private'),
+            'posts_per_page' => 200,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ));
+
+        foreach ($cases as $post) {
+            $pid = $post->ID;
+            $row = array(
+                get_post_meta($pid, '_sedrazavi_case_number', true) ?: get_post_meta($pid, '_case_number', true) ?: ('SR-' . $pid),
+                get_post_meta($pid, '_sedrazavi_client_name', true) ?: get_post_meta($pid, '_client_name', true) ?: '',
+                get_post_meta($pid, '_sedrazavi_client_phone', true) ?: get_post_meta($pid, '_client_phone', true) ?: '',
+                get_the_title($pid),
+                get_post_meta($pid, '_sedrazavi_court_branch', true) ?: get_post_meta($pid, '_court_branch', true) ?: '',
+                get_post_meta($pid, '_sedrazavi_case_status', true) ?: get_post_meta($pid, '_case_status', true) ?: 'در جریان',
+                get_post_meta($pid, '_sedrazavi_next_session', true) ?: get_post_meta($pid, '_hearing_date', true) ?: '',
+            );
+            $output .= implode(',', array_map([__CLASS__, 'sanitize_csv_cell'], $row)) . "\n";
+        }
 
         return new WP_REST_Response(array(
             'success'  => true,

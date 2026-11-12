@@ -33,6 +33,15 @@ class Package_Manifest_Validator {
             }
         }
 
+        if (!empty($manifest['id']) && !preg_match('/^[a-z0-9][a-z0-9_-]{1,80}$/', (string) $manifest['id'])) {
+            $errors[] = 'شناسه پکیج (id) باید تنها شامل حروف کوچک انگلیسی، اعداد، خط تیره یا زیرخط باشد.';
+        }
+
+        $allowed_types = ['ui', 'service', 'full_feature', 'custom-project-kit'];
+        if (!empty($manifest['package_type']) && !in_array((string) $manifest['package_type'], $allowed_types, true)) {
+            $errors[] = sprintf('نوع بسته "%s" پشتیبانی نمی‌شود.', sanitize_text_field((string) $manifest['package_type']));
+        }
+
         // Checksum algorithm validation if file_checksums are present
         if (isset($manifest['file_checksums'])) {
             if (!is_array($manifest['file_checksums'])) {
@@ -60,6 +69,14 @@ class Package_Manifest_Validator {
                 $wp_version = get_bloginfo('version');
                 if (version_compare($wp_version, $min_wp, '<')) {
                     $errors[] = sprintf('نسخه وردپرس (%s) با این بسته سازگار نیست (نیاز به %s دارد).', $wp_version, $min_wp);
+                }
+            }
+
+            // Elementor Version Check
+            if (!empty($req['elementor']) && defined('ELEMENTOR_VERSION')) {
+                $min_el = ltrim((string) $req['elementor'], '>=');
+                if (version_compare(ELEMENTOR_VERSION, $min_el, '<')) {
+                    $errors[] = sprintf('نسخه المنتور فعلی (%s) قدیمی‌تر از حداقل نسخه مورد نیاز (%s) است.', ELEMENTOR_VERSION, $min_el);
                 }
             }
 

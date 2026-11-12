@@ -312,109 +312,82 @@ class SedRazavi_Legal_Matter_Portal {
     }
 
     /**
-     * Seed & Provide Initial Matter Records
+     * Load real Matter records from WordPress CPTs and stored option ledger (Zero hardcoded PII)
      */
     private function get_all_matters_data() {
-        return [
-            [
-                'matter_id'          => 'MAT-2026-089',
-                'title'              => 'داوری تجاری و حل اختلاف قرارداد توسعه نرم‌افزار هلدینگ آراز',
-                'client_id'          => 'client_user_101',
-                'client_name'        => 'مهندس آرش طاهری',
-                'status'             => 'active',
-                'status_fa'          => 'در حال دادرسی و لوایح',
-                'court_branch'       => 'مرکز داوری اتاق بازرگانی ایران (ACIC)',
-                'lead_attorney'      => 'دکتر سیده مریم رضوی (وکیل پایه یک دادگستری)',
-                'associate_attorney' => 'سید امیر حسین رضوی فردویی',
-                'start_date'         => '2026-08-15',
-                'summary'            => 'مطالبه خسارت تاخیر تادیه و الزام به تحویل سورس‌کد پروژه سازمانی وفق شرایط عمومی پیمان.',
-                'timeline'           => [
-                    ['date' => '2026-08-15', 'title' => 'ثبت رسمی دادخواست داوری در دبیرخانه ACIC', 'status' => 'completed'],
-                    ['date' => '2026-09-02', 'title' => 'انتخاب سرداور و ابلاغ قرار کارشناسی رسمی', 'status' => 'completed'],
-                    ['date' => '2026-10-18', 'title' => 'برگزاری جلسه استماع دفاعیات و تسلیم لایحه تکمیلی', 'status' => 'completed'],
-                    ['date' => '2026-11-10', 'title' => 'جلسه صدور رای داوری قطعی و لازم‌الاجرا', 'status' => 'pending'],
-                ],
-                'documents'          => [
-                    [
-                        'id'        => 'DOC-8891',
-                        'title'     => 'لایحه دفاعیه جامع داوری شماره ۲',
-                        'type'      => 'PDF',
-                        'size'      => '2.4 MB',
-                        'sha256'    => '4a8b71d9e23cfa01828392019485718293847581928374829102938475610293',
-                        'uploaded'  => '2026-10-18',
-                    ],
-                    [
-                        'id'        => 'DOC-8892',
-                        'title'     => 'قرارداد رسمی پیمانکاری نرم‌افزار پیوست ۱',
-                        'type'      => 'PDF',
-                        'size'      => '5.1 MB',
-                        'sha256'    => '9182736450192837465019283746501928374650192837465019283746501928',
-                        'uploaded'  => '2026-08-15',
-                    ],
-                ],
-                'deadlines'          => [
-                    [
-                        'id'       => 'DL-101',
-                        'title'    => 'مهلت تسلیم لایحه اعتراضی به نظریه کارشناسی ۳ نفره',
-                        'due_date' => '2026-11-02 23:59:59',
-                        'urgency'  => 'critical',
-                        'days_left'=> 9,
-                    ],
-                ],
-            ],
-            [
-                'matter_id'          => 'MAT-2026-112',
-                'title'              => 'ابطال سند رسمی پلاک ثبتی و خلع ید مشاعی',
-                'client_id'          => 'client_user_202',
-                'client_name'        => 'خانم نگار کریمی',
-                'status'             => 'appeals_court',
-                'status_fa'          => 'دادگاه تجدیدنظر استان تهران',
-                'court_branch'       => 'شعبه ۵۴ دادگاه تجدیدنظر استان تهران',
-                'lead_attorney'      => 'دکتر سیده مریم رضوی',
-                'associate_attorney' => 'وکیل همکار پایه یک',
-                'start_date'         => '2026-06-20',
-                'summary'            => 'دعوای اثبات مالکیت، بطلان معامله فضولی و ابطال سند صادرشده وفق ماده ۲۲ قانون ثبت.',
-                'timeline'           => [
-                    ['date' => '2026-06-20', 'title' => 'تقدیم دادخواست بدوی در مجتمع قضایی شهید بهشتی', 'status' => 'completed'],
-                    ['date' => '2026-08-30', 'title' => 'صدور دادنامه بدوی به نفع موکل', 'status' => 'completed'],
-                    ['date' => '2026-10-25', 'title' => 'تبادل لوایح تجدیدنظرخواهی در شعبه ۵۴', 'status' => 'in_progress'],
-                ],
-                'documents'          => [
-                    [
-                        'id'        => 'DOC-9102',
-                        'title'     => 'دادنامه قطعی دادگاه بدوی شهید بهشتی',
-                        'type'      => 'PDF',
-                        'size'      => '1.8 MB',
-                        'sha256'    => '7788990011223344556677889900112233445566778899001122334455667788',
-                        'uploaded'  => '2026-08-30',
-                    ],
-                ],
-                'deadlines'          => [
-                    [
-                        'id'       => 'DL-102',
-                        'title'    => 'مهلت ارسال پاسخ به لایحه تجدیدنظرخوانده',
-                        'due_date' => '2026-10-29 23:59:59',
-                        'urgency'  => 'high',
-                        'days_left'=> 5,
-                    ],
-                ],
-            ],
-        ];
+        $matters = [];
+
+        $stored = get_option($this->option_matters, []);
+        if (is_array($stored)) {
+            foreach ($stored as $entry) {
+                if (is_array($entry) && !empty($entry['matter_id'])) {
+                    $matters[$entry['matter_id']] = $entry;
+                }
+            }
+        }
+
+        if (function_exists('get_posts')) {
+            $case_posts = get_posts([
+                'post_type'      => ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'],
+                'post_status'    => ['publish', 'private'],
+                'posts_per_page' => 100,
+                'orderby'        => 'date',
+                'order'          => 'DESC',
+            ]);
+
+            foreach ($case_posts as $post) {
+                $pid = $post->ID;
+                $matter_id = get_post_meta($pid, '_sedrazavi_case_number', true)
+                    ?: get_post_meta($pid, '_case_number', true)
+                    ?: ('CASE-' . $pid);
+                $client_uid = (int) get_post_meta($pid, '_client_user_id', true);
+                if ($client_uid <= 0) {
+                    $client_uid = (int) $post->post_author;
+                }
+                $client_id = get_post_meta($pid, '_sedrazavi_client_portal_id', true)
+                    ?: ('user_' . $client_uid);
+
+                $timeline = get_post_meta($pid, '_sedrazavi_milestones', true);
+                $documents = get_post_meta($pid, '_sedrazavi_documents', true);
+                $deadlines = get_post_meta($pid, '_sedrazavi_deadlines', true);
+
+                $matters[$matter_id] = [
+                    'matter_id'          => (string) $matter_id,
+                    'post_id'            => $pid,
+                    'title'              => $post->post_title,
+                    'client_id'          => (string) $client_id,
+                    'client_name'        => get_post_meta($pid, '_sedrazavi_client_name', true) ?: get_post_meta($pid, '_client_name', true) ?: '',
+                    'status'             => get_post_meta($pid, '_sedrazavi_case_status', true) ?: 'active',
+                    'status_fa'          => get_post_meta($pid, '_sedrazavi_case_status', true) ?: 'در حال رسیدگی',
+                    'court_branch'       => get_post_meta($pid, '_sedrazavi_court_branch', true) ?: get_post_meta($pid, '_court_branch', true) ?: '',
+                    'lead_attorney'      => get_post_meta($pid, '_sedrazavi_lead_attorney', true) ?: '',
+                    'start_date'         => get_the_date('Y-m-d', $pid),
+                    'summary'            => wp_strip_all_tags($post->post_excerpt ?: $post->post_content),
+                    'timeline'           => is_array($timeline) ? $timeline : [],
+                    'documents'          => is_array($documents) ? $documents : [],
+                    'deadlines'          => is_array($deadlines) ? $deadlines : [],
+                ];
+            }
+        }
+
+        return array_values($matters);
     }
 
     /**
-     * Resolve Client Identity safely from token or session
+     * Resolve Client Identity safely from verified session or verified HMAC token
      */
     private function resolve_client_identity($request) {
         if (is_user_logged_in()) {
             return 'user_' . get_current_user_id();
         }
-        $header = $request->get_header('x-sedrazavi-client-token');
+        $header = $request ? $request->get_header('x-sedrazavi-client-token') : '';
         if (!empty($header)) {
-            // For testing/simulation: client_user_101 or client_user_202
-            return sanitize_text_field($header);
+            $verified_uid = $this->verify_hmac_client_token($header);
+            if ($verified_uid) {
+                return $verified_uid;
+            }
         }
-        return 'client_user_101'; // Default simulated primary client
+        return '';
     }
 
     /**

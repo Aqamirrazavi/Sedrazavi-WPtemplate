@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 class Package_Installer {
 
     /**
-     * Comprehensive Preflight Environment & Dependency Check.
+     * Comprehensive Preflight Environment, Dependency, Component & Collision Check.
      *
      * @param string|array               $target
      * @param Package_Registry           $registry
@@ -51,6 +51,10 @@ class Package_Installer {
         $errors   = [];
         $warnings = [];
 
+        if (!class_exists('\ZipArchive')) {
+            $errors[] = 'ماژول ZipArchive در تنظیمات PHP سرور فعال نیست.';
+        }
+
         $manifest_check = $manifest_validator->validate_manifest($manifest);
         if (!$manifest_check['valid']) {
             $errors = array_merge($errors, $manifest_check['errors']);
@@ -58,7 +62,9 @@ class Package_Installer {
         $warnings = array_merge($warnings, $manifest_check['warnings']);
 
         $package_id = $manifest['id'] ?? '';
+        $clean_slug = sanitize_key($package_id);
         $resolved_deps = [];
+
         if (!empty($package_id) && $registry->get_package($package_id)) {
             $dep_check = $dep_resolver->resolve_package_dependencies($package_id, $packages);
             if (!$dep_check['success']) {
@@ -71,16 +77,101 @@ class Package_Installer {
             if ($conflict_check['conflict']) {
                 $errors = array_merge($errors, $conflict_check['messages']);
             }
+        } elseif (!empty($manifest['dependencies']) || !empty($manifest['conflicts'])) {
+            $synthetic_list = $packages;
+            $synthetic_list[] = $manifest;
+            if (!empty($manifest['dependencies'])) {
+                $dep_check = $dep_resolver->resolve_package_dependencies($package_id, $synthetic_list);
+                if (!$dep_check['success']) {
+                    $errors = array_merge($errors, $dep_check['errors']);
+                } else {
+                    $resolved_deps = $dep_check['resolved'];
+                }
+            }
+            if (!empty($manifest['conflicts'])) {
+                $conflict_check = $dep_resolver->check_package_conflicts($package_id, $synthetic_list);
+                if ($conflict_check['conflict']) {
+                    $errors = array_merge($errors, $conflict_check['messages']);
+                }
+            }
+        }
+
+        // Custom Site Kit & component resolution checks
+        $widget_catalog = $registry->get_widget_catalog();
+        $blocks_catalog = $registry->get_gutenberg_blocks_catalog();
+        $cpts_catalog   = $registry->get_cpt_schemas_catalog();
+
+        $sel_widgets   = !empty($manifest['widgets']) && is_array($manifest['widgets']) ? $manifest['widgets'] : [];
+        $sel_templates = !empty($manifest['templates']) && is_array($manifest['templates']) ? $manifest['templates'] : [];
+        $sel_blocks    = !empty($manifest['gutenberg_blocks']) && is_array($manifest['gutenberg_blocks']) ? $manifest['gutenberg_blocks'] : [];
+        $sel_cpts      = !empty($manifest['cpt_schemas']) && is_array($manifest['cpt_schemas']) ? $manifest['cpt_schemas'] : [];
+
+        $bundle_deps = $dep_resolver->resolve_bundle_dependencies(
+            $sel_widgets,
+            $sel_templates,
+            $widget_catalog,
+            !empty($manifest['includes_theme_bridge']),
+            !empty($manifest['includes_query_engine'])
+        );
+
+        foreach ($bundle_deps['widgets'] as $w_raw) {
+            $n_key = strtolower(str_replace(['uas_', 'class-widget-', '.php', '-'], ['', '', '', '_'], (string) $w_raw));
+            if (isset($widget_catalog[$n_key])) {
+                $w_file = UAS_PATH . 'includes/widgets/' . $widget_catalog[$n_key]['file'];
+                if (!file_exists($w_file)) {
+                    $errors[] = sprintf('فایل کلاس ویجت "%s" روی دیسک یافت نشد (%s).', $w_raw, $widget_catalog[$n_key]['file']);
+                }
+            } else {
+                $warnings[] = sprintf('ویجت «%s» در کاتالوگ رسمی ثبت نشده یا متعلق به بسته خارجی است.', sanitize_text_field((string) $w_raw));
+            }
+        }
+
+        foreach ($sel_templates as $t_slug) {
+            $clean_t = sanitize_key($t_slug);
+            $t_file  = UAS_PATH . 'templates/' . $clean_t . '.json';
+            $p_file  = UAS_PATH . 'templates/popups/' . $clean_t . '.json';
+            if (!file_exists($t_file) && !file_exists($p_file) && empty($manifest['file_checksums'])) {
+                $errors[] = sprintf('فایل قالب JSON با شناسه «%s» یافت نشد.', $clean_t);
+            }
+        }
+
+        foreach ($sel_blocks as $b_slug) {
+            $norm_b = str_replace(['sedrazavi/', '_'], ['', '-'], strtolower((string) $b_slug));
+            if (!isset($blocks_catalog[$norm_b])) {
+                $errors[] = sprintf('بلوک گوتنبرگ «%s» در کاتالوگ اکوسیستم تعریف نشده است.', sanitize_text_field((string) $b_slug));
+            }
+        }
+
+        foreach ($sel_cpts as $c_slug) {
+            $norm_c = sanitize_key($c_slug);
+            if (!isset($cpts_catalog[$norm_c])) {
+                $errors[] = sprintf('ساختار پست‌تایپ (CPT) «%s» در رجیستری اکوسیستم تعریف نشده است.', $norm_c);
+            }
+        }
+
+        // Directory writability & collision detection
+        $collision_detected = false;
+        if (!empty($clean_slug) && defined('WP_PLUGIN_DIR') && is_dir(WP_PLUGIN_DIR)) {
+            if (!is_writable(WP_PLUGIN_DIR)) {
+                $warnings[] = 'پوشه افزونه‌ها (WP_PLUGIN_DIR) قابل نوشتن نیست؛ نصب در مسیر uploads انجام خواهد شد.';
+            }
+            $existing_plugin_dir = trailingslashit(WP_PLUGIN_DIR) . $clean_slug . '/';
+            if (is_dir($existing_plugin_dir)) {
+                $collision_detected = true;
+                $warnings[] = sprintf('مسیر افزونه «%s» از قبل وجود دارد (در صورت نصب بدون مجوز بازنویسی متوقف می‌شود).', $clean_slug);
+            }
         }
 
         return [
-            'pass'         => empty($errors),
-            'package_id'   => $package_id,
-            'manifest'     => $manifest,
-            'dependencies' => $resolved_deps,
-            'errors'       => $errors,
-            'warnings'     => $warnings,
-            'environment'  => [
+            'pass'               => empty($errors),
+            'package_id'         => $package_id,
+            'manifest'           => $manifest,
+            'dependencies'       => $resolved_deps,
+            'auto_added_widgets' => $bundle_deps['auto_added_widgets'],
+            'collision_detected' => $collision_detected,
+            'errors'             => $errors,
+            'warnings'           => $warnings,
+            'environment'        => [
                 'php_version'       => PHP_VERSION,
                 'wp_version'        => function_exists('get_bloginfo') ? get_bloginfo('version') : '6.7.0',
                 'elementor_active'  => defined('ELEMENTOR_VERSION'),
@@ -90,7 +181,34 @@ class Package_Installer {
     }
 
     /**
-     * Import a portable package archive with dry-run, checksum verification, and atomic rollback support.
+     * Copy directory recursively (used for overwrite snapshot backups).
+     */
+    private function copy_directory_recursive($src, $dst) {
+        if (!is_dir($src) || !wp_mkdir_p($dst)) {
+            return false;
+        }
+        $it = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($src, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
+        foreach ($it as $item) {
+            $rel = substr($item->getPathname(), strlen(rtrim($src, '/\\')) + 1);
+            $target = rtrim($dst, '/\\') . '/' . $rel;
+            if ($item->isDir()) {
+                if (!is_dir($target) && !wp_mkdir_p($target)) {
+                    return false;
+                }
+            } else {
+                if (!@copy($item->getPathname(), $target)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Import a portable package archive with dry-run, overwrite guard, checksum verification, and atomic rollback support.
      *
      * @param string                     $zip_filepath
      * @param bool                       $dry_run
@@ -98,6 +216,7 @@ class Package_Installer {
      * @param Archive_Security_Validator $sec_validator
      * @param Package_Manifest_Validator $manifest_validator
      * @param callable                   $preflight_callback
+     * @param bool                       $overwrite
      * @return array
      */
     public function import_package_archive(
@@ -106,7 +225,8 @@ class Package_Installer {
         $target_dir,
         Archive_Security_Validator $sec_validator,
         Package_Manifest_Validator $manifest_validator,
-        callable $preflight_callback
+        callable $preflight_callback,
+        $overwrite = false
     ) {
         // 1. Security Verification (includes Anti-Zip-Slip & per-file SHA-256 verification)
         $sec_audit = $sec_validator->verify_archive_security($zip_filepath, $manifest_validator);
@@ -124,10 +244,11 @@ class Package_Installer {
         $preflight = call_user_func($preflight_callback, $manifest);
         if (empty($preflight['pass'])) {
             return [
-                'success'   => false,
-                'stage'     => 'preflight_failed',
-                'errors'    => $preflight['errors'] ?? [],
-                'warnings'  => $preflight['warnings'] ?? [],
+                'success'  => false,
+                'stage'    => 'preflight_failed',
+                'errors'   => $preflight['errors'] ?? [],
+                'warnings' => $preflight['warnings'] ?? [],
+                'error'    => !empty($preflight['errors']) ? implode(' | ', $preflight['errors']) : 'بررسی پیش‌پرواز با خطا مواجه شد.',
             ];
         }
 
@@ -139,12 +260,13 @@ class Package_Installer {
                 'files_count'             => $sec_audit['files_count'],
                 'total_size'              => $sec_audit['total_size'],
                 'checksum_verified_count' => $sec_audit['checksum_verified_count'] ?? 0,
+                'collision_detected'      => !empty($preflight['collision_detected']),
                 'warnings'                => $preflight['warnings'] ?? [],
                 'message'                 => 'بررسی پیش‌پرواز (Preflight) و تطبیق چک‌سام با موفقیت تأیید شد.',
             ];
         }
 
-        // 3. Extraction Destination
+        // 3. Extraction Destination & Unintended Overwrite Guard
         $clean_slug = sanitize_key($manifest['id']);
         $upload_dir = wp_upload_dir();
         $is_plugin_bundle = in_array($manifest['package_type'] ?? '', ['custom-project-kit', 'ui', 'service', 'full_feature'], true);
@@ -165,6 +287,25 @@ class Package_Installer {
         $main_plugin_rel = $clean_slug . '/' . $clean_slug . '.php';
         $was_active_before = function_exists('is_plugin_active') ? is_plugin_active($main_plugin_rel) : false;
         $pre_existing_dir = is_dir($target_dir);
+        $backup_dir = '';
+
+        if ($pre_existing_dir) {
+            if (!$overwrite) {
+                return [
+                    'success' => false,
+                    'stage'   => 'conflict_exists',
+                    'error'   => sprintf('پوشه بسته «%s» از قبل در مسیر %s وجود دارد. برای جایگزینی، گزینه overwrite را فعال کنید.', $clean_slug, $target_dir),
+                ];
+            }
+            $backup_dir = trailingslashit($upload_dir['basedir']) . 'uas-standalone-packages/backups/' . $clean_slug . '-' . gmdate('YmdHis') . '/';
+            if (!$this->copy_directory_recursive($target_dir, $backup_dir)) {
+                return [
+                    'success' => false,
+                    'stage'   => 'backup_failed',
+                    'error'   => 'امکان تهیه نسخه پشتیبان پیش از به‌روزرسانی بسته وجود نداشت.',
+                ];
+            }
+        }
 
         if (!wp_mkdir_p($target_dir)) {
             return [
@@ -216,11 +357,20 @@ class Package_Installer {
 
         $zip->close();
 
-        // 5. Atomic Rollback on failure
+        // 5. Atomic Rollback on extraction failure
         if ($failed) {
-            foreach ($extracted_files as $f) {
-                if (file_exists($f)) {
-                    @unlink($f);
+            if (!empty($backup_dir) && is_dir($backup_dir)) {
+                $this->purge_directory_recursive($target_dir);
+                $this->copy_directory_recursive($backup_dir, $target_dir);
+                $this->purge_directory_recursive($backup_dir);
+            } else {
+                foreach ($extracted_files as $f) {
+                    if (file_exists($f)) {
+                        @unlink($f);
+                    }
+                }
+                if (!$pre_existing_dir) {
+                    $this->purge_directory_recursive($target_dir);
                 }
             }
             return [
@@ -230,7 +380,7 @@ class Package_Installer {
             ];
         }
 
-        // 6. Activate plugin if installed inside WP_PLUGIN_DIR
+        // 6. Activate plugin if installed inside WP_PLUGIN_DIR (Fail closed on activation or checksum error)
         $plugin_activated = false;
         if ($installed_as_plugin && file_exists($target_dir . $clean_slug . '.php')) {
             if (!function_exists('activate_plugin') && defined('ABSPATH') && file_exists(ABSPATH . 'wp-admin/includes/plugin.php')) {
@@ -238,9 +388,27 @@ class Package_Installer {
             }
             if (function_exists('activate_plugin')) {
                 $act_res = activate_plugin($main_plugin_rel);
-                if (!is_wp_error($act_res)) {
-                    $plugin_activated = true;
+                $integrity_err = function_exists('get_option') ? get_option('uas_bundle_integrity_error_' . $clean_slug, '') : '';
+                if (is_wp_error($act_res) || !empty($integrity_err)) {
+                    if (function_exists('deactivate_plugins') && function_exists('is_plugin_active') && is_plugin_active($main_plugin_rel)) {
+                        deactivate_plugins($main_plugin_rel, true);
+                    }
+                    $this->purge_directory_recursive($target_dir);
+                    if (!empty($backup_dir) && is_dir($backup_dir)) {
+                        $this->copy_directory_recursive($backup_dir, $target_dir);
+                        $this->purge_directory_recursive($backup_dir);
+                        if ($was_active_before) {
+                            activate_plugin($main_plugin_rel);
+                        }
+                    }
+                    $err_msg = is_wp_error($act_res) ? $act_res->get_error_message() : ('خطای یکپارچگی چک‌سام بسته پس از فعال‌سازی: ' . $integrity_err);
+                    return [
+                        'success' => false,
+                        'stage'   => 'activation_failed',
+                        'error'   => $err_msg,
+                    ];
                 }
+                $plugin_activated = true;
             }
         }
 
@@ -277,11 +445,16 @@ class Package_Installer {
                     'post_type'      => 'elementor_library',
                     'post_status'    => 'any',
                     'posts_per_page' => 1,
-                    'meta_key'       => '_uas_custom_tpl_slug',
-                    'meta_value'     => $slug,
+                    'meta_query'     => [
+                        'relation' => 'AND',
+                        ['key' => '_uas_custom_tpl_slug', 'value' => $slug],
+                        ['key' => '_uas_package_id', 'value' => $clean_slug],
+                    ],
                 ]);
                 if (!empty($existing)) {
-                    $hydrated_posts[] = $existing[0]->ID;
+                    $pid = $existing[0]->ID;
+                    update_post_meta($pid, '_elementor_data', wp_slash(wp_json_encode($data['content'], JSON_UNESCAPED_UNICODE)));
+                    $hydrated_posts[] = $pid;
                     continue;
                 }
 
@@ -316,6 +489,7 @@ class Package_Installer {
             update_option('uas_pkg_rollback_snapshot_' . $clean_slug, [
                 'package_id'          => $clean_slug,
                 'installed_path'      => $target_dir,
+                'backup_path'         => $backup_dir,
                 'installed_as_plugin' => $installed_as_plugin,
                 'main_plugin_rel'     => $main_plugin_rel,
                 'was_active_before'   => $was_active_before,
@@ -332,6 +506,7 @@ class Package_Installer {
             'dry_run'                 => false,
             'package_id'              => $manifest['id'],
             'installed_path'          => $target_dir,
+            'backup_path'             => $backup_dir,
             'installed_as_plugin'     => $installed_as_plugin,
             'plugin_activated'        => $plugin_activated,
             'files_extracted'         => count($extracted_files),
@@ -369,7 +544,7 @@ class Package_Installer {
     }
 
     /**
-     * Full package rollback (plugin deactivation, filesystem purge, DB template purge, cache invalidation).
+     * Full package rollback (plugin deactivation, backup restoration or filesystem purge, scoped DB template purge, cache invalidation).
      *
      * @param string $package_id
      * @return array
@@ -379,6 +554,7 @@ class Package_Installer {
         $snapshot = function_exists('get_option') ? get_option('uas_pkg_rollback_snapshot_' . $clean_slug, []) : [];
 
         $deactivated = false;
+        $restored_from_backup = false;
         $main_plugin_rel = $snapshot['main_plugin_rel'] ?? ($clean_slug . '/' . $clean_slug . '.php');
         if (!function_exists('deactivate_plugins') && defined('ABSPATH') && file_exists(ABSPATH . 'wp-admin/includes/plugin.php')) {
             require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -416,12 +592,24 @@ class Package_Installer {
             $deleted_files += $this->purge_directory_recursive($snapshot['installed_path']);
         }
 
+        if (!empty($snapshot['backup_path']) && is_dir($snapshot['backup_path']) && !empty($snapshot['installed_path'])) {
+            if ($this->copy_directory_recursive($snapshot['backup_path'], $snapshot['installed_path'])) {
+                $restored_from_backup = true;
+                $this->purge_directory_recursive($snapshot['backup_path']);
+                if (!empty($snapshot['was_active_before']) && function_exists('activate_plugin')) {
+                    activate_plugin($main_plugin_rel);
+                    $deactivated = false;
+                }
+            }
+        }
+
         $deleted_posts = 0;
         $purged_ids = [];
         if (function_exists('wp_delete_post')) {
             if (!empty($snapshot['hydrated_post_ids']) && is_array($snapshot['hydrated_post_ids'])) {
                 foreach ($snapshot['hydrated_post_ids'] as $pid) {
-                    if (wp_delete_post((int) $pid, true)) {
+                    $owner_pkg = function_exists('get_post_meta') ? get_post_meta((int) $pid, '_uas_package_id', true) : $clean_slug;
+                    if ($owner_pkg === $clean_slug && wp_delete_post((int) $pid, true)) {
                         $deleted_posts++;
                         $purged_ids[(int) $pid] = true;
                     }
@@ -449,17 +637,27 @@ class Package_Installer {
         if (function_exists('delete_option')) {
             delete_option('uas_skipped_templates_' . $clean_slug);
             delete_option('uas_pkg_rollback_snapshot_' . $clean_slug);
+            delete_option('uas_bundle_integrity_' . $clean_slug);
+            delete_option('uas_bundle_integrity_error_' . $clean_slug);
+        }
+        if (function_exists('get_option') && function_exists('update_option')) {
+            $deployed = get_option('sr_cockpit_deployed_kits', []);
+            if (is_array($deployed) && isset($deployed[$clean_slug])) {
+                unset($deployed[$clean_slug]);
+                update_option('sr_cockpit_deployed_kits', $deployed);
+            }
         }
         delete_transient('uas_query_' . $clean_slug);
         delete_transient('uas_pkg_manifest_' . $clean_slug);
 
         return [
-            'success'            => true,
-            'package_id'         => $package_id,
-            'plugin_deactivated' => $deactivated,
-            'deleted_files'      => $deleted_files,
-            'deleted_posts'      => $deleted_posts,
-            'message'            => sprintf('رول‌بک کامل پکیج %s انجام شد (غیرفعال‌سازی افزونه: %s، %d فایل و %d تمپلیت دیتابیس پاک‌سازی گردید).', $package_id, $deactivated ? 'بله' : 'خیر', $deleted_files, $deleted_posts),
+            'success'              => true,
+            'package_id'           => $package_id,
+            'plugin_deactivated'   => $deactivated,
+            'restored_from_backup' => $restored_from_backup,
+            'deleted_files'        => $deleted_files,
+            'deleted_posts'        => $deleted_posts,
+            'message'              => sprintf('رول‌بک کامل پکیج %s انجام شد (غیرفعال‌سازی افزونه: %s، %d فایل و %d تمپلیت دیتابیس پاک‌سازی گردید).', $package_id, $deactivated ? 'بله' : 'خیر', $deleted_files, $deleted_posts),
         ];
     }
 }
