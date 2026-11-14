@@ -602,6 +602,35 @@ if (!function_exists('enqueue_react_assets')) {
             SEDRAZAVI_THEME_VERSION
         );
 
+        // 6.2b. Pure Vanilla Theme Interactions Script (Zero-React lightweight runtime for forms, FAQs, drawers & AJAX)
+        if (file_exists(SEDRAZAVI_THEME_DIR . '/assets/js/main.js')) {
+            $defer_args = function_exists('get_bloginfo') && version_compare(get_bloginfo('version'), '6.3', '>=')
+                ? ['in_footer' => true, 'strategy' => 'defer']
+                : true;
+            wp_enqueue_script(
+                'sedrazavi-main-js',
+                SEDRAZAVI_THEME_URI . '/assets/js/main.js',
+                ['jquery'],
+                SEDRAZAVI_THEME_VERSION,
+                $defer_args
+            );
+            $ajax_obj_payload = [
+                'ajax_url'   => admin_url('admin-ajax.php'),
+                'nonce'      => wp_create_nonce('sedrazavi_security_nonce'),
+                'rest_url'   => esc_url_raw(rest_url('sedrazavi/v1/')),
+                'rest_nonce' => wp_create_nonce('wp_rest'),
+                'theme_uri'  => esc_url_raw(SEDRAZAVI_THEME_URI),
+            ];
+            wp_localize_script('sedrazavi-main-js', 'sedrazavi_ajax_obj', $ajax_obj_payload);
+            wp_localize_script('sedrazavi-main-js', 'SedRazaviThemeConfig', [
+                'restUrl'   => $ajax_obj_payload['rest_url'],
+                'restNonce' => $ajax_obj_payload['rest_nonce'],
+                'ajaxUrl'   => $ajax_obj_payload['ajax_url'],
+                'ajaxNonce' => $ajax_obj_payload['nonce'],
+                'themeUri'  => $ajax_obj_payload['theme_uri'],
+            ]);
+        }
+
         // 6.3. Conditional check: load React engine & its CSS only when explicitly required by shortcodes or designer mount
         // Standard Elementor or Gutenberg pages do NOT load the React SPA bundle (1.7MB JS + CSS), ensuring ultra-fast LCP (100/100 Core Web Vitals) and zero bloat
         global $post;

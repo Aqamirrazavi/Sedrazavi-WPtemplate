@@ -596,6 +596,70 @@ assert(
   `Stage 6 Sovereign_Svg_Icons PHP catalog matches 66/66 React icons (found ${phpIconNums.length})`
 );
 
+// -------------------------------------------------------------
+// Test Group 10: Real Frontend Endpoints, Strict Package Integrity & Cockpit ZIP Hardening
+// -------------------------------------------------------------
+console.log('\n🔍 Test Group 10: Real Frontend Endpoints, Zero Simulated State, Strict Packaging & Cockpit ZIP Guard');
+
+const restApiPhp = fs.readFileSync(path.join(__dirname, '../wordpress-theme/inc/rest-api.php'), 'utf8');
+const apiHandlersPhp = fs.readFileSync(path.join(__dirname, '../wordpress-theme/inc/api-handlers.php'), 'utf8');
+const themeMainJs = fs.readFileSync(path.join(__dirname, '../wordpress-theme/assets/js/main.js'), 'utf8');
+const frontAgencyPhp = fs.readFileSync(path.join(__dirname, '../wordpress-theme/template-parts/front-agency.php'), 'utf8');
+const frontStorePhp = fs.readFileSync(path.join(__dirname, '../wordpress-theme/template-parts/front-store.php'), 'utf8');
+const heroSplitJs = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/assets/js/widgets/hero-split.js'), 'utf8');
+const widgetsCoreJs = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/assets/js/widgets-core.js'), 'utf8');
+const standaloneBlocksJs = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/assets/js/standalone-blocks.js'), 'utf8');
+const otpAddonsPhp = fs.readFileSync(path.join(__dirname, '../sedrazavi-addons/includes/otp-auth-integration.php'), 'utf8');
+const shortcodesEnginePhp = fs.readFileSync(path.join(__dirname, '../sedrazavi-addons/includes/shortcodes-engine.php'), 'utf8');
+const addonsRuntimeJs = fs.readFileSync(path.join(__dirname, '../sedrazavi-addons/assets/js/shortcodes-runtime.js'), 'utf8');
+
+assert(
+  restApiPhp.includes("'/inquiry/submit'") &&
+  restApiPhp.includes("'/survey/submit'") &&
+  apiHandlersPhp.includes('wp_ajax_sedrazavi_send_reply_email') &&
+  apiHandlersPhp.includes('wp_ajax_sedrazavi_moderate_comment_action') &&
+  themeFunctionsCode.includes("'sedrazavi-main-js'") &&
+  themeFunctionsCode.includes("'sedrazavi_ajax_obj'"),
+  'WordPress REST inquiry/survey endpoints, AJAX admin handlers, and localized sedrazavi-main-js handle verified'
+);
+
+assert(
+  !widgetsCoreJs.includes('Math.random()') &&
+  !standaloneBlocksJs.includes('Math.random()') &&
+  !themeMainJs.includes('images.unsplash.com') &&
+  !frontAgencyPhp.includes('this.reset()') &&
+  !frontStorePhp.includes('به سبد خرید افزوده شد') &&
+  !heroSplitJs.includes("input.value.trim().length >= 10) {\n            form.classList.add('is-submitted')") &&
+  !otpAddonsPhp.includes('onsubmit="return false;"') &&
+  addonsRuntimeJs.includes('/otp/send') &&
+  addonsRuntimeJs.includes('/otp/verify') &&
+  addonsRuntimeJs.includes('/quick-callback') &&
+  addonsRuntimeJs.includes('/track-case') &&
+  shortcodesEnginePhp.includes('sr-case-track-form'),
+  'Zero fake Math.random() IDs, zero simulated form/cart handlers, zero Unsplash URLs, and real REST wiring verified'
+);
+
+const archSecCode = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/includes/packaging/class-archive-security-validator.php'), 'utf8');
+const manifestValCode = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/includes/packaging/class-package-manifest-validator.php'), 'utf8');
+const exporterCode = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/includes/packaging/class-package-exporter.php'), 'utf8');
+
+assert(
+  archSecCode.includes("empty($manifest['file_checksums'])") &&
+  archSecCode.includes('verify_manifest_checksums($manifest, $zip, $manifest_root_prefix, true)') &&
+  manifestValCode.includes("!defined('ELEMENTOR_VERSION') && !class_exists('\\Elementor\\Plugin')") &&
+  manifestValCode.includes("$strict = true") &&
+  exporterCode.includes('$needs_elementor = (!empty($widgets) || !empty($templates));') &&
+  exporterCode.includes("'required'  => $required_reqs"),
+  'Packaging enforces mandatory SHA-256 file_checksums, fail-closed missing Elementor check, and conditional Elementor requirements'
+);
+
+assert(
+  cockpitCompanionCode.includes("Zip Slip Traversal") &&
+  cockpitCompanionCode.includes("$allowed_exts = ['php', 'json'") &&
+  cockpitCompanionCode.indexOf('$zip_check->open($zip_file)') < cockpitCompanionCode.indexOf('unzip_file($zip_file, WP_PLUGIN_DIR)'),
+  'Frontend Cockpit ajax_install_plugin validates ZIP traversal, size limits, and extensions before unzip_file()'
+);
+
 console.log('========================================================================');
 console.log(`📊 Test Results: ${passedTests} / ${totalTests} passed`);
 if (allPassed) {

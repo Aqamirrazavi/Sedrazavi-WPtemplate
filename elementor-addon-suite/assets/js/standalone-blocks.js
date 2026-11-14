@@ -51,17 +51,61 @@
         var fb = form.querySelector('.uas-booking-feedback');
         var nameField = form.querySelector('input[name="full_name"]');
         var phoneField = form.querySelector('input[name="phone"]');
+        var detailsField = form.querySelector('textarea[name="details"], textarea[name="message"], input[name="subject"]');
+        var btn = form.querySelector('button[type="submit"]');
+
         if (!nameField || !nameField.value.trim() || !phoneField || !phoneField.value.trim()) {
           showInlineStatus(fb, 'لطفاً نام و شماره موبایل معتبر وارد کنید.', true);
           return;
         }
-        var tracking = 'SR-' + Math.floor(100000 + Math.random() * 900000);
-        showInlineStatus(fb, 'درخواست مشاوره شما با شناسه پیگیری ' + tracking + ' با موفقیت ثبت گردید.', false);
-        form.reset();
+
+        var cfg = window.uasFrontendConfig || {};
+        var endpoint = (cfg.restUrl || '/wp-json/sedrazavi/v1/').replace(/\/+$/, '') + '/inquiry/submit';
+        var origText = btn ? btn.textContent : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'در حال ارسال...';
+        }
+
+        fetch(endpoint, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': cfg.restNonce || ''
+          },
+          body: JSON.stringify({
+            full_name: nameField.value.trim(),
+            phone: phoneField.value.trim(),
+            service_type: 'standalone_booking_block',
+            details: detailsField ? detailsField.value.trim() : ''
+          })
+        })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              return { ok: res.ok, data: data };
+            });
+          })
+          .then(function (result) {
+            if (!result.ok || !result.data || !result.data.success) {
+              throw new Error((result.data && result.data.message) || 'ثبت درخواست در سرور با خطا مواجه شد.');
+            }
+            showInlineStatus(fb, result.data.message || ('درخواست مشاوره با کد پیگیری ' + (result.data.tracking_code || '') + ' ثبت شد.'), false);
+            form.reset();
+          })
+          .catch(function (err) {
+            showInlineStatus(fb, (err && err.message) ? err.message : 'خطا در برقراری ارتباط با سرور.', true);
+          })
+          .finally(function () {
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = origText;
+            }
+          });
       });
     });
 
-    // 3. Quick Checkout Form (Zero alert)
+    // 3. Quick Checkout Form (Zero alert, Real Endpoint Guard - Never fabricates fake payment IDs)
     document.querySelectorAll('.uas-qc-form').forEach(function (form) {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -70,6 +114,7 @@
         var phoneInput = form.querySelector('input[name="client_phone"]');
         var amountInput = form.querySelector('input[name="amount"]');
         var checkoutUrl = form.getAttribute('data-checkout-url') || '';
+        var btn = form.querySelector('button[type="submit"]');
 
         if (!nameInput || !nameInput.value.trim() || !phoneInput || !phoneInput.value.trim()) {
           showInlineStatus(fb, 'لطفاً نام موکل و شماره تلفن همراه معتبر را وارد کنید.', true);
@@ -82,15 +127,56 @@
           return;
         }
 
-        var refId = 'PAY-' + Math.floor(100000 + Math.random() * 900000);
-        if (checkoutUrl) {
-          showInlineStatus(fb, 'درخواست پرداخت (' + refId + ') ثبت شد؛ در حال هدایت به صفحه تسویه‌حساب...', false);
-          setTimeout(function () {
-            window.location.href = checkoutUrl;
-          }, 500);
-        } else {
-          showInlineStatus(fb, 'شناسه تراکنش موقت ' + refId + ' صادر شد. برای اتصال درگاه بانکی شاپرک، ووکامرس را پیکربندی کنید.', false);
+        if (!checkoutUrl) {
+          showInlineStatus(fb, 'درگاه پرداخت یا صفحه تسویه‌حساب ووکامرس در تنظیمات این بلوک پیکربندی نشده است.', true);
+          return;
         }
+
+        var cfg = window.uasFrontendConfig || {};
+        var endpoint = (cfg.restUrl || '/wp-json/sedrazavi/v1/').replace(/\/+$/, '') + '/inquiry/submit';
+        var origText = btn ? btn.textContent : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'در حال ثبت و هدایت به درگاه...';
+        }
+
+        fetch(endpoint, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': cfg.restNonce || ''
+          },
+          body: JSON.stringify({
+            name: nameInput.value.trim(),
+            phone: phoneInput.value.trim(),
+            service_type: 'quick_checkout_init',
+            details: 'درخواست پرداخت مبلغ: ' + amountVal + ' تومان'
+          })
+        })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              return { ok: res.ok, data: data };
+            });
+          })
+          .then(function (result) {
+            if (!result.ok || !result.data || !result.data.success) {
+              throw new Error((result.data && result.data.message) || 'ثبت پیش‌فاکتور در سرور انجام نشد.');
+            }
+            showInlineStatus(fb, 'درخواست با کد پیگیری ' + (result.data.tracking_code || '') + ' ثبت شد؛ در حال انتقال به صفحه تسویه‌حساب...', false);
+            setTimeout(function () {
+              window.location.href = checkoutUrl;
+            }, 400);
+          })
+          .catch(function (err) {
+            showInlineStatus(fb, (err && err.message) ? err.message : 'خطا در اتصال به سرور پرداخت.', true);
+          })
+          .finally(function () {
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = origText;
+            }
+          });
       });
     });
 

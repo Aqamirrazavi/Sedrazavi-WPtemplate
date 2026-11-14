@@ -258,17 +258,26 @@ function sedrazavi_shortcode_otp_login() {
         return do_shortcode('[digits_login]');
     }
 
-    // فرم رزرو پیامکی مستقل در غیاب دیجیتس
+    wp_enqueue_script('sedrazavi-addons-shortcodes');
+
+    // فرم رزرو پیامکی مستقل متصل به REST API
     ob_start();
     ?>
     <div class="sedrazavi-otp-box max-w-sm mx-auto p-6 rounded-2xl bg-white shadow-lg border border-[#D4AF37]/30 text-right font-persian">
-        <h3 class="text-base font-bold text-[#0B132B] mb-2">ورود / عضویت با شماره موبایل</h3>
+        <h3 class="text-base font-bold text-[#0B132B] mb-2">ورود / تایید شماره موبایل</h3>
         <p class="text-xs text-gray-500 mb-4">کد تایید یک‌بار مصرف به شماره همراه شما ارسال خواهد شد.</p>
-        <form class="space-y-3" onsubmit="return false;">
-            <input type="tel" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="w-full px-3 py-2.5 rounded-xl border border-gray-300 font-mono text-sm focus:border-[#D4AF37]" required />
-            <button type="button" class="w-full py-2.5 rounded-xl bg-[#D4AF37] text-white font-bold text-xs hover:bg-[#AA820A] transition-colors">
+        <form class="sr-otp-login-form space-y-3" method="post">
+            <input type="tel" name="phone" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="w-full px-3 py-2.5 rounded-xl border border-gray-300 font-mono text-sm focus:border-[#D4AF37]" required />
+            <button type="button" class="sr-otp-send-btn w-full py-2.5 rounded-xl bg-[#D4AF37] text-[#0B132B] font-bold text-xs hover:bg-[#AA820A] transition-colors">
                 دریافت کد تایید پیامکی
             </button>
+            <div class="sr-otp-step-2 space-y-2" style="display:none;">
+                <input type="text" name="otp_code" dir="ltr" maxlength="6" placeholder="کد ۶ رقمی پیامک..." class="w-full px-3 py-2 rounded-xl border border-gray-300 font-mono text-center text-sm focus:border-[#D4AF37]" />
+                <button type="button" class="sr-otp-verify-btn w-full py-2.5 rounded-xl bg-[#0B132B] text-[#F3E5AB] font-bold text-xs transition-colors">
+                    تایید کد پیامکی
+                </button>
+            </div>
+            <div class="sr-shortcode-status" role="status" aria-live="polite" style="display:none;"></div>
         </form>
     </div>
     <?php
@@ -280,6 +289,8 @@ add_shortcode('sedrazavi_otp_login', 'sedrazavi_shortcode_otp_login');
  * کد کوتاه ویجت تماس فوری بدون ثبت‌نام [sedrazavi_quick_callback]
  */
 function sedrazavi_shortcode_quick_callback() {
+    wp_enqueue_script('sedrazavi-addons-shortcodes');
+
     ob_start();
     ?>
     <div class="sedrazavi-quick-callback-card p-5 rounded-2xl bg-amber-50/50 border border-[#D4AF37]/40 text-right font-persian">
@@ -288,11 +299,15 @@ function sedrazavi_shortcode_quick_callback() {
             <h4 class="text-sm font-bold text-[#0B132B]">تماس تلفنی فوری وکیل (بدون نیاز به ثبت نام)</h4>
         </div>
         <p class="text-xs text-gray-600 mb-3">شماره تماس خود را بگذارید؛ در اسرع وقت کارشناسان دفتر با شما تماس می‌گیرند:</p>
-        <form class="flex gap-2" onsubmit="return false;">
-            <input type="tel" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="flex-1 px-3 py-2 rounded-xl border border-gray-300 font-mono text-xs focus:border-[#D4AF37]" required />
-            <button type="button" class="px-4 py-2 rounded-xl bg-[#0B132B] text-[#F3E5AB] text-xs font-bold hover:bg-[#1C2541]">
-                ثبت و تماس
-            </button>
+        <form class="sr-quick-callback-form space-y-2" method="post">
+            <div class="flex gap-2">
+                <input type="tel" name="phone" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="flex-1 px-3 py-2 rounded-xl border border-gray-300 font-mono text-xs focus:border-[#D4AF37]" required />
+                <input type="text" name="sr_website_trap" value="" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" aria-hidden="true" />
+                <button type="submit" class="sr-quick-callback-btn px-4 py-2 rounded-xl bg-[#0B132B] text-[#F3E5AB] text-xs font-bold hover:bg-[#1C2541]">
+                    ثبت و تماس
+                </button>
+            </div>
+            <div class="sr-shortcode-status" role="status" aria-live="polite" style="display:none;"></div>
         </form>
     </div>
     <?php

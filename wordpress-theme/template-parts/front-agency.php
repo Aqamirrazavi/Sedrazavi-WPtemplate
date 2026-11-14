@@ -120,22 +120,23 @@ if (!defined('ABSPATH')) {
                 <p class="text-xs text-slate-400">مشخصات اولیه سایت مدنظرتان را ارسال کنید تا کارشناسان ما ظرف ۲ ساعت کاری با شما تماس بگیرند.</p>
             </div>
 
-            <div id="sr-agency-brief-feedback" role="status" aria-live="polite" class="hidden p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-semibold"></div>
-            <form onsubmit="event.preventDefault(); var fb=document.getElementById('sr-agency-brief-feedback'); if(fb){fb.classList.remove('hidden'); fb.textContent='✓ درخواست پروژه شما ثبت شد. کارشناسان ما به‌زودی با شما تماس می‌گیرند.';} this.reset();" class="space-y-6 text-right">
+            <div id="sr-agency-brief-feedback" role="status" aria-live="polite" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
+            <form id="sr-agency-brief-form" class="space-y-6 text-right" method="post" action="<?php echo esc_url(rest_url('sedrazavi/v1/inquiry/submit')); ?>">
+                <input type="text" name="website_hp" value="" tabindex="-1" autocomplete="off" style="display:none !important;" aria-hidden="true" />
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">نام و نام‌خانوادگی</label>
-                        <input type="text" required placeholder="مثال: علی رضایی" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none" />
+                        <input type="text" name="name" required placeholder="مثال: علی رضایی" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none" />
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">شماره تماس همراه</label>
-                        <input type="tel" required placeholder="0912*******" dir="ltr" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none text-right" />
+                        <input type="tel" name="contact" required placeholder="0912*******" dir="ltr" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none text-right" />
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1.5">صنف و نوع پروژه مدنظر</label>
-                    <select class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none">
+                    <select name="project_type" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none">
                         <option value="agency">سایت پورتفولیو و آژانس دیجیتال</option>
                         <option value="store">فروشگاه آنلاین ووکامرس</option>
                         <option value="corporate">پورتال شرکتی و سازمانی</option>
@@ -146,13 +147,69 @@ if (!defined('ABSPATH')) {
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1.5">توضیحات و نیازمندی‌های خاص</label>
-                    <textarea rows="3" placeholder="امکانات، تعداد صفحات و زمان‌بندی مدنظر خود را بنویسید..." class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none"></textarea>
+                    <textarea name="details" rows="3" placeholder="امکانات، تعداد صفحات و زمان‌بندی مدنظر خود را بنویسید..." class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none"></textarea>
                 </div>
 
                 <button type="submit" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition-all cursor-pointer">
-                    ارسال استعلام و دریافت پیش‌فاکتور آنلاین ←
+                    ارسال استعلام و دریافت کد پیگیری ←
                 </button>
             </form>
+            <script>
+            (function() {
+                var briefForm = document.getElementById('sr-agency-brief-form');
+                if (!briefForm) return;
+                briefForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var fb = document.getElementById('sr-agency-brief-feedback');
+                    var btn = briefForm.querySelector('button[type="submit"]');
+                    var cfg = window.SedRazaviThemeConfig || {};
+                    var endpoint = (cfg.restUrl ? cfg.restUrl + 'inquiry/submit' : briefForm.getAttribute('action'));
+                    var fd = new FormData(briefForm);
+                    if (btn) btn.disabled = true;
+                    if (fb) {
+                        fb.className = 'p-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold';
+                        fb.textContent = 'در حال ثبت اطلاعات در سامانه...';
+                    }
+                    fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-WP-Nonce': cfg.restNonce || ''
+                        },
+                        body: JSON.stringify({
+                            name: fd.get('name') || '',
+                            contact: fd.get('contact') || '',
+                            project_type: fd.get('project_type') || 'agency',
+                            details: fd.get('details') || '',
+                            website_hp: fd.get('website_hp') || ''
+                        })
+                    })
+                    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+                    .then(function(res) {
+                        if (btn) btn.disabled = false;
+                        if (res.ok && res.data && res.data.success) {
+                            if (fb) {
+                                fb.className = 'p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-semibold';
+                                fb.textContent = res.data.message || 'درخواست شما با موفقیت در سیستم ثبت شد.';
+                            }
+                            briefForm.reset();
+                        } else {
+                            if (fb) {
+                                fb.className = 'p-3 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-semibold';
+                                fb.textContent = (res.data && res.data.message) ? res.data.message : 'خطا در ثبت اطلاعات. لطفاً مجدداً تلاش کنید.';
+                            }
+                        }
+                    })
+                    .catch(function() {
+                        if (btn) btn.disabled = false;
+                        if (fb) {
+                            fb.className = 'p-3 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-semibold';
+                            fb.textContent = 'عدم برقراری ارتباط با سرور. لطفاً اتصال اینترنت را بررسی فرمایید.';
+                        }
+                    });
+                });
+            })();
+            </script>
         </div>
     </section>
 

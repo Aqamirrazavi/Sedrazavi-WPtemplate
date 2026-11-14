@@ -241,6 +241,12 @@ class Plugin {
      */
     public function register_frontend_scripts() {
         wp_register_script('uas-widgets-core', UAS_URL . 'assets/js/widgets-core.js', ['jquery'], UAS_VERSION, true);
+        wp_localize_script('uas-widgets-core', 'uasFrontendConfig', [
+            'restUrl'   => function_exists('rest_url') ? esc_url_raw(rest_url('sedrazavi/v1/')) : '/wp-json/sedrazavi/v1/',
+            'restNonce' => wp_create_nonce('wp_rest'),
+            'ajaxUrl'   => admin_url('admin-ajax.php'),
+            'ajaxNonce' => wp_create_nonce('uas_industry_nonce'),
+        ]);
         wp_register_script('uas-story-bar-js', UAS_URL . 'assets/js/widgets/story-bar.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
         wp_register_script('uas-faq-js', UAS_URL . 'assets/js/widgets/faq.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
         wp_register_script('uas-floating-dock-js', UAS_URL . 'assets/js/widgets/floating-dock.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);

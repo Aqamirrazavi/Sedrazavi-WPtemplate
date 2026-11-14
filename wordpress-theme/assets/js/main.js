@@ -135,40 +135,47 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+function getLocalStoryThumb() {
+    var themeUri = (window.SedRazaviThemeConfig && window.SedRazaviThemeConfig.themeUri)
+        || (window.SedRazaviReactConfig && window.SedRazaviReactConfig.site && window.SedRazaviReactConfig.site.url && (window.SedRazaviReactConfig.site.url + '/wp-content/themes/sedrazavi-theme'))
+        || '';
+    return themeUri ? (themeUri + '/screenshot.png') : 'screenshot.png';
+}
+
 // Story Modal Data
 var storiesData = [
     {
         title: "نکات چک صیادی",
         category: "نکات کاربردی",
-        img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800",
+        img: "",
         slideTitle: "قوانین طلایی صدور و پیگیری چک‌های صیادی بنفش",
         slideDesc: "مطابق ماده ۲۳ قانون اصلاح قانون صدور چک، در صورت برگشت چک صیادی، موکل بدون نیاز به تقدیم دادخواست ماهوی و پرداخت هزینه سنگین دادرسی، می‌تواند مستقیماً از دادگاه تقاضای صدور اجراییه نماید."
     },
     {
         title: "پیروزی در پرونده برج الهیه",
         category: "موفقیت‌های اخیر",
-        img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+        img: "",
         slideTitle: "ابطال سند معارض برج مسکونی الهیه به ارزش ۲۴۰ میلیارد ریال",
         slideDesc: "با استناد به اسناد رسمی اولیه و اثبات جعل مادی و معنوی در کمیسیون تخصصی ثبتی، رای قطعی شعبه ۱۲ دادگاه تجدیدنظر استان تهران به نفع موکل صادر و سند رسمی معارض ابطال گردید."
     },
     {
         title: "طلاق و مهریه",
         category: "حقوق خانواده",
-        img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800",
+        img: "",
         slideTitle: "رسیدگی تخصصی به طلاق توافقی و توقیف مهریه",
         slideDesc: "تنظیم توافق‌نامه رسمی جامع در خصوص حضانت، نفقه، جهیزیه و مهریه با حفظ کامل حرمت طرفین و صدور گواهی عدم امکان سازش در کوتاه‌ترین زمان ممکن قانونی."
     },
     {
         title: "سهم‌الارث مادر",
         category: "انحصار وراثت",
-        img: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=800",
+        img: "",
         slideTitle: "نحوه محاسبه سهم‌الارث زوجه از عرصه و اعیان",
         slideDesc: "طبق ماده ۹۴۶ قانون مدنی اصلاحی، زوجه از قیمت عرصه و نیز از اعیان ارث می‌برد. دفتر وکالت ما کلیه مراحل تحریر ترکه و تقسیم عادلانه را مدیریت می‌نماید."
     },
     {
         title: "قرارداد مشارکت در ساخت",
         category: "تجاری",
-        img: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=800",
+        img: "",
         slideTitle: "۵ شرط نجات‌بخش در قرارداد مشارکت با سازنده",
         slideDesc: "پیش‌بینی وجه التزام روزانه تاخیر، سلب حق پیش‌فروش تا سقف مشخص ساخت، و تعیین داور مرضی‌الطرفین تخصصی، مانع از قفل شدن سرمایه مالکین عرصه می‌شود."
     }
@@ -180,13 +187,7 @@ function openStoryModal(index) {
     document.getElementById("story-modal-cat").textContent = story.category;
     var modalImg = document.getElementById("story-modal-img");
     if (modalImg) {
-        modalImg.onerror = function() {
-            var themeUri = (window.SedRazaviReactConfig && window.SedRazaviReactConfig.site && window.SedRazaviReactConfig.site.url) 
-                ? window.SedRazaviReactConfig.site.url + '/wp-content/themes/sedrazavi-theme/screenshot.png' 
-                : 'screenshot.png';
-            this.src = themeUri;
-        };
-        modalImg.src = story.img;
+        modalImg.src = story.img || getLocalStoryThumb();
     }
     document.getElementById("story-slide-title").textContent = story.slideTitle;
     document.getElementById("story-slide-desc").textContent = story.slideDesc;
@@ -263,77 +264,252 @@ function showThemeInlineFeedback(anchorEl, msg, isError) {
     fb.textContent = msg;
 }
 
-// Case Search
+function getThemeRestConfig() {
+    var cfg = window.SedRazaviThemeConfig || window.sedrazavi_ajax_obj || {};
+    var restUrl = cfg.restUrl || cfg.rest_url || '/wp-json/sedrazavi/v1/';
+    if (restUrl && restUrl.slice(-1) !== '/') restUrl += '/';
+    return {
+        restUrl: restUrl,
+        restNonce: cfg.restNonce || cfg.rest_nonce || ''
+    };
+}
+
+// Case Search (Real REST Endpoint - requires both case_number & client_phone)
 function searchCaseStatus() {
     var inputEl = document.getElementById("case-search-input");
-    var input = inputEl ? inputEl.value.trim() : "";
+    var phoneEl = document.getElementById("case-search-phone");
+    var caseNumber = inputEl ? inputEl.value.trim() : "";
+    var clientPhone = phoneEl ? phoneEl.value.trim() : "";
     var display = document.getElementById("case-result-display");
-    if (!input) {
-        showThemeInlineFeedback(inputEl, "لطفاً شماره پرونده یا شماره همراه خود را وارد فرمایید.", true);
+
+    if (!caseNumber || !clientPhone) {
+        if (display) display.classList.add("hidden");
+        showThemeInlineFeedback(inputEl, "برای رعایت محرمانگی، وارد کردن شماره پرونده و شماره همراه ثبت‌شده موکل الزامی است.", true);
         return;
     }
 
-    display.classList.remove("hidden");
-    document.getElementById("res-case-title").textContent = "پرونده کلاسه " + input + " - دعوی ابطال سند و مطالبه خسارت";
-    document.getElementById("res-case-status").textContent = "در حال رسیدگی در دادگاه تجدیدنظر";
-    document.getElementById("res-case-desc").textContent = "لایحه دفاعیه تکمیلی توسط وکیل سرپرست در تاریخ جاری در سامانه عدل‌ایران ثبت گردید. وقت رسیدگی نظارت دادگاه تعیین شده است.";
-    document.getElementById("res-case-branch").textContent = "شعبه ۱۸ دادگاه تجدیدنظر استان تهران";
-    document.getElementById("res-case-date").textContent = "آخرین بروزرسانی: امروز ساعت ۱۱:۴۵";
+    var cfg = getThemeRestConfig();
+    showThemeInlineFeedback(inputEl, "در حال استعلام برخط وضعیت پرونده از سامانه...", false);
+
+    fetch(cfg.restUrl + "track-case", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": cfg.restNonce
+        },
+        body: JSON.stringify({ case_number: caseNumber, client_phone: clientPhone })
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+        if (res.ok && res.data && res.data.found) {
+            if (display) display.classList.remove("hidden");
+            var titleEl = document.getElementById("res-case-title");
+            var statusEl = document.getElementById("res-case-status");
+            var descEl = document.getElementById("res-case-desc");
+            var branchEl = document.getElementById("res-case-branch");
+            var dateEl = document.getElementById("res-case-date");
+            if (titleEl) titleEl.textContent = "پرونده کلاسه " + (res.data.case_number || caseNumber) + " — " + (res.data.case_type || "پرونده حقوقی");
+            if (statusEl) statusEl.textContent = res.data.status || "در جریان رسیدگی";
+            if (descEl) descEl.textContent = "موعد یا وضعیت بعدی: " + (res.data.next_session || "ثبت نشده");
+            if (branchEl) branchEl.textContent = res.data.court_branch || "";
+            if (dateEl) dateEl.textContent = res.data.updated_at ? ("بروزرسانی: " + res.data.updated_at) : "";
+            showThemeInlineFeedback(inputEl, "اطلاعات پرونده با موفقیت بازیابی شد.", false);
+        } else {
+            if (display) display.classList.add("hidden");
+            showThemeInlineFeedback(inputEl, (res.data && res.data.message) ? res.data.message : "پرونده‌ای با این کلاسه و شماره تماس یافت نشد.", true);
+        }
+    })
+    .catch(function() {
+        if (display) display.classList.add("hidden");
+        showThemeInlineFeedback(inputEl, "خطا در برقراری ارتباط با سرور استعلام پرونده.", true);
+    });
 }
 
-// Booking Form Submit
+// Booking Form Submit (Real REST Persistence)
 function handleBookingSubmit(e) {
     e.preventDefault();
-    var form = document.getElementById("booking-form-main");
-    var name = document.getElementById("book-name").value;
-    var phone = document.getElementById("book-phone").value;
-    showThemeInlineFeedback(form, "درخواست نوبت مشاوره برای «" + name + "» با موفقیت ثبت گردید. پیامک تایید نوبت به شماره " + phone + " ارسال خواهد شد.", false);
-    if (form) form.reset();
+    var form = document.getElementById("booking-form-main") || e.target;
+    var name = (document.getElementById("book-name") || {}).value || "";
+    var phone = (document.getElementById("book-phone") || {}).value || "";
+    var service = (document.getElementById("book-service") || {}).value || "مشاوره حقوقی";
+    var mode = (document.getElementById("book-mode") || {}).value || "";
+    var notesRaw = (document.getElementById("book-notes") || {}).value || "";
+    var notes = mode ? ("[نحوه جلسه: " + mode + "] " + notesRaw) : notesRaw;
+
+    if (!name.trim() || !phone.trim()) {
+        showThemeInlineFeedback(form, "لطفاً نام موکل و شماره همراه معتبر را وارد فرمایید.", true);
+        return;
+    }
+
+    var cfg = getThemeRestConfig();
+    var btn = form ? form.querySelector('button[type="submit"]') : null;
+    if (btn) btn.disabled = true;
+    showThemeInlineFeedback(form, "در حال ثبت نوبت مشاوره در سامانه...", false);
+
+    fetch(cfg.restUrl + "book-appointment", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": cfg.restNonce
+        },
+        body: JSON.stringify({
+            client_name: name.trim(),
+            client_phone: phone.trim(),
+            service_type: service,
+            notes: notes.trim()
+        })
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+        if (btn) btn.disabled = false;
+        if (res.ok && res.data && res.data.success) {
+            var idLabel = res.data.booking_id ? (" (کد نوبت: #" + res.data.booking_id + ")") : "";
+            showThemeInlineFeedback(form, (res.data.message || "نوبت مشاوره با موفقیت ثبت شد.") + idLabel, false);
+            if (form) form.reset();
+        } else {
+            showThemeInlineFeedback(form, (res.data && res.data.message) ? res.data.message : "خطا در ثبت نوبت مشاوره.", true);
+        }
+    })
+    .catch(function() {
+        if (btn) btn.disabled = false;
+        showThemeInlineFeedback(form, "خطا در برقراری ارتباط با سرور رزرو نوبت.", true);
+    });
 }
 
 // Modals Controls
 function openSurveyModal() {
-    document.getElementById("survey-modal").classList.remove("hidden");
-    document.getElementById("survey-modal").classList.add("flex");
+    var m = document.getElementById("survey-modal");
+    if (!m) return;
+    m.classList.remove("hidden");
+    m.classList.add("flex");
 }
 function closeSurveyModal() {
-    document.getElementById("survey-modal").classList.add("hidden");
-    document.getElementById("survey-modal").classList.remove("flex");
+    var m = document.getElementById("survey-modal");
+    if (!m) return;
+    m.classList.add("hidden");
+    m.classList.remove("flex");
+}
+function selectSurveyRating(rating) {
+    var box = document.getElementById("survey-stars");
+    if (!box) return;
+    box.setAttribute("data-rating", String(rating));
+    box.querySelectorAll(".sr-survey-star").forEach(function(btn) {
+        var val = parseInt(btn.getAttribute("data-val") || "0", 10);
+        btn.style.opacity = val <= rating ? "1" : "0.35";
+    });
 }
 function submitSurvey() {
     var modal = document.getElementById("survey-modal");
-    showThemeInlineFeedback(modal ? modal.querySelector("form") || modal.firstElementChild : document.body, "سپاسگزاریم! دیدگاه شما با موفقیت ثبت گردید.", false);
-    setTimeout(closeSurveyModal, 900);
+    var starsEl = document.getElementById("survey-stars");
+    var commentEl = document.getElementById("survey-comment") || (modal ? modal.querySelector("textarea") : null);
+    var submitBtn = document.getElementById("survey-submit-btn");
+    var anchor = modal ? (modal.querySelector("#survey-submit-btn") || modal.firstElementChild) : document.body;
+
+    var rating = starsEl ? parseInt(starsEl.getAttribute("data-rating") || "5", 10) : 5;
+    var comment = commentEl ? commentEl.value.trim() : "";
+    var cfg = getThemeRestConfig();
+
+    if (submitBtn) submitBtn.disabled = true;
+    showThemeInlineFeedback(anchor, "در حال ثبت بازخورد...", false);
+
+    fetch(cfg.restUrl + "survey/submit", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": cfg.restNonce
+        },
+        body: JSON.stringify({ rating: rating, comment: comment })
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+        if (submitBtn) submitBtn.disabled = false;
+        if (res.ok && res.data && res.data.success) {
+            showThemeInlineFeedback(anchor, res.data.message || "بازخورد شما ثبت گردید.", false);
+            if (commentEl) commentEl.value = "";
+            setTimeout(closeSurveyModal, 1100);
+        } else {
+            showThemeInlineFeedback(anchor, (res.data && res.data.message) ? res.data.message : "خطا در ثبت بازخورد.", true);
+        }
+    })
+    .catch(function() {
+        if (submitBtn) submitBtn.disabled = false;
+        showThemeInlineFeedback(anchor, "عدم برقراری ارتباط با سرور.", true);
+    });
 }
 
 function openTourModal() {
-    document.getElementById("tour-modal").classList.remove("hidden");
-    document.getElementById("tour-modal").classList.add("flex");
+    var m = document.getElementById("tour-modal");
+    if (!m) return;
+    m.classList.remove("hidden");
+    m.classList.add("flex");
 }
 function closeTourModal() {
-    document.getElementById("tour-modal").classList.add("hidden");
-    document.getElementById("tour-modal").classList.remove("flex");
+    var m = document.getElementById("tour-modal");
+    if (!m) return;
+    m.classList.add("hidden");
+    m.classList.remove("flex");
 }
 
 function openAcademyModal() {
-    document.getElementById("academy-modal").classList.remove("hidden");
-    document.getElementById("academy-modal").classList.add("flex");
+    var m = document.getElementById("academy-modal");
+    if (!m) return;
+    m.classList.remove("hidden");
+    m.classList.add("flex");
 }
 function closeAcademyModal() {
-    document.getElementById("academy-modal").classList.add("hidden");
-    document.getElementById("academy-modal").classList.remove("flex");
+    var m = document.getElementById("academy-modal");
+    if (!m) return;
+    m.classList.add("hidden");
+    m.classList.remove("flex");
 }
 
 function acceptCookies() {
-    document.getElementById("cookie-banner").style.display = "none";
+    var el = document.getElementById("cookie-banner");
+    if (el) el.style.display = "none";
     localStorage.setItem("sedrazavi_cookie_consent", "accepted");
 }
 function dismissCookies() {
-    document.getElementById("cookie-banner").style.display = "none";
+    var el = document.getElementById("cookie-banner");
+    if (el) el.style.display = "none";
 }
 
 function handleNewsletter(e) {
-    e.preventDefault();
-    showThemeInlineFeedback(e.target, "ایمیل شما در خبرنامه تخصصی دفتر وکالت دکتر رضوی با موفقیت ثبت گردید.", false);
-    e.target.reset();
+    if (e && e.preventDefault) e.preventDefault();
+    var form = (e && e.target) ? e.target : document.getElementById("sr-footer-newsletter-form");
+    if (!form) return false;
+    var emailInput = form.querySelector('input[type="email"]');
+    var email = emailInput ? emailInput.value.trim() : "";
+    if (!email) {
+        showThemeInlineFeedback(form, "لطفاً نشانی ایمیل معتبر وارد کنید.", true);
+        return false;
+    }
+
+    var cfg = getThemeRestConfig();
+    var btn = form.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+    showThemeInlineFeedback(form, "در حال ثبت اشتراک خبرنامه...", false);
+
+    fetch(cfg.restUrl + "newsletter", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": cfg.restNonce
+        },
+        body: JSON.stringify({ email: email })
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+        if (btn) btn.disabled = false;
+        if (res.ok && res.data && res.data.success) {
+            showThemeInlineFeedback(form, res.data.message || "عضویت در خبرنامه با موفقیت انجام شد.", false);
+            form.reset();
+        } else {
+            showThemeInlineFeedback(form, (res.data && res.data.message) ? res.data.message : "خطا در ثبت ایمیل در خبرنامه.", true);
+        }
+    })
+    .catch(function() {
+        if (btn) btn.disabled = false;
+        showThemeInlineFeedback(form, "خطا در ارتباط با سرور خبرنامه.", true);
+    });
+    return false;
 }

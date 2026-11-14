@@ -809,6 +809,61 @@ class Frontend_Cockpit_Engine {
             wp_send_json_error(['message' => sprintf(__('بسته زیپ افزونه «%s» در سرور یافت نشد.', 'sedrazavi-companion'), $plugin_slug)]);
         }
 
+        // Pre-extraction ZIP integrity & security gate (Anti-Zip-Slip, Extension Allowlist & Zip Bomb protection)
+        if (!class_exists('\ZipArchive')) {
+            wp_send_json_error(['message' => __('ماژول ZipArchive در سرور PHP فعال نیست.', 'sedrazavi-companion')], 500);
+        }
+
+        $zip_check = new \ZipArchive();
+        if ($zip_check->open($zip_file) !== true) {
+            wp_send_json_error(['message' => __('فایل فشرده افزونه معتبر نیست یا آسیب دیده است.', 'sedrazavi-companion')], 400);
+        }
+
+        $allowed_exts = ['php', 'json', 'css', 'js', 'png', 'jpg', 'jpeg', 'svg', 'webp', 'woff', 'woff2', 'ttf', 'eot', 'txt', 'md', 'pot', 'po', 'mo', 'html', 'xml', 'map'];
+        $max_entries = 1500;
+        $max_bytes = 50 * 1024 * 1024;
+        $total_bytes = 0;
+
+        if ($zip_check->numFiles <= 0 || $zip_check->numFiles > $max_entries) {
+            $zip_check->close();
+            wp_send_json_error(['message' => __('تعداد فایل‌های درون بسته افزونه غیرمجاز است.', 'sedrazavi-companion')], 400);
+        }
+
+        for ($i = 0; $i < $zip_check->numFiles; $i++) {
+            $stat = $zip_check->statIndex($i);
+            if (!$stat) {
+                continue;
+            }
+            $entry_name = (string) $stat['name'];
+            $total_bytes += (int) $stat['size'];
+            if ($total_bytes > $max_bytes) {
+                $zip_check->close();
+                wp_send_json_error(['message' => __('حجم استخراج‌شده بسته از سقف مجاز ۵۰ مگابایت فراتر رفته است.', 'sedrazavi-companion')], 400);
+            }
+            if (
+                strpos($entry_name, '../') !== false ||
+                strpos($entry_name, '..\\') !== false ||
+                strpos($entry_name, '/..') !== false ||
+                strpos($entry_name, '\\..') !== false ||
+                strpos($entry_name, ':/') !== false ||
+                strpos($entry_name, ':\\') !== false ||
+                strpos($entry_name, '/') === 0 ||
+                strpos($entry_name, '\\') === 0
+            ) {
+                $zip_check->close();
+                wp_send_json_error(['message' => __('نقض امنیتی Zip Slip Traversal در بسته شناسایی شد و نصب متوقف گردید.', 'sedrazavi-companion')], 400);
+            }
+            if (substr($entry_name, -1) === '/' || substr($entry_name, -1) === '\\') {
+                continue;
+            }
+            $ext = strtolower(pathinfo($entry_name, PATHINFO_EXTENSION));
+            if ($ext === '' || !in_array($ext, $allowed_exts, true)) {
+                $zip_check->close();
+                wp_send_json_error(['message' => sprintf(__('پسوند فایل غیرمجاز در بسته افزونه شناسایی شد: %s', 'sedrazavi-companion'), sanitize_text_field($entry_name))], 400);
+            }
+        }
+        $zip_check->close();
+
         require_once ABSPATH . 'wp-admin/includes/file.php';
         \WP_Filesystem();
 

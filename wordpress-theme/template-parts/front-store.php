@@ -29,10 +29,11 @@ if (!defined('ABSPATH')) {
                     <a href="#products-showcase" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition-all">
                         مشاهده ویترین محصولات ←
                     </a>
-                    <button type="button" onclick="if(document.getElementById('sr-slideover-cart-drawer')) document.getElementById('sr-slideover-cart-drawer').style.display='block';" class="px-5 py-3 rounded-xl bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-200 text-xs font-semibold">
+                    <button type="button" onclick="var d=document.getElementById('sr-slideover-cart-drawer'); if(d){d.style.display='block';}else{var fb=document.getElementById('sr-store-cart-status'); if(fb){fb.classList.remove('hidden'); fb.textContent='سبد خرید شناور برای فروشگاه‌های دارای افزونه ووکامرس فعال در دسترس است.';}}" class="px-5 py-3 rounded-xl bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-200 text-xs font-semibold">
                         🛒 باز کردن سبد خرید شناور
                     </button>
                 </div>
+                <div id="sr-store-cart-status" role="status" aria-live="polite" class="hidden mt-3 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold"></div>
             </div>
 
             <!-- بج گرافیکی پیشنهاد شگفت‌انگیز -->
@@ -92,39 +93,40 @@ if (!defined('ABSPATH')) {
                             </div>
                         </div>
 
-                        <a href="<?php echo esc_url($product->add_to_cart_url()); ?>" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs text-center transition-all">
-                            افزودن به سبد خرید
+                        <?php
+                        $supports_ajax = method_exists($product, 'supports') && $product->supports('ajax_add_to_cart');
+                        $btn_classes   = 'w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs text-center transition-all button';
+                        if ($supports_ajax && $product->is_purchasable() && $product->is_in_stock()) {
+                            $btn_classes .= ' add_to_cart_button ajax_add_to_cart';
+                        }
+                        ?>
+                        <a href="<?php echo esc_url($product->add_to_cart_url()); ?>" data-quantity="1" data-product_id="<?php echo esc_attr($product->get_id()); ?>" data-product_sku="<?php echo esc_attr($product->get_sku()); ?>" rel="nofollow" class="<?php echo esc_attr($btn_classes); ?>">
+                            <?php echo esc_html($product->add_to_cart_text()); ?>
                         </a>
                     </div>
                     <?php
                 endforeach;
             else :
-                // نمونه محصولات پیش‌فرض نمایشی
-                $sample_items = [
-                    ['title' => 'قالب وردپرس معماری آژانسی SedRazavi', 'price' => '۲,۴۵۰,۰۰۰ تومان', 'badge' => 'پرفروش'],
-                    ['title' => 'افزونه اشتراک ویژه VIP و پی‌وال رسانه', 'price' => '۸۹۰,۰۰۰ تومان', 'badge' => 'جدید'],
-                    ['title' => 'کیت کامل ۵۰ المان پیشرفته المنتور پرو', 'price' => '۱,۲۰۰,۰۰۰ تومان', 'badge' => 'ویژه'],
-                    ['title' => 'پکیج ماژول‌های ۵گانه اصناف و لایسنسینگ', 'price' => '۱,۶۵۰,۰۰۰ تومان', 'badge' => 'تخفیف'],
-                ];
-                foreach ($sample_items as $item) :
-                    ?>
-                    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 transition-all space-y-3 flex flex-col justify-between">
-                        <div class="aspect-square rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-center relative text-4xl text-slate-700">
-                            🛒
-                            <span class="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
-                                <?php echo esc_html($item['badge']); ?>
-                            </span>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-white line-clamp-1"><?php echo esc_html($item['title']); ?></h3>
-                            <div class="text-xs font-bold text-emerald-400 mt-2 font-mono"><?php echo esc_html($item['price']); ?></div>
-                        </div>
-                        <button type="button" onclick="this.textContent='✓ به سبد خرید افزوده شد'; this.setAttribute('aria-pressed','true');" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all cursor-pointer">
-                            افزودن به سبد خرید
-                        </button>
-                    </div>
-                    <?php
-                endforeach;
+                $wc_active = class_exists('WooCommerce');
+                $empty_msg = $wc_active
+                    ? 'هنوز محصولی در فروشگاه ووکامرس منتشر نشده است.'
+                    : 'برای فعال‌سازی سبد خرید واقعی و فروش محصولات، افزونه WooCommerce را نصب و پیکربندی نمایید.';
+                $cta_url = current_user_can('manage_options')
+                    ? admin_url($wc_active ? 'post-new.php?post_type=product' : 'plugin-install.php?s=woocommerce&tab=search&type=term')
+                    : home_url('/#contact');
+                $cta_lbl = current_user_can('manage_options')
+                    ? ($wc_active ? '+ افزودن اولین محصول در ووکامرس' : 'نصب یا پیکربندی ووکامرس از پیشخوان')
+                    : 'درخواست اطلاعات یا سفارش';
+                ?>
+                <div class="sm:col-span-2 lg:col-span-4 p-8 rounded-2xl bg-slate-900/90 border border-slate-800 text-center space-y-4">
+                    <div class="text-3xl">🛒</div>
+                    <h3 class="text-base font-bold text-white"><?php echo esc_html($wc_active ? 'ویترین محصولات ووکامرس آماده است' : 'افزونه فروشگاه ووکامرس غیرفعال است'); ?></h3>
+                    <p class="text-xs text-slate-400 max-w-lg mx-auto leading-relaxed"><?php echo esc_html($empty_msg); ?></p>
+                    <a href="<?php echo esc_url($cta_url); ?>" class="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all">
+                        <?php echo esc_html($cta_lbl); ?>
+                    </a>
+                </div>
+                <?php
             endif;
             ?>
         </div>

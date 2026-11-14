@@ -92,6 +92,26 @@ if (!class_exists('SedRazavi_Addons_Loader')) {
         private function __construct() {
             $this->load_resilient_modules();
             add_action('plugins_loaded', array($this, 'init_plugin'));
+            add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
+        }
+
+        public function enqueue_frontend_assets() {
+            $runtime_js = SEDRAZAVI_ADDONS_DIR . 'assets/js/shortcodes-runtime.js';
+            if (file_exists($runtime_js)) {
+                wp_register_script(
+                    'sedrazavi-addons-shortcodes',
+                    SEDRAZAVI_ADDONS_URL . 'assets/js/shortcodes-runtime.js',
+                    array(),
+                    SEDRAZAVI_ADDONS_VERSION,
+                    array('in_footer' => true, 'strategy' => 'defer')
+                );
+                wp_localize_script('sedrazavi-addons-shortcodes', 'sedrazaviAddonsConfig', array(
+                    'restUrl'   => function_exists('rest_url') ? esc_url_raw(rest_url('sedrazavi/v1/')) : '/wp-json/sedrazavi/v1/',
+                    'restNonce' => wp_create_nonce('wp_rest'),
+                    'ajaxUrl'   => admin_url('admin-ajax.php'),
+                    'ajaxNonce' => wp_create_nonce('sedrazavi_security_nonce'),
+                ));
+            }
         }
 
         /**

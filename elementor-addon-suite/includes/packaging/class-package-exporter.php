@@ -215,6 +215,31 @@ class Package_Exporter {
         $include_gutenberg   = $resolved_bc['include_gutenberg'];
         $include_cpts        = $resolved_bc['include_cpts'];
 
+        $needs_elementor = (!empty($widgets) || !empty($templates));
+        $required_reqs = [
+            'php'       => '>=7.4',
+            'wordpress' => '>=6.0',
+        ];
+        if ($needs_elementor) {
+            $required_reqs['elementor'] = '>=3.10';
+        }
+        $optional_reqs = [
+            'elementor_pro' => '>=3.10',
+            'woocommerce'   => '>=8.0',
+        ];
+        if ($include_gutenberg) {
+            $optional_reqs['gutenberg'] = '>=6.0';
+        }
+        $requirements_manifest = [
+            'php'       => '>=7.4',
+            'wordpress' => '>=6.0',
+            'required'  => $required_reqs,
+            'optional'  => $optional_reqs,
+        ];
+        if ($needs_elementor) {
+            $requirements_manifest['elementor'] = '>=3.10';
+        }
+
         $manifest = [
             'id'                  => $project_slug,
             'name'                => $project_name,
@@ -235,11 +260,7 @@ class Package_Exporter {
                 'gutenberg_blocks' => $include_gutenberg,
                 'cpt_schemas'      => $include_cpts,
             ],
-            'requirements'        => [
-                'php'       => '>=7.4',
-                'wordpress' => '>=6.0',
-                'elementor' => '>=3.10',
-            ],
+            'requirements'        => $requirements_manifest,
         ];
 
         // Collect all files in memory first so per-file SHA-256 checksums are computed deterministically

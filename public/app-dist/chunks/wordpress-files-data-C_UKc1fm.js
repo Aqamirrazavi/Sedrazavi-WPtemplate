@@ -1121,23 +1121,39 @@ document.addEventListener("DOMContentLoaded", function() {
     var backdrop = document.getElementById("mobile-menu-backdrop");
 
     if (mobileBtn && mobileDrawer) {
+        mobileBtn.setAttribute("aria-expanded", "false");
         mobileBtn.addEventListener("click", function() {
             mobileDrawer.classList.add("is-active");
+            mobileBtn.setAttribute("aria-expanded", "true");
             document.body.style.overflow = "hidden";
         });
     }
-    if (closeBtn && mobileDrawer) {
-        closeBtn.addEventListener("click", function() {
+    var closeMobileDrawer = function() {
+        if (mobileDrawer && mobileDrawer.classList.contains("is-active")) {
             mobileDrawer.classList.remove("is-active");
+            if (mobileBtn) mobileBtn.setAttribute("aria-expanded", "false");
             document.body.style.overflow = "";
-        });
+        }
+    };
+    if (closeBtn && mobileDrawer) {
+        closeBtn.addEventListener("click", closeMobileDrawer);
     }
     if (backdrop && mobileDrawer) {
-        backdrop.addEventListener("click", function() {
-            mobileDrawer.classList.remove("is-active");
-            document.body.style.overflow = "";
-        });
+        backdrop.addEventListener("click", closeMobileDrawer);
     }
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+            closeMobileDrawer();
+            ["story-modal", "survey-modal", "tour-modal", "academy-modal"].forEach(function(id) {
+                var m = document.getElementById(id);
+                if (m && !m.classList.contains("hidden")) {
+                    m.classList.add("hidden");
+                    m.classList.remove("flex");
+                    document.body.style.overflow = "";
+                }
+            });
+        }
+    });
 
     // 2. Mobile Services Accordion Toggle
     var servicesBtn = document.getElementById("mobile-services-accordion-btn");
@@ -1228,40 +1244,47 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+function getLocalStoryThumb() {
+    var themeUri = (window.SedRazaviThemeConfig && window.SedRazaviThemeConfig.themeUri)
+        || (window.SedRazaviReactConfig && window.SedRazaviReactConfig.site && window.SedRazaviReactConfig.site.url && (window.SedRazaviReactConfig.site.url + '/wp-content/themes/sedrazavi-theme'))
+        || '';
+    return themeUri ? (themeUri + '/screenshot.png') : 'screenshot.png';
+}
+
 // Story Modal Data
 var storiesData = [
     {
         title: "نکات چک صیادی",
         category: "نکات کاربردی",
-        img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800",
+        img: "",
         slideTitle: "قوانین طلایی صدور و پیگیری چک‌های صیادی بنفش",
         slideDesc: "مطابق ماده ۲۳ قانون اصلاح قانون صدور چک، در صورت برگشت چک صیادی، موکل بدون نیاز به تقدیم دادخواست ماهوی و پرداخت هزینه سنگین دادرسی، می‌تواند مستقیماً از دادگاه تقاضای صدور اجراییه نماید."
     },
     {
         title: "پیروزی در پرونده برج الهیه",
         category: "موفقیت‌های اخیر",
-        img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+        img: "",
         slideTitle: "ابطال سند معارض برج مسکونی الهیه به ارزش ۲۴۰ میلیارد ریال",
         slideDesc: "با استناد به اسناد رسمی اولیه و اثبات جعل مادی و معنوی در کمیسیون تخصصی ثبتی، رای قطعی شعبه ۱۲ دادگاه تجدیدنظر استان تهران به نفع موکل صادر و سند رسمی معارض ابطال گردید."
     },
     {
         title: "طلاق و مهریه",
         category: "حقوق خانواده",
-        img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800",
+        img: "",
         slideTitle: "رسیدگی تخصصی به طلاق توافقی و توقیف مهریه",
         slideDesc: "تنظیم توافق‌نامه رسمی جامع در خصوص حضانت، نفقه، جهیزیه و مهریه با حفظ کامل حرمت طرفین و صدور گواهی عدم امکان سازش در کوتاه‌ترین زمان ممکن قانونی."
     },
     {
         title: "سهم‌الارث مادر",
         category: "انحصار وراثت",
-        img: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=800",
+        img: "",
         slideTitle: "نحوه محاسبه سهم‌الارث زوجه از عرصه و اعیان",
         slideDesc: "طبق ماده ۹۴۶ قانون مدنی اصلاحی، زوجه از قیمت عرصه و نیز از اعیان ارث می‌برد. دفتر وکالت ما کلیه مراحل تحریر ترکه و تقسیم عادلانه را مدیریت می‌نماید."
     },
     {
         title: "قرارداد مشارکت در ساخت",
         category: "تجاری",
-        img: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=800",
+        img: "",
         slideTitle: "۵ شرط نجات‌بخش در قرارداد مشارکت با سازنده",
         slideDesc: "پیش‌بینی وجه التزام روزانه تاخیر، سلب حق پیش‌فروش تا سقف مشخص ساخت، و تعیین داور مرضی‌الطرفین تخصصی، مانع از قفل شدن سرمایه مالکین عرصه می‌شود."
     }
@@ -1273,13 +1296,7 @@ function openStoryModal(index) {
     document.getElementById("story-modal-cat").textContent = story.category;
     var modalImg = document.getElementById("story-modal-img");
     if (modalImg) {
-        modalImg.onerror = function() {
-            var themeUri = (window.SedRazaviReactConfig && window.SedRazaviReactConfig.site && window.SedRazaviReactConfig.site.url) 
-                ? window.SedRazaviReactConfig.site.url + '/wp-content/themes/sedrazavi-theme/screenshot.png' 
-                : 'screenshot.png';
-            this.src = themeUri;
-        };
-        modalImg.src = story.img;
+        modalImg.src = story.img || getLocalStoryThumb();
     }
     document.getElementById("story-slide-title").textContent = story.slideTitle;
     document.getElementById("story-slide-desc").textContent = story.slideDesc;
@@ -1338,76 +1355,272 @@ function renderTestimonial() {
     document.getElementById("testimonial-service").textContent = item.service;
 }
 
-// Case Search Mock
+function showThemeInlineFeedback(anchorEl, msg, isError) {
+    if (!anchorEl) return;
+    var parent = anchorEl.parentNode || anchorEl;
+    var fb = parent.querySelector(".sr-inline-theme-feedback");
+    if (!fb) {
+        fb = document.createElement("div");
+        fb.className = "sr-inline-theme-feedback";
+        fb.setAttribute("role", "status");
+        fb.setAttribute("aria-live", "polite");
+        fb.style.cssText = "margin-top:12px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;line-height:1.6;";
+        parent.appendChild(fb);
+    }
+    fb.style.background = isError ? "rgba(239,68,68,0.12)" : "rgba(16,185,129,0.12)";
+    fb.style.border = isError ? "1px solid #ef4444" : "1px solid #10b981";
+    fb.style.color = isError ? "#f87171" : "#34d399";
+    fb.textContent = msg;
+}
+
+function getThemeRestConfig() {
+    var cfg = window.SedRazaviThemeConfig || window.sedrazavi_ajax_obj || {};
+    var restUrl = cfg.restUrl || cfg.rest_url || '/wp-json/sedrazavi/v1/';
+    if (restUrl && restUrl.slice(-1) !== '/') restUrl += '/';
+    return {
+        restUrl: restUrl,
+        restNonce: cfg.restNonce || cfg.rest_nonce || ''
+    };
+}
+
+// Case Search (Real REST Endpoint - requires both case_number & client_phone)
 function searchCaseStatus() {
-    var input = document.getElementById("case-search-input").value.trim();
+    var inputEl = document.getElementById("case-search-input");
+    var phoneEl = document.getElementById("case-search-phone");
+    var caseNumber = inputEl ? inputEl.value.trim() : "";
+    var clientPhone = phoneEl ? phoneEl.value.trim() : "";
     var display = document.getElementById("case-result-display");
-    if (!input) {
-        alert("لطفاً شماره پرونده یا شماره همراه خود را وارد فرمایید.");
+
+    if (!caseNumber || !clientPhone) {
+        if (display) display.classList.add("hidden");
+        showThemeInlineFeedback(inputEl, "برای رعایت محرمانگی، وارد کردن شماره پرونده و شماره همراه ثبت‌شده موکل الزامی است.", true);
         return;
     }
 
-    display.classList.remove("hidden");
-    document.getElementById("res-case-title").textContent = "پرونده کلاسه " + input + " - دعوی ابطال سند و مطالبه خسارت";
-    document.getElementById("res-case-status").textContent = "در حال رسیدگی در دادگاه تجدیدنظر";
-    document.getElementById("res-case-desc").textContent = "لایحه دفاعیه تکمیلی توسط وکیل سرپرست در تاریخ جاری در سامانه عدل‌ایران ثبت گردید. وقت رسیدگی نظارت دادگاه تعیین شده است.";
-    document.getElementById("res-case-branch").textContent = "شعبه ۱۸ دادگاه تجدیدنظر استان تهران";
-    document.getElementById("res-case-date").textContent = "آخرین بروزرسانی: امروز ساعت ۱۱:۴۵";
+    var cfg = getThemeRestConfig();
+    showThemeInlineFeedback(inputEl, "در حال استعلام برخط وضعیت پرونده از سامانه...", false);
+
+    fetch(cfg.restUrl + "track-case", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": cfg.restNonce
+        },
+        body: JSON.stringify({ case_number: caseNumber, client_phone: clientPhone })
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+        if (res.ok && res.data && res.data.found) {
+            if (display) display.classList.remove("hidden");
+            var titleEl = document.getElementById("res-case-title");
+            var statusEl = document.getElementById("res-case-status");
+            var descEl = document.getElementById("res-case-desc");
+            var branchEl = document.getElementById("res-case-branch");
+            var dateEl = document.getElementById("res-case-date");
+            if (titleEl) titleEl.textContent = "پرونده کلاسه " + (res.data.case_number || caseNumber) + " — " + (res.data.case_type || "پرونده حقوقی");
+            if (statusEl) statusEl.textContent = res.data.status || "در جریان رسیدگی";
+            if (descEl) descEl.textContent = "موعد یا وضعیت بعدی: " + (res.data.next_session || "ثبت نشده");
+            if (branchEl) branchEl.textContent = res.data.court_branch || "";
+            if (dateEl) dateEl.textContent = res.data.updated_at ? ("بروزرسانی: " + res.data.updated_at) : "";
+            showThemeInlineFeedback(inputEl, "اطلاعات پرونده با موفقیت بازیابی شد.", false);
+        } else {
+            if (display) display.classList.add("hidden");
+            showThemeInlineFeedback(inputEl, (res.data && res.data.message) ? res.data.message : "پرونده‌ای با این کلاسه و شماره تماس یافت نشد.", true);
+        }
+    })
+    .catch(function() {
+        if (display) display.classList.add("hidden");
+        showThemeInlineFeedback(inputEl, "خطا در برقراری ارتباط با سرور استعلام پرونده.", true);
+    });
 }
 
-// Booking Form Submit
+// Booking Form Submit (Real REST Persistence)
 function handleBookingSubmit(e) {
     e.preventDefault();
-    var name = document.getElementById("book-name").value;
-    var phone = document.getElementById("book-phone").value;
-    alert("درخواست نوبت مشاوره برای «" + name + "» با موفقیت ثبت گردید. پیامک تایید نوبت به شماره " + phone + " ارسال خواهد شد.");
-    document.getElementById("booking-form-main").reset();
+    var form = document.getElementById("booking-form-main") || e.target;
+    var name = (document.getElementById("book-name") || {}).value || "";
+    var phone = (document.getElementById("book-phone") || {}).value || "";
+    var service = (document.getElementById("book-service") || {}).value || "مشاوره حقوقی";
+    var mode = (document.getElementById("book-mode") || {}).value || "";
+    var notesRaw = (document.getElementById("book-notes") || {}).value || "";
+    var notes = mode ? ("[نحوه جلسه: " + mode + "] " + notesRaw) : notesRaw;
+
+    if (!name.trim() || !phone.trim()) {
+        showThemeInlineFeedback(form, "لطفاً نام موکل و شماره همراه معتبر را وارد فرمایید.", true);
+        return;
+    }
+
+    var cfg = getThemeRestConfig();
+    var btn = form ? form.querySelector('button[type="submit"]') : null;
+    if (btn) btn.disabled = true;
+    showThemeInlineFeedback(form, "در حال ثبت نوبت مشاوره در سامانه...", false);
+
+    fetch(cfg.restUrl + "book-appointment", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": cfg.restNonce
+        },
+        body: JSON.stringify({
+            client_name: name.trim(),
+            client_phone: phone.trim(),
+            service_type: service,
+            notes: notes.trim()
+        })
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+        if (btn) btn.disabled = false;
+        if (res.ok && res.data && res.data.success) {
+            var idLabel = res.data.booking_id ? (" (کد نوبت: #" + res.data.booking_id + ")") : "";
+            showThemeInlineFeedback(form, (res.data.message || "نوبت مشاوره با موفقیت ثبت شد.") + idLabel, false);
+            if (form) form.reset();
+        } else {
+            showThemeInlineFeedback(form, (res.data && res.data.message) ? res.data.message : "خطا در ثبت نوبت مشاوره.", true);
+        }
+    })
+    .catch(function() {
+        if (btn) btn.disabled = false;
+        showThemeInlineFeedback(form, "خطا در برقراری ارتباط با سرور رزرو نوبت.", true);
+    });
 }
 
 // Modals Controls
 function openSurveyModal() {
-    document.getElementById("survey-modal").classList.remove("hidden");
-    document.getElementById("survey-modal").classList.add("flex");
+    var m = document.getElementById("survey-modal");
+    if (!m) return;
+    m.classList.remove("hidden");
+    m.classList.add("flex");
 }
 function closeSurveyModal() {
-    document.getElementById("survey-modal").classList.add("hidden");
-    document.getElementById("survey-modal").classList.remove("flex");
+    var m = document.getElementById("survey-modal");
+    if (!m) return;
+    m.classList.add("hidden");
+    m.classList.remove("flex");
+}
+function selectSurveyRating(rating) {
+    var box = document.getElementById("survey-stars");
+    if (!box) return;
+    box.setAttribute("data-rating", String(rating));
+    box.querySelectorAll(".sr-survey-star").forEach(function(btn) {
+        var val = parseInt(btn.getAttribute("data-val") || "0", 10);
+        btn.style.opacity = val <= rating ? "1" : "0.35";
+    });
 }
 function submitSurvey() {
-    alert("سپاسگزاریم! دیدگاه شما با موفقیت ثبت گردید.");
-    closeSurveyModal();
+    var modal = document.getElementById("survey-modal");
+    var starsEl = document.getElementById("survey-stars");
+    var commentEl = document.getElementById("survey-comment") || (modal ? modal.querySelector("textarea") : null);
+    var submitBtn = document.getElementById("survey-submit-btn");
+    var anchor = modal ? (modal.querySelector("#survey-submit-btn") || modal.firstElementChild) : document.body;
+
+    var rating = starsEl ? parseInt(starsEl.getAttribute("data-rating") || "5", 10) : 5;
+    var comment = commentEl ? commentEl.value.trim() : "";
+    var cfg = getThemeRestConfig();
+
+    if (submitBtn) submitBtn.disabled = true;
+    showThemeInlineFeedback(anchor, "در حال ثبت بازخورد...", false);
+
+    fetch(cfg.restUrl + "survey/submit", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": cfg.restNonce
+        },
+        body: JSON.stringify({ rating: rating, comment: comment })
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+        if (submitBtn) submitBtn.disabled = false;
+        if (res.ok && res.data && res.data.success) {
+            showThemeInlineFeedback(anchor, res.data.message || "بازخورد شما ثبت گردید.", false);
+            if (commentEl) commentEl.value = "";
+            setTimeout(closeSurveyModal, 1100);
+        } else {
+            showThemeInlineFeedback(anchor, (res.data && res.data.message) ? res.data.message : "خطا در ثبت بازخورد.", true);
+        }
+    })
+    .catch(function() {
+        if (submitBtn) submitBtn.disabled = false;
+        showThemeInlineFeedback(anchor, "عدم برقراری ارتباط با سرور.", true);
+    });
 }
 
 function openTourModal() {
-    document.getElementById("tour-modal").classList.remove("hidden");
-    document.getElementById("tour-modal").classList.add("flex");
+    var m = document.getElementById("tour-modal");
+    if (!m) return;
+    m.classList.remove("hidden");
+    m.classList.add("flex");
 }
 function closeTourModal() {
-    document.getElementById("tour-modal").classList.add("hidden");
-    document.getElementById("tour-modal").classList.remove("flex");
+    var m = document.getElementById("tour-modal");
+    if (!m) return;
+    m.classList.add("hidden");
+    m.classList.remove("flex");
 }
 
 function openAcademyModal() {
-    document.getElementById("academy-modal").classList.remove("hidden");
-    document.getElementById("academy-modal").classList.add("flex");
+    var m = document.getElementById("academy-modal");
+    if (!m) return;
+    m.classList.remove("hidden");
+    m.classList.add("flex");
 }
 function closeAcademyModal() {
-    document.getElementById("academy-modal").classList.add("hidden");
-    document.getElementById("academy-modal").classList.remove("flex");
+    var m = document.getElementById("academy-modal");
+    if (!m) return;
+    m.classList.add("hidden");
+    m.classList.remove("flex");
 }
 
 function acceptCookies() {
-    document.getElementById("cookie-banner").style.display = "none";
+    var el = document.getElementById("cookie-banner");
+    if (el) el.style.display = "none";
     localStorage.setItem("sedrazavi_cookie_consent", "accepted");
 }
 function dismissCookies() {
-    document.getElementById("cookie-banner").style.display = "none";
+    var el = document.getElementById("cookie-banner");
+    if (el) el.style.display = "none";
 }
 
 function handleNewsletter(e) {
-    e.preventDefault();
-    alert("ایمیل شما در خبرنامه تخصصی دفتر وکالت دکتر رضوی با موفقیت ثبت گردید.");
-    e.target.reset();
+    if (e && e.preventDefault) e.preventDefault();
+    var form = (e && e.target) ? e.target : document.getElementById("sr-footer-newsletter-form");
+    if (!form) return false;
+    var emailInput = form.querySelector('input[type="email"]');
+    var email = emailInput ? emailInput.value.trim() : "";
+    if (!email) {
+        showThemeInlineFeedback(form, "لطفاً نشانی ایمیل معتبر وارد کنید.", true);
+        return false;
+    }
+
+    var cfg = getThemeRestConfig();
+    var btn = form.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+    showThemeInlineFeedback(form, "در حال ثبت اشتراک خبرنامه...", false);
+
+    fetch(cfg.restUrl + "newsletter", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": cfg.restNonce
+        },
+        body: JSON.stringify({ email: email })
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+        if (btn) btn.disabled = false;
+        if (res.ok && res.data && res.data.success) {
+            showThemeInlineFeedback(form, res.data.message || "عضویت در خبرنامه با موفقیت انجام شد.", false);
+            form.reset();
+        } else {
+            showThemeInlineFeedback(form, (res.data && res.data.message) ? res.data.message : "خطا در ثبت ایمیل در خبرنامه.", true);
+        }
+    })
+    .catch(function() {
+        if (btn) btn.disabled = false;
+        showThemeInlineFeedback(form, "خطا در ارتباط با سرور خبرنامه.", true);
+    });
+    return false;
 }
 `},{path:"assets/js/sedrazavi-react-mount.js",filename:"sedrazavi-react-mount.js",category:"استایل و دارایی‌ها (Assets)",description:"موتور شناسایی خودکار روت‌های .sedrazavi-react-root و هیدراتاسیون React در وردپرس.",code:`/**
  * ==============================================================================
@@ -1884,7 +2097,7 @@ $footer_bio = get_theme_mod('sedrazavi_footer_bio', get_bloginfo('description'))
                     <p class="text-xs text-sr-muted leading-relaxed">
                         جهت دریافت تازه‌ترین گزارش‌ها و اطلاعیه‌های مجموعه، در خبرنامه ایمیلی عضو شوید:
                     </p>
-                    <form action="<?php echo esc_url(home_url('/#newsletter')); ?>" method="post" class="space-y-2">
+                    <form id="sr-footer-newsletter-form" onsubmit="return handleNewsletter(event)" action="<?php echo esc_url(rest_url('sedrazavi/v1/newsletter')); ?>" method="post" class="space-y-2">
                         <div class="relative">
                             <input type="email" name="newsletter_email" placeholder="ایمیل کاری خود را وارد کنید..." required class="w-full px-3 py-2 text-xs rounded-xl bg-sr-surface border border-sr-border text-sr-primary focus:outline-none focus:border-sr-gold transition-colors placeholder:text-sr-muted">
                             <button type="submit" class="absolute left-1.5 top-1.5 px-3 py-1 bg-sr-gold hover:bg-sr-gold-hover text-sr-text-inverted rounded-lg text-xs font-semibold transition-colors">
@@ -1913,13 +2126,13 @@ $footer_bio = get_theme_mod('sedrazavi_footer_bio', get_bloginfo('description'))
 <!-- سایدبار شناور طلایی اسکرول و ناوبری -->
 <aside class="sedrazavi-floating-gold-sidebar" aria-label="<?php esc_attr_e('ناوبری و اسکرول سریع', 'sedrazavi'); ?>">
     <div class="gold-sidebar-inner">
-        <div class="gold-scroll-badge" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="<?php esc_attr_e('درصد اسکرول - کلیک برای بازگشت به بالا', 'sedrazavi'); ?>">
+        <button type="button" class="gold-scroll-badge" onclick="window.scrollTo({top:0, behavior:'smooth'})" aria-label="<?php esc_attr_e('درصد اسکرول - کلیک برای بازگشت به بالا', 'sedrazavi'); ?>" title="<?php esc_attr_e('درصد اسکرول - کلیک برای بازگشت به بالا', 'sedrazavi'); ?>">
             <span class="gold-percent-num" id="sedrazavi-percent-display">0%</span>
-        </div>
-        <div class="gold-scroll-v-track">
+        </button>
+        <div class="gold-scroll-v-track" aria-hidden="true">
             <div class="gold-scroll-v-fill" id="sedrazavi-v-fill"></div>
         </div>
-        <button type="button" class="gold-btn-top" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="<?php esc_attr_e('بازگشت به بالای صفحه', 'sedrazavi'); ?>">
+        <button type="button" class="gold-btn-top" onclick="window.scrollTo({top:0, behavior:'smooth'})" aria-label="<?php esc_attr_e('بازگشت به بالای صفحه', 'sedrazavi'); ?>" title="<?php esc_attr_e('بازگشت به بالای صفحه', 'sedrazavi'); ?>">
             ▲
         </button>
     </div>
@@ -2596,6 +2809,35 @@ if (!function_exists('enqueue_react_assets')) {
             SEDRAZAVI_THEME_VERSION
         );
 
+        // 6.2b. Pure Vanilla Theme Interactions Script (Zero-React lightweight runtime for forms, FAQs, drawers & AJAX)
+        if (file_exists(SEDRAZAVI_THEME_DIR . '/assets/js/main.js')) {
+            $defer_args = function_exists('get_bloginfo') && version_compare(get_bloginfo('version'), '6.3', '>=')
+                ? ['in_footer' => true, 'strategy' => 'defer']
+                : true;
+            wp_enqueue_script(
+                'sedrazavi-main-js',
+                SEDRAZAVI_THEME_URI . '/assets/js/main.js',
+                ['jquery'],
+                SEDRAZAVI_THEME_VERSION,
+                $defer_args
+            );
+            $ajax_obj_payload = [
+                'ajax_url'   => admin_url('admin-ajax.php'),
+                'nonce'      => wp_create_nonce('sedrazavi_security_nonce'),
+                'rest_url'   => esc_url_raw(rest_url('sedrazavi/v1/')),
+                'rest_nonce' => wp_create_nonce('wp_rest'),
+                'theme_uri'  => esc_url_raw(SEDRAZAVI_THEME_URI),
+            ];
+            wp_localize_script('sedrazavi-main-js', 'sedrazavi_ajax_obj', $ajax_obj_payload);
+            wp_localize_script('sedrazavi-main-js', 'SedRazaviThemeConfig', [
+                'restUrl'   => $ajax_obj_payload['rest_url'],
+                'restNonce' => $ajax_obj_payload['rest_nonce'],
+                'ajaxUrl'   => $ajax_obj_payload['ajax_url'],
+                'ajaxNonce' => $ajax_obj_payload['nonce'],
+                'themeUri'  => $ajax_obj_payload['theme_uri'],
+            ]);
+        }
+
         // 6.3. Conditional check: load React engine & its CSS only when explicitly required by shortcodes or designer mount
         // Standard Elementor or Gutenberg pages do NOT load the React SPA bundle (1.7MB JS + CSS), ensuring ultra-fast LCP (100/100 Core Web Vitals) and zero bloat
         global $post;
@@ -2665,12 +2907,15 @@ if (!function_exists('enqueue_react_assets')) {
 
         // 6.5. Mount Engine Script
         if (file_exists(SEDRAZAVI_THEME_DIR . '/assets/js/sedrazavi-react-mount.js')) {
+            $defer_args = function_exists('get_bloginfo') && version_compare(get_bloginfo('version'), '6.3', '>=')
+                ? ['in_footer' => true, 'strategy' => 'defer']
+                : true;
             wp_enqueue_script(
                 'sedrazavi-react-mount-engine',
                 SEDRAZAVI_THEME_URI . '/assets/js/sedrazavi-react-mount.js',
                 [$enqueued_js_handle ?: 'jquery'],
                 SEDRAZAVI_THEME_VERSION,
-                true
+                $defer_args
             );
         }
 
@@ -3059,8 +3304,8 @@ if (isset($_GET['header_style']) && in_array($_GET['header_style'], $allowed_hea
             <?php endif; ?>
 
             <!-- منوی موبایل -->
-            <button id="mobile-menu-btn" class="hamburger-btn xl:hidden" aria-label="<?php esc_attr_e('منوی موبایل', 'sedrazavi'); ?>">
-                <svg class="w-5 h-5 text-sr-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <button id="mobile-menu-btn" type="button" class="hamburger-btn xl:hidden" aria-expanded="false" aria-controls="mobile-menu-drawer" aria-label="<?php esc_attr_e('منوی موبایل', 'sedrazavi'); ?>">
+                <svg aria-hidden="true" class="w-5 h-5 text-sr-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -3072,7 +3317,7 @@ if (isset($_GET['header_style']) && in_array($_GET['header_style'], $allowed_hea
 </header>
 
 <!-- منوی کشویی واکنش‌گرا موبایل (Mobile Drawer Menu) -->
-<div id="mobile-menu-drawer" class="mobile-menu-drawer" role="dialog" aria-modal="true">
+<div id="mobile-menu-drawer" class="mobile-menu-drawer" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e('منوی ناوبری موبایل', 'sedrazavi'); ?>">
     <div id="mobile-menu-backdrop" class="mobile-drawer-backdrop"></div>
     <div class="mobile-drawer-panel">
         <div>
@@ -3264,6 +3509,8 @@ class SedRazavi_API_Handlers {
      */
     public static function init() {
         add_action('rest_api_init', [__CLASS__, 'register_profile_routes']);
+        add_action('wp_ajax_sedrazavi_send_reply_email', [__CLASS__, 'handle_ajax_send_reply_email']);
+        add_action('wp_ajax_sedrazavi_moderate_comment_action', [__CLASS__, 'handle_ajax_moderate_comment']);
     }
 
     /**
@@ -3453,6 +3700,73 @@ class SedRazavi_API_Handlers {
             return self::handle_save_profile_settings($request);
         }
         return self::handle_get_profile_settings();
+    }
+
+    /**
+     * Handle authorized front-end email reply composer (template-emails.php)
+     */
+    public static function handle_ajax_send_reply_email() {
+        check_ajax_referer('sedrazavi_security_nonce', 'security');
+        if (!current_user_can('edit_others_posts')) {
+            wp_send_json_error(['message' => 'شما مجوز ارسال پاسخ رسمی از صندوق پیام‌ها را ندارید.'], 403);
+        }
+
+        $raw_to  = isset($_POST['to']) ? wp_unslash((string) $_POST['to']) : '';
+        $subject = isset($_POST['subject']) ? sanitize_text_field(wp_unslash((string) $_POST['subject'])) : '';
+        $body    = isset($_POST['body']) ? sanitize_textarea_field(wp_unslash((string) $_POST['body'])) : '';
+
+        // Extract valid email from "Name <email@domain>" or plain email
+        $to_email = '';
+        if (preg_match('/<([^>]+)>/', $raw_to, $m)) {
+            $to_email = sanitize_email($m[1]);
+        } else {
+            $to_email = sanitize_email($raw_to);
+        }
+
+        if (empty($to_email) || !is_email($to_email)) {
+            wp_send_json_error(['message' => 'نشانی ایمیل گیرنده معتبر نیست.'], 400);
+        }
+        if (empty($subject) || empty($body)) {
+            wp_send_json_error(['message' => 'موضوع و متن پاسخ الزامی است.'], 400);
+        }
+
+        $headers = ['Content-Type: text/plain; charset=UTF-8'];
+        $sent = wp_mail($to_email, $subject, $body, $headers);
+        if (!$sent) {
+            wp_send_json_error(['message' => 'سرور ایمیل وردپرس نتوانست ایمیل را ارسال کند. تنظیمات SMTP را بررسی نمایید.'], 500);
+        }
+
+        wp_send_json_success(['message' => 'پاسخ رسمی با موفقیت ارسال گردید.']);
+    }
+
+    /**
+     * Handle authorized front-end comment moderation (template-comments.php)
+     */
+    public static function handle_ajax_moderate_comment() {
+        check_ajax_referer('sedrazavi_security_nonce', 'security');
+        if (!current_user_can('moderate_comments')) {
+            wp_send_json_error(['message' => 'شما مجوز مدیریت دیدگاه‌ها را ندارید.'], 403);
+        }
+
+        $comment_id = isset($_POST['comment_id']) ? absint($_POST['comment_id']) : 0;
+        $mod_action = isset($_POST['mod_action']) ? sanitize_key($_POST['mod_action']) : '';
+
+        if (!$comment_id || !in_array($mod_action, ['approve', 'unapprove', 'spam', 'trash'], true)) {
+            wp_send_json_error(['message' => 'پارامترهای عملیات دیدگاه نامعتبر است.'], 400);
+        }
+
+        $status_map = [
+            'approve'   => 'approve',
+            'unapprove' => 'hold',
+            'spam'      => 'spam',
+            'trash'     => 'trash',
+        ];
+        $res = wp_set_comment_status($comment_id, $status_map[$mod_action]);
+        if (!$res || is_wp_error($res)) {
+            wp_send_json_error(['message' => 'به‌روزرسانی وضعیت دیدگاه در دیتابیس انجام نشد.'], 500);
+        }
+
+        wp_send_json_success(['message' => 'وضعیت دیدگاه با موفقیت به‌روزرسانی شد.', 'status' => $status_map[$mod_action]]);
     }
 }
 
@@ -7921,12 +8235,15 @@ function sedrazavi_register_react_assets() {
     );
 
     // ثبت اسکریپت اجرایی React و رجیستری مؤلفه‌ها
+    $defer_args = function_exists('get_bloginfo') && version_compare(get_bloginfo('version'), '6.3', '>=')
+        ? array('in_footer' => true, 'strategy' => 'defer')
+        : true;
     wp_register_script(
         'sedrazavi_react_bundle',
         $js_bundle,
         array(),
         $version,
-        true // لود در فوتر صفحه جهت بهینه‌سازی سرعت و امتیاز Core Web Vitals
+        $defer_args
     );
 }
 add_action('wp_enqueue_scripts', 'sedrazavi_register_react_assets', 10);
@@ -9196,6 +9513,22 @@ class SedRazavi_REST_API {
         register_rest_route(self::NAMESPACE, '/newsletter', array(
             'methods'             => 'POST',
             'callback'            => array(__CLASS__, 'handle_newsletter_subscribe'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // 23. General Project & Consultation Inquiry Submit: wp-json/sedrazavi/v1/inquiry/submit
+        // Decision: PUBLIC - Prospective client inquiry form (Rate limited + Honeypot guarded)
+        register_rest_route(self::NAMESPACE, '/inquiry/submit', array(
+            'methods'             => 'POST',
+            'callback'            => array(__CLASS__, 'handle_inquiry_submit'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // 24. Client Satisfaction Survey Submit: wp-json/sedrazavi/v1/survey/submit
+        // Decision: PUBLIC - Client feedback submission (Rate limited)
+        register_rest_route(self::NAMESPACE, '/survey/submit', array(
+            'methods'             => 'POST',
+            'callback'            => array(__CLASS__, 'handle_survey_submit'),
             'permission_callback' => '__return_true',
         ));
     }
@@ -10580,6 +10913,169 @@ class SedRazavi_REST_API {
             'message' => 'عضویت شما در خبرنامه حقوقی با موفقیت ثبت شد.',
         ), 200);
     }
+
+    /**
+     * 23. Handle General / Agency / Widget Inquiry Submit
+     */
+    public static function handle_inquiry_submit($request) {
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('inquiry_submit', 8, 600)) {
+            return new WP_REST_Response(array(
+                'success'      => false,
+                'rate_limited' => true,
+                'message'      => 'تعداد درخواست‌های ارسالی بیش از حد مجاز است. لطفاً دقایقی دیگر تلاش فرمایید.',
+            ), 429);
+        }
+
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::verify_request_nonce($request)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'کد امنیتی نانس نامعتبر است یا نشست شما منقضی شده است.',
+            ), 403);
+        }
+
+        $params = $request->get_json_params();
+        if (!is_array($params) || empty($params)) {
+            $params = $request->get_params();
+        }
+
+        // Honeypot check
+        if (!empty($params['website_hp']) || !empty($params['sr_website_trap'])) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'درخواست نامعتبر تشخیص داده شد.',
+            ), 403);
+        }
+
+        $raw_name = isset($params['name']) ? $params['name'] : (isset($params['full_name']) ? $params['full_name'] : '');
+        $name = class_exists('SedRazavi_Rate_Limiter')
+            ? SedRazavi_Rate_Limiter::sanitize_strict_input($raw_name)
+            : sanitize_text_field(wp_unslash((string) $raw_name));
+
+        $raw_contact = isset($params['contact']) ? $params['contact'] : (isset($params['phone']) ? $params['phone'] : (isset($params['client_phone']) ? $params['client_phone'] : ''));
+        $contact = sanitize_text_field(wp_unslash((string) $raw_contact));
+
+        $raw_type = isset($params['project_type']) ? $params['project_type'] : (isset($params['service_type']) ? $params['service_type'] : 'استعلام عمومی');
+        $service_type = sanitize_text_field(wp_unslash((string) $raw_type));
+
+        $raw_details = isset($params['details']) ? $params['details'] : (isset($params['notes']) ? $params['notes'] : '');
+        $details = class_exists('SedRazavi_Rate_Limiter')
+            ? SedRazavi_Rate_Limiter::sanitize_multiline_input($raw_details)
+            : sanitize_textarea_field(wp_unslash((string) $raw_details));
+
+        $email = isset($params['email']) ? sanitize_email(wp_unslash((string) $params['email'])) : '';
+
+        if (empty($contact)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'شماره تماس یا راه ارتباطی معتبر الزامی است.',
+            ), 400);
+        }
+
+        if (empty($name)) {
+            $name = 'متقاضی وب‌سایت';
+        }
+
+        $post_id = wp_insert_post(array(
+            'post_title'   => sprintf('استعلام جدید: %s (%s)', $name, $contact),
+            'post_type'    => 'sedrazavi_message',
+            'post_status'  => 'publish',
+            'post_content' => $details !== '' ? $details : ('نوع درخواست: ' . $service_type),
+        ));
+
+        if (!$post_id || is_wp_error($post_id)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'خطا در ثبت استعلام در پایگاه داده. لطفاً مجدداً تلاش فرمایید.',
+            ), 500);
+        }
+
+        $tracking_code = 'INQ-' . $post_id;
+        update_post_meta($post_id, '_sedrazavi_sender_name', $name);
+        update_post_meta($post_id, '_sedrazavi_sender_phone', $contact);
+        update_post_meta($post_id, '_sedrazavi_sender_email', $email);
+        update_post_meta($post_id, '_sedrazavi_service_type', $service_type);
+        update_post_meta($post_id, '_sedrazavi_tracking_code', $tracking_code);
+        update_post_meta($post_id, '_sedrazavi_msg_status', 'unread');
+        update_post_meta($post_id, '_sedrazavi_created_at', current_time('mysql'));
+
+        $admin_email = get_option('admin_email');
+        if (!empty($admin_email)) {
+            $subject = 'استعلام جدید وب‌سایت: ' . $name . ' [' . $tracking_code . ']';
+            $body = sprintf(
+                "یک درخواست / استعلام جدید ثبت شد:\\n\\nکد پیگیری: %s\\nنام متقاضی: %s\\nراه ارتباطی: %s\\nموضوع: %s\\nشرح: %s\\nزمان ثبت: %s\\n",
+                $tracking_code,
+                $name,
+                $contact,
+                $service_type,
+                $details,
+                current_time('mysql')
+            );
+            @wp_mail($admin_email, $subject, $body);
+        }
+
+        return new WP_REST_Response(array(
+            'success'       => true,
+            'inquiry_id'    => $post_id,
+            'tracking_code' => $tracking_code,
+            'message'       => sprintf('درخواست شما با کد پیگیری %s با موفقیت در سیستم ثبت گردید.', $tracking_code),
+        ), 200);
+    }
+
+    /**
+     * 24. Handle Client Satisfaction Survey Submit
+     */
+    public static function handle_survey_submit($request) {
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('survey_submit', 5, 600)) {
+            return new WP_REST_Response(array(
+                'success'      => false,
+                'rate_limited' => true,
+                'message'      => 'تعداد نظرات ثبت‌شده بیش از حد مجاز است. لطفاً کمی بعد تلاش فرمایید.',
+            ), 429);
+        }
+
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::verify_request_nonce($request)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'کد امنیتی نانس نامعتبر است یا نشست شما منقضی شده است.',
+            ), 403);
+        }
+
+        $params = $request->get_json_params();
+        if (!is_array($params) || empty($params)) {
+            $params = $request->get_params();
+        }
+
+        $rating  = isset($params['rating']) ? max(1, min(5, intval($params['rating']))) : 5;
+        $comment = isset($params['comment'])
+            ? (class_exists('SedRazavi_Rate_Limiter') ? SedRazavi_Rate_Limiter::sanitize_multiline_input($params['comment']) : sanitize_textarea_field(wp_unslash((string) $params['comment'])))
+            : '';
+
+        $post_id = wp_insert_post(array(
+            'post_title'   => sprintf('بازخورد موکل (%d از ۵ ستاره)', $rating),
+            'post_type'    => 'sedrazavi_message',
+            'post_status'  => 'publish',
+            'post_content' => $comment !== '' ? $comment : 'ثبت امتیاز بدون متن توضیحی',
+        ));
+
+        if (!$post_id || is_wp_error($post_id)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'خطا در ذخیره‌سازی بازخورد در پایگاه داده.',
+            ), 500);
+        }
+
+        update_post_meta($post_id, '_sedrazavi_msg_type', 'survey');
+        update_post_meta($post_id, '_sedrazavi_survey_rating', $rating);
+        update_post_meta($post_id, '_sedrazavi_msg_status', 'unread');
+        update_post_meta($post_id, '_sedrazavi_created_at', current_time('mysql'));
+
+        return new WP_REST_Response(array(
+            'success'   => true,
+            'survey_id' => $post_id,
+            'rating'    => $rating,
+            'message'   => 'سپاسگزاریم! دیدگاه و امتیاز شما با موفقیت در سامانه ثبت گردید.',
+        ), 200);
+    }
 }
 
 SedRazavi_REST_API::init();
@@ -10615,7 +11111,7 @@ class SedRazavi_Scenario_Controller {
 
     private function __construct() {
         add_action('init', array($this, 'register_scenario_settings'));
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_scenario_assets'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_scenario_assets'), 20);
         add_action('wp_ajax_sedrazavi_switch_scenario', array($this, 'ajax_switch_scenario'));
         add_action('wp_ajax_nopriv_sedrazavi_switch_scenario', array($this, 'ajax_switch_scenario'));
         add_shortcode('sedrazavi_bento_hub', array($this, 'render_bento_hub_shortcode'));
@@ -11015,12 +11511,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-if (!function_exists('sedrazavi_render_dynamic_seo_tags')) {
-function sedrazavi_render_dynamic_seo_tags() {
+if (!function_exists('sedrazavi_get_dynamic_page_title')) {
+function sedrazavi_get_dynamic_page_title($default_title = '') {
     $site_name = get_bloginfo('name') ?: 'دفتر وکالت دکتر سیده مریم رضوی';
     $site_desc = get_bloginfo('description') ?: 'مشاوره حقوقی تخصصی، داوری و وکالت پایه یک دادگستری';
 
-    // 1. Dynamic Title
     if (is_front_page() || is_home()) {
         $page_title = $site_name . ' | ' . $site_desc;
     } elseif (is_page('contact') || is_page_template('page-contact.php')) {
@@ -11042,9 +11537,29 @@ function sedrazavi_render_dynamic_seo_tags() {
     } elseif (is_404()) {
         $page_title = 'برگه یافت نشد (خطای ۴۰۴) | ' . $site_name;
     } else {
-        $page_title = wp_get_document_title();
+        $page_title = $default_title ?: ($site_name . ' | ' . $site_desc);
     }
-    $page_title = esc_html(wp_strip_all_tags($page_title));
+    return wp_strip_all_tags($page_title);
+}
+}
+
+add_filter('pre_get_document_title', function($title) {
+    if (defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION') || function_exists('seopress_init')) {
+        return $title;
+    }
+    return sedrazavi_get_dynamic_page_title($title);
+}, 20);
+
+if (!function_exists('sedrazavi_render_dynamic_seo_tags')) {
+function sedrazavi_render_dynamic_seo_tags() {
+    $site_name = get_bloginfo('name') ?: 'دفتر وکالت دکتر سیده مریم رضوی';
+    $site_desc = get_bloginfo('description') ?: 'مشاوره حقوقی تخصصی، داوری و وکالت پایه یک دادگستری';
+
+    $has_third_party_seo = defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION') || function_exists('seopress_init');
+    $has_companion_og = class_exists('SedRazavi_SEO_Engine');
+
+    // 1. Dynamic Title (rendered here only if core title-tag is not active, avoiding duplicate <title>)
+    $page_title = esc_html(sedrazavi_get_dynamic_page_title());
 
     // 2. Dynamic Canonical & Open Graph URL
     if (is_front_page() || is_home()) {
@@ -11101,13 +11616,18 @@ function sedrazavi_render_dynamic_seo_tags() {
 
     ?>
     <!-- SedRazavi Dynamic Primary Meta Tags -->
+    <?php if (!$has_third_party_seo && (!function_exists('current_theme_supports') || !current_theme_supports('title-tag'))): ?>
     <title><?php echo $page_title; ?></title>
+    <?php endif; ?>
+    <?php if (!$has_third_party_seo): ?>
     <meta name="description" content="<?php echo $meta_desc; ?>" />
     <meta name="keywords" content="<?php echo $keywords; ?>" />
     <meta name="author" content="<?php echo $lawyer_name; ?>" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="<?php echo $canonical_url; ?>" />
+    <?php endif; ?>
 
+    <?php if (!$has_third_party_seo && !$has_companion_og): ?>
     <!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
     <meta property="og:locale" content="fa_IR" />
     <meta property="og:type" content="<?php echo is_singular() ? 'article' : 'website'; ?>" />
@@ -11124,6 +11644,7 @@ function sedrazavi_render_dynamic_seo_tags() {
     <meta name="twitter:title" content="<?php echo $page_title; ?>" />
     <meta name="twitter:description" content="<?php echo $meta_desc; ?>" />
     <meta name="twitter:image" content="<?php echo $og_image; ?>" />
+    <?php endif; ?>
 
     <!-- Local SEO Geo Meta Tags (Tehran Vanak) -->
     <meta name="geo.region" content="IR-07" />
@@ -11751,7 +12272,7 @@ if (!defined('ABSPATH')) {
 
 if (!function_exists('sedrazavi_skeleton_placeholder')) {
 function sedrazavi_skeleton_placeholder($type = 'card') {
-    return '<div class="animate-pulse bg-gray-200 dark:bg-gray-800 rounded-2xl h-48 w-full"></div>';
+    return '<div class="animate-pulse bg-gray-200 dark:bg-gray-800 rounded-2xl h-48 w-full" role="status" aria-busy="true" aria-label="' . esc_attr__('در حال بارگذاری...', 'sedrazavi') . '"><span class="screen-reader-text">' . esc_html__('در حال بارگذاری...', 'sedrazavi') . '</span></div>';
 }
 }
 `},{path:"inc/wp-rest-auth.php",filename:"wp-rest-auth.php",category:"بخش‌های داخلی (Inc)",description:"لایه احراز هویت و بررسی نانس و دسترسی داسکیه پرونده‌ها.",code:`<?php
@@ -16896,10 +17417,17 @@ get_header();
                     <p style="font-size: 13px; color: #94A3B8; margin-bottom: 16px;">
                         مدت زمان: ۴۵ دقیقه · گوینده: دکتر سیده مریم رضوی · تاریخ انتشار: ۱۸ مهر ۱۴۰۳
                     </p>
-                    <audio controls style="width: 100%; border-radius: 8px;">
-                        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-                        مرورگر شما از پخش صدا پشتیبانی نمی‌کند.
-                    </audio>
+                    <?php $featured_audio_url = get_theme_mod('sr_featured_podcast_audio_url', ''); ?>
+                    <?php if (!empty($featured_audio_url)): ?>
+                        <audio controls preload="metadata" style="width: 100%; border-radius: 8px;">
+                            <source src="<?php echo esc_url($featured_audio_url); ?>" type="audio/mpeg">
+                            مرورگر شما از پخش صدا پشتیبانی نمی‌کند.
+                        </audio>
+                    <?php else: ?>
+                        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(15, 23, 42, 0.7); border: 1px dashed rgba(244, 114, 182, 0.4); color: #CBD5E1; font-size: 12px;">
+                            فایل صوتی اپیزود شاخص از طریق تنظیمات سفارشی‌ساز (<code>sr_featured_podcast_audio_url</code>) قابل اتصال است.
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -18416,11 +18944,12 @@ get_header();
                         <input type="text" id="case-code" required placeholder="مثال: SR-1402-8821" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-mono" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">کد ملی موکل:</label>
-                        <input type="text" id="national-code" placeholder="۱۰ رقم کد ملی" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-mono" />
+                        <label class="block text-xs font-bold text-gray-700 mb-1">شماره همراه ثبت‌شده موکل:</label>
+                        <input type="tel" id="tracking-phone" dir="ltr" required placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-mono text-left" />
                     </div>
                 </div>
-                <button type="submit" class="btn-gold px-6 py-2.5 rounded-xl font-bold text-xs shadow-md">استعلام آنلاین پرونده</button>
+                <button type="submit" class="btn-gold px-6 py-2.5 rounded-xl font-bold text-xs shadow-md cursor-pointer">استعلام آنلاین پرونده</button>
+                <div id="tracking-result-box" role="status" aria-live="polite" class="hidden p-4 rounded-xl text-xs leading-relaxed"></div>
             </form>
         </div>
 
@@ -18428,6 +18957,64 @@ get_header();
         <?php echo do_shortcode('[sedrazavi_gold_scroll]'); ?>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tf = document.getElementById('tracking-form');
+    if (!tf) return;
+    tf.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var code = (document.getElementById('case-code') || {}).value || '';
+        var phone = (document.getElementById('tracking-phone') || {}).value || '';
+        var box = document.getElementById('tracking-result-box');
+        var btn = tf.querySelector('button[type="submit"]');
+        var cfg = window.SedRazaviThemeConfig || {};
+        var endpoint = (cfg.restUrl ? cfg.restUrl : '<?php echo esc_js(esc_url_raw(rest_url('sedrazavi/v1/'))); ?>') + 'track-case';
+        if (!code.trim() || !phone.trim()) {
+            if (box) {
+                box.className = 'p-4 rounded-xl text-xs leading-relaxed bg-red-50 border border-red-200 text-red-700';
+                box.textContent = 'وارد کردن شماره پرونده و شماره همراه ثبت‌شده موکل الزامی است.';
+            }
+            return;
+        }
+        if (btn) btn.disabled = true;
+        if (box) {
+            box.className = 'p-4 rounded-xl text-xs leading-relaxed bg-gray-50 border border-gray-200 text-gray-700';
+            box.textContent = 'در حال استعلام از سامانه پرونده‌ها...';
+        }
+        fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-WP-Nonce': cfg.restNonce || ''
+            },
+            body: JSON.stringify({ case_number: code.trim(), client_phone: phone.trim() })
+        })
+        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+        .then(function(res) {
+            if (btn) btn.disabled = false;
+            if (res.ok && res.data && res.data.found) {
+                if (box) {
+                    box.className = 'p-4 rounded-xl text-xs leading-relaxed bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-1';
+                    box.textContent = 'وضعیت پرونده ' + (res.data.case_number || code) + ': ' + (res.data.status || '') + ' | شعبه: ' + (res.data.court_branch || '') + ' | جلسه بعدی: ' + (res.data.next_session || '');
+                }
+            } else {
+                if (box) {
+                    box.className = 'p-4 rounded-xl text-xs leading-relaxed bg-red-50 border border-red-200 text-red-700';
+                    box.textContent = (res.data && res.data.message) ? res.data.message : 'پرونده‌ای با این مشخصات یافت نشد.';
+                }
+            }
+        })
+        .catch(function() {
+            if (btn) btn.disabled = false;
+            if (box) {
+                box.className = 'p-4 rounded-xl text-xs leading-relaxed bg-red-50 border border-red-200 text-red-700';
+                box.textContent = 'خطا در برقراری ارتباط با سرور استعلام.';
+            }
+        });
+    });
+});
+<\/script>
 
 <?php get_footer(); ?>`},{path:"page-verify.php",filename:"page-verify.php",category:"برگه‌ها و آرشیوها",description:"قالب اختصاصی برگه وردپرس (page-verify.php) سازگار با المنتور و شورت‌کدهای تعاملی.",code:`<?php
 /**
@@ -21712,10 +22299,51 @@ img {
 .entry-title { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 16px; }
 .entry-content { line-height: 1.8; color: #cbd5e1; font-size: 16px; }
 .site-header { width: 100%; position: relative; }
-.site-footer { width: 100%; position: relative; }
+.site-footer { width: 100%; position: relative; contain: layout style; }
 .site-main { width: 100%; position: relative; }
 .sr-cockpit-page-container { width: 100%; position: relative; }
 .sr-standalone-theme { min-height: 100vh; background: #0b0f19; color: #f8fafc; }
+.sedrazavi-floating-gold-sidebar { contain: layout style; }
+
+/* Stage 6: WCAG 2.1 AA Accessibility & Reduced Motion */
+.skip-link.screen-reader-text {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  z-index: 99999;
+}
+.skip-link.screen-reader-text:focus {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  left: auto;
+  background: #0B132B;
+  color: #D4AF37;
+  border: 2px solid #D4AF37;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+}
+
+:focus-visible {
+  outline: 2px solid #D4AF37;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 
 `},{path:"tag.php",filename:"tag.php",category:"برگه‌ها و آرشیوها",description:"فایل رسمی پوسته وردپرس: tag.php",code:`<?php
 /**
@@ -21851,12 +22479,15 @@ $comments = $comments_query->query($args);
             <?php endif; ?>
         </div>
 
+        <div id="sr-comments-mod-feedback" role="status" aria-live="polite" class="hidden mt-4 p-4 rounded-2xl text-xs font-bold bg-red-500/10 border border-red-500/40 text-red-500"></div>
+
     </div>
 </div>
 
 <script>
 function sedrazaviModComment(commentId, action) {
     if (!confirm('آیا از انجام این عملیات روی دیدگاه اطمینان دارید؟')) return;
+    var fb = document.getElementById('sr-comments-mod-feedback');
     jQuery.post(sedrazavi_ajax_obj.ajax_url, {
         action: 'sedrazavi_moderate_comment_action',
         security: sedrazavi_ajax_obj.nonce,
@@ -21865,8 +22496,9 @@ function sedrazaviModComment(commentId, action) {
     }, function(res) {
         if (res.success) {
             location.reload();
-        } else {
-            alert(res.data.message || 'خطا در انجام عملیات');
+        } else if (fb) {
+            fb.classList.remove('hidden');
+            fb.textContent = (res.data && res.data.message) ? res.data.message : 'خطا در انجام عملیات';
         }
     });
 }
@@ -22083,6 +22715,7 @@ $messages_query = new WP_Query(array(
                         <button type="button" onclick="sedrazaviSendEmailReply()" class="btn-gold w-full text-xs py-2.5">
                             <span>ارسال پاسخ از طریق سرور امن</span>
                         </button>
+                        <div id="front-email-reply-feedback" role="status" aria-live="polite" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
                     </form>
                 </div>
             </div>
@@ -22098,13 +22731,22 @@ function sedrazaviSelectMsg(name, email, subject) {
     document.getElementById('reply-subject').value = 'پاسخ به: ' + subject;
 }
 
+function sedrazaviShowEmailFeedback(msg, isError) {
+    var fb = document.getElementById('front-email-reply-feedback');
+    if (!fb) return;
+    fb.className = 'p-3 rounded-xl text-xs font-semibold border ' + (isError
+        ? 'bg-red-500/10 border-red-500/40 text-red-500'
+        : 'bg-emerald-500/10 border-emerald-500/40 text-emerald-500');
+    fb.textContent = msg;
+}
+
 function sedrazaviSendEmailReply() {
     var to = document.getElementById('reply-to').value;
     var subject = document.getElementById('reply-subject').value;
     var body = document.getElementById('reply-body').value;
 
     if (!to || !body) {
-        alert('لطفاً ابتدا یک پیام را انتخاب کرده و متن پاسخ را درج نمایید.');
+        sedrazaviShowEmailFeedback('لطفاً ابتدا یک پیام را انتخاب کرده و متن پاسخ را درج نمایید.', true);
         return;
     }
 
@@ -22116,10 +22758,10 @@ function sedrazaviSendEmailReply() {
         body: body
     }, function(res) {
         if (res.success) {
-            alert('پاسخ با موفقیت برای موکل ارسال شد.');
+            sedrazaviShowEmailFeedback('پاسخ با موفقیت برای موکل ارسال شد.', false);
             document.getElementById('reply-body').value = '';
         } else {
-            alert(res.data.message || 'خطا در ارسال ایمیل');
+            sedrazaviShowEmailFeedback((res.data && res.data.message) ? res.data.message : 'خطا در ارسال ایمیل', true);
         }
     });
 }
@@ -22248,21 +22890,23 @@ if (!defined('ABSPATH')) {
                 <p class="text-xs text-slate-400">مشخصات اولیه سایت مدنظرتان را ارسال کنید تا کارشناسان ما ظرف ۲ ساعت کاری با شما تماس بگیرند.</p>
             </div>
 
-            <form onsubmit="event.preventDefault(); alert('درخواست پروژه شما ثبت شد. با تشکر!');" class="space-y-6 text-right">
+            <div id="sr-agency-brief-feedback" role="status" aria-live="polite" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
+            <form id="sr-agency-brief-form" class="space-y-6 text-right" method="post" action="<?php echo esc_url(rest_url('sedrazavi/v1/inquiry/submit')); ?>">
+                <input type="text" name="website_hp" value="" tabindex="-1" autocomplete="off" style="display:none !important;" aria-hidden="true" />
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">نام و نام‌خانوادگی</label>
-                        <input type="text" required placeholder="مثال: علی رضایی" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none" />
+                        <input type="text" name="name" required placeholder="مثال: علی رضایی" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none" />
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">شماره تماس همراه</label>
-                        <input type="tel" required placeholder="0912*******" dir="ltr" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none text-right" />
+                        <input type="tel" name="contact" required placeholder="0912*******" dir="ltr" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none text-right" />
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1.5">صنف و نوع پروژه مدنظر</label>
-                    <select class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none">
+                    <select name="project_type" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none">
                         <option value="agency">سایت پورتفولیو و آژانس دیجیتال</option>
                         <option value="store">فروشگاه آنلاین ووکامرس</option>
                         <option value="corporate">پورتال شرکتی و سازمانی</option>
@@ -22273,13 +22917,69 @@ if (!defined('ABSPATH')) {
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1.5">توضیحات و نیازمندی‌های خاص</label>
-                    <textarea rows="3" placeholder="امکانات، تعداد صفحات و زمان‌بندی مدنظر خود را بنویسید..." class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none"></textarea>
+                    <textarea name="details" rows="3" placeholder="امکانات، تعداد صفحات و زمان‌بندی مدنظر خود را بنویسید..." class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-blue-500 focus:outline-none"></textarea>
                 </div>
 
                 <button type="submit" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition-all cursor-pointer">
-                    ارسال استعلام و دریافت پیش‌فاکتور آنلاین ←
+                    ارسال استعلام و دریافت کد پیگیری ←
                 </button>
             </form>
+            <script>
+            (function() {
+                var briefForm = document.getElementById('sr-agency-brief-form');
+                if (!briefForm) return;
+                briefForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var fb = document.getElementById('sr-agency-brief-feedback');
+                    var btn = briefForm.querySelector('button[type="submit"]');
+                    var cfg = window.SedRazaviThemeConfig || {};
+                    var endpoint = (cfg.restUrl ? cfg.restUrl + 'inquiry/submit' : briefForm.getAttribute('action'));
+                    var fd = new FormData(briefForm);
+                    if (btn) btn.disabled = true;
+                    if (fb) {
+                        fb.className = 'p-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold';
+                        fb.textContent = 'در حال ثبت اطلاعات در سامانه...';
+                    }
+                    fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-WP-Nonce': cfg.restNonce || ''
+                        },
+                        body: JSON.stringify({
+                            name: fd.get('name') || '',
+                            contact: fd.get('contact') || '',
+                            project_type: fd.get('project_type') || 'agency',
+                            details: fd.get('details') || '',
+                            website_hp: fd.get('website_hp') || ''
+                        })
+                    })
+                    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+                    .then(function(res) {
+                        if (btn) btn.disabled = false;
+                        if (res.ok && res.data && res.data.success) {
+                            if (fb) {
+                                fb.className = 'p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-semibold';
+                                fb.textContent = res.data.message || 'درخواست شما با موفقیت در سیستم ثبت شد.';
+                            }
+                            briefForm.reset();
+                        } else {
+                            if (fb) {
+                                fb.className = 'p-3 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-semibold';
+                                fb.textContent = (res.data && res.data.message) ? res.data.message : 'خطا در ثبت اطلاعات. لطفاً مجدداً تلاش کنید.';
+                            }
+                        }
+                    })
+                    .catch(function() {
+                        if (btn) btn.disabled = false;
+                        if (fb) {
+                            fb.className = 'p-3 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-semibold';
+                            fb.textContent = 'عدم برقراری ارتباط با سرور. لطفاً اتصال اینترنت را بررسی فرمایید.';
+                        }
+                    });
+                });
+            })();
+            <\/script>
         </div>
     </section>
 
@@ -23139,12 +23839,13 @@ if (!defined('ABSPATH')) {
             <div class="text-center space-y-2 mb-6">
                 <span class="text-xs font-bold text-sr-gold">سامانه محرمانه موکلین</span>
                 <h3 class="text-2xl font-bold font-serif text-sr-primary">پیگیری آنلاین و لحظه‌ای پرونده قضایی</h3>
-                <p class="text-xs text-sr-muted">کد پرونده (مانند SR-1403-882) یا شماره همراه ثبت‌شده را وارد فرمایید:</p>
+                <p class="text-xs text-sr-muted">کد پرونده (مانند SR-1403-882) و شماره همراه ثبت‌شده موکل را جهت احراز محرمانگی وارد فرمایید:</p>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-3">
-                <input type="text" id="case-search-input" placeholder="نمونه: SR-1403-882 یا شماره همراه موکل" class="flex-1 px-4 py-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm focus:outline-none focus:border-[#D4AF37]" />
-                <button onclick="searchCaseStatus()" class="btn-gold px-8 py-3 rounded-xl font-bold text-sm cursor-pointer flex items-center justify-center gap-2">
+                <input type="text" id="case-search-input" placeholder="شماره پرونده (مثال: SR-1403-882)" class="flex-1 px-4 py-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm focus:outline-none focus:border-[#D4AF37]" />
+                <input type="tel" id="case-search-phone" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹ (شماره ثبت‌شده)" class="sm:w-56 px-4 py-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm text-left font-mono focus:outline-none focus:border-[#D4AF37]" />
+                <button type="button" onclick="searchCaseStatus()" class="btn-gold px-8 py-3 rounded-xl font-bold text-sm cursor-pointer flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -23304,11 +24005,15 @@ if (!defined('ABSPATH')) {
             <button onclick="closeSurveyModal()" class="text-sr-muted hover:text-sr-primary cursor-pointer">&times;</button>
         </div>
         <p class="text-xs text-sr-secondary">دیدگاه ارزشمند شما ما را در ارتقای سطح استانداردهای دادرسی و پاسخگویی یاری می‌نماید.</p>
-        <div class="flex items-center justify-center gap-2 text-2xl text-sr-gold py-2 cursor-pointer">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+        <div id="survey-stars" data-rating="5" class="flex items-center justify-center gap-2 text-2xl text-sr-gold py-2 cursor-pointer">
+            <button type="button" onclick="selectSurveyRating(1)" data-val="1" class="sr-survey-star cursor-pointer" aria-label="۱ ستاره">★</button>
+            <button type="button" onclick="selectSurveyRating(2)" data-val="2" class="sr-survey-star cursor-pointer" aria-label="۲ ستاره">★</button>
+            <button type="button" onclick="selectSurveyRating(3)" data-val="3" class="sr-survey-star cursor-pointer" aria-label="۳ ستاره">★</button>
+            <button type="button" onclick="selectSurveyRating(4)" data-val="4" class="sr-survey-star cursor-pointer" aria-label="۴ ستاره">★</button>
+            <button type="button" onclick="selectSurveyRating(5)" data-val="5" class="sr-survey-star cursor-pointer" aria-label="۵ ستاره">★</button>
         </div>
-        <textarea rows="3" placeholder="دیدگاه یا پیشنهاد خود را مرقوم بفرمایید..." class="w-full p-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-xs focus:border-[#D4AF37] focus:outline-none"></textarea>
-        <button onclick="submitSurvey()" class="btn-gold w-full py-2.5 rounded-xl font-bold text-xs cursor-pointer">
+        <textarea id="survey-comment" rows="3" placeholder="دیدگاه یا پیشنهاد خود را مرقوم بفرمایید..." class="w-full p-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-xs focus:border-[#D4AF37] focus:outline-none"></textarea>
+        <button type="button" id="survey-submit-btn" onclick="submitSurvey()" class="btn-gold w-full py-2.5 rounded-xl font-bold text-xs cursor-pointer">
             ثبت و ارسال بازخورد
         </button>
     </div>
@@ -23426,10 +24131,11 @@ if (!defined('ABSPATH')) {
                     <a href="#products-showcase" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition-all">
                         مشاهده ویترین محصولات ←
                     </a>
-                    <button type="button" onclick="if(document.getElementById('sr-slideover-cart-drawer')) document.getElementById('sr-slideover-cart-drawer').style.display='block';" class="px-5 py-3 rounded-xl bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-200 text-xs font-semibold">
+                    <button type="button" onclick="var d=document.getElementById('sr-slideover-cart-drawer'); if(d){d.style.display='block';}else{var fb=document.getElementById('sr-store-cart-status'); if(fb){fb.classList.remove('hidden'); fb.textContent='سبد خرید شناور برای فروشگاه‌های دارای افزونه ووکامرس فعال در دسترس است.';}}" class="px-5 py-3 rounded-xl bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-200 text-xs font-semibold">
                         🛒 باز کردن سبد خرید شناور
                     </button>
                 </div>
+                <div id="sr-store-cart-status" role="status" aria-live="polite" class="hidden mt-3 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold"></div>
             </div>
 
             <!-- بج گرافیکی پیشنهاد شگفت‌انگیز -->
@@ -23489,39 +24195,40 @@ if (!defined('ABSPATH')) {
                             </div>
                         </div>
 
-                        <a href="<?php echo esc_url($product->add_to_cart_url()); ?>" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs text-center transition-all">
-                            افزودن به سبد خرید
+                        <?php
+                        $supports_ajax = method_exists($product, 'supports') && $product->supports('ajax_add_to_cart');
+                        $btn_classes   = 'w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs text-center transition-all button';
+                        if ($supports_ajax && $product->is_purchasable() && $product->is_in_stock()) {
+                            $btn_classes .= ' add_to_cart_button ajax_add_to_cart';
+                        }
+                        ?>
+                        <a href="<?php echo esc_url($product->add_to_cart_url()); ?>" data-quantity="1" data-product_id="<?php echo esc_attr($product->get_id()); ?>" data-product_sku="<?php echo esc_attr($product->get_sku()); ?>" rel="nofollow" class="<?php echo esc_attr($btn_classes); ?>">
+                            <?php echo esc_html($product->add_to_cart_text()); ?>
                         </a>
                     </div>
                     <?php
                 endforeach;
             else :
-                // نمونه محصولات پیش‌فرض نمایشی
-                $sample_items = [
-                    ['title' => 'قالب وردپرس معماری آژانسی SedRazavi', 'price' => '۲,۴۵۰,۰۰۰ تومان', 'badge' => 'پرفروش'],
-                    ['title' => 'افزونه اشتراک ویژه VIP و پی‌وال رسانه', 'price' => '۸۹۰,۰۰۰ تومان', 'badge' => 'جدید'],
-                    ['title' => 'کیت کامل ۵۰ المان پیشرفته المنتور پرو', 'price' => '۱,۲۰۰,۰۰۰ تومان', 'badge' => 'ویژه'],
-                    ['title' => 'پکیج ماژول‌های ۵گانه اصناف و لایسنسینگ', 'price' => '۱,۶۵۰,۰۰۰ تومان', 'badge' => 'تخفیف'],
-                ];
-                foreach ($sample_items as $item) :
-                    ?>
-                    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 transition-all space-y-3 flex flex-col justify-between">
-                        <div class="aspect-square rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-center relative text-4xl text-slate-700">
-                            🛒
-                            <span class="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
-                                <?php echo esc_html($item['badge']); ?>
-                            </span>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-white line-clamp-1"><?php echo esc_html($item['title']); ?></h3>
-                            <div class="text-xs font-bold text-emerald-400 mt-2 font-mono"><?php echo esc_html($item['price']); ?></div>
-                        </div>
-                        <button type="button" onclick="alert('محصول به سبد خرید افزوده شد.');" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all cursor-pointer">
-                            افزودن به سبد خرید
-                        </button>
-                    </div>
-                    <?php
-                endforeach;
+                $wc_active = class_exists('WooCommerce');
+                $empty_msg = $wc_active
+                    ? 'هنوز محصولی در فروشگاه ووکامرس منتشر نشده است.'
+                    : 'برای فعال‌سازی سبد خرید واقعی و فروش محصولات، افزونه WooCommerce را نصب و پیکربندی نمایید.';
+                $cta_url = current_user_can('manage_options')
+                    ? admin_url($wc_active ? 'post-new.php?post_type=product' : 'plugin-install.php?s=woocommerce&tab=search&type=term')
+                    : home_url('/#contact');
+                $cta_lbl = current_user_can('manage_options')
+                    ? ($wc_active ? '+ افزودن اولین محصول در ووکامرس' : 'نصب یا پیکربندی ووکامرس از پیشخوان')
+                    : 'درخواست اطلاعات یا سفارش';
+                ?>
+                <div class="sm:col-span-2 lg:col-span-4 p-8 rounded-2xl bg-slate-900/90 border border-slate-800 text-center space-y-4">
+                    <div class="text-3xl">🛒</div>
+                    <h3 class="text-base font-bold text-white"><?php echo esc_html($wc_active ? 'ویترین محصولات ووکامرس آماده است' : 'افزونه فروشگاه ووکامرس غیرفعال است'); ?></h3>
+                    <p class="text-xs text-slate-400 max-w-lg mx-auto leading-relaxed"><?php echo esc_html($empty_msg); ?></p>
+                    <a href="<?php echo esc_url($cta_url); ?>" class="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all">
+                        <?php echo esc_html($cta_lbl); ?>
+                    </a>
+                </div>
+                <?php
             endif;
             ?>
         </div>
@@ -23832,8 +24539,12 @@ get_header();
                         <?php endfor; ?>
                     </div>
 
+                    <?php $podcast_audio_url = get_post_meta(get_the_ID(), 'sr_podcast_audio_url', true); ?>
                     <!-- تگ صوتی HTML5 مخفی برای هدایت -->
-                    <audio id="sr-podcast-audio" preload="metadata" src="<?php echo esc_url(get_post_meta(get_the_ID(), 'sr_podcast_audio_url', true) ?: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); ?>"></audio>
+                    <audio id="sr-podcast-audio" preload="metadata"<?php echo !empty($podcast_audio_url) ? ' src="' . esc_url($podcast_audio_url) . '"' : ''; ?>></audio>
+                    <?php if (empty($podcast_audio_url)): ?>
+                        <p class="text-xs text-sr-muted text-center">فایل صوتی این اپیزود هنوز در فیلد <code>sr_podcast_audio_url</code> ثبت نشده است.</p>
+                    <?php endif; ?>
 
                     <!-- دکمه‌های کنترل پخش -->
                     <div class="flex items-center justify-center gap-4 pt-2">
@@ -23964,10 +24675,17 @@ get_header();
         <!-- کانتینر پلیر ویدیو با کنترل‌های پیشرفته -->
         <div class="rounded-3xl overflow-hidden bg-black/90 border border-sr-border shadow-2xl relative">
             <div class="aspect-video relative flex items-center justify-center bg-slate-950">
-                <video id="sr-custom-video-player" class="w-full h-full object-contain" controls preload="metadata" poster="<?php echo get_the_post_thumbnail_url(get_the_ID(), 'full'); ?>">
-                    <source src="<?php echo esc_url(get_post_meta(get_the_ID(), 'sr_video_stream_url', true) ?: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'); ?>" type="video/mp4">
-                    مرورگر شما از پخش مستقیم ویدیو پشتیبانی نمی‌کند.
-                </video>
+                <?php $video_stream_url = get_post_meta(get_the_ID(), 'sr_video_stream_url', true); ?>
+                <?php if (!empty($video_stream_url)): ?>
+                    <video id="sr-custom-video-player" class="w-full h-full object-contain" controls preload="metadata" poster="<?php echo esc_url(get_the_post_thumbnail_url(get_the_ID(), 'full')); ?>">
+                        <source src="<?php echo esc_url($video_stream_url); ?>" type="video/mp4">
+                        مرورگر شما از پخش مستقیم ویدیو پشتیبانی نمی‌کند.
+                    </video>
+                <?php else: ?>
+                    <div class="p-8 text-center text-slate-400 text-sm">
+                        آدرس استریم ویدیو هنوز در فیلد اختصاصی برگه (<code>sr_video_stream_url</code>) تنظیم نشده است.
+                    </div>
+                <?php endif; ?>
             </div>
 
             <!-- نوار کنترل اختصاصی زیر پلیر -->

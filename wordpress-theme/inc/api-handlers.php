@@ -23,6 +23,8 @@ class SedRazavi_API_Handlers {
      */
     public static function init() {
         add_action('rest_api_init', [__CLASS__, 'register_profile_routes']);
+        add_action('wp_ajax_sedrazavi_send_reply_email', [__CLASS__, 'handle_ajax_send_reply_email']);
+        add_action('wp_ajax_sedrazavi_moderate_comment_action', [__CLASS__, 'handle_ajax_moderate_comment']);
     }
 
     /**
@@ -212,6 +214,73 @@ class SedRazavi_API_Handlers {
             return self::handle_save_profile_settings($request);
         }
         return self::handle_get_profile_settings();
+    }
+
+    /**
+     * Handle authorized front-end email reply composer (template-emails.php)
+     */
+    public static function handle_ajax_send_reply_email() {
+        check_ajax_referer('sedrazavi_security_nonce', 'security');
+        if (!current_user_can('edit_others_posts')) {
+            wp_send_json_error(['message' => 'شما مجوز ارسال پاسخ رسمی از صندوق پیام‌ها را ندارید.'], 403);
+        }
+
+        $raw_to  = isset($_POST['to']) ? wp_unslash((string) $_POST['to']) : '';
+        $subject = isset($_POST['subject']) ? sanitize_text_field(wp_unslash((string) $_POST['subject'])) : '';
+        $body    = isset($_POST['body']) ? sanitize_textarea_field(wp_unslash((string) $_POST['body'])) : '';
+
+        // Extract valid email from "Name <email@domain>" or plain email
+        $to_email = '';
+        if (preg_match('/<([^>]+)>/', $raw_to, $m)) {
+            $to_email = sanitize_email($m[1]);
+        } else {
+            $to_email = sanitize_email($raw_to);
+        }
+
+        if (empty($to_email) || !is_email($to_email)) {
+            wp_send_json_error(['message' => 'نشانی ایمیل گیرنده معتبر نیست.'], 400);
+        }
+        if (empty($subject) || empty($body)) {
+            wp_send_json_error(['message' => 'موضوع و متن پاسخ الزامی است.'], 400);
+        }
+
+        $headers = ['Content-Type: text/plain; charset=UTF-8'];
+        $sent = wp_mail($to_email, $subject, $body, $headers);
+        if (!$sent) {
+            wp_send_json_error(['message' => 'سرور ایمیل وردپرس نتوانست ایمیل را ارسال کند. تنظیمات SMTP را بررسی نمایید.'], 500);
+        }
+
+        wp_send_json_success(['message' => 'پاسخ رسمی با موفقیت ارسال گردید.']);
+    }
+
+    /**
+     * Handle authorized front-end comment moderation (template-comments.php)
+     */
+    public static function handle_ajax_moderate_comment() {
+        check_ajax_referer('sedrazavi_security_nonce', 'security');
+        if (!current_user_can('moderate_comments')) {
+            wp_send_json_error(['message' => 'شما مجوز مدیریت دیدگاه‌ها را ندارید.'], 403);
+        }
+
+        $comment_id = isset($_POST['comment_id']) ? absint($_POST['comment_id']) : 0;
+        $mod_action = isset($_POST['mod_action']) ? sanitize_key($_POST['mod_action']) : '';
+
+        if (!$comment_id || !in_array($mod_action, ['approve', 'unapprove', 'spam', 'trash'], true)) {
+            wp_send_json_error(['message' => 'پارامترهای عملیات دیدگاه نامعتبر است.'], 400);
+        }
+
+        $status_map = [
+            'approve'   => 'approve',
+            'unapprove' => 'hold',
+            'spam'      => 'spam',
+            'trash'     => 'trash',
+        ];
+        $res = wp_set_comment_status($comment_id, $status_map[$mod_action]);
+        if (!$res || is_wp_error($res)) {
+            wp_send_json_error(['message' => 'به‌روزرسانی وضعیت دیدگاه در دیتابیس انجام نشد.'], 500);
+        }
+
+        wp_send_json_success(['message' => 'وضعیت دیدگاه با موفقیت به‌روزرسانی شد.', 'status' => $status_map[$mod_action]]);
     }
 }
 

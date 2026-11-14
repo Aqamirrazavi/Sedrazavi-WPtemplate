@@ -489,7 +489,56 @@ namespace {
         fwrite(STDERR, "FAIL: Industry blocks still contain inline alert()\n");
         exit(1);
     }
-    echo "  PASS: All 7 Gutenberg SSR callbacks, 66/66 Sovereign Icons & Industry Blocks verified free of inline alert().\n";
+    echo "  PASS: All 7 Gutenberg SSR callbacks, 66/66 Sovereign Icons & Industry Blocks verified free of inline alert().\n\n";
+
+    // TEST 8: Packaging Strict Checksums, Conditional Elementor & Required vs Optional Checks
+    echo "[TEST 8] Verifying Strict Checksum Rejection & Conditional Elementor Requirements...\n";
+    if (class_exists('\ZipArchive')) {
+        $gb_only_res = $exporter->build_custom_project_bundle(
+            [
+                'project_name'       => 'Gutenberg Only Kit',
+                'project_slug'       => 'gutenberg-only-kit',
+                'selected_widgets'   => [],
+                'selected_templates' => [],
+                'selected_blocks'    => ['sovereign-section'],
+                'selected_cpts'      => ['portfolio'],
+            ],
+            $registry->get_widget_catalog(),
+            $resolver,
+            $validator,
+            $registry
+        );
+        if (empty($gb_only_res['success'])) {
+            fwrite(STDERR, "FAIL: Gutenberg-only bundle failed compilation\n");
+            exit(1);
+        }
+        $gb_zip = new \ZipArchive();
+        $gb_zip->open($gb_only_res['zip_path']);
+        $gb_manifest = json_decode((string) $gb_zip->getFromName('gutenberg-only-kit/manifest.json'), true);
+        $gb_zip->close();
+        if (!empty($gb_manifest['requirements']['elementor']) || !empty($gb_manifest['requirements']['required']['elementor'])) {
+            fwrite(STDERR, "FAIL: Gutenberg-only kit should not require Elementor\n");
+            exit(1);
+        }
+
+        // Strip file_checksums from copy and confirm fail-closed rejection
+        $unsigned_zip_path = $sandbox_uploads . '/unsigned-test.zip';
+        copy($gb_only_res['zip_path'], $unsigned_zip_path);
+        $uz = new \ZipArchive();
+        $uz->open($unsigned_zip_path);
+        unset($gb_manifest['file_checksums']);
+        $uz->addFromString('gutenberg-only-kit/manifest.json', json_encode($gb_manifest));
+        $uz->close();
+
+        $unsigned_check = $security->verify_archive_security($unsigned_zip_path, $validator);
+        if (!empty($unsigned_check['safe'])) {
+            fwrite(STDERR, "FAIL: Unsigned archive without file_checksums was not rejected!\n");
+            exit(1);
+        }
+        echo "  PASS: Gutenberg-only bundle omits required Elementor & unsigned ZIP fails closed.\n\n";
+    } else {
+        echo "  WARN: ZipArchive not enabled; skipping archive checksum test.\n\n";
+    }
 
     // Cleanup sandbox
     $it = new \RecursiveDirectoryIterator($sandbox_uploads, \RecursiveDirectoryIterator::SKIP_DOTS);

@@ -227,6 +227,22 @@ class SedRazavi_REST_API {
             'callback'            => array(__CLASS__, 'handle_newsletter_subscribe'),
             'permission_callback' => '__return_true',
         ));
+
+        // 23. General Project & Consultation Inquiry Submit: wp-json/sedrazavi/v1/inquiry/submit
+        // Decision: PUBLIC - Prospective client inquiry form (Rate limited + Honeypot guarded)
+        register_rest_route(self::NAMESPACE, '/inquiry/submit', array(
+            'methods'             => 'POST',
+            'callback'            => array(__CLASS__, 'handle_inquiry_submit'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // 24. Client Satisfaction Survey Submit: wp-json/sedrazavi/v1/survey/submit
+        // Decision: PUBLIC - Client feedback submission (Rate limited)
+        register_rest_route(self::NAMESPACE, '/survey/submit', array(
+            'methods'             => 'POST',
+            'callback'            => array(__CLASS__, 'handle_survey_submit'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -1607,6 +1623,169 @@ class SedRazavi_REST_API {
         return new WP_REST_Response(array(
             'success' => true,
             'message' => 'عضویت شما در خبرنامه حقوقی با موفقیت ثبت شد.',
+        ), 200);
+    }
+
+    /**
+     * 23. Handle General / Agency / Widget Inquiry Submit
+     */
+    public static function handle_inquiry_submit($request) {
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('inquiry_submit', 8, 600)) {
+            return new WP_REST_Response(array(
+                'success'      => false,
+                'rate_limited' => true,
+                'message'      => 'تعداد درخواست‌های ارسالی بیش از حد مجاز است. لطفاً دقایقی دیگر تلاش فرمایید.',
+            ), 429);
+        }
+
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::verify_request_nonce($request)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'کد امنیتی نانس نامعتبر است یا نشست شما منقضی شده است.',
+            ), 403);
+        }
+
+        $params = $request->get_json_params();
+        if (!is_array($params) || empty($params)) {
+            $params = $request->get_params();
+        }
+
+        // Honeypot check
+        if (!empty($params['website_hp']) || !empty($params['sr_website_trap'])) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'درخواست نامعتبر تشخیص داده شد.',
+            ), 403);
+        }
+
+        $raw_name = isset($params['name']) ? $params['name'] : (isset($params['full_name']) ? $params['full_name'] : '');
+        $name = class_exists('SedRazavi_Rate_Limiter')
+            ? SedRazavi_Rate_Limiter::sanitize_strict_input($raw_name)
+            : sanitize_text_field(wp_unslash((string) $raw_name));
+
+        $raw_contact = isset($params['contact']) ? $params['contact'] : (isset($params['phone']) ? $params['phone'] : (isset($params['client_phone']) ? $params['client_phone'] : ''));
+        $contact = sanitize_text_field(wp_unslash((string) $raw_contact));
+
+        $raw_type = isset($params['project_type']) ? $params['project_type'] : (isset($params['service_type']) ? $params['service_type'] : 'استعلام عمومی');
+        $service_type = sanitize_text_field(wp_unslash((string) $raw_type));
+
+        $raw_details = isset($params['details']) ? $params['details'] : (isset($params['notes']) ? $params['notes'] : '');
+        $details = class_exists('SedRazavi_Rate_Limiter')
+            ? SedRazavi_Rate_Limiter::sanitize_multiline_input($raw_details)
+            : sanitize_textarea_field(wp_unslash((string) $raw_details));
+
+        $email = isset($params['email']) ? sanitize_email(wp_unslash((string) $params['email'])) : '';
+
+        if (empty($contact)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'شماره تماس یا راه ارتباطی معتبر الزامی است.',
+            ), 400);
+        }
+
+        if (empty($name)) {
+            $name = 'متقاضی وب‌سایت';
+        }
+
+        $post_id = wp_insert_post(array(
+            'post_title'   => sprintf('استعلام جدید: %s (%s)', $name, $contact),
+            'post_type'    => 'sedrazavi_message',
+            'post_status'  => 'publish',
+            'post_content' => $details !== '' ? $details : ('نوع درخواست: ' . $service_type),
+        ));
+
+        if (!$post_id || is_wp_error($post_id)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'خطا در ثبت استعلام در پایگاه داده. لطفاً مجدداً تلاش فرمایید.',
+            ), 500);
+        }
+
+        $tracking_code = 'INQ-' . $post_id;
+        update_post_meta($post_id, '_sedrazavi_sender_name', $name);
+        update_post_meta($post_id, '_sedrazavi_sender_phone', $contact);
+        update_post_meta($post_id, '_sedrazavi_sender_email', $email);
+        update_post_meta($post_id, '_sedrazavi_service_type', $service_type);
+        update_post_meta($post_id, '_sedrazavi_tracking_code', $tracking_code);
+        update_post_meta($post_id, '_sedrazavi_msg_status', 'unread');
+        update_post_meta($post_id, '_sedrazavi_created_at', current_time('mysql'));
+
+        $admin_email = get_option('admin_email');
+        if (!empty($admin_email)) {
+            $subject = 'استعلام جدید وب‌سایت: ' . $name . ' [' . $tracking_code . ']';
+            $body = sprintf(
+                "یک درخواست / استعلام جدید ثبت شد:\n\nکد پیگیری: %s\nنام متقاضی: %s\nراه ارتباطی: %s\nموضوع: %s\nشرح: %s\nزمان ثبت: %s\n",
+                $tracking_code,
+                $name,
+                $contact,
+                $service_type,
+                $details,
+                current_time('mysql')
+            );
+            @wp_mail($admin_email, $subject, $body);
+        }
+
+        return new WP_REST_Response(array(
+            'success'       => true,
+            'inquiry_id'    => $post_id,
+            'tracking_code' => $tracking_code,
+            'message'       => sprintf('درخواست شما با کد پیگیری %s با موفقیت در سیستم ثبت گردید.', $tracking_code),
+        ), 200);
+    }
+
+    /**
+     * 24. Handle Client Satisfaction Survey Submit
+     */
+    public static function handle_survey_submit($request) {
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::check_rate_limit('survey_submit', 5, 600)) {
+            return new WP_REST_Response(array(
+                'success'      => false,
+                'rate_limited' => true,
+                'message'      => 'تعداد نظرات ثبت‌شده بیش از حد مجاز است. لطفاً کمی بعد تلاش فرمایید.',
+            ), 429);
+        }
+
+        if (class_exists('SedRazavi_Rate_Limiter') && !SedRazavi_Rate_Limiter::verify_request_nonce($request)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'کد امنیتی نانس نامعتبر است یا نشست شما منقضی شده است.',
+            ), 403);
+        }
+
+        $params = $request->get_json_params();
+        if (!is_array($params) || empty($params)) {
+            $params = $request->get_params();
+        }
+
+        $rating  = isset($params['rating']) ? max(1, min(5, intval($params['rating']))) : 5;
+        $comment = isset($params['comment'])
+            ? (class_exists('SedRazavi_Rate_Limiter') ? SedRazavi_Rate_Limiter::sanitize_multiline_input($params['comment']) : sanitize_textarea_field(wp_unslash((string) $params['comment'])))
+            : '';
+
+        $post_id = wp_insert_post(array(
+            'post_title'   => sprintf('بازخورد موکل (%d از ۵ ستاره)', $rating),
+            'post_type'    => 'sedrazavi_message',
+            'post_status'  => 'publish',
+            'post_content' => $comment !== '' ? $comment : 'ثبت امتیاز بدون متن توضیحی',
+        ));
+
+        if (!$post_id || is_wp_error($post_id)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'خطا در ذخیره‌سازی بازخورد در پایگاه داده.',
+            ), 500);
+        }
+
+        update_post_meta($post_id, '_sedrazavi_msg_type', 'survey');
+        update_post_meta($post_id, '_sedrazavi_survey_rating', $rating);
+        update_post_meta($post_id, '_sedrazavi_msg_status', 'unread');
+        update_post_meta($post_id, '_sedrazavi_created_at', current_time('mysql'));
+
+        return new WP_REST_Response(array(
+            'success'   => true,
+            'survey_id' => $post_id,
+            'rating'    => $rating,
+            'message'   => 'سپاسگزاریم! دیدگاه و امتیاز شما با موفقیت در سامانه ثبت گردید.',
         ), 200);
     }
 }

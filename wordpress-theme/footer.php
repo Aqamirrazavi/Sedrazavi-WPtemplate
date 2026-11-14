@@ -126,7 +126,7 @@ $footer_bio = get_theme_mod('sedrazavi_footer_bio', get_bloginfo('description'))
                     <p class="text-xs text-sr-muted leading-relaxed">
                         جهت دریافت تازه‌ترین گزارش‌ها و اطلاعیه‌های مجموعه، در خبرنامه ایمیلی عضو شوید:
                     </p>
-                    <form action="<?php echo esc_url(home_url('/#newsletter')); ?>" method="post" class="space-y-2">
+                    <form id="sr-footer-newsletter-form" onsubmit="return handleNewsletter(event)" action="<?php echo esc_url(rest_url('sedrazavi/v1/newsletter')); ?>" method="post" class="space-y-2">
                         <div class="relative">
                             <input type="email" name="newsletter_email" placeholder="ایمیل کاری خود را وارد کنید..." required class="w-full px-3 py-2 text-xs rounded-xl bg-sr-surface border border-sr-border text-sr-primary focus:outline-none focus:border-sr-gold transition-colors placeholder:text-sr-muted">
                             <button type="submit" class="absolute left-1.5 top-1.5 px-3 py-1 bg-sr-gold hover:bg-sr-gold-hover text-sr-text-inverted rounded-lg text-xs font-semibold transition-colors">

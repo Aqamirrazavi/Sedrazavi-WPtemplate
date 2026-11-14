@@ -51,38 +51,63 @@ class Package_Manifest_Validator {
             }
         }
 
-        // Requirements validation
+        // Requirements validation (supports both flat legacy keys and structured required/optional buckets)
         if (!empty($manifest['requirements']) && is_array($manifest['requirements'])) {
             $req = $manifest['requirements'];
 
+            $required_reqs = [];
+            if (!empty($req['required']) && is_array($req['required'])) {
+                $required_reqs = $req['required'];
+            }
+            foreach (['php', 'wordpress', 'elementor'] as $core_req_key) {
+                if (!empty($req[$core_req_key]) && !isset($required_reqs[$core_req_key])) {
+                    $required_reqs[$core_req_key] = $req[$core_req_key];
+                }
+            }
+
+            $optional_reqs = [];
+            if (!empty($req['optional']) && is_array($req['optional'])) {
+                $optional_reqs = $req['optional'];
+            }
+            foreach (['elementor_pro', 'woocommerce', 'gutenberg'] as $opt_req_key) {
+                if (!empty($req[$opt_req_key]) && !isset($optional_reqs[$opt_req_key])) {
+                    $optional_reqs[$opt_req_key] = $req[$opt_req_key];
+                }
+            }
+
             // PHP Check
-            if (!empty($req['php'])) {
-                $min_php = ltrim((string) $req['php'], '>=');
+            if (!empty($required_reqs['php'])) {
+                $min_php = ltrim((string) $required_reqs['php'], '>=');
                 if (version_compare(PHP_VERSION, $min_php, '<')) {
                     $errors[] = sprintf('نسخه PHP سرور (%s) پایین‌تر از حداقل نیازمندی این بسته (%s) است.', PHP_VERSION, $min_php);
                 }
             }
 
             // WordPress Check
-            if (!empty($req['wordpress']) && function_exists('get_bloginfo')) {
-                $min_wp = ltrim((string) $req['wordpress'], '>=');
+            if (!empty($required_reqs['wordpress']) && function_exists('get_bloginfo')) {
+                $min_wp = ltrim((string) $required_reqs['wordpress'], '>=');
                 $wp_version = get_bloginfo('version');
                 if (version_compare($wp_version, $min_wp, '<')) {
                     $errors[] = sprintf('نسخه وردپرس (%s) با این بسته سازگار نیست (نیاز به %s دارد).', $wp_version, $min_wp);
                 }
             }
 
-            // Elementor Version Check
-            if (!empty($req['elementor']) && defined('ELEMENTOR_VERSION')) {
-                $min_el = ltrim((string) $req['elementor'], '>=');
-                if (version_compare(ELEMENTOR_VERSION, $min_el, '<')) {
+            // Elementor Required Check (Fail-closed when package requires Elementor)
+            if (!empty($required_reqs['elementor'])) {
+                $min_el = ltrim((string) $required_reqs['elementor'], '>=');
+                if (!defined('ELEMENTOR_VERSION') && !class_exists('\Elementor\Plugin')) {
+                    $errors[] = sprintf('افزونه المنتور (Elementor %s+) روی سایت نصب یا فعال نیست؛ این بسته برای اجرا به المنتور نیاز دارد.', $min_el);
+                } elseif (defined('ELEMENTOR_VERSION') && version_compare(ELEMENTOR_VERSION, $min_el, '<')) {
                     $errors[] = sprintf('نسخه المنتور فعلی (%s) قدیمی‌تر از حداقل نسخه مورد نیاز (%s) است.', ELEMENTOR_VERSION, $min_el);
                 }
             }
 
-            // Elementor Pro warning
-            if (!empty($req['elementor_pro']) && !defined('ELEMENTOR_PRO_VERSION')) {
-                $warnings[] = 'این بسته از ویژگی‌های پیشرفته المنتور پرو استفاده می‌کند؛ در نسخه رایگان با فال‌بک کار خواهد کرد.';
+            // Optional Dependency Notices (non-blocking)
+            if (!empty($optional_reqs['elementor_pro']) && !defined('ELEMENTOR_PRO_VERSION')) {
+                $warnings[] = 'این بسته از قابلیت‌های اختیاری المنتور پرو پشتیبانی می‌کند؛ در نسخه رایگان با پل جایگزین (Theme Builder Bridge) اجرا می‌شود.';
+            }
+            if (!empty($optional_reqs['woocommerce']) && !class_exists('WooCommerce')) {
+                $warnings[] = 'افزونه WooCommerce فعال نیست؛ بخش‌های فروشگاهی اختیاری غیرفعال خواهند بود.';
             }
         }
 
@@ -118,13 +143,21 @@ class Package_Manifest_Validator {
      * @param array       $manifest
      * @param \ZipArchive $zip
      * @param string      $root_prefix Optional leading folder prefix inside ZIP
+     * @param bool        $strict      When true, missing file_checksums fails closed
      * @return array [ 'valid' => bool, 'verified_count' => int, 'errors' => array ]
      */
-    public function verify_manifest_checksums(array $manifest, \ZipArchive $zip, $root_prefix = '') {
+    public function verify_manifest_checksums(array $manifest, \ZipArchive $zip, $root_prefix = '', $strict = true) {
         $errors = [];
         $verified = 0;
 
         if (empty($manifest['file_checksums']) || !is_array($manifest['file_checksums'])) {
+            if ($strict) {
+                return [
+                    'valid'          => false,
+                    'verified_count' => 0,
+                    'errors'         => ['جدول امضای SHA-256 فایل‌ها (file_checksums) در مانیفست وجود ندارد.'],
+                ];
+            }
             return [
                 'valid'          => true,
                 'verified_count' => 0,

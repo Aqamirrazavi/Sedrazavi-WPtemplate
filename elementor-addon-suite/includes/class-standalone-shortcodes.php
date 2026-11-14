@@ -46,6 +46,12 @@ class Standalone_Shortcodes {
             UAS_VERSION,
             true
         );
+        wp_localize_script('uas-standalone-blocks-js', 'uasFrontendConfig', [
+            'restUrl'   => function_exists('rest_url') ? esc_url_raw(rest_url('sedrazavi/v1/')) : '/wp-json/sedrazavi/v1/',
+            'restNonce' => wp_create_nonce('wp_rest'),
+            'ajaxUrl'   => admin_url('admin-ajax.php'),
+            'ajaxNonce' => wp_create_nonce('uas_industry_nonce'),
+        ]);
 
         // Auto enqueue if on singular post or page
         wp_enqueue_style('uas-standalone-blocks');

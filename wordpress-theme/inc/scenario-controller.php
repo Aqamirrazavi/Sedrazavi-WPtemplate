@@ -30,7 +30,7 @@ class SedRazavi_Scenario_Controller {
 
     private function __construct() {
         add_action('init', array($this, 'register_scenario_settings'));
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_scenario_assets'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_scenario_assets'), 20);
         add_action('wp_ajax_sedrazavi_switch_scenario', array($this, 'ajax_switch_scenario'));
         add_action('wp_ajax_nopriv_sedrazavi_switch_scenario', array($this, 'ajax_switch_scenario'));
         add_shortcode('sedrazavi_bento_hub', array($this, 'render_bento_hub_shortcode'));

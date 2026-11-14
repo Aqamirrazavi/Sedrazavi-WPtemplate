@@ -2268,6 +2268,7 @@ input:checked + .uas-slider:before {
   box-sizing: border-box;
   margin: 30px 0;
   clear: both;
+  contain: layout style;
 }
 
 .uas-block-hero *,
@@ -3042,6 +3043,46 @@ input:checked + .uas-slider:before {
     width: 100%;
   }
 }
+
+/* Stage 6: Accessibility Focus & Reduced Motion */
+.uas-block-hero :focus-visible,
+.uas-block-calculator :focus-visible,
+.uas-block-services :focus-visible,
+.uas-block-booking :focus-visible,
+.uas-block-docs :focus-visible,
+.uas-block-faq :focus-visible {
+  outline: 2px solid #D4AF37;
+  outline-offset: 2px;
+}
+
+.uas-inline-status {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(15, 23, 42, 0.9);
+  color: #F8FAFC;
+}
+.uas-inline-status.is-success {
+  border-color: rgba(16, 185, 129, 0.55);
+  color: #6EE7B7;
+}
+.uas-inline-status.is-error {
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #FCA5A5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uas-block-hero *,
+  .uas-block-services *,
+  .uas-block-faq * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 `},{path:"elementor-addon-suite/assets/css/widgets-core.css",filename:"widgets-core.css",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets-core.css",code:`/**
  * Universal Elementor Addon Suite - Core Widgets CSS
  * Version: 1.0.0
@@ -3071,7 +3112,24 @@ input:checked + .uas-slider:before {
   box-sizing: border-box;
   position: relative;
   width: 100%;
+  contain: layout style;
 }
+
+.uas-widget-container :focus-visible {
+  outline: 2px solid var(--uas-accent-color, #D4AF37);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uas-widget-container *,
+  .uas-widget-container *::before,
+  .uas-widget-container *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 `},{path:"elementor-addon-suite/assets/css/widgets/banner-slider.css",filename:"banner-slider.css",category:"صفحه‌ساز و ویجت‌ها (Elementor Widgets)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/banner-slider.css",code:`/**
  * Universal Text Ticker & Quote Banner CSS
  */
@@ -5261,12 +5319,13 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
             }, 800);
           } else {
             $btn.prop('disabled', false).text(originalText);
-            alert(response.data && response.data.message ? response.data.message : 'خطا در درون‌ریزی قالب.');
+            var errMsg = response.data && response.data.message ? response.data.message : 'خطا در درون‌ریزی قالب.';
+            $('#uas-reimport-status').removeClass('notice-info notice-success').addClass('notice notice-error').html('<p>' + errMsg + '</p>').show();
           }
         },
         error: function() {
           $btn.prop('disabled', false).text(originalText);
-          alert('خطای ارتباط با سرور.');
+          $('#uas-reimport-status').removeClass('notice-info notice-success').addClass('notice notice-error').html('<p>خطای ارتباط با سرور.</p>').show();
         }
       });
     });
@@ -5369,7 +5428,9 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
       });
 
       if (selectedWidgets.length === 0 && selectedTemplates.length === 0 && selectedBlocks.length === 0 && selectedCpts.length === 0) {
-        alert('لطفاً حداقل یک ویجت، بلوک، CPT یا الگوی آماده را برای بسته سفارشی انتخاب فرمایید.');
+        $status.show().html(
+          '<div class="notice notice-warning" style="padding:12px; margin-top:14px;"><p>لطفاً حداقل یک ویجت، بلوک، CPT یا الگوی آماده را برای بسته سفارشی انتخاب فرمایید.</p></div>'
+        );
         return;
       }
 
@@ -5727,17 +5788,136 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
         var fb = form.querySelector('.uas-booking-feedback');
         var nameField = form.querySelector('input[name="full_name"]');
         var phoneField = form.querySelector('input[name="phone"]');
+        var detailsField = form.querySelector('textarea[name="details"], textarea[name="message"], input[name="subject"]');
+        var btn = form.querySelector('button[type="submit"]');
+
         if (!nameField || !nameField.value.trim() || !phoneField || !phoneField.value.trim()) {
           showInlineStatus(fb, 'لطفاً نام و شماره موبایل معتبر وارد کنید.', true);
           return;
         }
-        var tracking = 'SR-' + Math.floor(100000 + Math.random() * 900000);
-        showInlineStatus(fb, 'درخواست مشاوره شما با شناسه پیگیری ' + tracking + ' با موفقیت ثبت گردید.', false);
-        form.reset();
+
+        var cfg = window.uasFrontendConfig || {};
+        var endpoint = (cfg.restUrl || '/wp-json/sedrazavi/v1/').replace(/\\/+$/, '') + '/inquiry/submit';
+        var origText = btn ? btn.textContent : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'در حال ارسال...';
+        }
+
+        fetch(endpoint, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': cfg.restNonce || ''
+          },
+          body: JSON.stringify({
+            full_name: nameField.value.trim(),
+            phone: phoneField.value.trim(),
+            service_type: 'standalone_booking_block',
+            details: detailsField ? detailsField.value.trim() : ''
+          })
+        })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              return { ok: res.ok, data: data };
+            });
+          })
+          .then(function (result) {
+            if (!result.ok || !result.data || !result.data.success) {
+              throw new Error((result.data && result.data.message) || 'ثبت درخواست در سرور با خطا مواجه شد.');
+            }
+            showInlineStatus(fb, result.data.message || ('درخواست مشاوره با کد پیگیری ' + (result.data.tracking_code || '') + ' ثبت شد.'), false);
+            form.reset();
+          })
+          .catch(function (err) {
+            showInlineStatus(fb, (err && err.message) ? err.message : 'خطا در برقراری ارتباط با سرور.', true);
+          })
+          .finally(function () {
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = origText;
+            }
+          });
       });
     });
 
-    // 3. Docs Hub Copy Shortcode Buttons
+    // 3. Quick Checkout Form (Zero alert, Real Endpoint Guard - Never fabricates fake payment IDs)
+    document.querySelectorAll('.uas-qc-form').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var fb = form.querySelector('.uas-qc-feedback');
+        var nameInput = form.querySelector('input[name="client_name"]');
+        var phoneInput = form.querySelector('input[name="client_phone"]');
+        var amountInput = form.querySelector('input[name="amount"]');
+        var checkoutUrl = form.getAttribute('data-checkout-url') || '';
+        var btn = form.querySelector('button[type="submit"]');
+
+        if (!nameInput || !nameInput.value.trim() || !phoneInput || !phoneInput.value.trim()) {
+          showInlineStatus(fb, 'لطفاً نام موکل و شماره تلفن همراه معتبر را وارد کنید.', true);
+          return;
+        }
+
+        var amountVal = amountInput ? parseInt(amountInput.value, 10) || 0 : 0;
+        if (amountVal < 10000) {
+          showInlineStatus(fb, 'حداقل مبلغ قابل پرداخت ۱۰,۰۰۰ تومان است.', true);
+          return;
+        }
+
+        if (!checkoutUrl) {
+          showInlineStatus(fb, 'درگاه پرداخت یا صفحه تسویه‌حساب ووکامرس در تنظیمات این بلوک پیکربندی نشده است.', true);
+          return;
+        }
+
+        var cfg = window.uasFrontendConfig || {};
+        var endpoint = (cfg.restUrl || '/wp-json/sedrazavi/v1/').replace(/\\/+$/, '') + '/inquiry/submit';
+        var origText = btn ? btn.textContent : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'در حال ثبت و هدایت به درگاه...';
+        }
+
+        fetch(endpoint, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': cfg.restNonce || ''
+          },
+          body: JSON.stringify({
+            name: nameInput.value.trim(),
+            phone: phoneInput.value.trim(),
+            service_type: 'quick_checkout_init',
+            details: 'درخواست پرداخت مبلغ: ' + amountVal + ' تومان'
+          })
+        })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              return { ok: res.ok, data: data };
+            });
+          })
+          .then(function (result) {
+            if (!result.ok || !result.data || !result.data.success) {
+              throw new Error((result.data && result.data.message) || 'ثبت پیش‌فاکتور در سرور انجام نشد.');
+            }
+            showInlineStatus(fb, 'درخواست با کد پیگیری ' + (result.data.tracking_code || '') + ' ثبت شد؛ در حال انتقال به صفحه تسویه‌حساب...', false);
+            setTimeout(function () {
+              window.location.href = checkoutUrl;
+            }, 400);
+          })
+          .catch(function (err) {
+            showInlineStatus(fb, (err && err.message) ? err.message : 'خطا در اتصال به سرور پرداخت.', true);
+          })
+          .finally(function () {
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = origText;
+            }
+          });
+      });
+    });
+
+    // 4. Docs Hub Copy Shortcode Buttons
     document.querySelectorAll('.uas-btn-copy[data-shortcode]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var sc = btn.getAttribute('data-shortcode') || '';
@@ -5772,6 +5952,9 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
         if (!fb) return;
         var nameInput = form.querySelector('input[name="full_name"]');
         var phoneInput = form.querySelector('input[name="phone"]');
+        var detailsInput = form.querySelector('textarea[name="details"], textarea[name="message"], input[name="subject"]');
+        var submitBtn = form.querySelector('button[type="submit"]');
+
         if (!nameInput || !nameInput.value.trim() || !phoneInput || !phoneInput.value.trim()) {
           fb.style.display = 'block';
           fb.style.background = 'rgba(239,68,68,0.12)';
@@ -5780,13 +5963,58 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
           fb.textContent = 'لطفاً نام و شماره موبایل را کامل وارد نمایید.';
           return;
         }
-        var ref = 'SR-' + Math.floor(100000 + Math.random() * 900000);
-        fb.style.display = 'block';
-        fb.style.background = 'rgba(16,185,129,0.12)';
-        fb.style.border = '1px solid #10b981';
-        fb.style.color = '#6ee7b7';
-        fb.textContent = 'درخواست شما با شناسه پیگیری ' + ref + ' ثبت گردید.';
-        form.reset();
+
+        var cfg = window.uasFrontendConfig || {};
+        var endpoint = (cfg.restUrl || '/wp-json/sedrazavi/v1/').replace(/\\/+$/, '') + '/inquiry/submit';
+        var origText = submitBtn ? submitBtn.textContent : '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'در حال ارسال...';
+        }
+
+        fetch(endpoint, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': cfg.restNonce || ''
+          },
+          body: JSON.stringify({
+            full_name: nameInput.value.trim(),
+            phone: phoneInput.value.trim(),
+            service_type: 'elementor_contact_booking',
+            details: detailsInput ? detailsInput.value.trim() : ''
+          })
+        })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              return { ok: res.ok, data: data };
+            });
+          })
+          .then(function (result) {
+            if (!result.ok || !result.data || !result.data.success) {
+              throw new Error((result.data && result.data.message) || 'ثبت درخواست در سرور با خطا مواجه شد.');
+            }
+            fb.style.display = 'block';
+            fb.style.background = 'rgba(16,185,129,0.12)';
+            fb.style.border = '1px solid #10b981';
+            fb.style.color = '#6ee7b7';
+            fb.textContent = result.data.message || ('درخواست شما با شناسه پیگیری ' + (result.data.tracking_code || '') + ' ثبت گردید.');
+            form.reset();
+          })
+          .catch(function (err) {
+            fb.style.display = 'block';
+            fb.style.background = 'rgba(239,68,68,0.12)';
+            fb.style.border = '1px solid #ef4444';
+            fb.style.color = '#fca5a5';
+            fb.textContent = (err && err.message) ? err.message : 'خطا در ارتباط با سرور.';
+          })
+          .finally(function () {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = origText;
+            }
+          });
       });
     });
   }
@@ -6192,10 +6420,72 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
         form.addEventListener('submit', function (e) {
           e.preventDefault();
           var input = form.querySelector('.uas-form-input');
-          if (input && input.value.trim().length >= 10) {
-            form.classList.add('is-submitted');
-            input.disabled = true;
+          var btn = form.querySelector('.uas-form-submit-btn');
+          var successBox = form.querySelector('.uas-form-success-msg');
+          var errorBox = form.querySelector('.uas-form-error-msg');
+          var phone = input ? input.value.trim() : '';
+
+          if (errorBox) {
+            errorBox.style.display = 'none';
+            errorBox.textContent = '';
           }
+
+          if (!phone || phone.length < 10) {
+            if (errorBox) {
+              errorBox.textContent = 'لطفاً شماره تماس معتبر (حداقل ۱۰ رقم) وارد نمایید.';
+              errorBox.style.display = 'block';
+            }
+            return;
+          }
+
+          var cfg = window.uasFrontendConfig || {};
+          var endpoint = (cfg.restUrl || '/wp-json/sedrazavi/v1/').replace(/\\/+$/, '') + '/inquiry/submit';
+          var origBtnText = btn ? btn.textContent : '';
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'در حال ثبت درخواست...';
+          }
+
+          fetch(endpoint, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-WP-Nonce': cfg.restNonce || ''
+            },
+            body: JSON.stringify({
+              name: 'متقاضی تماس سریع (هیرو اسپلیت)',
+              phone: phone,
+              service_type: 'hero_lead_capture'
+            })
+          })
+            .then(function (res) {
+              return res.json().then(function (data) {
+                return { ok: res.ok, data: data };
+              });
+            })
+            .then(function (result) {
+              if (!result.ok || !result.data || !result.data.success) {
+                throw new Error((result.data && result.data.message) || 'ثبت درخواست در سرور با خطا مواجه شد.');
+              }
+              form.classList.add('is-submitted');
+              if (input) input.disabled = true;
+              if (successBox) {
+                successBox.textContent = result.data.message || 'درخواست شما با موفقیت ثبت شد.';
+              }
+            })
+            .catch(function (err) {
+              if (errorBox) {
+                errorBox.textContent = (err && err.message) ? err.message : 'خطا در ارتباط با سرور. لطفاً مجدداً تلاش کنید.';
+                errorBox.style.display = 'block';
+              }
+            })
+            .finally(function () {
+              if (btn && !form.classList.contains('is-submitted')) {
+                btn.disabled = false;
+                btn.textContent = origBtnText;
+              }
+            });
         });
       }
     });
@@ -6240,14 +6530,33 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
       if (matrix.getAttribute('data-uas-initialized')) return;
       matrix.setAttribute('data-uas-initialized', 'true');
 
-      // Tooltip interactive clicks on mobile
+      // Tooltip interactive accessible popover on click
       var tooltips = matrix.querySelectorAll('.uas-matrix-tooltip');
       tooltips.forEach(function (tip) {
-        tip.addEventListener('click', function (e) {
+        tip.setAttribute('tabindex', '0');
+        tip.setAttribute('role', 'button');
+        var togglePopover = function (e) {
           e.stopPropagation();
-          var title = tip.getAttribute('title');
-          if (title) {
-            window.alert(title);
+          var title = tip.getAttribute('title') || tip.getAttribute('data-tooltip');
+          if (!title) return;
+          tip.setAttribute('data-tooltip', title);
+          var existing = matrix.querySelector('.uas-matrix-popover');
+          if (existing) existing.remove();
+          var pop = document.createElement('div');
+          pop.className = 'uas-matrix-popover';
+          pop.setAttribute('role', 'status');
+          pop.style.cssText = 'margin-top:8px;padding:10px 14px;border-radius:10px;background:#0f172a;color:#f8fafc;border:1px solid #d4af37;font-size:12px;line-height:1.6;';
+          pop.textContent = title;
+          matrix.insertBefore(pop, matrix.firstChild);
+          setTimeout(function () {
+            if (pop.parentNode) pop.remove();
+          }, 4500);
+        };
+        tip.addEventListener('click', togglePopover);
+        tip.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            togglePopover(e);
           }
         });
       });
@@ -6418,10 +6727,33 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
 
   function initStoryBar($scope) {
     var $items = $scope.find('.uas-story-item');
+    $items.attr('tabindex', '0').attr('role', 'button');
+
+    function showStoryPreview($el) {
+      var title = $el.data('title') || '';
+      var content = $el.data('content') || 'محتوای استوری انتخاب شده';
+      var $panel = $scope.find('.uas-story-inline-preview');
+      if (!$panel.length) {
+        $panel = $('<div class="uas-story-inline-preview" role="dialog" aria-modal="false" dir="rtl" style="margin-top:12px;padding:14px 16px;border-radius:12px;background:#0f172a;color:#f8fafc;border:1px solid #d4af37;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;"><div class="uas-story-body"></div><button type="button" class="uas-story-close" aria-label="بستن پیش‌نمایش" style="background:transparent;border:none;color:#f8fafc;font-size:18px;cursor:pointer;">&times;</button></div>');
+        $scope.append($panel);
+        $panel.find('.uas-story-close').on('click', function() {
+          $panel.hide();
+        });
+      }
+      var $body = $panel.find('.uas-story-body').empty();
+      $('<strong style="display:block;color:#d4af37;margin-bottom:4px;"></strong>').text(title).appendTo($body);
+      $('<p style="margin:0;font-size:13px;line-height:1.7;"></p>').text(content).appendTo($body);
+      $panel.show();
+    }
+
     $items.on('click', function() {
-      var title = $(this).data('title');
-      var content = $(this).data('content');
-      alert(title + "\\n\\n" + (content || 'محتوای استوری انتخاب شده'));
+      showStoryPreview($(this));
+    });
+    $items.on('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showStoryPreview($(this));
+      }
     });
   }
 
@@ -10381,7 +10713,7 @@ class Gutenberg_Blocks {
         ob_start();
         ?>
         <div class="sedrazavi-shape-divider position-<?php echo esc_attr($position); ?>" data-divider-id="<?php echo esc_attr($dividerId); ?>" style="width: 100%; overflow: hidden; line-height: 0; <?php echo esc_attr($transform_style); ?>">
-            <svg viewBox="0 0 1440 120" preserveAspectRatio="none" style="position: relative; display: block; width: calc(100% + 1.3px); height: <?php echo esc_attr($height); ?>px;">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 1440 120" preserveAspectRatio="none" style="position: relative; display: block; width: calc(100% + 1.3px); height: <?php echo esc_attr($height); ?>px;">
                 <path d="<?php echo esc_attr($svg_path); ?>" fill="<?php echo esc_attr($fill); ?>"></path>
             </svg>
         </div>
@@ -10400,20 +10732,26 @@ class Gutenberg_Blocks {
         if ($size === 'lg') $dims = 64;
 
         $badge_labels = [
-            1 => 'نشان اصالت و انطباق حقوقی',
-            2 => 'گواهی رمزنگاری End-to-End و HMAC',
-            3 => 'تاییدیه پایداری معماری بدون CDN',
-            4 => 'مهر سلامت دادرسی و داوری تجاری',
-            5 => 'تاییدیه استاندارد وکتور ۶۰ فریم',
-            6 => 'گواهی اصالت بسته مستقل المنتور/گوتنبرگ',
+            1  => 'نشان اصالت و انطباق حقوقی',
+            2  => 'گواهی رمزنگاری End-to-End و HMAC',
+            3  => 'تاییدیه پایداری معماری بدون CDN',
+            4  => 'مهر سلامت دادرسی و داوری تجاری',
+            5  => 'تاییدیه استاندارد وکتور ۶۰ فریم',
+            6  => 'گواهی اصالت بسته مستقل المنتور/گوتنبرگ',
+            7  => 'نشان محافظت Anti-IDOR پرونده‌های محرمانه',
+            8  => 'گواهی بهینه‌سازی Core Web Vitals ۱۰۰/۱۰۰',
+            9  => 'مهر استاندارد دسترسی‌پذیری WCAG 2.1 AA',
+            10 => 'تاییدیه سازگاری WooCommerce HPOS & Blocks',
+            11 => 'نشان زرین شمسه و هندسه اصیل ایرانی',
+            12 => 'مهر رسمی معمار سامانه سوییت سیدرضوی',
         ];
         $badge_title = $badge_labels[(($badgeId - 1) % count($badge_labels)) + 1] . ' #' . $badgeId;
 
         ob_start();
         ?>
         <div class="sedrazavi-trust-badge size-<?php echo esc_attr($size); ?>" dir="rtl" data-badge-id="<?php echo esc_attr($badgeId); ?>" style="display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; background: rgba(15, 23, 42, 0.85); border: 1px solid <?php echo esc_attr($color); ?>; border-radius: 10px; backdrop-filter: blur(8px);">
-            <div style="width: <?php echo esc_attr($dims); ?>px; height: <?php echo esc_attr($dims); ?>px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: <?php echo esc_attr($color); ?>;">
-                <svg width="<?php echo esc_attr($dims); ?>" height="<?php echo esc_attr($dims); ?>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div aria-hidden="true" style="width: <?php echo esc_attr($dims); ?>px; height: <?php echo esc_attr($dims); ?>px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: <?php echo esc_attr($color); ?>;">
+                <svg aria-hidden="true" width="<?php echo esc_attr($dims); ?>" height="<?php echo esc_attr($dims); ?>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                     <path d="M9 12l2 2 4-4"></path>
                 </svg>
@@ -10577,7 +10915,7 @@ class Gutenberg_Blocks {
         $c2 = sprintf('#%02X%02X%02X', 10 + ($presetId * 9) % 100, 120 + ($presetId * 11) % 120, 180 + ($presetId * 5) % 70);
         $waveShift = ($presetId * 17) % 180;
 
-        return '<svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        return '<svg aria-hidden="true" focusable="false" width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <linearGradient id="grad-sovereign-' . esc_attr($presetId) . '" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="' . esc_attr($c1) . '" stop-opacity="0.32"/>
@@ -10594,15 +10932,23 @@ class Gutenberg_Blocks {
     }
 
     private function get_shape_divider_path($dividerId) {
+        $id = max(1, min(66, intval($dividerId)));
+        $amp = 10 + (($id * 7) % 36);
+        $mid = 45 + (($id * 11) % 50);
         $base_paths = [
             0 => "M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L0,120Z",
             1 => "M0,32L60,42.7C120,53,240,75,360,80C480,85,600,75,720,64C840,53,960,43,1080,48C1200,53,1320,75,1380,85.3L1440,96L1440,120L0,120Z",
             2 => "M0,96L80,85.3C160,75,320,53,480,58.7C640,64,800,96,960,101.3C1120,107,1280,85,1360,74.7L1440,64L1440,120L0,120Z",
-            3 => "M0,0L720,96L1440,0L1440,120L0,120Z",
-            4 => "M0,110Q360,10 720,60T1440,20L1440,120L0,120Z",
+            3 => "M0,0L720,{$mid}L1440,0L1440,120L0,120Z",
+            4 => "M0,110Q360,{$amp} 720,{$mid}T1440,20L1440,120L0,120Z",
             5 => "M0,40L240,95L480,30L720,95L960,30L1200,95L1440,40L1440,120L0,120Z",
+            6 => "M0,{$mid}C360," . max(0, $mid - $amp) . ",720," . min(115, $mid + $amp) . ",1080,{$mid}C1260," . max(0, $mid - $amp) . ",1380,48,1440,{$mid}L1440,120L0,120Z",
+            7 => "M0,90L180,35L360,90L540,35L720,90L900,35L1080,90L1260,35L1440,90L1440,120L0,120Z",
+            8 => "M0,20L480,20L720,{$mid}L960,20L1440,20L1440,120L0,120Z",
+            9 => "M0,100C240,20,480,20,720,{$mid}C960,100,1200,20,1440,100L1440,120L0,120Z",
+            10 => "M0,{$amp}L360,95L720,{$amp}L1080,95L1440,{$amp}L1440,120L0,120Z",
         ];
-        return $base_paths[($dividerId - 1) % count($base_paths)];
+        return $base_paths[($id - 1) % count($base_paths)];
     }
 
     /**
@@ -12893,6 +13239,12 @@ class Plugin {
      */
     public function register_frontend_scripts() {
         wp_register_script('uas-widgets-core', UAS_URL . 'assets/js/widgets-core.js', ['jquery'], UAS_VERSION, true);
+        wp_localize_script('uas-widgets-core', 'uasFrontendConfig', [
+            'restUrl'   => function_exists('rest_url') ? esc_url_raw(rest_url('sedrazavi/v1/')) : '/wp-json/sedrazavi/v1/',
+            'restNonce' => wp_create_nonce('wp_rest'),
+            'ajaxUrl'   => admin_url('admin-ajax.php'),
+            'ajaxNonce' => wp_create_nonce('uas_industry_nonce'),
+        ]);
         wp_register_script('uas-story-bar-js', UAS_URL . 'assets/js/widgets/story-bar.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
         wp_register_script('uas-faq-js', UAS_URL . 'assets/js/widgets/faq.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
         wp_register_script('uas-floating-dock-js', UAS_URL . 'assets/js/widgets/floating-dock.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
@@ -13465,7 +13817,7 @@ class Sovereign_Svg_Icons {
         $stroke = esc_attr($atts['stroke']);
 
         return sprintf(
-            '<span class="sr-svg-icon sr-icon-%1$s %2$s" style="display:inline-flex;align-items:center;justify-content:center;color:%3$s;" aria-label="%4$s"><svg xmlns="http://www.w3.org/2000/svg" width="%5$d" height="%5$d" viewBox="%6$s" fill="none" stroke="currentColor" stroke-width="%7$s" stroke-linecap="round" stroke-linejoin="round">%8$s</svg></span>',
+            '<span class="sr-svg-icon sr-icon-%1$s %2$s" style="display:inline-flex;align-items:center;justify-content:center;color:%3$s;" aria-label="%4$s"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="%5$d" height="%5$d" viewBox="%6$s" fill="none" stroke="currentColor" stroke-width="%7$s" stroke-linecap="round" stroke-linejoin="round">%8$s</svg></span>',
             esc_attr($name),
             $custom_class,
             $color,
@@ -13479,51 +13831,146 @@ class Sovereign_Svg_Icons {
 
     public function get_icons_catalog() {
         return [
+            // 1-11: Legal & Justice
             'scales-of-justice-gold' => [
                 'number' => 1,
-                'title' => 'ترازوی زرین عدالت',
+                'title' => 'ترازوی زرین عدالت و دادرسی منصفانه',
                 'viewBox' => '0 0 24 24',
                 'path' => '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
             ],
             'gavel-verdict-sovereign' => [
                 'number' => 2,
-                'title' => 'چکش قضاوت و رای قطعی',
+                'title' => 'چکش قضاوت و رای قطعی دادگاه',
                 'viewBox' => '0 0 24 24',
                 'path' => '<path d="m14 13-7.5 7.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L11 10"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/><path d="m21 11-8-8"/>',
             ],
             'legal-parchment-scroll' => [
                 'number' => 3,
-                'title' => 'طومار قانون و اسناد رسمی',
+                'title' => 'طومار قانون و اسناد رسمی لازم‌الاجرا',
                 'viewBox' => '0 0 24 24',
                 'path' => '<path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v2a2 2 0 0 1-2 2Z"/><path d="M4 5v14a2 2 0 0 0 2 2h2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/>',
             ],
             'courthouse-pillars-facade' => [
                 'number' => 4,
-                'title' => 'کاخ دادگستری و دیوان عالی',
+                'title' => 'کاخ دادگستری و ستون‌های دیوان عالی',
                 'viewBox' => '0 0 24 24',
                 'path' => '<path d="M2 10h20"/><path d="M4 10v10"/><path d="M8 10v10"/><path d="M12 10v10"/><path d="M16 10v10"/><path d="M20 10v10"/><path d="M2 20h20"/><path d="M12 2 2 7h20z"/>',
             ],
+            'case-file-attorney' => [
+                'number' => 5,
+                'title' => 'پوشه پرونده قضایی دارای مهر تایید',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="m9 13 2 2 4-4"/>',
+            ],
+            'law-book-civil-code' => [
+                'number' => 6,
+                'title' => 'مجموعه قوانین مدنی و کیفری زرین',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/><path d="M6 14h6"/>',
+            ],
+            'attorney-advocate-badge' => [
+                'number' => 7,
+                'title' => 'مدال افتخار وکیل پایه یک دادگستری',
+                'viewBox' => '0 0 24 24',
+                'path' => '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
+            ],
+            'arbitration-handshake-justice' => [
+                'number' => 8,
+                'title' => 'سازش، داوری و مصالحه حقوقی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="m11 17 2 2a1 1 0 0 0 1.4 0l4.3-4.3a1 1 0 0 0 0-1.4l-3-3a1 1 0 0 0-1.4 0L13 11.6"/><path d="m18 11 3-3a1 1 0 0 0 0-1.4l-4.6-4.6a1 1 0 0 0-1.4 0L12 5"/><path d="m2 14 3-3a1 1 0 0 1 1.4 0l3 3a1 1 0 0 1 0 1.4L5.1 19.7a1 1 0 0 1-1.4 0L2 18a1 1 0 0 1 0-1.4l0 0"/><path d="m6 10-3-3a1 1 0 0 1 0-1.4L7.6 1a1 1 0 0 1 1.4 0L12 4"/>',
+            ],
+            'property-deed-real-estate' => [
+                'number' => 9,
+                'title' => 'سند تک‌برگ کاداستر و مالکیت اراضی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/><circle cx="12" cy="7" r="1"/>',
+            ],
+            'judicial-subpoena-envelope' => [
+                'number' => 10,
+                'title' => 'ابلاغیه الکترونیکی سامانه ثنا',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><circle cx="18" cy="8" r="2" fill="currentColor"/>',
+            ],
+            'supreme-court-appeal-stamp' => [
+                'number' => 11,
+                'title' => 'مهر فرجام‌خواهی دیوان عالی کشور',
+                'viewBox' => '0 0 24 24',
+                'path' => '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/><path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="2 4"/>',
+            ],
+
+            // 12-22: Security & Cryptography
             'shield-anti-idor-barrier' => [
                 'number' => 12,
-                'title' => 'سپر ضد نفوذ Anti-IDOR',
+                'title' => 'سپر ضد نفوذ و پدافند Anti-IDOR',
                 'viewBox' => '0 0 24 24',
                 'path' => '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
             ],
             'hmac-token-keyhole' => [
                 'number' => 13,
-                'title' => 'کلید رمزنگاری HMAC',
+                'title' => 'کلید رمزنگاری امضای HMAC-SHA256',
                 'viewBox' => '0 0 24 24',
                 'path' => '<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/>',
             ],
             'pgp-encryption-fingerprint' => [
                 'number' => 14,
-                'title' => 'اثر انگشت کلید PGP',
+                'title' => 'اثر انگشت کلید خصوصی و عمومی PGP',
                 'viewBox' => '0 0 24 24',
                 'path' => '<path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/>',
             ],
+            'safe-vault-encrypted' => [
+                'number' => 15,
+                'title' => 'گاوصندوق اسناد و فایل‌های فوق‌محرمانه',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="8" x2="12" y2="10"/><line x1="12" y1="14" x2="12" y2="16"/><line x1="8" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="16" y2="12"/>',
+            ],
+            'blockchain-block-link' => [
+                'number' => 16,
+                'title' => 'بلوک زنجیره متصل به دفتر کل توزیع‌شده',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="8" height="8" x="2" y="2" rx="1"/><rect width="8" height="8" x="14" y="2" rx="1"/><rect width="8" height="8" x="14" y="14" rx="1"/><rect width="8" height="8" x="2" y="14" rx="1"/><line x1="10" y1="6" x2="14" y2="6"/><line x1="6" y1="10" x2="6" y2="14"/><line x1="10" y1="18" x2="14" y2="18"/><line x1="18" y1="10" x2="18" y2="14"/>',
+            ],
+            'cyber-forensics-binary-bug' => [
+                'number' => 17,
+                'title' => 'کشف جرایم رایانه‌ای و جرم‌شناسی سایبری',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="16" height="12" x="4" y="6" rx="2"/><circle cx="8" cy="12" r="1"/><circle cx="16" cy="12" r="1"/><path d="M12 2v4"/><path d="m19 19-3-3"/><path d="m5 19 3-3"/><path d="M2 12h2"/><path d="M20 12h2"/>',
+            ],
+            'qr-code-authenticator' => [
+                'number' => 18,
+                'title' => 'بارکد دوبعدی اصالت‌سنجی هویت دیجیتال',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/>',
+            ],
+            'padlock-two-factor-auth' => [
+                'number' => 19,
+                'title' => 'قفل ورود دو مرحله‌ای با پیامک و OTP',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1.5"/>',
+            ],
+            'audit-log-check-list' => [
+                'number' => 20,
+                'title' => 'سیاهه بازرسی امنیتی و لاگ رخدادها',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/>',
+            ],
+            'anti-crawler-bot-barrier' => [
+                'number' => 21,
+                'title' => 'دیواره محافظت در برابر ربات‌ها و خزنده‌ها',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4Z"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><line x1="9" y1="17" x2="15" y2="17"/>',
+            ],
+            'data-encryption-matrix' => [
+                'number' => 22,
+                'title' => 'ماتریس کدگذاری داده‌ها و هش SHA-512',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h.01"/><path d="M12 7h.01"/><path d="M17 7h.01"/><path d="M7 12h.01"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 17h.01"/><path d="M12 17h.01"/><path d="M17 17h.01"/>',
+            ],
+
+            // 23-33: Technology & Performance
             'terminal-cli-prompt' => [
                 'number' => 23,
-                'title' => 'ترمینال کامندلاین یونیکس',
+                'title' => 'ترمینال کامندلاین یونیکس و مهندسی پرامپت',
                 'viewBox' => '0 0 24 24',
                 'path' => '<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>',
             ],
@@ -13539,33 +13986,262 @@ class Sovereign_Svg_Icons {
                 'viewBox' => '0 0 24 24',
                 'path' => '<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',
             ],
+            'git-merge-commit-branch' => [
+                'number' => 26,
+                'title' => 'شاخه گیت و کامی‌های نسخه‌بندی کد',
+                'viewBox' => '0 0 24 24',
+                'path' => '<line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>',
+            ],
+            'database-sql-server' => [
+                'number' => 27,
+                'title' => 'پایگاه داده رابطه‌ای SQL با ایندکس سریع',
+                'viewBox' => '0 0 24 24',
+                'path' => '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>',
+            ],
+            'api-rest-webhook-cloud' => [
+                'number' => 28,
+                'title' => 'وب‌هوک ابری و وب‌سرویس RESTful API',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="m13 11-3 3 3 3"/>',
+            ],
+            'zap-energy-turbo-boost' => [
+                'number' => 29,
+                'title' => 'صاعقه توربوشارژ و بوست ۱۰۰٪ گوگلی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+            ],
+            'responsive-devices-trio' => [
+                'number' => 30,
+                'title' => 'واکنش‌گرایی سه‌گانه: موبایل، تبلت و دسکتاپ',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="18" height="12" x="3" y="4" rx="2"/><path d="M2 20h20"/><path d="M12 16v4"/>',
+            ],
+            'code-xml-bracket-clean' => [
+                'number' => 31,
+                'title' => 'تگ‌های تمیز برنامه‌نویسی و کدهای بهینه',
+                'viewBox' => '0 0 24 24',
+                'path' => '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+            ],
+            'server-rack-datacenter' => [
+                'number' => 32,
+                'title' => 'رک سرور دیتابیس مرکز داده با پایداری ۹۹.۹٪',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>',
+            ],
+            'cache-purge-clean-broom' => [
+                'number' => 33,
+                'title' => 'پاکسازی خودکار کش و ترنزینت‌های سرور',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+            ],
+
+            // 34-44: Finance & eCommerce
+            'currency-rial-gold-coin' => [
+                'number' => 34,
+                'title' => 'سکه طلای بهار آزادی و محاسبات ریالی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<circle cx="12" cy="12" r="8"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+            ],
+            'calculator-tax-stamp' => [
+                'number' => 35,
+                'title' => 'ماشین حساب مالیات، تمبر و حق‌الوکاله',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>',
+            ],
+            'shopping-cart-drawer-fast' => [
+                'number' => 36,
+                'title' => 'سبد خرید سریع کشویی با تسویه آنی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+            ],
+            'zarinpal-shaparak-gateway' => [
+                'number' => 37,
+                'title' => 'درگاه پرداخت شاپرک و زرین‌پال امن',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>',
+            ],
             'crown-vip-membership' => [
                 'number' => 38,
-                'title' => 'تاج عضویت کلوب VIP',
+                'title' => 'تاج پادشاهی و عضویت در کلوب VIP',
                 'viewBox' => '0 0 24 24',
                 'path' => '<path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/>',
             ],
+            'trending-roi-growth-chart' => [
+                'number' => 39,
+                'title' => 'نمودار صعودی بازدهی سرمایه‌گذاری (ROI)',
+                'viewBox' => '0 0 24 24',
+                'path' => '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+            ],
+            'invoice-receipt-tax' => [
+                'number' => 40,
+                'title' => 'پیش‌فاکتور رسمی و صورتحساب مودیان مالیاتی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17V7"/>',
+            ],
+            'wallet-escrow-arbitration' => [
+                'number' => 41,
+                'title' => 'کیف پول امانت و حساب امانی داوری (Escrow)',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>',
+            ],
+            'percent-discount-badge' => [
+                'number' => 42,
+                'title' => 'بج تخفیف ویژه سالانه و آفر طلایی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+            ],
+            'package-delivery-truck' => [
+                'number' => 43,
+                'title' => 'کامیون ارسال پست پیشتاز کتاب‌ها و لوایح',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="14" height="12" x="1" y="6" rx="2"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/><path d="M15 8h4.5a2 2 0 0 1 1.8 1.1l1.7 3.4V16h-3"/>',
+            ],
+            'bank-check-sayad' => [
+                'number' => 44,
+                'title' => 'چک صیادی بنفش با استعلام ثبت سامانه پیچک',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="20" height="12" x="2" y="6" rx="2"/><line x1="6" y1="12" x2="14" y2="12"/><line x1="16" y1="12" x2="18" y2="12"/><circle cx="18" cy="9" r="1"/>',
+            ],
+
+            // 45-55: Islamic Art & Persian Parametric
             'shamseh-twelve-star-gold' => [
                 'number' => 45,
-                'title' => 'شمسه دوازده‌پر زرین اسلامی',
+                'title' => 'شمسه دوازده‌پر زرین و گره‌چینی اسلامی',
                 'viewBox' => '0 0 24 24',
                 'path' => '<polygon points="12 2 15 8 21 9 17 14 18 20 12 17 6 20 7 14 3 9 9 8 12 2"/><circle cx="12" cy="12" r="3"/>',
             ],
+            'muqarnas-arch-dome' => [
+                'number' => 46,
+                'title' => 'مقرنس طاق و گنبد ابنیه تاریخی اصفهان',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M12 2C7 2 4 8 4 14v8h16v-8c0-6-3-12-8-12z"/><path d="M12 6c-3 0-5 4-5 8v8h10v-8c0-4-2-8-5-8z"/><path d="M12 10c-1.5 0-2.5 2-2.5 4v8h5v-8c0-2-1-4-2.5-4z"/>',
+            ],
+            'persian-toranj-medallion' => [
+                'number' => 47,
+                'title' => 'ترنج شاه‌عباسی و لچک فرش ایرانی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<ellipse cx="12" cy="12" rx="9" ry="5"/><ellipse cx="12" cy="12" rx="5" ry="9"/><circle cx="12" cy="12" r="2"/>',
+            ],
+            'arabesque-vine-scroll' => [
+                'number' => 48,
+                'title' => 'شاخه اسلیمی ده‌تند و ختایی محراب',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M12 22c5-5 8-8 8-13a8 8 0 0 0-16 0c0 5 3 8 8 13Z"/><circle cx="12" cy="9" r="3"/>',
+            ],
+            'calligraphy-qalam-feather' => [
+                'number' => 49,
+                'title' => 'قلم نی خوشنویسی و خط ثلث و نستعلیق',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="m19 11-8-8-8.5 8.5a2.12 2.12 0 0 0 0 3L7 19l4 4 4.5-4.5a2.12 2.12 0 0 0 0-3L19 11z"/><line x1="18" y1="2" x2="22" y2="6"/>',
+            ],
+            'mosque-minaret-crescent' => [
+                'number' => 50,
+                'title' => 'هلال ماه زرین و مناره‌های عدلیه اسلامی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1Z"/><polygon points="19 3 20 5 22 6 20 7 19 9 18 7 16 6 18 5 19 3"/>',
+            ],
+            'girih-ten-star-tile' => [
+                'number' => 51,
+                'title' => 'کاشی‌کاری گره‌چینی ده‌پر حرم مطهر',
+                'viewBox' => '0 0 24 24',
+                'path' => '<polygon points="12 2 14.5 7.5 20.5 8 16 12 17.5 18 12 15 6.5 18 8 12 3.5 8 9.5 7.5 12 2"/>',
+            ],
             'sedrazavi-hawk-sovereign' => [
                 'number' => 52,
-                'title' => 'نشان شاهین زرین SedRazavi',
+                'title' => 'نشان شاهین زرین اقتدار سید رضوی',
                 'viewBox' => '0 0 24 24',
                 'path' => '<path d="M12 2 4 9l8 13 8-13-8-7z"/><path d="m4 9 8 3 8-3"/><line x1="12" y1="12" x2="12" y2="22"/>',
             ],
+            'compass-qibla-navigation' => [
+                'number' => 53,
+                'title' => 'قطب‌نمای اسطرلابی و قبله‌نمای برنجی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
+            ],
+            'sundial-solar-time' => [
+                'number' => 54,
+                'title' => 'ساعت آفتابی رصدخانه و وقت دادرسی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="18" y2="6"/><line x1="12" y1="3" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="21"/><line x1="3" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="21" y2="12"/>',
+            ],
+            'persian-paisley-boteh' => [
+                'number' => 55,
+                'title' => 'بته‌جقه اصیل ایرانی و نماد آزادگی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M12 2C7 2 5 7 5 12c0 6 3 10 7 10 3 0 7-3 7-8 0-4-3-6-5-7 3-1 2-5-2-7Z"/>',
+            ],
+
+            // 56-66: UI, Layout & Media Controls
+            'mega-menu-grid-columns' => [
+                'number' => 56,
+                'title' => 'مگامنوی ۴ ستونه ناوبری با آیکون‌های دسته‌بندی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="18" height="18" x="3" y="3" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/><line x1="15" y1="21" x2="15" y2="9"/>',
+            ],
+            'floating-island-pill' => [
+                'number' => 57,
+                'title' => 'هدر جزیره‌ای شناور با کپسول شیشه‌ای',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="20" height="8" x="2" y="8" rx="4"/><circle cx="6" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>',
+            ],
+            'bento-layout-asymmetric' => [
+                'number' => 58,
+                'title' => 'چیدمان بنتوگرید نامتقارن ۲۰۲۶',
+                'viewBox' => '0 0 24 24',
+                'path' => '<rect width="7" height="18" x="3" y="3" rx="1"/><rect width="10" height="8" x="12" y="3" rx="1"/><rect width="10" height="8" x="12" y="13" rx="1"/>',
+            ],
+            'audio-waveform-sound' => [
+                'number' => 59,
+                'title' => 'امواج صوتی پادکست و وویس نوت تلگرام',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M2 10v4"/><path d="M6 6v12"/><path d="M10 3v18"/><path d="M14 8v8"/><path d="M18 5v14"/><path d="M22 10v4"/>',
+            ],
+            'video-chapters-player' => [
+                'number' => 60,
+                'title' => 'پلیر ویدیویی با فصل‌بندی زمانی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<polygon points="5 3 19 12 5 21 5 3"/><line x1="19" y1="3" x2="19" y2="21"/>',
+            ],
+            'spotplayer-anti-piracy' => [
+                'number' => 61,
+                'title' => 'قفل لایسنس اسپات‌پلیر ضد ضبط صفحه',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V17a1 1 0 0 1-2 0v-.07A7.003 7.003 0 0 1 5.07 11H5a1 1 0 0 1 0-2h.07A7.003 7.003 0 0 1 11 5.07V5a1 1 0 0 1 2 0v.07A7.003 7.003 0 0 1 18.93 11H19a1 1 0 0 1 0 2h-.07A7.003 7.003 0 0 1 13 16.93z"/>',
+            ],
+            'story-circle-instagram' => [
+                'number' => 62,
+                'title' => 'حلقه استوری اینستاگرام و ایتا با گرادیان طلایی',
+                'viewBox' => '0 0 24 24',
+                'path' => '<circle cx="12" cy="12" r="10" stroke-dasharray="3 3"/><circle cx="12" cy="12" r="6"/>',
+            ],
+            'star-five-gold-rating' => [
+                'number' => 63,
+                'title' => 'ستاره طلایی رضایت‌سنجی ۵ ستاره',
+                'viewBox' => '0 0 24 24',
+                'path' => '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+            ],
+            'soft98-download-arrow' => [
+                'number' => 64,
+                'title' => 'باکس دانلود چندسروره سافت۹۸',
+                'viewBox' => '0 0 24 24',
+                'path' => '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+            ],
+            'dark-light-mode-toggle' => [
+                'number' => 65,
+                'title' => 'سوییچر جادویی تم شب، روز و سیستم',
+                'viewBox' => '0 0 24 24',
+                'path' => '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+            ],
             'sovereign-master-seal-official' => [
                 'number' => 66,
-                'title' => 'مهر رسمی سید امیر حسین رضوی فردویی',
+                'title' => 'مهر و امضای رسمی معمار سامانه: سید امیر حسین رضوی فردویی',
                 'viewBox' => '0 0 24 24',
                 'path' => '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="6"/><polygon points="12 4 14 8 18 9 15 13 16 18 12 15 8 18 9 13 6 9 10 8 12 4"/>',
             ],
         ];
     }
 }
+
 `},{path:"elementor-addon-suite/includes/class-sovereign-widgets-registry.php",filename:"class-sovereign-widgets-registry.php",category:"ماژول‌های افزونه (Plugin Includes)",description:"ماژول افزونه وردپرس: elementor-addon-suite/includes/class-sovereign-widgets-registry.php",code:`<?php
 namespace UniversalElementorSuite;
 
@@ -13931,6 +14607,12 @@ class Standalone_Shortcodes {
             UAS_VERSION,
             true
         );
+        wp_localize_script('uas-standalone-blocks-js', 'uasFrontendConfig', [
+            'restUrl'   => function_exists('rest_url') ? esc_url_raw(rest_url('sedrazavi/v1/')) : '/wp-json/sedrazavi/v1/',
+            'restNonce' => wp_create_nonce('wp_rest'),
+            'ajaxUrl'   => admin_url('admin-ajax.php'),
+            'ajaxNonce' => wp_create_nonce('uas_industry_nonce'),
+        ]);
 
         // Auto enqueue if on singular post or page
         wp_enqueue_style('uas-standalone-blocks');
@@ -14778,19 +15460,35 @@ class Standalone_Shortcodes {
      * Render Video Media Hub shortcode
      */
     public function render_video_hub($atts = []) {
+        $a = shortcode_atts([
+            'src'    => get_option('uas_default_video_url', ''),
+            'poster' => '',
+            'title'  => 'آرشیو ویدئوها، وبینارها و تحلیل‌ها',
+        ], $atts, 'uas_video_hub');
+
+        $default_poster = 'data:image/svg+xml;charset=UTF-8,' . rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0b132b"/><stop offset="100%" stop-color="#1e293b"/></linearGradient></defs><rect width="800" height="450" fill="url(#g)"/><circle cx="400" cy="225" r="42" fill="#d4af37" fill-opacity="0.2" stroke="#d4af37" stroke-width="2"/><polygon points="390,208 390,242 420,225" fill="#d4af37"/></svg>');
+        $poster_url = !empty($a['poster']) ? $a['poster'] : $default_poster;
+
         ob_start();
         ?>
         <div class="uas-block-video-hub" dir="rtl" style="background:#0D1117;color:#F0F6FC;padding:32px 20px;border-radius:18px;border:1px solid #30363D;">
             <div style="text-align:center;max-width:700px;margin:0 auto 24px;">
                 <span style="display:inline-block;padding:4px 12px;background:rgba(212,175,55,0.2);color:#D4AF37;border-radius:9999px;font-size:12px;font-weight:bold;margin-bottom:12px;">🎬 رسانه و مدیا</span>
-                <h2 style="font-size:24px;font-weight:bold;margin:0 0 10px;">آرشیو ویدئوها، وبینارها و تحلیل‌ها</h2>
+                <h2 style="font-size:24px;font-weight:bold;margin:0 0 10px;"><?php echo esc_html($a['title']); ?></h2>
                 <p style="font-size:13px;color:#8B949E;">مشاهده و دانلود ویدئوها با کیفیت‌های ۱۰۸۰p و ۷۲۰p</p>
             </div>
             <div style="max-width:800px;margin:0 auto;border-radius:14px;overflow:hidden;background:#161B22;border:1px solid #30363D;">
-                <video controls style="width:100%;display:block;max-height:450px;background:#000;" poster="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80">
-                    <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
-                    مرورگر شما از پخش ویدئو پشتیبانی نمی‌کند.
-                </video>
+                <?php if (!empty($a['src'])): ?>
+                    <video controls preload="metadata" style="width:100%;display:block;max-height:450px;background:#000;" poster="<?php echo esc_attr($poster_url); ?>">
+                        <source src="<?php echo esc_url($a['src']); ?>" type="video/mp4">
+                        مرورگر شما از پخش ویدئو پشتیبانی نمی‌کند.
+                    </video>
+                <?php else: ?>
+                    <div style="padding:48px 24px;text-align:center;color:#94A3B8;font-size:13px;line-height:1.8;">
+                        <p style="margin:0 0 6px;color:#F8FAFC;font-weight:700;">پلیر اختصاصی آماده پخش است</p>
+                        <p style="margin:0;">برای پخش ویدئو، آدرس فایل را در صفت <code>src</code> شورت‌کد <code>[uas_video_hub src="..."]</code> تنظیم نمایید.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
         <?php
@@ -14824,19 +15522,31 @@ class Standalone_Shortcodes {
      * Render Music & Podcast Player shortcode
      */
     public function render_music_player($atts = []) {
+        $a = shortcode_atts([
+            'src'      => get_option('uas_default_audio_url', ''),
+            'title'    => 'پخش‌کننده صوتی و پادکست',
+            'subtitle' => 'امکان استریم و دانلود مستقیم با کیفیت‌های مختلف',
+        ], $atts, 'uas_music_player');
+
         ob_start();
         ?>
         <div class="uas-block-music" dir="rtl" style="background:#070D1E;color:#FFF;padding:24px;border-radius:16px;border:1px solid #1E293B;">
             <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
                 <span style="font-size:32px;">🎧</span>
                 <div>
-                    <h3 style="font-size:16px;font-weight:bold;margin:0 0 4px;">پخش‌کننده صوتی و پادکست</h3>
-                    <p style="font-size:12px;color:#94A3B8;margin:0;">امکان استریم و دانلود مستقیم با کیفیت‌های مختلف</p>
+                    <h3 style="font-size:16px;font-weight:bold;margin:0 0 4px;"><?php echo esc_html($a['title']); ?></h3>
+                    <p style="font-size:12px;color:#94A3B8;margin:0;"><?php echo esc_html($a['subtitle']); ?></p>
                 </div>
             </div>
-            <audio controls style="width:100%;">
-                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-            </audio>
+            <?php if (!empty($a['src'])): ?>
+                <audio controls preload="metadata" style="width:100%;">
+                    <source src="<?php echo esc_url($a['src']); ?>" type="audio/mpeg">
+                </audio>
+            <?php else: ?>
+                <div style="padding:12px 14px;border-radius:10px;background:#0F172A;border:1px dashed #334155;color:#94A3B8;font-size:12px;">
+                    فایل صوتی تنظیم نشده است؛ آدرس را با صفت <code>src</code> در <code>[uas_music_player src="..."]</code> وارد کنید.
+                </div>
+            <?php endif; ?>
         </div>
         <?php
         return ob_get_clean();
@@ -16066,7 +16776,8 @@ class WooCommerce_Compatibility {
     }
 
     public function __construct() {
-        // Core WooCommerce Support
+        // Core WooCommerce Support & HPOS / Cart-Checkout Blocks Declaration
+        add_action('before_woocommerce_init', [$this, 'declare_hpos_compatibility']);
         add_action('after_setup_theme', [$this, 'declare_woocommerce_support'], 20);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_compatibility_assets'], 25);
 
@@ -16081,6 +16792,17 @@ class WooCommerce_Compatibility {
     }
 
     /**
+     * Declare compatibility with WooCommerce High-Performance Order Storage (HPOS) & Checkout Blocks
+     */
+    public function declare_hpos_compatibility() {
+        if (class_exists(\\Automattic\\WooCommerce\\Utilities\\FeaturesUtil::class)) {
+            $plugin_file = defined('UAS_FILE') ? UAS_FILE : dirname(__DIR__) . '/elementor-addon-suite.php';
+            \\Automattic\\WooCommerce\\Utilities\\FeaturesUtil::declare_compatibility('custom_order_tables', $plugin_file, true);
+            \\Automattic\\WooCommerce\\Utilities\\FeaturesUtil::declare_compatibility('cart_checkout_blocks', $plugin_file, true);
+        }
+    }
+
+    /**
      * Declare WooCommerce Theme & Plugin Support
      */
     public function declare_woocommerce_support() {
@@ -16091,7 +16813,7 @@ class WooCommerce_Compatibility {
     }
 
     /**
-     * Enqueue styles ensuring zero clash with WoodMart & JetWooBuilder
+     * Enqueue styles conditionally so pages without WooCommerce/builders remain lightweight
      */
     public function enqueue_compatibility_assets() {
         wp_register_style(
@@ -16101,8 +16823,24 @@ class WooCommerce_Compatibility {
             UAS_VERSION
         );
 
-        // Always load so WoodMart and JetWooBuilder elements look seamless
-        wp_enqueue_style('uas-ecommerce-compat');
+        $has_commerce_stack = class_exists('WooCommerce')
+            || defined('WOODMART_THEME_DIR')
+            || function_exists('woodmart_get_opt')
+            || defined('JET_WOO_BUILDER_VERSION')
+            || defined('SHOPENGINE_VERSION');
+
+        if (!$has_commerce_stack && is_singular()) {
+            global $post;
+            if ($post && isset($post->post_content)) {
+                $has_commerce_stack = has_shortcode($post->post_content, 'uas_service_pricing_table')
+                    || has_shortcode($post->post_content, 'uas_quick_checkout_box')
+                    || has_shortcode($post->post_content, 'uas_woodmart_product_badge');
+            }
+        }
+
+        if ($has_commerce_stack) {
+            wp_enqueue_style('uas-ecommerce-compat');
+        }
     }
 
     /**
@@ -16158,6 +16896,7 @@ class WooCommerce_Compatibility {
      * Universal Service & Product Pricing Table
      */
     public function render_service_pricing_table($atts) {
+        wp_enqueue_style('uas-ecommerce-compat');
         $a = shortcode_atts([
             'category' => 'consultation',
             'columns'  => '3',
@@ -16202,6 +16941,7 @@ class WooCommerce_Compatibility {
      * WoodMart Product Badge Helper
      */
     public function render_woodmart_product_badge($atts) {
+        wp_enqueue_style('uas-ecommerce-compat');
         $a = shortcode_atts([
             'text'  => 'تاییدیه رسمی',
             'color' => '#D4AF37',
@@ -16218,6 +16958,9 @@ class WooCommerce_Compatibility {
      * Quick 1-Step Checkout Box (Interoperable with WooCommerce & ShopEngine)
      */
     public function render_quick_checkout_box($atts) {
+        wp_enqueue_style('uas-ecommerce-compat');
+        wp_enqueue_script('uas-standalone-blocks');
+        $checkout_url = function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '';
         ob_start();
         ?>
         <div class="uas-quick-checkout-box" dir="rtl">
@@ -16225,15 +16968,16 @@ class WooCommerce_Compatibility {
                 <h4>پرداخت امن حق‌المشاوره و بیعانه دادرسی</h4>
                 <p>متصل به شبکه شتاب و کلیه درگاه‌های بانکی رسمی کشور (سداد، شاپرک، به‌پرداخت، زرین‌پال)</p>
             </div>
-            <form class="uas-qc-form" onsubmit="event.preventDefault(); alert('انتقال به درگاه امن بانکی شاپرک...');">
+            <form class="uas-qc-form" data-checkout-url="<?php echo esc_url($checkout_url); ?>">
                 <div class="uas-grid uas-grid-2">
-                    <input type="text" placeholder="نام و نام خانوادگی موکل" required class="uas-input" />
-                    <input type="tel" placeholder="شماره تلفن همراه (جهت دریافت شناسه تراکنش)" required class="uas-input" />
+                    <input type="text" name="client_name" placeholder="نام و نام خانوادگی موکل" required class="uas-input" aria-label="نام و نام خانوادگی موکل" />
+                    <input type="tel" name="client_phone" placeholder="شماره تلفن همراه (جهت دریافت شناسه تراکنش)" required class="uas-input" aria-label="شماره تلفن همراه" />
                 </div>
                 <div class="uas-grid uas-grid-2" style="margin-top:12px;">
-                    <input type="number" placeholder="مبلغ واریزی به تومان" value="2500000" class="uas-input font-mono" />
+                    <input type="number" name="amount" min="10000" placeholder="مبلغ واریزی به تومان" value="2500000" class="uas-input font-mono" aria-label="مبلغ واریزی به تومان" />
                     <button type="submit" class="uas-btn-primary" style="background:#238636;">اتصال به درگاه بانکی شاپرک ←</button>
                 </div>
+                <div class="uas-qc-feedback" role="status" aria-live="polite" style="display:none; margin-top:12px; padding:10px 14px; border-radius:8px; font-size:13px;"></div>
             </form>
         </div>
         <?php
@@ -16355,23 +17099,28 @@ class Archive_Security_Validator {
             return ['safe' => false, 'error' => 'فرمت داده‌های JSON درون manifest.json معتبر نیست.'];
         }
 
-        // Verify per-file SHA-256 checksums embedded in manifest.json when present
-        $checksum_verified_count = 0;
-        if (!empty($manifest['file_checksums'])) {
-            $validator = $manifest_validator instanceof Package_Manifest_Validator
-                ? $manifest_validator
-                : new Package_Manifest_Validator();
-
-            $cs_res = $validator->verify_manifest_checksums($manifest, $zip, $manifest_root_prefix);
-            if (!$cs_res['valid']) {
-                $zip->close();
-                return [
-                    'safe'  => false,
-                    'error' => 'تأیید یکپارچگی چک‌سام فایل‌های بسته ناموفق بود: ' . implode(' | ', $cs_res['errors']),
-                ];
-            }
-            $checksum_verified_count = $cs_res['verified_count'];
+        // Enforce mandatory per-file SHA-256 checksum verification (fail-closed)
+        if (empty($manifest['file_checksums']) || !is_array($manifest['file_checksums'])) {
+            $zip->close();
+            return [
+                'safe'  => false,
+                'error' => 'مانیفست بسته فاقد جدول امضای SHA-256 فایل‌ها (file_checksums) است و امکان تأیید اصالت آن وجود ندارد.',
+            ];
         }
+
+        $validator = $manifest_validator instanceof Package_Manifest_Validator
+            ? $manifest_validator
+            : new Package_Manifest_Validator();
+
+        $cs_res = $validator->verify_manifest_checksums($manifest, $zip, $manifest_root_prefix, true);
+        if (!$cs_res['valid']) {
+            $zip->close();
+            return [
+                'safe'  => false,
+                'error' => 'تأیید یکپارچگی چک‌سام فایل‌های بسته ناموفق بود: ' . implode(' | ', $cs_res['errors']),
+            ];
+        }
+        $checksum_verified_count = $cs_res['verified_count'];
 
         $zip->close();
 
@@ -16850,6 +17599,31 @@ class Package_Exporter {
         $include_gutenberg   = $resolved_bc['include_gutenberg'];
         $include_cpts        = $resolved_bc['include_cpts'];
 
+        $needs_elementor = (!empty($widgets) || !empty($templates));
+        $required_reqs = [
+            'php'       => '>=7.4',
+            'wordpress' => '>=6.0',
+        ];
+        if ($needs_elementor) {
+            $required_reqs['elementor'] = '>=3.10';
+        }
+        $optional_reqs = [
+            'elementor_pro' => '>=3.10',
+            'woocommerce'   => '>=8.0',
+        ];
+        if ($include_gutenberg) {
+            $optional_reqs['gutenberg'] = '>=6.0';
+        }
+        $requirements_manifest = [
+            'php'       => '>=7.4',
+            'wordpress' => '>=6.0',
+            'required'  => $required_reqs,
+            'optional'  => $optional_reqs,
+        ];
+        if ($needs_elementor) {
+            $requirements_manifest['elementor'] = '>=3.10';
+        }
+
         $manifest = [
             'id'                  => $project_slug,
             'name'                => $project_name,
@@ -16870,11 +17644,7 @@ class Package_Exporter {
                 'gutenberg_blocks' => $include_gutenberg,
                 'cpt_schemas'      => $include_cpts,
             ],
-            'requirements'        => [
-                'php'       => '>=7.4',
-                'wordpress' => '>=6.0',
-                'elementor' => '>=3.10',
-            ],
+            'requirements'        => $requirements_manifest,
         ];
 
         // Collect all files in memory first so per-file SHA-256 checksums are computed deterministically
@@ -18265,38 +19035,63 @@ class Package_Manifest_Validator {
             }
         }
 
-        // Requirements validation
+        // Requirements validation (supports both flat legacy keys and structured required/optional buckets)
         if (!empty($manifest['requirements']) && is_array($manifest['requirements'])) {
             $req = $manifest['requirements'];
 
+            $required_reqs = [];
+            if (!empty($req['required']) && is_array($req['required'])) {
+                $required_reqs = $req['required'];
+            }
+            foreach (['php', 'wordpress', 'elementor'] as $core_req_key) {
+                if (!empty($req[$core_req_key]) && !isset($required_reqs[$core_req_key])) {
+                    $required_reqs[$core_req_key] = $req[$core_req_key];
+                }
+            }
+
+            $optional_reqs = [];
+            if (!empty($req['optional']) && is_array($req['optional'])) {
+                $optional_reqs = $req['optional'];
+            }
+            foreach (['elementor_pro', 'woocommerce', 'gutenberg'] as $opt_req_key) {
+                if (!empty($req[$opt_req_key]) && !isset($optional_reqs[$opt_req_key])) {
+                    $optional_reqs[$opt_req_key] = $req[$opt_req_key];
+                }
+            }
+
             // PHP Check
-            if (!empty($req['php'])) {
-                $min_php = ltrim((string) $req['php'], '>=');
+            if (!empty($required_reqs['php'])) {
+                $min_php = ltrim((string) $required_reqs['php'], '>=');
                 if (version_compare(PHP_VERSION, $min_php, '<')) {
                     $errors[] = sprintf('نسخه PHP سرور (%s) پایین‌تر از حداقل نیازمندی این بسته (%s) است.', PHP_VERSION, $min_php);
                 }
             }
 
             // WordPress Check
-            if (!empty($req['wordpress']) && function_exists('get_bloginfo')) {
-                $min_wp = ltrim((string) $req['wordpress'], '>=');
+            if (!empty($required_reqs['wordpress']) && function_exists('get_bloginfo')) {
+                $min_wp = ltrim((string) $required_reqs['wordpress'], '>=');
                 $wp_version = get_bloginfo('version');
                 if (version_compare($wp_version, $min_wp, '<')) {
                     $errors[] = sprintf('نسخه وردپرس (%s) با این بسته سازگار نیست (نیاز به %s دارد).', $wp_version, $min_wp);
                 }
             }
 
-            // Elementor Version Check
-            if (!empty($req['elementor']) && defined('ELEMENTOR_VERSION')) {
-                $min_el = ltrim((string) $req['elementor'], '>=');
-                if (version_compare(ELEMENTOR_VERSION, $min_el, '<')) {
+            // Elementor Required Check (Fail-closed when package requires Elementor)
+            if (!empty($required_reqs['elementor'])) {
+                $min_el = ltrim((string) $required_reqs['elementor'], '>=');
+                if (!defined('ELEMENTOR_VERSION') && !class_exists('\\Elementor\\Plugin')) {
+                    $errors[] = sprintf('افزونه المنتور (Elementor %s+) روی سایت نصب یا فعال نیست؛ این بسته برای اجرا به المنتور نیاز دارد.', $min_el);
+                } elseif (defined('ELEMENTOR_VERSION') && version_compare(ELEMENTOR_VERSION, $min_el, '<')) {
                     $errors[] = sprintf('نسخه المنتور فعلی (%s) قدیمی‌تر از حداقل نسخه مورد نیاز (%s) است.', ELEMENTOR_VERSION, $min_el);
                 }
             }
 
-            // Elementor Pro warning
-            if (!empty($req['elementor_pro']) && !defined('ELEMENTOR_PRO_VERSION')) {
-                $warnings[] = 'این بسته از ویژگی‌های پیشرفته المنتور پرو استفاده می‌کند؛ در نسخه رایگان با فال‌بک کار خواهد کرد.';
+            // Optional Dependency Notices (non-blocking)
+            if (!empty($optional_reqs['elementor_pro']) && !defined('ELEMENTOR_PRO_VERSION')) {
+                $warnings[] = 'این بسته از قابلیت‌های اختیاری المنتور پرو پشتیبانی می‌کند؛ در نسخه رایگان با پل جایگزین (Theme Builder Bridge) اجرا می‌شود.';
+            }
+            if (!empty($optional_reqs['woocommerce']) && !class_exists('WooCommerce')) {
+                $warnings[] = 'افزونه WooCommerce فعال نیست؛ بخش‌های فروشگاهی اختیاری غیرفعال خواهند بود.';
             }
         }
 
@@ -18332,13 +19127,21 @@ class Package_Manifest_Validator {
      * @param array       $manifest
      * @param \\ZipArchive $zip
      * @param string      $root_prefix Optional leading folder prefix inside ZIP
+     * @param bool        $strict      When true, missing file_checksums fails closed
      * @return array [ 'valid' => bool, 'verified_count' => int, 'errors' => array ]
      */
-    public function verify_manifest_checksums(array $manifest, \\ZipArchive $zip, $root_prefix = '') {
+    public function verify_manifest_checksums(array $manifest, \\ZipArchive $zip, $root_prefix = '', $strict = true) {
         $errors = [];
         $verified = 0;
 
         if (empty($manifest['file_checksums']) || !is_array($manifest['file_checksums'])) {
+            if ($strict) {
+                return [
+                    'valid'          => false,
+                    'verified_count' => 0,
+                    'errors'         => ['جدول امضای SHA-256 فایل‌ها (file_checksums) در مانیفست وجود ندارد.'],
+                ];
+            }
             return [
                 'valid'          => true,
                 'verified_count' => 0,
@@ -21344,16 +22147,15 @@ class Universal_Hero_Split_Conversion_Widget extends Universal_Widget_Base {
                         </div>
                         <p class="uas-lead-desc"><?php echo esc_html($settings['lead_desc']); ?></p>
 
-                        <form class="uas-hero-lead-form" onsubmit="event.preventDefault(); this.classList.add('is-submitted');">
+                        <form class="uas-hero-lead-form">
                             <div class="uas-form-group">
-                                <input type="tel" class="uas-form-input" placeholder="<?php echo esc_attr($settings['input_placeholder']); ?>" required pattern="[0-9\\u06F0-\\u06F9+]{10,14}" />
+                                <input type="tel" name="phone" class="uas-form-input" placeholder="<?php echo esc_attr($settings['input_placeholder']); ?>" required pattern="[0-9\\u06F0-\\u06F9+]{10,14}" />
                             </div>
                             <button type="submit" class="uas-form-submit-btn">
                                 <?php echo esc_html($settings['submit_btn_text']); ?>
                             </button>
-                            <div class="uas-form-success-msg">
-                                ✓ درخواست شما با موفقیت ثبت شد؛ کارشناسان به زودی تماس می‌گیرند.
-                            </div>
+                            <div class="uas-form-success-msg" role="status" aria-live="polite"></div>
+                            <div class="uas-form-error-msg" role="alert" style="display:none;color:#fca5a5;font-size:12px;margin-top:8px;"></div>
                         </form>
 
                         <div class="uas-lead-guarantee">
@@ -22845,9 +23647,10 @@ class Universal_SpotPlayer_Course_Widget extends Universal_Widget_Base {
         $this->add_control(
             'video_url',
             [
-                'label'   => esc_html__('آدرس ویدیو / استریم', 'universal-elementor-suite'),
-                'type'    => Controls_Manager::TEXT,
-                'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                'label'       => esc_html__('آدرس ویدیو / استریم', 'universal-elementor-suite'),
+                'type'        => Controls_Manager::TEXT,
+                'default'     => '',
+                'placeholder' => esc_html__('https://example.com/course-lesson.mp4', 'universal-elementor-suite'),
             ]
         );
 
@@ -22957,9 +23760,15 @@ class Universal_SpotPlayer_Course_Widget extends Universal_Widget_Base {
                     <span class="badge" style="padding: 4px 10px; border-radius: 9999px; background: #3b82f6; color: #fff; font-size: 11px; font-weight: 700;">پخش امن دوره</span>
                 </div>
                 <div style="position: relative; border-radius: 12px; overflow: hidden; background: #020617;">
-                    <video controls preload="metadata" style="width: 100%; display: block; max-height: 420px;">
-                        <source src="<?php echo esc_url($video_url); ?>" type="video/mp4">
-                    </video>
+                    <?php if (!empty($video_url)): ?>
+                        <video controls preload="metadata" style="width: 100%; display: block; max-height: 420px;">
+                            <source src="<?php echo esc_url($video_url); ?>" type="video/mp4">
+                        </video>
+                    <?php else: ?>
+                        <div style="padding: 44px 20px; text-align: center; color: #94a3b8; font-size: 13px; border: 1px dashed #334155; border-radius: 12px;">
+                            آدرس استریم دوره در تنظیمات ویجت هنوز وارد نشده است.
+                        </div>
+                    <?php endif; ?>
                     <?php if ($watermark): ?>
                         <div style="position: absolute; top: 12px; left: 14px; font-size: 11px; color: rgba(255,255,255,0.55); pointer-events: none; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 6px;">
                             🔒 <?php echo esc_html($user_label); ?>
@@ -28058,7 +28867,333 @@ c�\x07�9�r7z�X�ȿ�#�EB�ne?a�M�c�\`�V�Y�Q���
 �ĸZJ\x07q��������l�«�G�TI�8o����Aw���0:[��)��{�Gqp2�\x1B\f3��8,�_3�ϲ<��嘵�1��uQי�\\B%��\0}�;�N֊.5M������Y��M�,�x�b_���^�N̷]����GD9�l^�Y��>>5��oC�=�k)<_��G՜�H[�?J���}�zWzHYYS�|��-��o$��甁&xF������9�ă���+"\`��h��F���{��X�����kh�
 ���8������[7�ѯ&/�w�r^�OM�_־�}	�Ӝ�Vc�\x1B����:����,��9����D�������fC��\0�
 �y~����\0��u�ݐ�%�{��,�!�^6<8&~U�"Q#�Aˤ������1�h�o���g��ڧ?L]���o��/5��Y�
-\b(�/\x1B�ٗ���K���x�f�����H��0\x07\x1BQ$�N��Kafy��Rc���E��3lm��$�����O��\v ��N<H�Y�L>��d��e'r�8=dܸ~�-��C������&�I��Kw�:ٹQ٩z&�Y��H��{��]��\`�T�(i���\b��迻NWe��%\fJ�^W�n�v��Эֺ����y���\0� ��T�{{����U"a����֩���+v��G�$Rv�י\`\0Ȫ�Ar���w�5�KJF)�/v=|��0�%��N��Y˃���ɷ�h~\\ ��c{�1�9.^ZJ���sS~Ic������^��r��?Aw�u�ڢ�G~�o�|���&�V����9�WcX�*�9�Txo�AǛ=���GG�����J�f�.w����l]�2Z��O�x�;�͂��&�Y�\0����|�����߁N��#�K���\0��*w����%+fٟ�v	�b\\ZXQ�����YX�\x07\\��>���~��n���:�g�'��v5	�Z�*bY�o��@�����ס	Ω��M�!/�ԎC�ދ�.��w�?��Ro\\�O8���Ŋ�p|��p�m�a����t�x\\����a�1��q��:X\0\0`},{path:"sedrazavi-addons/includes/admin-settings.php",filename:"admin-settings.php",category:"ماژول‌های افزونه (Plugin Includes)",description:"پنل تنظیمات و مدیریت عمومی افزونه در پیشخوان وردپرس.",code:`<?php
+\b(�/\x1B�ٗ���K���x�f�����H��0\x07\x1BQ$�N��Kafy��Rc���E��3lm��$�����O��\v ��N<H�Y�L>��d��e'r�8=dܸ~�-��C������&�I��Kw�:ٹQ٩z&�Y��H��{��]��\`�T�(i���\b��迻NWe��%\fJ�^W�n�v��Эֺ����y���\0� ��T�{{����U"a����֩���+v��G�$Rv�י\`\0Ȫ�Ar���w�5�KJF)�/v=|��0�%��N��Y˃���ɷ�h~\\ ��c{�1�9.^ZJ���sS~Ic������^��r��?Aw�u�ڢ�G~�o�|���&�V����9�WcX�*�9�Txo�AǛ=���GG�����J�f�.w����l]�2Z��O�x�;�͂��&�Y�\0����|�����߁N��#�K���\0��*w����%+fٟ�v	�b\\ZXQ�����YX�\x07\\��>���~��n���:�g�'��v5	�Z�*bY�o��@�����ס	Ω��M�!/�ԎC�ދ�.��w�?��Ro\\�O8���Ŋ�p|��p�m�a����t�x\\����a�1��q��:X\0\0`},{path:"sedrazavi-addons/assets/js/shortcodes-runtime.js",filename:"shortcodes-runtime.js",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: sedrazavi-addons/assets/js/shortcodes-runtime.js",code:`/**
+ * SedRazavi Addons Shortcodes Interactive Runtime (REST API + Nonce)
+ * Zero fake client-only states; all forms submit to verified WordPress REST endpoints.
+ */
+(function () {
+  'use strict';
+
+  function getRestBase() {
+    var cfg = window.sedrazaviAddonsConfig || window.SedRazaviThemeConfig || {};
+    return (cfg.restUrl || '/wp-json/sedrazavi/v1/').replace(/\\/+$/, '');
+  }
+
+  function getNonce() {
+    var cfg = window.sedrazaviAddonsConfig || window.SedRazaviThemeConfig || {};
+    return cfg.restNonce || '';
+  }
+
+  function showStatus(el, msg, isError) {
+    if (!el) return;
+    el.style.display = 'block';
+    el.style.marginTop = '10px';
+    el.style.padding = '10px 12px';
+    el.style.borderRadius = '10px';
+    el.style.fontSize = '12px';
+    el.style.background = isError ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)';
+    el.style.border = isError ? '1px solid #ef4444' : '1px solid #10b981';
+    el.style.color = isError ? '#b91c1c' : '#047857';
+    el.textContent = msg;
+  }
+
+  function setDarkAwareStatus(el, msg, isError, darkMode) {
+    showStatus(el, msg, isError);
+    if (el && darkMode) {
+      el.style.color = isError ? '#fca5a5' : '#6ee7b7';
+    }
+  }
+
+  function bindOtpForms() {
+    document.querySelectorAll('.sr-otp-login-form').forEach(function (form) {
+      if (form.dataset.srBound === '1') return;
+      form.dataset.srBound = '1';
+
+      var phoneInput = form.querySelector('input[name="phone"]');
+      var step2Wrap = form.querySelector('.sr-otp-step-2');
+      var codeInput = form.querySelector('input[name="otp_code"]');
+      var sendBtn = form.querySelector('.sr-otp-send-btn');
+      var verifyBtn = form.querySelector('.sr-otp-verify-btn');
+      var statusEl = form.querySelector('.sr-shortcode-status');
+      var activeToken = '';
+
+      function sendOtp() {
+        var phone = phoneInput ? phoneInput.value.trim() : '';
+        if (!phone) {
+          showStatus(statusEl, 'لطفاً شماره موبایل معتبر وارد کنید.', true);
+          return;
+        }
+        var origText = sendBtn ? sendBtn.textContent : '';
+        if (sendBtn) {
+          sendBtn.disabled = true;
+          sendBtn.textContent = 'در حال ارسال کد...';
+        }
+        fetch(getRestBase() + '/otp/send', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': getNonce()
+          },
+          body: JSON.stringify({ phone: phone })
+        })
+          .then(function (r) {
+            return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+          })
+          .then(function (res) {
+            if (!res.ok || !res.d || !res.d.success || !res.d.otpToken) {
+              throw new Error((res.d && res.d.message) || 'خطا در ارسال کد پیامکی.');
+            }
+            activeToken = res.d.otpToken;
+            if (step2Wrap) step2Wrap.style.display = 'block';
+            if (codeInput) codeInput.focus();
+            showStatus(statusEl, res.d.message || 'کد تایید ارسال شد. لطفاً کد ۶ رقمی را وارد کنید.', false);
+          })
+          .catch(function (err) {
+            showStatus(statusEl, (err && err.message) || 'خطا در برقراری ارتباط با سرور.', true);
+          })
+          .finally(function () {
+            if (sendBtn) {
+              sendBtn.disabled = false;
+              sendBtn.textContent = origText;
+            }
+          });
+      }
+
+      function verifyOtp() {
+        var phone = phoneInput ? phoneInput.value.trim() : '';
+        var code = codeInput ? codeInput.value.trim() : '';
+        if (!activeToken || !code) {
+          showStatus(statusEl, 'لطفاً کد تایید دریافت‌شده را وارد کنید.', true);
+          return;
+        }
+        var origText = verifyBtn ? verifyBtn.textContent : '';
+        if (verifyBtn) {
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = 'در حال بررسی...';
+        }
+        fetch(getRestBase() + '/otp/verify', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': getNonce()
+          },
+          body: JSON.stringify({
+            otpToken: activeToken,
+            phone: phone,
+            code: code
+          })
+        })
+          .then(function (r) {
+            return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+          })
+          .then(function (res) {
+            if (!res.ok || !res.d || (!res.d.success && !res.d.verified)) {
+              throw new Error((res.d && res.d.message) || 'کد وارد شده صحیح نیست یا منقضی شده است.');
+            }
+            showStatus(statusEl, res.d.message || 'شماره موبایل با موفقیت تایید شد.', false);
+            if (res.d.redirect_url) {
+              setTimeout(function () {
+                window.location.href = res.d.redirect_url;
+              }, 700);
+            }
+          })
+          .catch(function (err) {
+            showStatus(statusEl, (err && err.message) || 'خطا در تایید کد پیامکی.', true);
+          })
+          .finally(function () {
+            if (verifyBtn) {
+              verifyBtn.disabled = false;
+              verifyBtn.textContent = origText;
+            }
+          });
+      }
+
+      if (sendBtn) sendBtn.addEventListener('click', sendOtp);
+      if (verifyBtn) verifyBtn.addEventListener('click', verifyOtp);
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (activeToken && step2Wrap && step2Wrap.style.display !== 'none') {
+          verifyOtp();
+        } else {
+          sendOtp();
+        }
+      });
+    });
+  }
+
+  function bindQuickCallbackForms() {
+    document.querySelectorAll('.sr-quick-callback-form').forEach(function (form) {
+      if (form.dataset.srBound === '1') return;
+      form.dataset.srBound = '1';
+
+      var phoneInput = form.querySelector('input[name="phone"]');
+      var trapInput = form.querySelector('input[name="sr_website_trap"]');
+      var submitBtn = form.querySelector('button[type="submit"], .sr-quick-callback-btn');
+      var statusEl = form.querySelector('.sr-shortcode-status') || form.parentElement.querySelector('.sr-shortcode-status');
+
+      function submitCallback(e) {
+        if (e) e.preventDefault();
+        var phone = phoneInput ? phoneInput.value.trim() : '';
+        if (!phone) {
+          showStatus(statusEl, 'لطفاً شماره موبایل خود را وارد نمایید.', true);
+          return;
+        }
+        var origText = submitBtn ? submitBtn.textContent : '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'در حال ثبت...';
+        }
+        fetch(getRestBase() + '/quick-callback', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': getNonce()
+          },
+          body: JSON.stringify({
+            phone: phone,
+            sr_website_trap: trapInput ? trapInput.value : ''
+          })
+        })
+          .then(function (r) {
+            return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+          })
+          .then(function (res) {
+            if (!res.ok || !res.d || !res.d.success) {
+              throw new Error((res.d && res.d.message) || 'ثبت درخواست تماس با خطا مواجه شد.');
+            }
+            var msg = (res.d.message || 'درخواست تماس ثبت شد.') + (res.d.tracking_code ? ' (کد پیگیری: ' + res.d.tracking_code + ')' : '');
+            showStatus(statusEl, msg, false);
+            form.reset();
+          })
+          .catch(function (err) {
+            showStatus(statusEl, (err && err.message) || 'خطا در اتصال به سرور.', true);
+          })
+          .finally(function () {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = origText;
+            }
+          });
+      }
+
+      form.addEventListener('submit', submitCallback);
+      if (submitBtn && submitBtn.type !== 'submit') {
+        submitBtn.addEventListener('click', submitCallback);
+      }
+    });
+  }
+
+  function bindCaseTrackForms() {
+    document.querySelectorAll('.sr-case-track-form').forEach(function (form) {
+      if (form.dataset.srBound === '1') return;
+      form.dataset.srBound = '1';
+
+      var caseInput = form.querySelector('input[name="case_number"]');
+      var phoneInput = form.querySelector('input[name="phone"]');
+      var submitBtn = form.querySelector('button[type="submit"], .sr-case-track-btn');
+      var container = form.closest('.sedrazavi-client-portal-wrapper, .sedrazavi-tracking-box') || form.parentElement;
+      var statusEl = container.querySelector('.sr-shortcode-status');
+      var resultEl = container.querySelector('.sr-case-result-panel');
+      var darkMode = form.getAttribute('data-theme') === 'dark';
+
+      function submitQuery(e) {
+        if (e) e.preventDefault();
+        var caseNo = caseInput ? caseInput.value.trim() : '';
+        var phone = phoneInput ? phoneInput.value.trim() : '';
+        if (resultEl) {
+          resultEl.style.display = 'none';
+          resultEl.textContent = '';
+        }
+        if (!caseNo || !phone) {
+          setDarkAwareStatus(statusEl, 'برای حفظ محرمانگی، وارد کردن هر دو فیلد شماره کلاسه و شماره موبایل ثبت‌شده الزامی است.', true, darkMode);
+          return;
+        }
+        var origText = submitBtn ? submitBtn.textContent : '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'در حال استعلام...';
+        }
+        fetch(getRestBase() + '/track-case', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': getNonce()
+          },
+          body: JSON.stringify({
+            case_number: caseNo,
+            phone: phone
+          })
+        })
+          .then(function (r) {
+            return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+          })
+          .then(function (res) {
+            if (!res.ok || !res.d || !res.d.found) {
+              throw new Error((res.d && res.d.message) || 'پرونده‌ای با این مشخصات یافت نشد.');
+            }
+            setDarkAwareStatus(statusEl, 'وضعیت پرونده با موفقیت استعلام شد.', false, darkMode);
+            if (resultEl) {
+              resultEl.style.display = 'block';
+              resultEl.style.marginTop = '12px';
+              resultEl.style.padding = '12px';
+              resultEl.style.borderRadius = '12px';
+              resultEl.style.border = '1px solid rgba(212,175,55,0.45)';
+              resultEl.style.background = darkMode ? 'rgba(255,255,255,0.06)' : '#f8fafc';
+              resultEl.textContent = '';
+
+              var rows = [
+                ['شماره پرونده', res.d.case_number || caseNo],
+                ['وضعیت فعلی', res.d.status || 'در جریان رسیدگی'],
+                ['شعبه / مرجع', res.d.court_branch || 'ثبت نشده'],
+                ['جلسه بعدی', res.d.next_session || 'تعیین نشده'],
+                ['آخرین بروزرسانی', res.d.updated_at || '-']
+              ];
+              rows.forEach(function (pair) {
+                var rowDiv = document.createElement('div');
+                rowDiv.style.display = 'flex';
+                rowDiv.style.justifyContent = 'space-between';
+                rowDiv.style.gap = '8px';
+                rowDiv.style.padding = '4px 0';
+                rowDiv.style.fontSize = '12px';
+                var kSpan = document.createElement('strong');
+                kSpan.textContent = pair[0] + ':';
+                var vSpan = document.createElement('span');
+                vSpan.textContent = String(pair[1]);
+                rowDiv.appendChild(kSpan);
+                rowDiv.appendChild(vSpan);
+                resultEl.appendChild(rowDiv);
+              });
+            }
+          })
+          .catch(function (err) {
+            setDarkAwareStatus(statusEl, (err && err.message) || 'خطا در استعلام پرونده از سرور.', true, darkMode);
+          })
+          .finally(function () {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = origText;
+            }
+          });
+      }
+
+      form.addEventListener('submit', submitQuery);
+      if (submitBtn && submitBtn.type !== 'submit') {
+        submitBtn.addEventListener('click', submitQuery);
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    bindOtpForms();
+    bindQuickCallbackForms();
+    bindCaseTrackForms();
+  });
+})();
+`},{path:"sedrazavi-addons/includes/admin-settings.php",filename:"admin-settings.php",category:"ماژول‌های افزونه (Plugin Includes)",description:"پنل تنظیمات و مدیریت عمومی افزونه در پیشخوان وردپرس.",code:`<?php
 /**
  * Admin Settings & Health Diagnostics
  *
@@ -29208,17 +30343,26 @@ function sedrazavi_shortcode_otp_login() {
         return do_shortcode('[digits_login]');
     }
 
-    // فرم رزرو پیامکی مستقل در غیاب دیجیتس
+    wp_enqueue_script('sedrazavi-addons-shortcodes');
+
+    // فرم رزرو پیامکی مستقل متصل به REST API
     ob_start();
     ?>
     <div class="sedrazavi-otp-box max-w-sm mx-auto p-6 rounded-2xl bg-white shadow-lg border border-[#D4AF37]/30 text-right font-persian">
-        <h3 class="text-base font-bold text-[#0B132B] mb-2">ورود / عضویت با شماره موبایل</h3>
+        <h3 class="text-base font-bold text-[#0B132B] mb-2">ورود / تایید شماره موبایل</h3>
         <p class="text-xs text-gray-500 mb-4">کد تایید یک‌بار مصرف به شماره همراه شما ارسال خواهد شد.</p>
-        <form class="space-y-3" onsubmit="return false;">
-            <input type="tel" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="w-full px-3 py-2.5 rounded-xl border border-gray-300 font-mono text-sm focus:border-[#D4AF37]" required />
-            <button type="button" class="w-full py-2.5 rounded-xl bg-[#D4AF37] text-white font-bold text-xs hover:bg-[#AA820A] transition-colors">
+        <form class="sr-otp-login-form space-y-3" method="post">
+            <input type="tel" name="phone" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="w-full px-3 py-2.5 rounded-xl border border-gray-300 font-mono text-sm focus:border-[#D4AF37]" required />
+            <button type="button" class="sr-otp-send-btn w-full py-2.5 rounded-xl bg-[#D4AF37] text-[#0B132B] font-bold text-xs hover:bg-[#AA820A] transition-colors">
                 دریافت کد تایید پیامکی
             </button>
+            <div class="sr-otp-step-2 space-y-2" style="display:none;">
+                <input type="text" name="otp_code" dir="ltr" maxlength="6" placeholder="کد ۶ رقمی پیامک..." class="w-full px-3 py-2 rounded-xl border border-gray-300 font-mono text-center text-sm focus:border-[#D4AF37]" />
+                <button type="button" class="sr-otp-verify-btn w-full py-2.5 rounded-xl bg-[#0B132B] text-[#F3E5AB] font-bold text-xs transition-colors">
+                    تایید کد پیامکی
+                </button>
+            </div>
+            <div class="sr-shortcode-status" role="status" aria-live="polite" style="display:none;"></div>
         </form>
     </div>
     <?php
@@ -29230,6 +30374,8 @@ add_shortcode('sedrazavi_otp_login', 'sedrazavi_shortcode_otp_login');
  * کد کوتاه ویجت تماس فوری بدون ثبت‌نام [sedrazavi_quick_callback]
  */
 function sedrazavi_shortcode_quick_callback() {
+    wp_enqueue_script('sedrazavi-addons-shortcodes');
+
     ob_start();
     ?>
     <div class="sedrazavi-quick-callback-card p-5 rounded-2xl bg-amber-50/50 border border-[#D4AF37]/40 text-right font-persian">
@@ -29238,11 +30384,15 @@ function sedrazavi_shortcode_quick_callback() {
             <h4 class="text-sm font-bold text-[#0B132B]">تماس تلفنی فوری وکیل (بدون نیاز به ثبت نام)</h4>
         </div>
         <p class="text-xs text-gray-600 mb-3">شماره تماس خود را بگذارید؛ در اسرع وقت کارشناسان دفتر با شما تماس می‌گیرند:</p>
-        <form class="flex gap-2" onsubmit="return false;">
-            <input type="tel" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="flex-1 px-3 py-2 rounded-xl border border-gray-300 font-mono text-xs focus:border-[#D4AF37]" required />
-            <button type="button" class="px-4 py-2 rounded-xl bg-[#0B132B] text-[#F3E5AB] text-xs font-bold hover:bg-[#1C2541]">
-                ثبت و تماس
-            </button>
+        <form class="sr-quick-callback-form space-y-2" method="post">
+            <div class="flex gap-2">
+                <input type="tel" name="phone" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹" class="flex-1 px-3 py-2 rounded-xl border border-gray-300 font-mono text-xs focus:border-[#D4AF37]" required />
+                <input type="text" name="sr_website_trap" value="" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" aria-hidden="true" />
+                <button type="submit" class="sr-quick-callback-btn px-4 py-2 rounded-xl bg-[#0B132B] text-[#F3E5AB] text-xs font-bold hover:bg-[#1C2541]">
+                    ثبت و تماس
+                </button>
+            </div>
+            <div class="sr-shortcode-status" role="status" aria-live="polite" style="display:none;"></div>
         </form>
     </div>
     <?php
@@ -29494,6 +30644,8 @@ if (!defined('ABSPATH')) exit;
  * ۱. کد کوتاه پرتال کاربری موکلین [sedrazavi_client_portal]
  */
 function sedrazavi_shortcode_client_portal($atts) {
+    wp_enqueue_script('sedrazavi-addons-shortcodes');
+
     ob_start();
     ?>
     <div id="sedrazavi-client-portal-app" class="sedrazavi-client-portal-wrapper">
@@ -29503,17 +30655,20 @@ function sedrazavi_shortcode_client_portal($atts) {
                     <span style="font-size:2rem;">⚖️</span>
                     <div>
                         <h3 class="text-xl font-bold font-serif text-white">پرتال جامع موکلین دفتر وکالت SedRazavi</h3>
-                        <p class="text-xs text-gray-300">مشاهده لحظه‌ای لوایح، تقویم جلسات دادگاه و اسناد محرمانه</p>
+                        <p class="text-xs text-gray-300">مشاهده لحظه‌ای وضعیت پرونده، شعبه رسیدگی و تاریخ جلسات</p>
                     </div>
                 </div>
-                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold">سامانه امن ثنا</span>
+                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold">سامانه امن استعلام</span>
             </div>
             <div class="py-6 text-center">
-                <p class="text-sm text-gray-300 mb-4">برای مشاهده پرونده‌های خود، شماره پرونده یا کد ملی خود را وارد فرمایید:</p>
-                <form class="flex flex-col sm:flex-row items-center justify-center gap-2 max-w-md mx-auto">
-                    <input type="text" placeholder="شماره کلاسه پرونده (مثال: ۱۴۰۳-۹۸۲۷۳-ونک)..." class="px-4 py-2.5 rounded-xl border border-gray-700 bg-gray-900 text-white text-xs w-full sm:w-80" />
-                    <button type="button" class="btn-gold px-5 py-2.5 rounded-xl text-xs font-bold">ورود به کارتابل</button>
+                <p class="text-sm text-gray-300 mb-4">برای مشاهده وضعیت پرونده، شماره کلاسه پرونده و تلفن همراه ثبت‌شده در قرارداد را وارد فرمایید:</p>
+                <form class="sr-case-track-form flex flex-col sm:flex-row items-center justify-center gap-2 max-w-2xl mx-auto" data-theme="dark">
+                    <input type="text" name="case_number" placeholder="شماره کلاسه پرونده (مثال: ۱۴۰۳-۹۸۲۷۳)..." class="px-4 py-2.5 rounded-xl border border-gray-700 bg-gray-900 text-white text-xs w-full sm:w-56" required />
+                    <input type="tel" name="phone" dir="ltr" placeholder="شماره موبایل ثبت‌شده (۰۹۱۲...)" class="px-4 py-2.5 rounded-xl border border-gray-700 bg-gray-900 text-white text-xs w-full sm:w-48 font-mono" required />
+                    <button type="submit" class="sr-case-track-btn btn-gold px-5 py-2.5 rounded-xl text-xs font-bold">استعلام کارتابل</button>
                 </form>
+                <div class="sr-shortcode-status max-w-2xl mx-auto" role="status" aria-live="polite" style="display:none;"></div>
+                <div class="sr-case-result-panel max-w-2xl mx-auto text-right text-gray-100" style="display:none;"></div>
             </div>
         </div>
     </div>
@@ -29526,15 +30681,20 @@ add_shortcode('sedrazavi_client_portal', 'sedrazavi_shortcode_client_portal');
  * ۲. کد کوتاه پیگیری سریع پرونده [sedrazavi_tracking]
  */
 function sedrazavi_shortcode_tracking($atts) {
+    wp_enqueue_script('sedrazavi-addons-shortcodes');
+
     ob_start();
     ?>
     <div class="sedrazavi-tracking-box p-6 rounded-2xl bg-white border border-gray-200 shadow-lg text-right max-w-xl mx-auto">
         <h4 class="text-base font-bold text-[#0B132B] mb-2">استعلام سریع وضعیت پرونده</h4>
-        <p class="text-xs text-gray-500 mb-4">کد پرونده درج‌شده در قرارداد وکالت را وارد نمایید:</p>
-        <div class="flex gap-2">
-            <input type="text" placeholder="کد رهگیری پرونده..." class="flex-1 px-4 py-2 rounded-xl border border-gray-300 text-xs font-mono" />
-            <button class="btn-gold px-5 py-2 rounded-xl text-xs font-bold">استعلام</button>
-        </div>
+        <p class="text-xs text-gray-500 mb-4">کد پرونده و شماره موبایل ثبت‌شده در قرارداد وکالت را وارد نمایید:</p>
+        <form class="sr-case-track-form flex flex-col sm:flex-row gap-2" data-theme="light">
+            <input type="text" name="case_number" placeholder="کد رهگیری پرونده..." class="flex-1 px-4 py-2 rounded-xl border border-gray-300 text-xs font-mono" required />
+            <input type="tel" name="phone" dir="ltr" placeholder="موبایل ثبت‌شده (۰۹۱۲...)" class="flex-1 px-4 py-2 rounded-xl border border-gray-300 text-xs font-mono" required />
+            <button type="submit" class="sr-case-track-btn btn-gold px-5 py-2 rounded-xl text-xs font-bold">استعلام</button>
+        </form>
+        <div class="sr-shortcode-status" role="status" aria-live="polite" style="display:none;"></div>
+        <div class="sr-case-result-panel text-right text-gray-800" style="display:none;"></div>
     </div>
     <?php
     return ob_get_clean();
@@ -30942,6 +32102,26 @@ if (!class_exists('SedRazavi_Addons_Loader')) {
         private function __construct() {
             $this->load_resilient_modules();
             add_action('plugins_loaded', array($this, 'init_plugin'));
+            add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
+        }
+
+        public function enqueue_frontend_assets() {
+            $runtime_js = SEDRAZAVI_ADDONS_DIR . 'assets/js/shortcodes-runtime.js';
+            if (file_exists($runtime_js)) {
+                wp_register_script(
+                    'sedrazavi-addons-shortcodes',
+                    SEDRAZAVI_ADDONS_URL . 'assets/js/shortcodes-runtime.js',
+                    array(),
+                    SEDRAZAVI_ADDONS_VERSION,
+                    array('in_footer' => true, 'strategy' => 'defer')
+                );
+                wp_localize_script('sedrazavi-addons-shortcodes', 'sedrazaviAddonsConfig', array(
+                    'restUrl'   => function_exists('rest_url') ? esc_url_raw(rest_url('sedrazavi/v1/')) : '/wp-json/sedrazavi/v1/',
+                    'restNonce' => wp_create_nonce('wp_rest'),
+                    'ajaxUrl'   => admin_url('admin-ajax.php'),
+                    'ajaxNonce' => wp_create_nonce('sedrazavi_security_nonce'),
+                ));
+            }
         }
 
         /**
@@ -31347,4 +32527,12 @@ add_filter('rest_pre_serve_request', function ($served, $result, $request, $serv
     }
     return $served;
 }, 10, 4);
+
+// ۱۰. اعلام سازگاری رسمی با HPOS و بلاک‌های تسویه‌حساب ووکامرس
+add_action('before_woocommerce_init', function () {
+    if (class_exists('\\Automattic\\WooCommerce\\Utilities\\FeaturesUtil')) {
+        \\Automattic\\WooCommerce\\Utilities\\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+        \\Automattic\\WooCommerce\\Utilities\\FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, true);
+    }
+});
 `}];export{z as D,u as R,C as W,E as a,A as b,T as c,S as g};

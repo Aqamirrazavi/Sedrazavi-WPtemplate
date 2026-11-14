@@ -184,16 +184,15 @@ class Universal_Hero_Split_Conversion_Widget extends Universal_Widget_Base {
                         </div>
                         <p class="uas-lead-desc"><?php echo esc_html($settings['lead_desc']); ?></p>
 
-                        <form class="uas-hero-lead-form" onsubmit="event.preventDefault(); this.classList.add('is-submitted');">
+                        <form class="uas-hero-lead-form">
                             <div class="uas-form-group">
-                                <input type="tel" class="uas-form-input" placeholder="<?php echo esc_attr($settings['input_placeholder']); ?>" required pattern="[0-9\u06F0-\u06F9+]{10,14}" />
+                                <input type="tel" name="phone" class="uas-form-input" placeholder="<?php echo esc_attr($settings['input_placeholder']); ?>" required pattern="[0-9\u06F0-\u06F9+]{10,14}" />
                             </div>
                             <button type="submit" class="uas-form-submit-btn">
                                 <?php echo esc_html($settings['submit_btn_text']); ?>
                             </button>
-                            <div class="uas-form-success-msg">
-                                ✓ درخواست شما با موفقیت ثبت شد؛ کارشناسان به زودی تماس می‌گیرند.
-                            </div>
+                            <div class="uas-form-success-msg" role="status" aria-live="polite"></div>
+                            <div class="uas-form-error-msg" role="alert" style="display:none;color:#fca5a5;font-size:12px;margin-top:8px;"></div>
                         </form>
 
                         <div class="uas-lead-guarantee">

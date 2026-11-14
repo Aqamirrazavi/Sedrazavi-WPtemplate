@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) exit;
  * ۱. کد کوتاه پرتال کاربری موکلین [sedrazavi_client_portal]
  */
 function sedrazavi_shortcode_client_portal($atts) {
+    wp_enqueue_script('sedrazavi-addons-shortcodes');
+
     ob_start();
     ?>
     <div id="sedrazavi-client-portal-app" class="sedrazavi-client-portal-wrapper">
@@ -21,17 +23,20 @@ function sedrazavi_shortcode_client_portal($atts) {
                     <span style="font-size:2rem;">⚖️</span>
                     <div>
                         <h3 class="text-xl font-bold font-serif text-white">پرتال جامع موکلین دفتر وکالت SedRazavi</h3>
-                        <p class="text-xs text-gray-300">مشاهده لحظه‌ای لوایح، تقویم جلسات دادگاه و اسناد محرمانه</p>
+                        <p class="text-xs text-gray-300">مشاهده لحظه‌ای وضعیت پرونده، شعبه رسیدگی و تاریخ جلسات</p>
                     </div>
                 </div>
-                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold">سامانه امن ثنا</span>
+                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold">سامانه امن استعلام</span>
             </div>
             <div class="py-6 text-center">
-                <p class="text-sm text-gray-300 mb-4">برای مشاهده پرونده‌های خود، شماره پرونده یا کد ملی خود را وارد فرمایید:</p>
-                <form class="flex flex-col sm:flex-row items-center justify-center gap-2 max-w-md mx-auto">
-                    <input type="text" placeholder="شماره کلاسه پرونده (مثال: ۱۴۰۳-۹۸۲۷۳-ونک)..." class="px-4 py-2.5 rounded-xl border border-gray-700 bg-gray-900 text-white text-xs w-full sm:w-80" />
-                    <button type="button" class="btn-gold px-5 py-2.5 rounded-xl text-xs font-bold">ورود به کارتابل</button>
+                <p class="text-sm text-gray-300 mb-4">برای مشاهده وضعیت پرونده، شماره کلاسه پرونده و تلفن همراه ثبت‌شده در قرارداد را وارد فرمایید:</p>
+                <form class="sr-case-track-form flex flex-col sm:flex-row items-center justify-center gap-2 max-w-2xl mx-auto" data-theme="dark">
+                    <input type="text" name="case_number" placeholder="شماره کلاسه پرونده (مثال: ۱۴۰۳-۹۸۲۷۳)..." class="px-4 py-2.5 rounded-xl border border-gray-700 bg-gray-900 text-white text-xs w-full sm:w-56" required />
+                    <input type="tel" name="phone" dir="ltr" placeholder="شماره موبایل ثبت‌شده (۰۹۱۲...)" class="px-4 py-2.5 rounded-xl border border-gray-700 bg-gray-900 text-white text-xs w-full sm:w-48 font-mono" required />
+                    <button type="submit" class="sr-case-track-btn btn-gold px-5 py-2.5 rounded-xl text-xs font-bold">استعلام کارتابل</button>
                 </form>
+                <div class="sr-shortcode-status max-w-2xl mx-auto" role="status" aria-live="polite" style="display:none;"></div>
+                <div class="sr-case-result-panel max-w-2xl mx-auto text-right text-gray-100" style="display:none;"></div>
             </div>
         </div>
     </div>
@@ -44,15 +49,20 @@ add_shortcode('sedrazavi_client_portal', 'sedrazavi_shortcode_client_portal');
  * ۲. کد کوتاه پیگیری سریع پرونده [sedrazavi_tracking]
  */
 function sedrazavi_shortcode_tracking($atts) {
+    wp_enqueue_script('sedrazavi-addons-shortcodes');
+
     ob_start();
     ?>
     <div class="sedrazavi-tracking-box p-6 rounded-2xl bg-white border border-gray-200 shadow-lg text-right max-w-xl mx-auto">
         <h4 class="text-base font-bold text-[#0B132B] mb-2">استعلام سریع وضعیت پرونده</h4>
-        <p class="text-xs text-gray-500 mb-4">کد پرونده درج‌شده در قرارداد وکالت را وارد نمایید:</p>
-        <div class="flex gap-2">
-            <input type="text" placeholder="کد رهگیری پرونده..." class="flex-1 px-4 py-2 rounded-xl border border-gray-300 text-xs font-mono" />
-            <button class="btn-gold px-5 py-2 rounded-xl text-xs font-bold">استعلام</button>
-        </div>
+        <p class="text-xs text-gray-500 mb-4">کد پرونده و شماره موبایل ثبت‌شده در قرارداد وکالت را وارد نمایید:</p>
+        <form class="sr-case-track-form flex flex-col sm:flex-row gap-2" data-theme="light">
+            <input type="text" name="case_number" placeholder="کد رهگیری پرونده..." class="flex-1 px-4 py-2 rounded-xl border border-gray-300 text-xs font-mono" required />
+            <input type="tel" name="phone" dir="ltr" placeholder="موبایل ثبت‌شده (۰۹۱۲...)" class="flex-1 px-4 py-2 rounded-xl border border-gray-300 text-xs font-mono" required />
+            <button type="submit" class="sr-case-track-btn btn-gold px-5 py-2 rounded-xl text-xs font-bold">استعلام</button>
+        </form>
+        <div class="sr-shortcode-status" role="status" aria-live="polite" style="display:none;"></div>
+        <div class="sr-case-result-panel text-right text-gray-800" style="display:none;"></div>
     </div>
     <?php
     return ob_get_clean();

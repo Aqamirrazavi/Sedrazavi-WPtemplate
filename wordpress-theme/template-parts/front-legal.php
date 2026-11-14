@@ -741,12 +741,13 @@ if (!defined('ABSPATH')) {
             <div class="text-center space-y-2 mb-6">
                 <span class="text-xs font-bold text-sr-gold">سامانه محرمانه موکلین</span>
                 <h3 class="text-2xl font-bold font-serif text-sr-primary">پیگیری آنلاین و لحظه‌ای پرونده قضایی</h3>
-                <p class="text-xs text-sr-muted">کد پرونده (مانند SR-1403-882) یا شماره همراه ثبت‌شده را وارد فرمایید:</p>
+                <p class="text-xs text-sr-muted">کد پرونده (مانند SR-1403-882) و شماره همراه ثبت‌شده موکل را جهت احراز محرمانگی وارد فرمایید:</p>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-3">
-                <input type="text" id="case-search-input" placeholder="نمونه: SR-1403-882 یا شماره همراه موکل" class="flex-1 px-4 py-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm focus:outline-none focus:border-[#D4AF37]" />
-                <button onclick="searchCaseStatus()" class="btn-gold px-8 py-3 rounded-xl font-bold text-sm cursor-pointer flex items-center justify-center gap-2">
+                <input type="text" id="case-search-input" placeholder="شماره پرونده (مثال: SR-1403-882)" class="flex-1 px-4 py-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm focus:outline-none focus:border-[#D4AF37]" />
+                <input type="tel" id="case-search-phone" dir="ltr" placeholder="۰۹۱۲۳۴۵۶۷۸۹ (شماره ثبت‌شده)" class="sm:w-56 px-4 py-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-sm text-left font-mono focus:outline-none focus:border-[#D4AF37]" />
+                <button type="button" onclick="searchCaseStatus()" class="btn-gold px-8 py-3 rounded-xl font-bold text-sm cursor-pointer flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -906,11 +907,15 @@ if (!defined('ABSPATH')) {
             <button onclick="closeSurveyModal()" class="text-sr-muted hover:text-sr-primary cursor-pointer">&times;</button>
         </div>
         <p class="text-xs text-sr-secondary">دیدگاه ارزشمند شما ما را در ارتقای سطح استانداردهای دادرسی و پاسخگویی یاری می‌نماید.</p>
-        <div class="flex items-center justify-center gap-2 text-2xl text-sr-gold py-2 cursor-pointer">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+        <div id="survey-stars" data-rating="5" class="flex items-center justify-center gap-2 text-2xl text-sr-gold py-2 cursor-pointer">
+            <button type="button" onclick="selectSurveyRating(1)" data-val="1" class="sr-survey-star cursor-pointer" aria-label="۱ ستاره">★</button>
+            <button type="button" onclick="selectSurveyRating(2)" data-val="2" class="sr-survey-star cursor-pointer" aria-label="۲ ستاره">★</button>
+            <button type="button" onclick="selectSurveyRating(3)" data-val="3" class="sr-survey-star cursor-pointer" aria-label="۳ ستاره">★</button>
+            <button type="button" onclick="selectSurveyRating(4)" data-val="4" class="sr-survey-star cursor-pointer" aria-label="۴ ستاره">★</button>
+            <button type="button" onclick="selectSurveyRating(5)" data-val="5" class="sr-survey-star cursor-pointer" aria-label="۵ ستاره">★</button>
         </div>
-        <textarea rows="3" placeholder="دیدگاه یا پیشنهاد خود را مرقوم بفرمایید..." class="w-full p-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-xs focus:border-[#D4AF37] focus:outline-none"></textarea>
-        <button onclick="submitSurvey()" class="btn-gold w-full py-2.5 rounded-xl font-bold text-xs cursor-pointer">
+        <textarea id="survey-comment" rows="3" placeholder="دیدگاه یا پیشنهاد خود را مرقوم بفرمایید..." class="w-full p-3 rounded-xl bg-sr-bg border border-sr-border text-sr-primary text-xs focus:border-[#D4AF37] focus:outline-none"></textarea>
+        <button type="button" id="survey-submit-btn" onclick="submitSurvey()" class="btn-gold w-full py-2.5 rounded-xl font-bold text-xs cursor-pointer">
             ثبت و ارسال بازخورد
         </button>
     </div>

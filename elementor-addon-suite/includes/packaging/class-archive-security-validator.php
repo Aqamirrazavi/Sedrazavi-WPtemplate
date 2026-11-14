@@ -113,23 +113,28 @@ class Archive_Security_Validator {
             return ['safe' => false, 'error' => 'فرمت داده‌های JSON درون manifest.json معتبر نیست.'];
         }
 
-        // Verify per-file SHA-256 checksums embedded in manifest.json when present
-        $checksum_verified_count = 0;
-        if (!empty($manifest['file_checksums'])) {
-            $validator = $manifest_validator instanceof Package_Manifest_Validator
-                ? $manifest_validator
-                : new Package_Manifest_Validator();
-
-            $cs_res = $validator->verify_manifest_checksums($manifest, $zip, $manifest_root_prefix);
-            if (!$cs_res['valid']) {
-                $zip->close();
-                return [
-                    'safe'  => false,
-                    'error' => 'تأیید یکپارچگی چک‌سام فایل‌های بسته ناموفق بود: ' . implode(' | ', $cs_res['errors']),
-                ];
-            }
-            $checksum_verified_count = $cs_res['verified_count'];
+        // Enforce mandatory per-file SHA-256 checksum verification (fail-closed)
+        if (empty($manifest['file_checksums']) || !is_array($manifest['file_checksums'])) {
+            $zip->close();
+            return [
+                'safe'  => false,
+                'error' => 'مانیفست بسته فاقد جدول امضای SHA-256 فایل‌ها (file_checksums) است و امکان تأیید اصالت آن وجود ندارد.',
+            ];
         }
+
+        $validator = $manifest_validator instanceof Package_Manifest_Validator
+            ? $manifest_validator
+            : new Package_Manifest_Validator();
+
+        $cs_res = $validator->verify_manifest_checksums($manifest, $zip, $manifest_root_prefix, true);
+        if (!$cs_res['valid']) {
+            $zip->close();
+            return [
+                'safe'  => false,
+                'error' => 'تأیید یکپارچگی چک‌سام فایل‌های بسته ناموفق بود: ' . implode(' | ', $cs_res['errors']),
+            ];
+        }
+        $checksum_verified_count = $cs_res['verified_count'];
 
         $zip->close();
 

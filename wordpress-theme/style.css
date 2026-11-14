@@ -1845,4 +1845,10 @@ img {
   }
 }
 
-
+.sr-survey-star {
+  cursor: pointer;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.sr-survey-star:hover {
+  transform: scale(1.12);
+}
