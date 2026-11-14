@@ -12,23 +12,39 @@ document.addEventListener("DOMContentLoaded", function() {
     var backdrop = document.getElementById("mobile-menu-backdrop");
 
     if (mobileBtn && mobileDrawer) {
+        mobileBtn.setAttribute("aria-expanded", "false");
         mobileBtn.addEventListener("click", function() {
             mobileDrawer.classList.add("is-active");
+            mobileBtn.setAttribute("aria-expanded", "true");
             document.body.style.overflow = "hidden";
         });
     }
-    if (closeBtn && mobileDrawer) {
-        closeBtn.addEventListener("click", function() {
+    var closeMobileDrawer = function() {
+        if (mobileDrawer && mobileDrawer.classList.contains("is-active")) {
             mobileDrawer.classList.remove("is-active");
+            if (mobileBtn) mobileBtn.setAttribute("aria-expanded", "false");
             document.body.style.overflow = "";
-        });
+        }
+    };
+    if (closeBtn && mobileDrawer) {
+        closeBtn.addEventListener("click", closeMobileDrawer);
     }
     if (backdrop && mobileDrawer) {
-        backdrop.addEventListener("click", function() {
-            mobileDrawer.classList.remove("is-active");
-            document.body.style.overflow = "";
-        });
+        backdrop.addEventListener("click", closeMobileDrawer);
     }
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+            closeMobileDrawer();
+            ["story-modal", "survey-modal", "tour-modal", "academy-modal"].forEach(function(id) {
+                var m = document.getElementById(id);
+                if (m && !m.classList.contains("hidden")) {
+                    m.classList.add("hidden");
+                    m.classList.remove("flex");
+                    document.body.style.overflow = "";
+                }
+            });
+        }
+    });
 
     // 2. Mobile Services Accordion Toggle
     var servicesBtn = document.getElementById("mobile-services-accordion-btn");
@@ -229,12 +245,31 @@ function renderTestimonial() {
     document.getElementById("testimonial-service").textContent = item.service;
 }
 
-// Case Search Mock
+function showThemeInlineFeedback(anchorEl, msg, isError) {
+    if (!anchorEl) return;
+    var parent = anchorEl.parentNode || anchorEl;
+    var fb = parent.querySelector(".sr-inline-theme-feedback");
+    if (!fb) {
+        fb = document.createElement("div");
+        fb.className = "sr-inline-theme-feedback";
+        fb.setAttribute("role", "status");
+        fb.setAttribute("aria-live", "polite");
+        fb.style.cssText = "margin-top:12px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;line-height:1.6;";
+        parent.appendChild(fb);
+    }
+    fb.style.background = isError ? "rgba(239,68,68,0.12)" : "rgba(16,185,129,0.12)";
+    fb.style.border = isError ? "1px solid #ef4444" : "1px solid #10b981";
+    fb.style.color = isError ? "#f87171" : "#34d399";
+    fb.textContent = msg;
+}
+
+// Case Search
 function searchCaseStatus() {
-    var input = document.getElementById("case-search-input").value.trim();
+    var inputEl = document.getElementById("case-search-input");
+    var input = inputEl ? inputEl.value.trim() : "";
     var display = document.getElementById("case-result-display");
     if (!input) {
-        alert("لطفاً شماره پرونده یا شماره همراه خود را وارد فرمایید.");
+        showThemeInlineFeedback(inputEl, "لطفاً شماره پرونده یا شماره همراه خود را وارد فرمایید.", true);
         return;
     }
 
@@ -249,10 +284,11 @@ function searchCaseStatus() {
 // Booking Form Submit
 function handleBookingSubmit(e) {
     e.preventDefault();
+    var form = document.getElementById("booking-form-main");
     var name = document.getElementById("book-name").value;
     var phone = document.getElementById("book-phone").value;
-    alert("درخواست نوبت مشاوره برای «" + name + "» با موفقیت ثبت گردید. پیامک تایید نوبت به شماره " + phone + " ارسال خواهد شد.");
-    document.getElementById("booking-form-main").reset();
+    showThemeInlineFeedback(form, "درخواست نوبت مشاوره برای «" + name + "» با موفقیت ثبت گردید. پیامک تایید نوبت به شماره " + phone + " ارسال خواهد شد.", false);
+    if (form) form.reset();
 }
 
 // Modals Controls
@@ -265,8 +301,9 @@ function closeSurveyModal() {
     document.getElementById("survey-modal").classList.remove("flex");
 }
 function submitSurvey() {
-    alert("سپاسگزاریم! دیدگاه شما با موفقیت ثبت گردید.");
-    closeSurveyModal();
+    var modal = document.getElementById("survey-modal");
+    showThemeInlineFeedback(modal ? modal.querySelector("form") || modal.firstElementChild : document.body, "سپاسگزاریم! دیدگاه شما با موفقیت ثبت گردید.", false);
+    setTimeout(closeSurveyModal, 900);
 }
 
 function openTourModal() {
@@ -297,6 +334,6 @@ function dismissCookies() {
 
 function handleNewsletter(e) {
     e.preventDefault();
-    alert("ایمیل شما در خبرنامه تخصصی دفتر وکالت دکتر رضوی با موفقیت ثبت گردید.");
+    showThemeInlineFeedback(e.target, "ایمیل شما در خبرنامه تخصصی دفتر وکالت دکتر رضوی با موفقیت ثبت گردید.", false);
     e.target.reset();
 }

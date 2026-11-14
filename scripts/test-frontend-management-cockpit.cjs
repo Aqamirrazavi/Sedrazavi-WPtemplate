@@ -38,9 +38,18 @@ function assert(condition, message) {
 // -------------------------------------------------------------
 console.log('🔍 Test Group 1: Cockpit Engine Core Architecture');
 
-const enginePath = path.join(__dirname, '../wordpress-theme/inc/frontend-cockpit-engine.php');
-assert(fs.existsSync(enginePath), 'inc/frontend-cockpit-engine.php exists');
+const enginePath = path.join(__dirname, '../sedrazavi-companion/includes/class-frontend-cockpit.php');
+assert(fs.existsSync(enginePath), 'sedrazavi-companion/includes/class-frontend-cockpit.php exists');
 const engineCode = fs.readFileSync(enginePath, 'utf8');
+
+const themeAdapterPath = path.join(__dirname, '../wordpress-theme/inc/frontend-cockpit-engine.php');
+assert(fs.existsSync(themeAdapterPath), 'wordpress-theme/inc/frontend-cockpit-engine.php compatibility adapter exists');
+const themeAdapterCode = fs.readFileSync(themeAdapterPath, 'utf8');
+assert(
+  !themeAdapterCode.includes('class Frontend_Cockpit_Engine') &&
+  !themeAdapterCode.includes('wp_ajax_sr_cockpit_'),
+  'Theme contains ZERO duplicate Frontend_Cockpit_Engine class or AJAX handlers'
+);
 
 assert(
   engineCode.includes('class Frontend_Cockpit_Engine') &&
@@ -163,13 +172,13 @@ assert(fs.existsSync(pageTemplatePath), 'page-frontend-cockpit.php exists in the
 const pageContent = fs.readFileSync(pageTemplatePath, 'utf8');
 assert(pageContent.includes('[sedrazavi_frontend_cockpit]'), 'page template embeds cockpit shortcode');
 
-const cssPath = path.join(__dirname, '../wordpress-theme/assets/css/frontend-cockpit.css');
-assert(fs.existsSync(cssPath), 'assets/css/frontend-cockpit.css exists');
+const cssPath = path.join(__dirname, '../sedrazavi-companion/assets/css/frontend-cockpit.css');
+assert(fs.existsSync(cssPath), 'sedrazavi-companion/assets/css/frontend-cockpit.css exists');
 const cssContent = fs.readFileSync(cssPath, 'utf8');
 assert(cssContent.includes('.sr-cockpit-wrapper') && cssContent.includes('--sr-cockpit-accent'), 'CSS defines cockpit variables and card layouts');
 
-const jsPath = path.join(__dirname, '../wordpress-theme/assets/js/frontend-cockpit.js');
-assert(fs.existsSync(jsPath), 'assets/js/frontend-cockpit.js exists');
+const jsPath = path.join(__dirname, '../sedrazavi-companion/assets/js/frontend-cockpit.js');
+assert(fs.existsSync(jsPath), 'sedrazavi-companion/assets/js/frontend-cockpit.js exists');
 const jsContent = fs.readFileSync(jsPath, 'utf8');
 assert(
   jsContent.includes('sr_cockpit_db_login') &&

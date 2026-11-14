@@ -671,12 +671,15 @@ if (!function_exists('enqueue_react_assets')) {
 
         // 6.5. Mount Engine Script
         if (file_exists(SEDRAZAVI_THEME_DIR . '/assets/js/sedrazavi-react-mount.js')) {
+            $defer_args = function_exists('get_bloginfo') && version_compare(get_bloginfo('version'), '6.3', '>=')
+                ? ['in_footer' => true, 'strategy' => 'defer']
+                : true;
             wp_enqueue_script(
                 'sedrazavi-react-mount-engine',
                 SEDRAZAVI_THEME_URI . '/assets/js/sedrazavi-react-mount.js',
                 [$enqueued_js_handle ?: 'jquery'],
                 SEDRAZAVI_THEME_VERSION,
-                true
+                $defer_args
             );
         }
 

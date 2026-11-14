@@ -95,15 +95,24 @@ class SedRazavi_WooCommerce_Kit {
 
             function openCart() {
                 drawer.classList.remove('opacity-0', 'pointer-events-none');
+                drawer.setAttribute('aria-hidden', 'false');
                 panel.classList.remove('-translate-x-full');
+                if (closeBtn) closeBtn.focus();
             }
             function closeCart() {
                 panel.classList.add('-translate-x-full');
                 drawer.classList.add('opacity-0', 'pointer-events-none');
+                drawer.setAttribute('aria-hidden', 'true');
             }
 
             if (closeBtn) closeBtn.addEventListener('click', closeCart);
             if (backdrop) backdrop.addEventListener('click', closeCart);
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && drawer && drawer.getAttribute('aria-hidden') === 'false') {
+                    closeCart();
+                }
+            });
 
             document.querySelectorAll('.sr-trigger-cart, a[href*="cart"]').forEach(function(el) {
                 el.addEventListener('click', function(e) {

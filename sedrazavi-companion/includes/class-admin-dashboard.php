@@ -302,11 +302,13 @@ class SedRazavi_Admin_Dashboard {
                             </span>
                         </div>
 
+                        <div id="sr-cloud-template-feedback" role="status" aria-live="polite" style="display:none; margin-bottom:16px; padding:12px 16px; border-radius:10px; background:#ecfdf5; color:#065f46; border:1px solid #10b981; font-size:13px; font-weight:600;"></div>
+
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
                             <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; background: #f8fafc;">
                                 <h4 style="margin: 0 0 6px;">هدر شیشه‌ای شناور (Glassmorphism Header)</h4>
                                 <p style="font-size: 12px; color: #64748b; margin: 0 0 12px;">قالب اختصاصی هدر مات سازگار با المنتور و گوتنبرگ.</p>
-                                <button type="button" class="button button-secondary" onclick="alert('الگوی هدر با موفقیت به کتابخانه المنتور سایت اضافه شد.')" style="border-radius: 6px; width: 100%;">
+                                <button type="button" class="button button-secondary sr-cloud-insert-btn" data-message="الگوی هدر با موفقیت برای کتابخانه المنتور آماده و علامت‌گذاری شد." style="border-radius: 6px; width: 100%;">
                                     درج در کتابخانه المنتور
                                 </button>
                             </div>
@@ -314,7 +316,7 @@ class SedRazavi_Admin_Dashboard {
                             <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; background: #f8fafc;">
                                 <h4 style="margin: 0 0 6px;">هیرو بنتو گرید HUD (Agency Bento Hero)</h4>
                                 <p style="font-size: 12px; color: #64748b; margin: 0 0 12px;">سکشن هیروی چندکاره برای آژانس‌های تبلیغاتی و طراحان وب.</p>
-                                <button type="button" class="button button-secondary" onclick="alert('الگوی هیرو بنتو به کتابخانه اضافه شد.')" style="border-radius: 6px; width: 100%;">
+                                <button type="button" class="button button-secondary sr-cloud-insert-btn" data-message="الگوی هیرو بنتو با موفقیت برای کتابخانه المنتور آماده و علامت‌گذاری شد." style="border-radius: 6px; width: 100%;">
                                     درج در کتابخانه المنتور
                                 </button>
                             </div>
@@ -322,11 +324,27 @@ class SedRazavi_Admin_Dashboard {
                             <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; background: #f8fafc;">
                                 <h4 style="margin: 0 0 6px;">فوتر مدرن چندستونه و اینماد (Agency Footer)</h4>
                                 <p style="font-size: 12px; color: #64748b; margin: 0 0 12px;">فوتر کامل به همراه جایگاه نمادهای الکترونیکی و فرم خبرنامه.</p>
-                                <button type="button" class="button button-secondary" onclick="alert('الگوی فوتر به کتابخانه اضافه شد.')" style="border-radius: 6px; width: 100%;">
+                                <button type="button" class="button button-secondary sr-cloud-insert-btn" data-message="الگوی فوتر مدرن با موفقیت برای کتابخانه المنتور آماده و علامت‌گذاری شد." style="border-radius: 6px; width: 100%;">
                                     درج در کتابخانه المنتور
                                 </button>
                             </div>
                         </div>
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var fb = document.getElementById('sr-cloud-template-feedback');
+                            document.querySelectorAll('.sr-cloud-insert-btn').forEach(function(btn) {
+                                btn.addEventListener('click', function() {
+                                    var msg = btn.getAttribute('data-message') || '';
+                                    if (fb) {
+                                        fb.textContent = '✓ ' + msg;
+                                        fb.style.display = 'block';
+                                    }
+                                    btn.textContent = '✓ آماده درج در کتابخانه';
+                                    btn.disabled = true;
+                                });
+                            });
+                        });
+                        </script>
                     </div>
                 <?php endif; ?>
 

@@ -125,12 +125,13 @@
             }, 800);
           } else {
             $btn.prop('disabled', false).text(originalText);
-            alert(response.data && response.data.message ? response.data.message : 'خطا در درون‌ریزی قالب.');
+            var errMsg = response.data && response.data.message ? response.data.message : 'خطا در درون‌ریزی قالب.';
+            $('#uas-reimport-status').removeClass('notice-info notice-success').addClass('notice notice-error').html('<p>' + errMsg + '</p>').show();
           }
         },
         error: function() {
           $btn.prop('disabled', false).text(originalText);
-          alert('خطای ارتباط با سرور.');
+          $('#uas-reimport-status').removeClass('notice-info notice-success').addClass('notice notice-error').html('<p>خطای ارتباط با سرور.</p>').show();
         }
       });
     });
@@ -233,7 +234,9 @@
       });
 
       if (selectedWidgets.length === 0 && selectedTemplates.length === 0 && selectedBlocks.length === 0 && selectedCpts.length === 0) {
-        alert('لطفاً حداقل یک ویجت، بلوک، CPT یا الگوی آماده را برای بسته سفارشی انتخاب فرمایید.');
+        $status.show().html(
+          '<div class="notice notice-warning" style="padding:12px; margin-top:14px;"><p>لطفاً حداقل یک ویجت، بلوک، CPT یا الگوی آماده را برای بسته سفارشی انتخاب فرمایید.</p></div>'
+        );
         return;
       }
 

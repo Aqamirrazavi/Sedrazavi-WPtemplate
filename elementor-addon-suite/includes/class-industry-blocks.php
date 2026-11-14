@@ -28,7 +28,112 @@ class Industry_Blocks {
     }
 
     public function __construct() {
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_industry_assets']);
+        add_action('wp_ajax_uas_submit_dental_booking', [$this, 'ajax_submit_dental_booking']);
+        add_action('wp_ajax_nopriv_uas_submit_dental_booking', [$this, 'ajax_submit_dental_booking']);
+        add_action('wp_ajax_uas_track_customs', [$this, 'ajax_track_customs']);
+        add_action('wp_ajax_nopriv_uas_track_customs', [$this, 'ajax_track_customs']);
         $this->register_industry_shortcodes();
+    }
+
+    /**
+     * Enqueue Industry Blocks JS & localized nonce config
+     */
+    public function enqueue_industry_assets() {
+        wp_register_script(
+            'uas-industry-blocks-js',
+            UAS_URL . 'assets/js/industry-blocks.js',
+            [],
+            UAS_VERSION,
+            true
+        );
+        wp_localize_script('uas-industry-blocks-js', 'uasIndustryConfig', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('uas_industry_nonce'),
+        ]);
+        wp_enqueue_script('uas-industry-blocks-js');
+    }
+
+    /**
+     * Check per-IP transient rate limit for public AJAX industry handlers
+     */
+    private function check_ajax_rate_limit($bucket) {
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : 'unknown';
+        $key = 'uas_ind_rl_' . md5($bucket . '|' . $ip);
+        $hits = (int) get_transient($key);
+        if ($hits >= 8) {
+            wp_send_json_error(['message' => 'تعداد درخواست‌ها بیش از حد مجاز است. لطفاً کمی بعد تلاش کنید.'], 429);
+        }
+        set_transient($key, $hits + 1, 60);
+    }
+
+    /**
+     * AJAX Handler: Dental Appointment Booking (stores private CPT record)
+     */
+    public function ajax_submit_dental_booking() {
+        check_ajax_referer('uas_industry_nonce', 'nonce');
+        $this->check_ajax_rate_limit('dental_booking');
+
+        $patient   = isset($_POST['patient_name']) ? sanitize_text_field(wp_unslash($_POST['patient_name'])) : '';
+        $treatment = isset($_POST['treatment']) ? sanitize_text_field(wp_unslash($_POST['treatment'])) : '';
+        $shift     = isset($_POST['shift']) ? sanitize_text_field(wp_unslash($_POST['shift'])) : '';
+
+        if (empty($patient) || strlen($patient) < 3) {
+            wp_send_json_error(['message' => 'نام و شماره تماس مراجع معتبر نیست.'], 400);
+        }
+
+        $ref_code = 'DN-' . strtoupper(substr(md5($patient . '|' . microtime(true)), 0, 8));
+        $post_id = 0;
+
+        if (function_exists('wp_insert_post')) {
+            $post_id = wp_insert_post([
+                'post_type'    => post_type_exists('sedrazavi_appointment') ? 'sedrazavi_appointment' : 'post',
+                'post_status'  => 'private',
+                'post_title'   => sprintf('نوبت کلینیک [%s] - %s', $ref_code, $patient),
+                'post_content' => sanitize_textarea_field(sprintf("درمان: %s\nشیفت: %s", $treatment, $shift)),
+            ]);
+            if ($post_id && !is_wp_error($post_id) && function_exists('update_post_meta')) {
+                update_post_meta($post_id, '_uas_booking_ref', $ref_code);
+                update_post_meta($post_id, '_uas_treatment', $treatment);
+                update_post_meta($post_id, '_uas_shift', $shift);
+            }
+        }
+
+        wp_send_json_success([
+            'booking_id' => $post_id,
+            'ref_code'   => $ref_code,
+            'message'    => sprintf('نوبت معاینه شما با کد پیگیری %s در سامانه کلینیک ثبت گردید.', $ref_code),
+        ]);
+    }
+
+    /**
+     * AJAX Handler: Customs Clearance Lookup against stored shipment ledger
+     */
+    public function ajax_track_customs() {
+        check_ajax_referer('uas_industry_nonce', 'nonce');
+        $this->check_ajax_rate_limit('customs_track');
+
+        $cotage = isset($_POST['cotage_number']) ? strtoupper(sanitize_text_field(wp_unslash($_POST['cotage_number']))) : '';
+        if (empty($cotage) || !preg_match('/^[A-Z0-9\-]{4,40}$/', $cotage)) {
+            wp_send_json_error(['message' => 'فرمت شماره کوتاژ یا ثبت سفارش معتبر نیست.'], 400);
+        }
+
+        $shipments = function_exists('get_option') ? get_option('uas_customs_shipments', []) : [];
+        if (is_array($shipments) && isset($shipments[$cotage]) && is_array($shipments[$cotage])) {
+            $rec = $shipments[$cotage];
+            $status = sanitize_text_field($rec['status'] ?? 'در حال بررسی گمرکی');
+            $route  = sanitize_text_field($rec['route'] ?? 'مسیر سبز');
+            wp_send_json_success([
+                'cotage'  => $cotage,
+                'status'  => $status,
+                'route'   => $route,
+                'message' => sprintf('وضعیت کوتاژ %s (%s): %s', $cotage, $route, $status),
+            ]);
+        }
+
+        wp_send_json_error([
+            'message' => sprintf('پرونده کوتاژ %s در دفتر کل بارهای ثبت‌شده سیستم یافت نشد.', $cotage),
+        ], 404);
     }
 
     /**
@@ -214,15 +319,15 @@ class Industry_Blocks {
                 <span class="uas-badge">📅 نوبت‌دهی آنلاین درمان</span>
                 <h3 class="uas-title">رزرو سریع ویزیت و معاینه دندان‌پزشکی</h3>
             </div>
-            <form class="uas-dental-form" onsubmit="event.preventDefault(); alert('نوبت معاینه شما ثبت گردید. منشی کلینیک طی ۳۰ دقیقه آینده تماس خواهد گرفت.');">
+            <form class="uas-dental-form">
                 <div class="uas-grid uas-grid-3">
                     <div class="uas-field">
                         <label>نام و شماره تماس مراجع:</label>
-                        <input type="text" placeholder="نام و نام خانوادگی" required class="uas-input" />
+                        <input type="text" name="patient_name" placeholder="نام و شماره تماس" required class="uas-input" />
                     </div>
                     <div class="uas-field">
                         <label>نوع درمان درخواستی:</label>
-                        <select class="uas-select">
+                        <select name="treatment" class="uas-select">
                             <option>ایمپلنت و کاشت دندان</option>
                             <option>لمینت و کامپوزیت زیبایی</option>
                             <option>ارتودنسی نامرئی</option>
@@ -232,13 +337,14 @@ class Industry_Blocks {
                     </div>
                     <div class="uas-field">
                         <label>بازه زمانی پیشنهادی:</label>
-                        <select class="uas-select">
+                        <select name="shift" class="uas-select">
                             <option>شیفت صبح (۹:۰۰ الی ۱۳:۰۰)</option>
                             <option>شیفت عصر (۱۶:۰۰ الی ۲۱:۰۰)</option>
                         </select>
                     </div>
                 </div>
                 <button type="submit" class="uas-btn-primary" style="background:#06B6D4; width:100%; margin-top:15px;">دریافت نوبت معاینه حضوری ←</button>
+                <div class="uas-form-feedback" role="status" aria-live="polite" style="display:none;"></div>
             </form>
         </div>
         <?php
@@ -279,15 +385,15 @@ class Industry_Blocks {
             <div class="uas-results-card">
                 <div class="uas-res-item">
                     <span class="uas-res-label">تقریب وزن میلگرد مصرفی:</span>
-                    <span class="uas-res-val">۸۵ تا ۹۵ تن میلگرد</span>
+                    <span class="uas-res-val" id="uas-eng-steel">۸۵ تا ۹۵ تن میلگرد</span>
                 </div>
                 <div class="uas-res-item">
                     <span class="uas-res-label">حجم بتن‌ریزی فونداسیون و سقف‌ها:</span>
-                    <span class="uas-res-val">۷۲۰ مترمکعب بتن رده C30</span>
+                    <span class="uas-res-val" id="uas-eng-concrete">۷۲۰ مترمکعب بتن رده C30</span>
                 </div>
                 <div class="uas-res-item uas-highlight">
                     <span class="uas-res-label">تخمین مدت زمان اجرای سفت‌کاری:</span>
-                    <span class="uas-res-val">۷ ماه با مدیریت پیمان تخصصی</span>
+                    <span class="uas-res-val" id="uas-eng-duration">۷ ماه با مدیریت پیمان تخصصی</span>
                 </div>
             </div>
         </div>
@@ -459,12 +565,13 @@ class Industry_Blocks {
             <div class="uas-grid uas-grid-2">
                 <div class="uas-field">
                     <label>شماره ثبت سفارش یا کوتاژ گمرکی:</label>
-                    <input type="text" placeholder="مثال: IR-984210-CUSTOMS" class="uas-input font-mono" />
+                    <input type="text" name="cotage_number" placeholder="مثال: IR-984210-CUSTOMS" class="uas-input font-mono" />
                 </div>
                 <div class="uas-field" style="display:flex; align-items:flex-end;">
-                    <button type="button" class="uas-btn-primary" style="background:#2563EB; width:100%;" onclick="alert('استعلام سامانه EPL: محموله در مسیر سبز گمرک و در انتظار درب خروج می‌باشد.');">استعلام لحظه‌ای وضعیت گمرک ←</button>
+                    <button type="button" class="uas-btn-primary uas-customs-submit" style="background:#2563EB; width:100%;">استعلام لحظه‌ای وضعیت گمرک ←</button>
                 </div>
             </div>
+            <div class="uas-customs-result" role="status" aria-live="polite" style="display:none;"></div>
         </div>
         <?php
         return ob_get_clean();

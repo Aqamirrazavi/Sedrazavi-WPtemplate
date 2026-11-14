@@ -497,3 +497,11 @@ add_filter('rest_pre_serve_request', function ($served, $result, $request, $serv
     }
     return $served;
 }, 10, 4);
+
+// ۱۰. اعلام سازگاری رسمی با HPOS و بلاک‌های تسویه‌حساب ووکامرس
+add_action('before_woocommerce_init', function () {
+    if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, true);
+    }
+});

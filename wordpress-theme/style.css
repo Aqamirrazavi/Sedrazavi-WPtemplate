@@ -1800,7 +1800,49 @@ img {
 .entry-title { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 16px; }
 .entry-content { line-height: 1.8; color: #cbd5e1; font-size: 16px; }
 .site-header { width: 100%; position: relative; }
-.site-footer { width: 100%; position: relative; }
+.site-footer { width: 100%; position: relative; contain: layout style; }
 .site-main { width: 100%; position: relative; }
+.sr-cockpit-page-container { width: 100%; position: relative; }
 .sr-standalone-theme { min-height: 100vh; background: #0b0f19; color: #f8fafc; }
+.sedrazavi-floating-gold-sidebar { contain: layout style; }
+
+/* Stage 6: WCAG 2.1 AA Accessibility & Reduced Motion */
+.skip-link.screen-reader-text {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  z-index: 99999;
+}
+.skip-link.screen-reader-text:focus {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  left: auto;
+  background: #0B132B;
+  color: #D4AF37;
+  border: 2px solid #D4AF37;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+}
+
+:focus-visible {
+  outline: 2px solid #D4AF37;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 

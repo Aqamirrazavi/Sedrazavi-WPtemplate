@@ -300,6 +300,11 @@ export default function App() {
         blendMode={currentBgBlendMode || lawyerProfile.appearance?.vectorBackground?.blendMode || 'normal'}
       />
 
+      {/* Accessibility: Skip to Main Content */}
+      <a href="#main-content" className="sr-skip-link">
+        پرش به محتوای اصلی
+      </a>
+
       {/* Sticky Header */}
       <Header
         activeView={activeView}
@@ -389,7 +394,7 @@ export default function App() {
       />
 
       {/* Main Content Area based on active view */}
-      <main className="bg-legal-vector min-h-screen">
+      <main id="main-content" tabIndex={-1} className="bg-legal-vector min-h-screen focus:outline-none">
         {/* Archetype 1: WordPress Site Designer Gutenberg-First (Priority #1) */}
         {(activeView === 'wp-designer' || (activeView === 'preview' && activeArchetype === 'wp-designer')) && (
           <WordPressDesignerLanding

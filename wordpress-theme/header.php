@@ -206,8 +206,8 @@ if (isset($_GET['header_style']) && in_array($_GET['header_style'], $allowed_hea
             <?php endif; ?>
 
             <!-- منوی موبایل -->
-            <button id="mobile-menu-btn" class="hamburger-btn xl:hidden" aria-label="<?php esc_attr_e('منوی موبایل', 'sedrazavi'); ?>">
-                <svg class="w-5 h-5 text-sr-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <button id="mobile-menu-btn" type="button" class="hamburger-btn xl:hidden" aria-expanded="false" aria-controls="mobile-menu-drawer" aria-label="<?php esc_attr_e('منوی موبایل', 'sedrazavi'); ?>">
+                <svg aria-hidden="true" class="w-5 h-5 text-sr-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -219,7 +219,7 @@ if (isset($_GET['header_style']) && in_array($_GET['header_style'], $allowed_hea
 </header>
 
 <!-- منوی کشویی واکنش‌گرا موبایل (Mobile Drawer Menu) -->
-<div id="mobile-menu-drawer" class="mobile-menu-drawer" role="dialog" aria-modal="true">
+<div id="mobile-menu-drawer" class="mobile-menu-drawer" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e('منوی ناوبری موبایل', 'sedrazavi'); ?>">
     <div id="mobile-menu-backdrop" class="mobile-drawer-backdrop"></div>
     <div class="mobile-drawer-panel">
         <div>

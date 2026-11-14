@@ -36,10 +36,17 @@ get_header();
         <!-- کانتینر پلیر ویدیو با کنترل‌های پیشرفته -->
         <div class="rounded-3xl overflow-hidden bg-black/90 border border-sr-border shadow-2xl relative">
             <div class="aspect-video relative flex items-center justify-center bg-slate-950">
-                <video id="sr-custom-video-player" class="w-full h-full object-contain" controls preload="metadata" poster="<?php echo get_the_post_thumbnail_url(get_the_ID(), 'full'); ?>">
-                    <source src="<?php echo esc_url(get_post_meta(get_the_ID(), 'sr_video_stream_url', true) ?: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'); ?>" type="video/mp4">
-                    مرورگر شما از پخش مستقیم ویدیو پشتیبانی نمی‌کند.
-                </video>
+                <?php $video_stream_url = get_post_meta(get_the_ID(), 'sr_video_stream_url', true); ?>
+                <?php if (!empty($video_stream_url)): ?>
+                    <video id="sr-custom-video-player" class="w-full h-full object-contain" controls preload="metadata" poster="<?php echo esc_url(get_the_post_thumbnail_url(get_the_ID(), 'full')); ?>">
+                        <source src="<?php echo esc_url($video_stream_url); ?>" type="video/mp4">
+                        مرورگر شما از پخش مستقیم ویدیو پشتیبانی نمی‌کند.
+                    </video>
+                <?php else: ?>
+                    <div class="p-8 text-center text-slate-400 text-sm">
+                        آدرس استریم ویدیو هنوز در فیلد اختصاصی برگه (<code>sr_video_stream_url</code>) تنظیم نشده است.
+                    </div>
+                <?php endif; ?>
             </div>
 
             <!-- نوار کنترل اختصاصی زیر پلیر -->

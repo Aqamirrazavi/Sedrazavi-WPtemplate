@@ -81,20 +81,20 @@ class Universal_Contact_Booking_Widget extends Universal_Widget_Base {
                 </div>
             <?php endif; ?>
 
-            <form class="uas-booking-form" onsubmit="event.preventDefault(); alert('درخواست شما با موفقیت ثبت شد.');">
+            <form class="uas-booking-form uas-widget-booking-form">
                 <div class="uas-form-group">
                     <label class="uas-form-label">نام و نام خانوادگی:</label>
-                    <input type="text" class="uas-form-input" placeholder="مثال: علی احمدی" required />
+                    <input type="text" name="full_name" class="uas-form-input" placeholder="مثال: علی احمدی" required />
                 </div>
 
                 <div class="uas-form-group">
                     <label class="uas-form-label">شماره تلفن همراه:</label>
-                    <input type="tel" class="uas-form-input" placeholder="۰۹۱۲۳۴۵۶۷۸۹" required />
+                    <input type="tel" name="phone" class="uas-form-input" placeholder="۰۹۱۲۳۴۵۶۷۸۹" required />
                 </div>
 
                 <div class="uas-form-group">
                     <label class="uas-form-label">نوع خدمت مورد نیاز:</label>
-                    <select class="uas-form-select">
+                    <select name="service_type" class="uas-form-select">
                         <option>مشاوره عمومی و ارزیابی اولیه</option>
                         <option>برنامه‌ریزی استراتژیک و توسعه</option>
                         <option>پشتیبانی فنی و اختصاصی</option>
@@ -103,12 +103,13 @@ class Universal_Contact_Booking_Widget extends Universal_Widget_Base {
 
                 <div class="uas-form-group">
                     <label class="uas-form-label">شرح مختصر درخواست:</label>
-                    <textarea class="uas-form-textarea" rows="3" placeholder="توضیحات تکمیلی خود را بنویسید..."></textarea>
+                    <textarea name="details" class="uas-form-textarea" rows="3" placeholder="توضیحات تکمیلی خود را بنویسید..."></textarea>
                 </div>
 
                 <button type="submit" class="uas-form-submit">
                     <?php echo esc_html($settings['submit_btn_text']); ?>
                 </button>
+                <div class="uas-booking-feedback" role="status" aria-live="polite" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
             </form>
         </div>
         <?php

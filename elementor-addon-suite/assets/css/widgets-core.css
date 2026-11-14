@@ -27,4 +27,21 @@
   box-sizing: border-box;
   position: relative;
   width: 100%;
+  contain: layout style;
 }
+
+.uas-widget-container :focus-visible {
+  outline: 2px solid var(--uas-accent-color, #D4AF37);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uas-widget-container *,
+  .uas-widget-container *::before,
+  .uas-widget-container *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

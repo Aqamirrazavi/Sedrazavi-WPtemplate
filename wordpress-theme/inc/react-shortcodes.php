@@ -83,12 +83,15 @@ function sedrazavi_register_react_assets() {
     );
 
     // ثبت اسکریپت اجرایی React و رجیستری مؤلفه‌ها
+    $defer_args = function_exists('get_bloginfo') && version_compare(get_bloginfo('version'), '6.3', '>=')
+        ? array('in_footer' => true, 'strategy' => 'defer')
+        : true;
     wp_register_script(
         'sedrazavi_react_bundle',
         $js_bundle,
         array(),
         $version,
-        true // لود در فوتر صفحه جهت بهینه‌سازی سرعت و امتیاز Core Web Vitals
+        $defer_args
     );
 }
 add_action('wp_enqueue_scripts', 'sedrazavi_register_react_assets', 10);

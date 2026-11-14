@@ -26,7 +26,8 @@ class WooCommerce_Compatibility {
     }
 
     public function __construct() {
-        // Core WooCommerce Support
+        // Core WooCommerce Support & HPOS / Cart-Checkout Blocks Declaration
+        add_action('before_woocommerce_init', [$this, 'declare_hpos_compatibility']);
         add_action('after_setup_theme', [$this, 'declare_woocommerce_support'], 20);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_compatibility_assets'], 25);
 
@@ -41,6 +42,17 @@ class WooCommerce_Compatibility {
     }
 
     /**
+     * Declare compatibility with WooCommerce High-Performance Order Storage (HPOS) & Checkout Blocks
+     */
+    public function declare_hpos_compatibility() {
+        if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+            $plugin_file = defined('UAS_FILE') ? UAS_FILE : dirname(__DIR__) . '/elementor-addon-suite.php';
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', $plugin_file, true);
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', $plugin_file, true);
+        }
+    }
+
+    /**
      * Declare WooCommerce Theme & Plugin Support
      */
     public function declare_woocommerce_support() {
@@ -51,7 +63,7 @@ class WooCommerce_Compatibility {
     }
 
     /**
-     * Enqueue styles ensuring zero clash with WoodMart & JetWooBuilder
+     * Enqueue styles conditionally so pages without WooCommerce/builders remain lightweight
      */
     public function enqueue_compatibility_assets() {
         wp_register_style(
@@ -61,8 +73,24 @@ class WooCommerce_Compatibility {
             UAS_VERSION
         );
 
-        // Always load so WoodMart and JetWooBuilder elements look seamless
-        wp_enqueue_style('uas-ecommerce-compat');
+        $has_commerce_stack = class_exists('WooCommerce')
+            || defined('WOODMART_THEME_DIR')
+            || function_exists('woodmart_get_opt')
+            || defined('JET_WOO_BUILDER_VERSION')
+            || defined('SHOPENGINE_VERSION');
+
+        if (!$has_commerce_stack && is_singular()) {
+            global $post;
+            if ($post && isset($post->post_content)) {
+                $has_commerce_stack = has_shortcode($post->post_content, 'uas_service_pricing_table')
+                    || has_shortcode($post->post_content, 'uas_quick_checkout_box')
+                    || has_shortcode($post->post_content, 'uas_woodmart_product_badge');
+            }
+        }
+
+        if ($has_commerce_stack) {
+            wp_enqueue_style('uas-ecommerce-compat');
+        }
     }
 
     /**
@@ -118,6 +146,7 @@ class WooCommerce_Compatibility {
      * Universal Service & Product Pricing Table
      */
     public function render_service_pricing_table($atts) {
+        wp_enqueue_style('uas-ecommerce-compat');
         $a = shortcode_atts([
             'category' => 'consultation',
             'columns'  => '3',
@@ -162,6 +191,7 @@ class WooCommerce_Compatibility {
      * WoodMart Product Badge Helper
      */
     public function render_woodmart_product_badge($atts) {
+        wp_enqueue_style('uas-ecommerce-compat');
         $a = shortcode_atts([
             'text'  => 'تاییدیه رسمی',
             'color' => '#D4AF37',
@@ -178,6 +208,9 @@ class WooCommerce_Compatibility {
      * Quick 1-Step Checkout Box (Interoperable with WooCommerce & ShopEngine)
      */
     public function render_quick_checkout_box($atts) {
+        wp_enqueue_style('uas-ecommerce-compat');
+        wp_enqueue_script('uas-standalone-blocks');
+        $checkout_url = function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '';
         ob_start();
         ?>
         <div class="uas-quick-checkout-box" dir="rtl">
@@ -185,15 +218,16 @@ class WooCommerce_Compatibility {
                 <h4>پرداخت امن حق‌المشاوره و بیعانه دادرسی</h4>
                 <p>متصل به شبکه شتاب و کلیه درگاه‌های بانکی رسمی کشور (سداد، شاپرک، به‌پرداخت، زرین‌پال)</p>
             </div>
-            <form class="uas-qc-form" onsubmit="event.preventDefault(); alert('انتقال به درگاه امن بانکی شاپرک...');">
+            <form class="uas-qc-form" data-checkout-url="<?php echo esc_url($checkout_url); ?>">
                 <div class="uas-grid uas-grid-2">
-                    <input type="text" placeholder="نام و نام خانوادگی موکل" required class="uas-input" />
-                    <input type="tel" placeholder="شماره تلفن همراه (جهت دریافت شناسه تراکنش)" required class="uas-input" />
+                    <input type="text" name="client_name" placeholder="نام و نام خانوادگی موکل" required class="uas-input" aria-label="نام و نام خانوادگی موکل" />
+                    <input type="tel" name="client_phone" placeholder="شماره تلفن همراه (جهت دریافت شناسه تراکنش)" required class="uas-input" aria-label="شماره تلفن همراه" />
                 </div>
                 <div class="uas-grid uas-grid-2" style="margin-top:12px;">
-                    <input type="number" placeholder="مبلغ واریزی به تومان" value="2500000" class="uas-input font-mono" />
+                    <input type="number" name="amount" min="10000" placeholder="مبلغ واریزی به تومان" value="2500000" class="uas-input font-mono" aria-label="مبلغ واریزی به تومان" />
                     <button type="submit" class="uas-btn-primary" style="background:#238636;">اتصال به درگاه بانکی شاپرک ←</button>
                 </div>
+                <div class="uas-qc-feedback" role="status" aria-live="polite" style="display:none; margin-top:12px; padding:10px 14px; border-radius:8px; font-size:13px;"></div>
             </form>
         </div>
         <?php

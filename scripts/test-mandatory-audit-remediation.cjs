@@ -427,6 +427,175 @@ assert(
   'Intake, offline queue (64-hex token + rate limit), and WooCommerce Shetab (zero fake cart) are hardened'
 );
 
+// -------------------------------------------------------------
+// Test Group 8: Stages 1-4 Remediation Parity (Security Middleware, Package Guards, Standalone Independence & Blocks)
+// -------------------------------------------------------------
+console.log('\n🔍 Test Group 8: Stages 1-4 Remediation Parity Verification');
+
+const secMiddlewarePath = path.join(__dirname, '../src/security/clientAccessMiddleware.ts');
+const secIndexPath = path.join(__dirname, '../src/security/index.ts');
+const secReadmePath = path.join(__dirname, '../src/security/README.md');
+assert(
+  fs.existsSync(secMiddlewarePath) && fs.existsSync(secIndexPath) && fs.existsSync(secReadmePath),
+  'src/security/ client access & REST metadata middleware module exists with documentation'
+);
+const secMiddlewareCode = fs.readFileSync(secMiddlewarePath, 'utf8');
+assert(
+  secMiddlewareCode.includes('requireAuthenticatedActor') &&
+  secMiddlewareCode.includes('requireCaseAccessOwnership') &&
+  secMiddlewareCode.includes('enforceRestMetadataPolicy') &&
+  secMiddlewareCode.includes('redactCaseMetadataForActor'),
+  'clientAccessMiddleware.ts exports auth, Anti-IDOR ownership, REST metadata policy, and redaction helpers'
+);
+
+const pkgInstallerCode = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/includes/packaging/class-package-installer.php'), 'utf8');
+assert(
+  pkgInstallerCode.includes("'conflict_exists'") &&
+  pkgInstallerCode.includes("'backup_failed'") &&
+  pkgInstallerCode.includes("'activation_failed'") &&
+  pkgInstallerCode.includes('rollback_package_installation'),
+  'Stage 2 Package_Installer enforces overwrite conflict guard, pre-overwrite backups, activation rollback, and snapshot restoration'
+);
+
+const cockpitCompanionPath = path.join(__dirname, '../sedrazavi-companion/includes/class-frontend-cockpit.php');
+const cockpitThemeAdapterPath = path.join(__dirname, '../wordpress-theme/inc/frontend-cockpit-engine.php');
+const cockpitCompanionCode = fs.existsSync(cockpitCompanionPath) ? fs.readFileSync(cockpitCompanionPath, 'utf8') : '';
+const cockpitAdapterCode = fs.existsSync(cockpitThemeAdapterPath) ? fs.readFileSync(cockpitThemeAdapterPath, 'utf8') : '';
+assert(
+  cockpitCompanionCode.includes('register_portable_business_cpts') &&
+  cockpitCompanionCode.includes('post_type_exists($cpt_slug)') &&
+  cockpitCompanionCode.includes("'portfolio' =>") &&
+  !cockpitAdapterCode.includes('class Frontend_Cockpit_Engine') &&
+  !cockpitAdapterCode.includes('wp_ajax_sr_cockpit_'),
+  'Stage 3 architectural independence moves Cockpit engine & portable CPTs to sedrazavi-companion without theme duplication'
+);
+
+const gutenbergPath = path.join(__dirname, '../elementor-addon-suite/includes/class-gutenberg-blocks.php');
+const industryBlocksPath = path.join(__dirname, '../elementor-addon-suite/includes/class-industry-blocks.php');
+const industryJsPath = path.join(__dirname, '../elementor-addon-suite/assets/js/industry-blocks.js');
+const contactWidgetPath = path.join(__dirname, '../elementor-addon-suite/includes/widgets/class-widget-contact-booking.php');
+const standaloneShortcodesPath = path.join(__dirname, '../elementor-addon-suite/includes/class-standalone-shortcodes.php');
+
+const gutenbergCode = fs.readFileSync(gutenbergPath, 'utf8');
+const industryBlocksCode = fs.readFileSync(industryBlocksPath, 'utf8');
+const contactWidgetCode = fs.readFileSync(contactWidgetPath, 'utf8');
+const standaloneShortcodesCode = fs.readFileSync(standaloneShortcodesPath, 'utf8');
+
+assert(
+  gutenbergCode.includes("block.json") &&
+  gutenbergCode.includes("wp.serverSideRender") &&
+  gutenbergCode.includes("Sovereign_Widgets_Registry") &&
+  gutenbergCode.includes("Sovereign_Sections_Bank") &&
+  gutenbergCode.includes("Sovereign_Svg_Icons") &&
+  gutenbergCode.includes("Sovereign_Motion_Presets"),
+  'Stage 4 Gutenberg_Blocks uses block.json, wp.serverSideRender, and wires all callbacks to Sovereign services'
+);
+
+assert(
+  fs.existsSync(industryJsPath) &&
+  industryBlocksCode.includes('uas_submit_dental_booking') &&
+  industryBlocksCode.includes('uas_track_customs') &&
+  !industryBlocksCode.includes('alert(') &&
+  !contactWidgetCode.includes('alert(') &&
+  !standaloneShortcodesCode.includes('alert('),
+  'Stage 4 Industry Blocks, Standalone Shortcodes, and Contact Booking Widget use real JS/AJAX with zero alert()'
+);
+
+// -------------------------------------------------------------
+// Test Group 9: Stage 6 — WooCommerce HPOS, Zero-Alert, Clean Media, Accessibility, SEO & 66/66 Design Bank
+// -------------------------------------------------------------
+console.log('\n🔍 Test Group 9: Stage 6 Quality, WooCommerce HPOS, Clean Media, WCAG, SEO & Design Bank');
+
+const wcCompatCode = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/includes/class-woocommerce-compatibility.php'), 'utf8');
+const compMainCode = fs.readFileSync(path.join(__dirname, '../sedrazavi-companion/sedrazavi-companion.php'), 'utf8');
+const addonsMainCode = fs.readFileSync(path.join(__dirname, '../sedrazavi-addons/sedrazavi-addons.php'), 'utf8');
+assert(
+  wcCompatCode.includes('before_woocommerce_init') &&
+  wcCompatCode.includes("'custom_order_tables'") &&
+  wcCompatCode.includes("'cart_checkout_blocks'") &&
+  compMainCode.includes("'custom_order_tables'") &&
+  addonsMainCode.includes("'custom_order_tables'") &&
+  wcShetabCode.includes("!class_exists('WooCommerce')") &&
+  wcShetabCode.includes('aria-modal="true"'),
+  'Stage 6 WooCommerce HPOS & Cart/Checkout Blocks compatibility declared across all plugins with guarded accessible Slideover Cart'
+);
+
+const zeroAlertTargets = [
+  '../elementor-addon-suite/assets/js/admin-settings.js',
+  '../elementor-addon-suite/assets/js/widgets/pricing-matrix.js',
+  '../elementor-addon-suite/assets/js/widgets/story-bar.js',
+  '../elementor-addon-suite/includes/class-woocommerce-compatibility.php',
+  '../sedrazavi-companion/assets/js/frontend-cockpit.js',
+  '../sedrazavi-companion/includes/class-admin-dashboard.php',
+  '../sedrazavi-companion/includes/class-demo-importer.php',
+  '../wordpress-theme/assets/js/main.js',
+  '../wordpress-theme/template-comments.php',
+  '../wordpress-theme/template-emails.php',
+  '../wordpress-theme/template-parts/front-agency.php',
+  '../wordpress-theme/template-parts/front-store.php',
+];
+const filesWithAlerts = zeroAlertTargets.filter((rel) => {
+  const txt = fs.readFileSync(path.join(__dirname, rel), 'utf8');
+  return /\balert\s*\(/.test(txt);
+});
+assert(
+  filesWithAlerts.length === 0,
+  `Stage 6 eliminates all inline/window alert() calls across plugins and theme (${filesWithAlerts.length} remaining)`
+);
+
+const cleanMediaTargets = [
+  '../elementor-addon-suite/includes/class-standalone-shortcodes.php',
+  '../elementor-addon-suite/includes/widgets/class-widget-spotplayer-course.php',
+  '../sedrazavi-companion/includes/class-course-lms-bridge.php',
+  '../wordpress-theme/page-music-podcasts.php',
+  '../wordpress-theme/template-podcast.php',
+  '../wordpress-theme/template-video.php',
+];
+const filesWithSampleMedia = cleanMediaTargets.filter((rel) => {
+  const txt = fs.readFileSync(path.join(__dirname, rel), 'utf8');
+  return txt.includes('commondatastorage.googleapis.com') || txt.includes('soundhelix.com') || txt.includes('images.unsplash.com');
+});
+assert(
+  filesWithSampleMedia.length === 0,
+  `Stage 6 removes all third-party sample MP4/MP3/Unsplash media fallbacks (${filesWithSampleMedia.length} remaining)`
+);
+
+const srcCss = fs.readFileSync(path.join(__dirname, '../src/index.css'), 'utf8');
+const themeCss = fs.readFileSync(path.join(__dirname, '../wordpress-theme/style.css'), 'utf8');
+const cockpitCss = fs.readFileSync(path.join(__dirname, '../sedrazavi-companion/assets/css/frontend-cockpit.css'), 'utf8');
+const blocksCss = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/assets/css/standalone-blocks.css'), 'utf8');
+const footerCode = fs.readFileSync(path.join(__dirname, '../wordpress-theme/footer.php'), 'utf8');
+assert(
+  srcCss.includes('prefers-reduced-motion') && srcCss.includes(':focus-visible') && srcCss.includes('.sr-skip-link') &&
+  themeCss.includes('prefers-reduced-motion') && themeCss.includes(':focus-visible') &&
+  cockpitCss.includes('prefers-reduced-motion') && cockpitCss.includes(':focus-visible') &&
+  blocksCss.includes('prefers-reduced-motion') && blocksCss.includes(':focus-visible') &&
+  cockpitCompanionCode.includes('role="tablist"') && cockpitCompanionCode.includes('role="dialog"') &&
+  footerCode.includes('<button type="button" class="gold-scroll-badge"'),
+  'Stage 6 WCAG 2.1 AA skip links, focus-visible outlines, reduced-motion, ARIA tablist/dialog roles, and semantic scroll button verified'
+);
+
+const indexHtml = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
+const dynamicSeoCode = fs.readFileSync(path.join(__dirname, '../src/components/DynamicSeoHead.tsx'), 'utf8');
+const seoBridgeCode = fs.readFileSync(path.join(__dirname, '../wordpress-theme/inc/seo-bridge.php'), 'utf8');
+const themeFunctionsCode = fs.readFileSync(path.join(__dirname, '../wordpress-theme/functions.php'), 'utf8');
+assert(
+  indexHtml.includes('"@type": "WebSite"') &&
+  indexHtml.includes('"@type": "WebApplication"') &&
+  dynamicSeoCode.includes('canonical') &&
+  seoBridgeCode.includes('pre_get_document_title') &&
+  seoBridgeCode.includes("!current_theme_supports('title-tag')") &&
+  themeFunctionsCode.includes("'strategy' => 'defer'"),
+  'Stage 6 SEO WebSite/WebApplication JSON-LD, canonical sync, single-title WP guard, and deferred scripts verified'
+);
+
+const iconsPhpCode = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/includes/class-sovereign-svg-icons.php'), 'utf8');
+const phpIconNums = [...iconsPhpCode.matchAll(/'number'\s*=>\s*(\d+)/g)].map((m) => Number(m[1]));
+assert(
+  phpIconNums.length === 66 && Math.max(...phpIconNums) === 66 && Math.min(...phpIconNums) === 1,
+  `Stage 6 Sovereign_Svg_Icons PHP catalog matches 66/66 React icons (found ${phpIconNums.length})`
+);
+
 console.log('========================================================================');
 console.log(`📊 Test Results: ${passedTests} / ${totalTests} passed`);
 if (allPassed) {

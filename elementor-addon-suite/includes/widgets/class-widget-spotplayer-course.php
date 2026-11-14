@@ -62,9 +62,10 @@ class Universal_SpotPlayer_Course_Widget extends Universal_Widget_Base {
         $this->add_control(
             'video_url',
             [
-                'label'   => esc_html__('آدرس ویدیو / استریم', 'universal-elementor-suite'),
-                'type'    => Controls_Manager::TEXT,
-                'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                'label'       => esc_html__('آدرس ویدیو / استریم', 'universal-elementor-suite'),
+                'type'        => Controls_Manager::TEXT,
+                'default'     => '',
+                'placeholder' => esc_html__('https://example.com/course-lesson.mp4', 'universal-elementor-suite'),
             ]
         );
 
@@ -174,9 +175,15 @@ class Universal_SpotPlayer_Course_Widget extends Universal_Widget_Base {
                     <span class="badge" style="padding: 4px 10px; border-radius: 9999px; background: #3b82f6; color: #fff; font-size: 11px; font-weight: 700;">پخش امن دوره</span>
                 </div>
                 <div style="position: relative; border-radius: 12px; overflow: hidden; background: #020617;">
-                    <video controls preload="metadata" style="width: 100%; display: block; max-height: 420px;">
-                        <source src="<?php echo esc_url($video_url); ?>" type="video/mp4">
-                    </video>
+                    <?php if (!empty($video_url)): ?>
+                        <video controls preload="metadata" style="width: 100%; display: block; max-height: 420px;">
+                            <source src="<?php echo esc_url($video_url); ?>" type="video/mp4">
+                        </video>
+                    <?php else: ?>
+                        <div style="padding: 44px 20px; text-align: center; color: #94a3b8; font-size: 13px; border: 1px dashed #334155; border-radius: 12px;">
+                            آدرس استریم دوره در تنظیمات ویجت هنوز وارد نشده است.
+                        </div>
+                    <?php endif; ?>
                     <?php if ($watermark): ?>
                         <div style="position: absolute; top: 12px; left: 14px; font-size: 11px; color: rgba(255,255,255,0.55); pointer-events: none; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 6px;">
                             🔒 <?php echo esc_html($user_label); ?>

@@ -41,6 +41,15 @@ export const DynamicSeoHead: React.FC<DynamicSeoHeadProps> = ({ profile }) => {
     let twDesc = document.querySelector('meta[name="twitter:description"]') as HTMLMetaElement | null;
     if (twDesc) twDesc.content = dynamicDescription;
 
+    // 3.5. Dynamic Canonical Link Sync
+    let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.href = window.location.href;
+
     // 4. Dynamic Schema.org JSON-LD injection
     const jsonLdData = generateDynamicJsonLd(profile, window.location.origin);
     let scriptTag = document.getElementById('sr-dynamic-schema') as HTMLScriptElement | null;

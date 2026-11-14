@@ -120,7 +120,8 @@ if (!defined('ABSPATH')) {
                 <p class="text-xs text-slate-400">مشخصات اولیه سایت مدنظرتان را ارسال کنید تا کارشناسان ما ظرف ۲ ساعت کاری با شما تماس بگیرند.</p>
             </div>
 
-            <form onsubmit="event.preventDefault(); alert('درخواست پروژه شما ثبت شد. با تشکر!');" class="space-y-6 text-right">
+            <div id="sr-agency-brief-feedback" role="status" aria-live="polite" class="hidden p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-semibold"></div>
+            <form onsubmit="event.preventDefault(); var fb=document.getElementById('sr-agency-brief-feedback'); if(fb){fb.classList.remove('hidden'); fb.textContent='✓ درخواست پروژه شما ثبت شد. کارشناسان ما به‌زودی با شما تماس می‌گیرند.';} this.reset();" class="space-y-6 text-right">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">نام و نام‌خانوادگی</label>

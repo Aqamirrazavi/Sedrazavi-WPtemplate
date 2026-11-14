@@ -11,14 +11,32 @@
     const ajaxUrl = data.ajaxUrl || '/wp-admin/admin-ajax.php';
     const nonce = data.nonce || '';
 
-    // 1. Tab Switching
+    function showCockpitToast(msg, isSuccess) {
+      let $toast = $('#sr-cockpit-toast');
+      if (!$toast.length) {
+        $toast = $('<div id="sr-cockpit-toast" class="sr-cockpit-toast" role="status" aria-live="polite"></div>');
+        $('#sr-frontend-cockpit-root').prepend($toast);
+      }
+      $toast
+        .removeClass('sr-toast-success sr-toast-error')
+        .addClass(isSuccess ? 'sr-toast-success' : 'sr-toast-error')
+        .text(msg)
+        .stop(true, true)
+        .fadeIn(180);
+      clearTimeout($toast.data('timer'));
+      $toast.data('timer', setTimeout(function() {
+        $toast.fadeOut(250);
+      }, 4800));
+    }
+
+    // 1. Tab Switching (with ARIA sync)
     $('.sr-tab-btn').on('click', function() {
       const target = $(this).data('tab');
-      $('.sr-tab-btn').removeClass('active');
-      $(this).addClass('active');
+      $('.sr-tab-btn').removeClass('active').attr('aria-selected', 'false');
+      $(this).addClass('active').attr('aria-selected', 'true');
 
-      $('.sr-tab-pane').removeClass('active');
-      $('#' + target).addClass('active');
+      $('.sr-tab-pane').removeClass('active').attr('hidden', true);
+      $('#' + target).addClass('active').removeAttr('hidden');
     });
 
     // 2. Database Login Form
@@ -59,7 +77,7 @@
         $.post(ajaxUrl, {
           action: 'sr_cockpit_db_logout',
           nonce: nonce
-        }, function(res) {
+        }, function() {
           window.location.reload();
         });
       }
@@ -85,6 +103,12 @@
     $(window).on('click', function(e) {
       if ($(e.target).hasClass('sr-modal')) {
         $('.sr-modal').fadeOut(200);
+      }
+    });
+
+    $(document).on('keydown', function(e) {
+      if (e.key === 'Escape') {
+        $('.sr-modal:visible').fadeOut(200);
       }
     });
 
@@ -117,11 +141,11 @@
           $('#sr-cpt-modal .sr-modal-feedback').text('');
           $('#sr-cpt-modal').fadeIn(200);
         } else {
-          alert((res.data && res.data.message) || 'خطا در بازیابی اطلاعات محتوا.');
+          showCockpitToast((res.data && res.data.message) || 'خطا در بازیابی اطلاعات محتوا.', false);
         }
       }).fail(function() {
         $btn.prop('disabled', false);
-        alert('خطای ارتباط با سرور هنگام بارگذاری اطلاعات.');
+        showCockpitToast('خطای ارتباط با سرور هنگام بارگذاری اطلاعات.', false);
       });
     });
 
@@ -160,8 +184,9 @@
         }, function(res) {
           if (res.success) {
             $row.fadeOut(300, function() { $(this).remove(); });
+            showCockpitToast('مورد انتخاب‌شده با موفقیت حذف شد.', true);
           } else {
-            alert(res.data.message || 'خطا در حذف');
+            showCockpitToast((res.data && res.data.message) || 'خطا در حذف', false);
           }
         });
       }
@@ -202,8 +227,9 @@
         }, function(res) {
           if (res.success) {
             $row.fadeOut(300, function() { $(this).remove(); });
+            showCockpitToast('حساب کاربری با موفقیت حذف شد.', true);
           } else {
-            alert(res.data.message || 'خطا در حذف کاربر');
+            showCockpitToast((res.data && res.data.message) || 'خطا در حذف کاربر', false);
           }
         });
       }
@@ -223,12 +249,13 @@
       }, function(res) {
         if (res.success) {
           $btn.text('فعال شد').css('background', '#10B981');
+          showCockpitToast('افزونه با موفقیت فعال شد.', true);
           setTimeout(() => {
             window.location.reload();
           }, 1000);
         } else {
           $btn.prop('disabled', false).text('تلاش مجدد');
-          alert(res.data.message || 'خطا در نصب افزونه');
+          showCockpitToast((res.data && res.data.message) || 'خطا در نصب افزونه', false);
         }
       });
     });
@@ -463,7 +490,7 @@
       const cpts = getSelectedCpts();
 
       if (widgets.length === 0 && templates.length === 0 && blocks.length === 0 && cpts.length === 0) {
-        alert('لطفاً حداقل یک ویجت، بلوک، CPT یا قالب را انتخاب کنید.');
+        showSitekitFeedback('لطفاً حداقل یک ویجت، بلوک، CPT یا قالب را انتخاب کنید.', false);
         return;
       }
 
@@ -547,7 +574,7 @@
       const $btn = $(this);
       const slug = $('#sr_sitekit_slug').val();
       if (!slug) {
-        alert('شناسه انگلیسی بسته (Slug) برای عملیات رول‌بک الزامی است.');
+        showSitekitFeedback('شناسه انگلیسی بسته (Slug) برای عملیات رول‌بک الزامی است.', false);
         return;
       }
       if (!confirm(`آیا از رول‌بک کامل کیت «${slug}» (غیرفعال‌سازی افزونه، حذف فایل‌ها و پاک‌سازی قالب‌های کتابخانه المنتور) اطمینان دارید؟`)) {
@@ -623,11 +650,11 @@
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
         } else {
-          alert((res.data && res.data.message) || 'خطا در خروجی CSV کاربران');
+          showCockpitToast((res.data && res.data.message) || 'خطا در خروجی CSV کاربران', false);
         }
       }).fail(function() {
         $btn.prop('disabled', false).text('📤 خروجی CSV کاربران');
-        alert('خطای سرور در تولید خروجی CSV.');
+        showCockpitToast('خطای سرور در تولید خروجی CSV.', false);
       });
     });
 

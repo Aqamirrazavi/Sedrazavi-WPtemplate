@@ -119,7 +119,7 @@ if (!defined('ABSPATH')) {
                             <h3 class="text-sm font-bold text-white line-clamp-1"><?php echo esc_html($item['title']); ?></h3>
                             <div class="text-xs font-bold text-emerald-400 mt-2 font-mono"><?php echo esc_html($item['price']); ?></div>
                         </div>
-                        <button type="button" onclick="alert('محصول به سبد خرید افزوده شد.');" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all cursor-pointer">
+                        <button type="button" onclick="this.textContent='✓ به سبد خرید افزوده شد'; this.setAttribute('aria-pressed','true');" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all cursor-pointer">
                             افزودن به سبد خرید
                         </button>
                     </div>

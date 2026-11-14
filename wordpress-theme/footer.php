@@ -155,13 +155,13 @@ $footer_bio = get_theme_mod('sedrazavi_footer_bio', get_bloginfo('description'))
 <!-- سایدبار شناور طلایی اسکرول و ناوبری -->
 <aside class="sedrazavi-floating-gold-sidebar" aria-label="<?php esc_attr_e('ناوبری و اسکرول سریع', 'sedrazavi'); ?>">
     <div class="gold-sidebar-inner">
-        <div class="gold-scroll-badge" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="<?php esc_attr_e('درصد اسکرول - کلیک برای بازگشت به بالا', 'sedrazavi'); ?>">
+        <button type="button" class="gold-scroll-badge" onclick="window.scrollTo({top:0, behavior:'smooth'})" aria-label="<?php esc_attr_e('درصد اسکرول - کلیک برای بازگشت به بالا', 'sedrazavi'); ?>" title="<?php esc_attr_e('درصد اسکرول - کلیک برای بازگشت به بالا', 'sedrazavi'); ?>">
             <span class="gold-percent-num" id="sedrazavi-percent-display">0%</span>
-        </div>
-        <div class="gold-scroll-v-track">
+        </button>
+        <div class="gold-scroll-v-track" aria-hidden="true">
             <div class="gold-scroll-v-fill" id="sedrazavi-v-fill"></div>
         </div>
-        <button type="button" class="gold-btn-top" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="<?php esc_attr_e('بازگشت به بالای صفحه', 'sedrazavi'); ?>">
+        <button type="button" class="gold-btn-top" onclick="window.scrollTo({top:0, behavior:'smooth'})" aria-label="<?php esc_attr_e('بازگشت به بالای صفحه', 'sedrazavi'); ?>" title="<?php esc_attr_e('بازگشت به بالای صفحه', 'sedrazavi'); ?>">
             ▲
         </button>
     </div>

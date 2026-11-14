@@ -136,14 +136,17 @@ class SedRazavi_WooCommerce_Shetab_Gateway {
     }
 
     public function render_slideover_cart_markup() {
+        if (!class_exists('WooCommerce') || (function_exists('is_cart') && is_cart()) || (function_exists('is_checkout') && is_checkout())) {
+            return;
+        }
         ?>
         <!-- SedRazavi WooCommerce Floating Slideover Cart Container -->
-        <div id="sr-slideover-cart-drawer" class="sr-drawer-hidden" style="display: none;" dir="rtl">
-            <div class="sr-cart-backdrop" onclick="document.getElementById('sr-slideover-cart-drawer').style.display='none'"></div>
+        <div id="sr-slideover-cart-drawer" class="sr-drawer-hidden" role="dialog" aria-modal="true" aria-labelledby="sr-slideover-cart-title" style="display: none;" dir="rtl">
+            <div class="sr-cart-backdrop" id="sr-slideover-cart-backdrop" aria-hidden="true"></div>
             <div class="sr-cart-panel">
                 <div class="sr-cart-header">
-                    <h4>سبد خرید هوشمند شما</h4>
-                    <button type="button" class="sr-close-btn" onclick="document.getElementById('sr-slideover-cart-drawer').style.display='none'">&times;</button>
+                    <h4 id="sr-slideover-cart-title">سبد خرید هوشمند شما</h4>
+                    <button type="button" id="sr-slideover-cart-close" class="sr-close-btn" aria-label="بستن سبد خرید">&times;</button>
                 </div>
                 <div class="sr-cart-body" id="sr-cart-items-container">
                     <p style="text-align: center; color: #64748b; font-size: 13px;">در حال بارگذاری سبد خرید...</p>
@@ -155,6 +158,22 @@ class SedRazavi_WooCommerce_Shetab_Gateway {
                 </div>
             </div>
         </div>
+        <script>
+        (function() {
+            var drawer = document.getElementById('sr-slideover-cart-drawer');
+            if (!drawer) return;
+            var closeCartDrawer = function() { drawer.style.display = 'none'; };
+            var backdrop = document.getElementById('sr-slideover-cart-backdrop');
+            var closeBtn = document.getElementById('sr-slideover-cart-close');
+            if (backdrop) backdrop.addEventListener('click', closeCartDrawer);
+            if (closeBtn) closeBtn.addEventListener('click', closeCartDrawer);
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && drawer.style.display !== 'none') {
+                    closeCartDrawer();
+                }
+            });
+        })();
+        </script>
         <?php
     }
 }

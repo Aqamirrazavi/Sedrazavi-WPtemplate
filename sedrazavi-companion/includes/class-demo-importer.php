@@ -384,6 +384,9 @@ class SedRazavi_Demo_Importer {
                     // Disable buttons and show status
                     buttons.forEach(function(b) { b.disabled = true; b.style.opacity = '0.6'; });
                     successBox.style.display = 'none';
+                    statusBox.style.background = '';
+                    statusBox.style.borderColor = '';
+                    statusMsg.style.color = '';
                     statusBox.style.display = 'block';
                     statusMsg.innerText = 'در حال ایجاد صفحات، تنظیم هدر و فوتر و پیکربندی صنف...';
                     progressBar.style.width = '30%';
@@ -406,21 +409,28 @@ class SedRazavi_Demo_Importer {
                     .then(function(data) {
                         progressBar.style.width = '100%';
                         setTimeout(function() {
-                            statusBox.style.display = 'none';
                             buttons.forEach(function(b) { b.disabled = false; b.style.opacity = '1'; });
 
                             if (data.success) {
+                                statusBox.style.display = 'none';
                                 successText.innerText = data.message || 'دمو با موفقیت درون‌ریزی گردید.';
                                 successBox.style.display = 'flex';
                             } else {
-                                alert('خطا: ' + (data.message || 'درون‌ریزی دمو ناموفق بود.'));
+                                statusBox.style.display = 'block';
+                                statusBox.style.background = '#fef2f2';
+                                statusBox.style.borderColor = '#ef4444';
+                                statusMsg.style.color = '#b91c1c';
+                                statusMsg.innerText = 'خطا: ' + (data.message || 'درون‌ریزی دمو ناموفق بود.');
                             }
                         }, 600);
                     })
                     .catch(function(err) {
-                        statusBox.style.display = 'none';
                         buttons.forEach(function(b) { b.disabled = false; b.style.opacity = '1'; });
-                        alert('خطا در برقراری ارتباط با سرور.');
+                        statusBox.style.display = 'block';
+                        statusBox.style.background = '#fef2f2';
+                        statusBox.style.borderColor = '#ef4444';
+                        statusMsg.style.color = '#b91c1c';
+                        statusMsg.innerText = 'خطا در برقراری ارتباط با سرور.';
                     });
                 });
             });

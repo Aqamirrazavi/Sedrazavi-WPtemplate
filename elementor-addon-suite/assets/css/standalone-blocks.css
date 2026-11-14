@@ -35,6 +35,7 @@
   box-sizing: border-box;
   margin: 30px 0;
   clear: both;
+  contain: layout style;
 }
 
 .uas-block-hero *,
@@ -809,3 +810,43 @@
     width: 100%;
   }
 }
+
+/* Stage 6: Accessibility Focus & Reduced Motion */
+.uas-block-hero :focus-visible,
+.uas-block-calculator :focus-visible,
+.uas-block-services :focus-visible,
+.uas-block-booking :focus-visible,
+.uas-block-docs :focus-visible,
+.uas-block-faq :focus-visible {
+  outline: 2px solid #D4AF37;
+  outline-offset: 2px;
+}
+
+.uas-inline-status {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(15, 23, 42, 0.9);
+  color: #F8FAFC;
+}
+.uas-inline-status.is-success {
+  border-color: rgba(16, 185, 129, 0.55);
+  color: #6EE7B7;
+}
+.uas-inline-status.is-error {
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #FCA5A5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uas-block-hero *,
+  .uas-block-services *,
+  .uas-block-faq * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

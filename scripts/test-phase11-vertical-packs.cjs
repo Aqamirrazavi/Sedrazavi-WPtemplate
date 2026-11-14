@@ -71,11 +71,11 @@ async function runPhase11() {
     assert(fs.existsSync(path.join(packDir, 'page.php')), `${pack.slug} has standalone page.php`);
     assert(fs.existsSync(path.join(packDir, 'single.php')), `${pack.slug} has standalone single.php`);
 
-    // Self-contained Frontend Cockpit files (works with zero external theme dependencies)
-    assert(fs.existsSync(path.join(packDir, 'inc/frontend-cockpit-engine.php')), `${pack.slug} bundles inc/frontend-cockpit-engine.php`);
+    // Clean shortcode wrapper template & zero duplicated plugin-owned Cockpit engine
+    assert(!fs.existsSync(path.join(packDir, 'inc/frontend-cockpit-engine.php')), `${pack.slug} contains ZERO duplicate inc/frontend-cockpit-engine.php`);
     assert(fs.existsSync(path.join(packDir, 'page-frontend-cockpit.php')), `${pack.slug} bundles page-frontend-cockpit.php`);
-    assert(fs.existsSync(path.join(packDir, 'assets/css/frontend-cockpit.css')), `${pack.slug} bundles assets/css/frontend-cockpit.css`);
-    assert(fs.existsSync(path.join(packDir, 'assets/js/frontend-cockpit.js')), `${pack.slug} bundles assets/js/frontend-cockpit.js`);
+    assert(!fs.existsSync(path.join(packDir, 'assets/css/frontend-cockpit.css')), `${pack.slug} contains ZERO duplicate assets/css/frontend-cockpit.css`);
+    assert(!fs.existsSync(path.join(packDir, 'assets/js/frontend-cockpit.js')), `${pack.slug} contains ZERO duplicate assets/js/frontend-cockpit.js`);
 
     // screenshot
     const hasScreenshot = fs.existsSync(path.join(packDir, 'screenshot.webp')) || fs.existsSync(path.join(packDir, 'screenshot.png'));
@@ -127,7 +127,8 @@ async function runPhase11() {
         const zipStyleContent = await styleEntry.async('string');
         assert(!/Template\s*:/i.test(zipStyleContent), `${pack.slug}.zip style.css contains ZERO Template: child declaration`);
       }
-      assert(zipEntries.includes(`${pack.slug}/inc/frontend-cockpit-engine.php`), `${pack.slug}.zip bundles self-contained Frontend Cockpit engine`);
+      assert(zipEntries.includes(`${pack.slug}/page-frontend-cockpit.php`), `${pack.slug}.zip includes page-frontend-cockpit.php shortcode wrapper`);
+      assert(!zipEntries.includes(`${pack.slug}/inc/frontend-cockpit-engine.php`), `${pack.slug}.zip contains ZERO duplicate Frontend Cockpit engine`);
     }
     const aliasZipPath = path.join(publicThemesDir, `${pack.alias}.zip`);
     assert(fs.existsSync(aliasZipPath), `Compatibility ZIP alias exists: public/themes/${pack.alias}.zip`);

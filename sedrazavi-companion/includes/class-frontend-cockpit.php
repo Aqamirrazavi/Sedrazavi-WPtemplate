@@ -126,7 +126,10 @@ class Frontend_Cockpit_Engine {
             $ver = defined('SEDRAZAVI_COMPANION_VERSION') ? SEDRAZAVI_COMPANION_VERSION : '6.1.0';
 
             wp_register_style('sr-cockpit-style', $base_uri . 'assets/css/frontend-cockpit.css', [], $ver);
-            wp_register_script('sr-cockpit-script', $base_uri . 'assets/js/frontend-cockpit.js', ['jquery'], $ver, true);
+            $defer_args = function_exists('get_bloginfo') && version_compare(get_bloginfo('version'), '6.3', '>=')
+                ? ['in_footer' => true, 'strategy' => 'defer']
+                : true;
+            wp_register_script('sr-cockpit-script', $base_uri . 'assets/js/frontend-cockpit.js', ['jquery'], $ver, $defer_args);
 
             wp_localize_script('sr-cockpit-script', 'srCockpitData', [
                 'ajaxUrl'      => admin_url('admin-ajax.php'),
@@ -1125,21 +1128,21 @@ class Frontend_Cockpit_Engine {
                             <small><?php echo esc_html(implode(', ', $current_user->roles)); ?></small>
                         </div>
                     </div>
-                    <div class="sr-cockpit-tabs">
-                        <button type="button" class="sr-tab-btn active" data-tab="tab-overview">📊 پیشخوان و آمار</button>
-                        <button type="button" class="sr-tab-btn" data-tab="tab-cpt">📑 مدیریت پست‌تایپ‌ها و متاباکس‌ها</button>
+                    <div class="sr-cockpit-tabs" role="tablist" aria-label="<?php esc_attr_e('بخش‌های پنل مدیریت', 'sedrazavi-companion'); ?>">
+                        <button type="button" id="btn-tab-overview" class="sr-tab-btn active" role="tab" aria-selected="true" aria-controls="tab-overview" data-tab="tab-overview">📊 پیشخوان و آمار</button>
+                        <button type="button" id="btn-tab-cpt" class="sr-tab-btn" role="tab" aria-selected="false" aria-controls="tab-cpt" data-tab="tab-cpt">📑 مدیریت پست‌تایپ‌ها و متاباکس‌ها</button>
                         <?php if ($is_admin): ?>
-                            <button type="button" class="sr-tab-btn" data-tab="tab-users">👥 مدیریت و پایش کاربران</button>
-                            <button type="button" class="sr-tab-btn" data-tab="tab-plugins">🔌 هاب نصب افزونه‌ها</button>
-                            <button type="button" class="sr-tab-btn" data-tab="tab-sitekit">🎨 سازنده کیت سایت (Site Kit Builder)</button>
-                            <button type="button" class="sr-tab-btn" data-tab="tab-settings">⚙️ تنظیمات برند و دیتابیس</button>
+                            <button type="button" id="btn-tab-users" class="sr-tab-btn" role="tab" aria-selected="false" aria-controls="tab-users" data-tab="tab-users">👥 مدیریت و پایش کاربران</button>
+                            <button type="button" id="btn-tab-plugins" class="sr-tab-btn" role="tab" aria-selected="false" aria-controls="tab-plugins" data-tab="tab-plugins">🔌 هاب نصب افزونه‌ها</button>
+                            <button type="button" id="btn-tab-sitekit" class="sr-tab-btn" role="tab" aria-selected="false" aria-controls="tab-sitekit" data-tab="tab-sitekit">🎨 سازنده کیت سایت (Site Kit Builder)</button>
+                            <button type="button" id="btn-tab-settings" class="sr-tab-btn" role="tab" aria-selected="false" aria-controls="tab-settings" data-tab="tab-settings">⚙️ تنظیمات برند و دیتابیس</button>
                         <?php endif; ?>
                     </div>
                     <button type="button" id="sr-cockpit-logout-btn" class="sr-btn sr-btn-outline">خروج</button>
                 </div>
 
                 <!-- Tab 1: Overview -->
-                <div id="tab-overview" class="sr-tab-pane active">
+                <div id="tab-overview" class="sr-tab-pane active" role="tabpanel" aria-labelledby="btn-tab-overview">
                     <div class="sr-stats-grid">
                         <div class="sr-stat-card">
                             <span class="sr-stat-num"><?php echo esc_html(wp_count_posts('portfolio')->publish ?? 0); ?></span>
@@ -1161,16 +1164,16 @@ class Frontend_Cockpit_Engine {
                 </div>
 
                 <!-- Tab 2: CPT & Metabox Manager -->
-                <div id="tab-cpt" class="sr-tab-pane">
+                <div id="tab-cpt" class="sr-tab-pane" role="tabpanel" aria-labelledby="btn-tab-cpt" hidden>
                     <div class="sr-panel-header">
                         <h3>مدیریت داینامیک پست‌تایپ‌ها و متاباکس‌ها</h3>
                         <button type="button" id="sr-btn-new-cpt" class="sr-btn sr-btn-primary">+ ایجاد مورد جدید</button>
                     </div>
 
                     <!-- Creation / Edit Modal -->
-                    <div id="sr-cpt-modal" class="sr-modal" style="display:none;">
+                    <div id="sr-cpt-modal" class="sr-modal" role="dialog" aria-modal="true" aria-labelledby="sr-cpt-modal-title" style="display:none;">
                         <div class="sr-modal-content">
-                            <span class="sr-modal-close">&times;</span>
+                            <button type="button" class="sr-modal-close" aria-label="<?php esc_attr_e('بستن', 'sedrazavi-companion'); ?>">&times;</button>
                             <h4 id="sr-cpt-modal-title">ایجاد محتوای جدید</h4>
                             <form id="sr-cpt-form">
                                 <input type="hidden" name="post_id" id="sr_cpt_post_id" value="">
@@ -1282,7 +1285,7 @@ class Frontend_Cockpit_Engine {
 
                 <!-- Tab 3: User Accounts Hub -->
                 <?php if ($is_admin): ?>
-                <div id="tab-users" class="sr-tab-pane">
+                <div id="tab-users" class="sr-tab-pane" role="tabpanel" aria-labelledby="btn-tab-users" hidden>
                     <div class="sr-panel-header">
                         <h3>مدیریت و پایش اکانت‌های کاربران</h3>
                         <div class="sr-panel-actions">
@@ -1293,10 +1296,10 @@ class Frontend_Cockpit_Engine {
                     </div>
 
                     <!-- Bulk CSV User Import Modal -->
-                    <div id="sr-bulk-users-modal" class="sr-modal" style="display:none;">
+                    <div id="sr-bulk-users-modal" class="sr-modal" role="dialog" aria-modal="true" aria-labelledby="sr-bulk-users-modal-title" style="display:none;">
                         <div class="sr-modal-content">
-                            <span class="sr-modal-close">&times;</span>
-                            <h4>درون‌ریزی گروهی حساب‌های کاربری با CSV</h4>
+                            <button type="button" class="sr-modal-close" aria-label="<?php esc_attr_e('بستن', 'sedrazavi-companion'); ?>">&times;</button>
+                            <h4 id="sr-bulk-users-modal-title">درون‌ریزی گروهی حساب‌های کاربری با CSV</h4>
                             <p class="sr-bulk-hint">هر سطر یک کاربر با فرمت: <code>username,email,display_name,role,domain_tag,phone,password</code></p>
                             <form id="sr-bulk-users-form">
                                 <div class="sr-form-group">
@@ -1313,10 +1316,10 @@ class Frontend_Cockpit_Engine {
                     </div>
 
                     <!-- Create User Modal -->
-                    <div id="sr-user-modal" class="sr-modal" style="display:none;">
+                    <div id="sr-user-modal" class="sr-modal" role="dialog" aria-modal="true" aria-labelledby="sr-user-modal-title" style="display:none;">
                         <div class="sr-modal-content">
-                            <span class="sr-modal-close">&times;</span>
-                            <h4>افزودن دستی حساب کاربری جدید توسط مدیر</h4>
+                            <button type="button" class="sr-modal-close" aria-label="<?php esc_attr_e('بستن', 'sedrazavi-companion'); ?>">&times;</button>
+                            <h4 id="sr-user-modal-title">افزودن دستی حساب کاربری جدید توسط مدیر</h4>
                             <form id="sr-create-user-form">
                                 <div class="sr-form-group">
                                     <label>نام کاربری (Username):</label>
@@ -1416,7 +1419,7 @@ class Frontend_Cockpit_Engine {
                 </div>
 
                 <!-- Tab 4: Plugin Hub -->
-                <div id="tab-plugins" class="sr-tab-pane">
+                <div id="tab-plugins" class="sr-tab-pane" role="tabpanel" aria-labelledby="btn-tab-plugins" hidden>
                     <div class="sr-panel-header">
                         <h3>نصب و مدیریت مستقیم افزونه‌ها از داخل پیشخوان</h3>
                         <p>نصب ۱-کلیکی ماژول‌های مستقل بدون نیاز به خروج از رابط کاربری فرانت‌اند.</p>
@@ -1470,7 +1473,7 @@ class Frontend_Cockpit_Engine {
                 </div>
 
                 <!-- Tab 5: Visual Site Kit Builder (Zero-Lockin Autonomous Packaging) -->
-                <div id="tab-sitekit" class="sr-tab-pane">
+                <div id="tab-sitekit" class="sr-tab-pane" role="tabpanel" aria-labelledby="btn-tab-sitekit" hidden>
                     <div class="sr-panel-header">
                         <span class="sr-badge">معماری مستقل و بدون وابستگی (Zero-Lockin)</span>
                         <h3>سازنده اختصاصی کیت سایت (Site Kit Builder)</h3>
@@ -1793,7 +1796,7 @@ class Frontend_Cockpit_Engine {
                 </div>
 
                 <!-- Tab 6: WordPress DB Brand, Colors & Options Settings -->
-                <div id="tab-settings" class="sr-tab-pane">
+                <div id="tab-settings" class="sr-tab-pane" role="tabpanel" aria-labelledby="btn-tab-settings" hidden>
                     <div class="sr-panel-header">
                         <h3>تنظیمات برند، توکن‌های رنگی و مشخصات دفتر (ذخیره‌سازی مستقیم در wp_options)</h3>
                     </div>

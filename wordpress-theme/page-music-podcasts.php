@@ -40,10 +40,17 @@ get_header();
                     <p style="font-size: 13px; color: #94A3B8; margin-bottom: 16px;">
                         مدت زمان: ۴۵ دقیقه · گوینده: دکتر سیده مریم رضوی · تاریخ انتشار: ۱۸ مهر ۱۴۰۳
                     </p>
-                    <audio controls style="width: 100%; border-radius: 8px;">
-                        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-                        مرورگر شما از پخش صدا پشتیبانی نمی‌کند.
-                    </audio>
+                    <?php $featured_audio_url = get_theme_mod('sr_featured_podcast_audio_url', ''); ?>
+                    <?php if (!empty($featured_audio_url)): ?>
+                        <audio controls preload="metadata" style="width: 100%; border-radius: 8px;">
+                            <source src="<?php echo esc_url($featured_audio_url); ?>" type="audio/mpeg">
+                            مرورگر شما از پخش صدا پشتیبانی نمی‌کند.
+                        </audio>
+                    <?php else: ?>
+                        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(15, 23, 42, 0.7); border: 1px dashed rgba(244, 114, 182, 0.4); color: #CBD5E1; font-size: 12px;">
+                            فایل صوتی اپیزود شاخص از طریق تنظیمات سفارشی‌ساز (<code>sr_featured_podcast_audio_url</code>) قابل اتصال است.
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

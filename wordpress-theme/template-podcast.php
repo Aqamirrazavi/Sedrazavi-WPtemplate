@@ -62,8 +62,12 @@ get_header();
                         <?php endfor; ?>
                     </div>
 
+                    <?php $podcast_audio_url = get_post_meta(get_the_ID(), 'sr_podcast_audio_url', true); ?>
                     <!-- تگ صوتی HTML5 مخفی برای هدایت -->
-                    <audio id="sr-podcast-audio" preload="metadata" src="<?php echo esc_url(get_post_meta(get_the_ID(), 'sr_podcast_audio_url', true) ?: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); ?>"></audio>
+                    <audio id="sr-podcast-audio" preload="metadata"<?php echo !empty($podcast_audio_url) ? ' src="' . esc_url($podcast_audio_url) . '"' : ''; ?>></audio>
+                    <?php if (empty($podcast_audio_url)): ?>
+                        <p class="text-xs text-sr-muted text-center">فایل صوتی این اپیزود هنوز در فیلد <code>sr_podcast_audio_url</code> ثبت نشده است.</p>
+                    <?php endif; ?>
 
                     <!-- دکمه‌های کنترل پخش -->
                     <div class="flex items-center justify-center gap-4 pt-2">

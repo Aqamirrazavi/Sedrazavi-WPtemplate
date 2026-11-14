@@ -104,6 +104,7 @@ $messages_query = new WP_Query(array(
                         <button type="button" onclick="sedrazaviSendEmailReply()" class="btn-gold w-full text-xs py-2.5">
                             <span>ارسال پاسخ از طریق سرور امن</span>
                         </button>
+                        <div id="front-email-reply-feedback" role="status" aria-live="polite" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
                     </form>
                 </div>
             </div>
@@ -119,13 +120,22 @@ function sedrazaviSelectMsg(name, email, subject) {
     document.getElementById('reply-subject').value = 'پاسخ به: ' + subject;
 }
 
+function sedrazaviShowEmailFeedback(msg, isError) {
+    var fb = document.getElementById('front-email-reply-feedback');
+    if (!fb) return;
+    fb.className = 'p-3 rounded-xl text-xs font-semibold border ' + (isError
+        ? 'bg-red-500/10 border-red-500/40 text-red-500'
+        : 'bg-emerald-500/10 border-emerald-500/40 text-emerald-500');
+    fb.textContent = msg;
+}
+
 function sedrazaviSendEmailReply() {
     var to = document.getElementById('reply-to').value;
     var subject = document.getElementById('reply-subject').value;
     var body = document.getElementById('reply-body').value;
 
     if (!to || !body) {
-        alert('لطفاً ابتدا یک پیام را انتخاب کرده و متن پاسخ را درج نمایید.');
+        sedrazaviShowEmailFeedback('لطفاً ابتدا یک پیام را انتخاب کرده و متن پاسخ را درج نمایید.', true);
         return;
     }
 
@@ -137,10 +147,10 @@ function sedrazaviSendEmailReply() {
         body: body
     }, function(res) {
         if (res.success) {
-            alert('پاسخ با موفقیت برای موکل ارسال شد.');
+            sedrazaviShowEmailFeedback('پاسخ با موفقیت برای موکل ارسال شد.', false);
             document.getElementById('reply-body').value = '';
         } else {
-            alert(res.data.message || 'خطا در ارسال ایمیل');
+            sedrazaviShowEmailFeedback((res.data && res.data.message) ? res.data.message : 'خطا در ارسال ایمیل', true);
         }
     });
 }

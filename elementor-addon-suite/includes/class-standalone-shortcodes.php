@@ -322,10 +322,11 @@ class Standalone_Shortcodes {
                     <span>برآورد تقریبی حق‌الوکاله قانونی:</span>
                     <strong id="uas-calc-output">۳۵,۰۰۰,۰۰۰ تومان</strong>
                 </div>
-                <button type="button" class="uas-btn-primary" onclick="alert('جهت نهایی‌سازی قرارداد و جلسه حضوری با دفتر هماهنگ فرمایید.')">
+                <button type="button" class="uas-btn-primary uas-calc-reserve-btn">
                     رزرو نوبت بررسی پرونده با این برآورد
                 </button>
             </div>
+            <div class="uas-calc-feedback" role="status" aria-live="polite" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
         </div>
         <?php
         return ob_get_clean();
@@ -457,18 +458,18 @@ class Standalone_Shortcodes {
                         <li>برآورد واقع‌بینانه درصد موفقیت پرونده</li>
                     </ul>
                 </div>
-                <form class="uas-booking-form" onsubmit="event.preventDefault(); alert('درخواست مشاوره شما با موفقیت ثبت شد. شناسه پیگیری به شماره موبایل ارسال گردید.');">
+                <form class="uas-booking-form uas-standalone-booking-form">
                     <div class="uas-form-row">
                         <label>نام و نام خانوادگی:</label>
-                        <input type="text" required placeholder="مثال: علی احمدی" class="uas-input" />
+                        <input type="text" name="full_name" required placeholder="مثال: علی احمدی" class="uas-input" />
                     </div>
                     <div class="uas-form-row">
                         <label>شماره موبایل (جهت دریافت کد پیگیری):</label>
-                        <input type="tel" required placeholder="09123456789" class="uas-input" pattern="09[0-9]{9}" />
+                        <input type="tel" name="phone" required placeholder="09123456789" class="uas-input" pattern="09[0-9]{9}" />
                     </div>
                     <div class="uas-form-row">
                         <label>موضوع پرونده / خدمت مورد نیاز:</label>
-                        <select class="uas-select">
+                        <select name="subject" class="uas-select">
                             <option>داوری بازرگانی و قراردادها</option>
                             <option>دعاوی ملکی و سرقفلی</option>
                             <option>جرایم اقتصادی و رایانه‌ای</option>
@@ -478,9 +479,10 @@ class Standalone_Shortcodes {
                     </div>
                     <div class="uas-form-row">
                         <label>شرح مختصر پرونده:</label>
-                        <textarea rows="3" placeholder="مختصری از موضوع و اقدامات انجام شده..." class="uas-textarea"></textarea>
+                        <textarea name="details" rows="3" placeholder="مختصری از موضوع و اقدامات انجام شده..." class="uas-textarea"></textarea>
                     </div>
                     <button type="submit" class="uas-btn-submit">ثبت نهایی درخواست و تخصیص شناسه پرونده</button>
+                    <div class="uas-booking-feedback" role="status" aria-live="polite" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
                 </form>
             </div>
         </div>
@@ -828,7 +830,7 @@ class Standalone_Shortcodes {
                         </div>
                         <div class="uas-doc-action">
                             <input type="text" readonly value="<?php echo esc_attr($d['tag']); ?>" class="uas-copy-field" id="doc-<?php echo md5($d['tag']); ?>" />
-                            <button type="button" class="uas-btn-copy" onclick="navigator.clipboard.writeText('<?php echo esc_attr($d['tag']); ?>'); alert('شورت‌کد در کلیپ‌بورد کپی شد: <?php echo esc_attr($d['tag']); ?>');">
+                            <button type="button" class="uas-btn-copy" data-shortcode="<?php echo esc_attr($d['tag']); ?>">
                                 کپی شورت‌کد
                             </button>
                         </div>
@@ -891,19 +893,35 @@ class Standalone_Shortcodes {
      * Render Video Media Hub shortcode
      */
     public function render_video_hub($atts = []) {
+        $a = shortcode_atts([
+            'src'    => get_option('uas_default_video_url', ''),
+            'poster' => '',
+            'title'  => 'آرشیو ویدئوها، وبینارها و تحلیل‌ها',
+        ], $atts, 'uas_video_hub');
+
+        $default_poster = 'data:image/svg+xml;charset=UTF-8,' . rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0b132b"/><stop offset="100%" stop-color="#1e293b"/></linearGradient></defs><rect width="800" height="450" fill="url(#g)"/><circle cx="400" cy="225" r="42" fill="#d4af37" fill-opacity="0.2" stroke="#d4af37" stroke-width="2"/><polygon points="390,208 390,242 420,225" fill="#d4af37"/></svg>');
+        $poster_url = !empty($a['poster']) ? $a['poster'] : $default_poster;
+
         ob_start();
         ?>
         <div class="uas-block-video-hub" dir="rtl" style="background:#0D1117;color:#F0F6FC;padding:32px 20px;border-radius:18px;border:1px solid #30363D;">
             <div style="text-align:center;max-width:700px;margin:0 auto 24px;">
                 <span style="display:inline-block;padding:4px 12px;background:rgba(212,175,55,0.2);color:#D4AF37;border-radius:9999px;font-size:12px;font-weight:bold;margin-bottom:12px;">🎬 رسانه و مدیا</span>
-                <h2 style="font-size:24px;font-weight:bold;margin:0 0 10px;">آرشیو ویدئوها، وبینارها و تحلیل‌ها</h2>
+                <h2 style="font-size:24px;font-weight:bold;margin:0 0 10px;"><?php echo esc_html($a['title']); ?></h2>
                 <p style="font-size:13px;color:#8B949E;">مشاهده و دانلود ویدئوها با کیفیت‌های ۱۰۸۰p و ۷۲۰p</p>
             </div>
             <div style="max-width:800px;margin:0 auto;border-radius:14px;overflow:hidden;background:#161B22;border:1px solid #30363D;">
-                <video controls style="width:100%;display:block;max-height:450px;background:#000;" poster="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80">
-                    <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
-                    مرورگر شما از پخش ویدئو پشتیبانی نمی‌کند.
-                </video>
+                <?php if (!empty($a['src'])): ?>
+                    <video controls preload="metadata" style="width:100%;display:block;max-height:450px;background:#000;" poster="<?php echo esc_attr($poster_url); ?>">
+                        <source src="<?php echo esc_url($a['src']); ?>" type="video/mp4">
+                        مرورگر شما از پخش ویدئو پشتیبانی نمی‌کند.
+                    </video>
+                <?php else: ?>
+                    <div style="padding:48px 24px;text-align:center;color:#94A3B8;font-size:13px;line-height:1.8;">
+                        <p style="margin:0 0 6px;color:#F8FAFC;font-weight:700;">پلیر اختصاصی آماده پخش است</p>
+                        <p style="margin:0;">برای پخش ویدئو، آدرس فایل را در صفت <code>src</code> شورت‌کد <code>[uas_video_hub src="..."]</code> تنظیم نمایید.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
         <?php
@@ -937,19 +955,31 @@ class Standalone_Shortcodes {
      * Render Music & Podcast Player shortcode
      */
     public function render_music_player($atts = []) {
+        $a = shortcode_atts([
+            'src'      => get_option('uas_default_audio_url', ''),
+            'title'    => 'پخش‌کننده صوتی و پادکست',
+            'subtitle' => 'امکان استریم و دانلود مستقیم با کیفیت‌های مختلف',
+        ], $atts, 'uas_music_player');
+
         ob_start();
         ?>
         <div class="uas-block-music" dir="rtl" style="background:#070D1E;color:#FFF;padding:24px;border-radius:16px;border:1px solid #1E293B;">
             <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
                 <span style="font-size:32px;">🎧</span>
                 <div>
-                    <h3 style="font-size:16px;font-weight:bold;margin:0 0 4px;">پخش‌کننده صوتی و پادکست</h3>
-                    <p style="font-size:12px;color:#94A3B8;margin:0;">امکان استریم و دانلود مستقیم با کیفیت‌های مختلف</p>
+                    <h3 style="font-size:16px;font-weight:bold;margin:0 0 4px;"><?php echo esc_html($a['title']); ?></h3>
+                    <p style="font-size:12px;color:#94A3B8;margin:0;"><?php echo esc_html($a['subtitle']); ?></p>
                 </div>
             </div>
-            <audio controls style="width:100%;">
-                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-            </audio>
+            <?php if (!empty($a['src'])): ?>
+                <audio controls preload="metadata" style="width:100%;">
+                    <source src="<?php echo esc_url($a['src']); ?>" type="audio/mpeg">
+                </audio>
+            <?php else: ?>
+                <div style="padding:12px 14px;border-radius:10px;background:#0F172A;border:1px dashed #334155;color:#94A3B8;font-size:12px;">
+                    فایل صوتی تنظیم نشده است؛ آدرس را با صفت <code>src</code> در <code>[uas_music_player src="..."]</code> وارد کنید.
+                </div>
+            <?php endif; ?>
         </div>
         <?php
         return ob_get_clean();

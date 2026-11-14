@@ -147,11 +147,15 @@ class SedRazavi_Course_LMS_Bridge {
      */
     public function render_lesson_player_shortcode($atts) {
         $atts = shortcode_atts([
-            'video_url'    => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+            'video_url'    => '',
+            'poster'       => '',
             'lesson_title' => 'جلسه ۱: اصول و معماری مقدماتی',
             'course_title' => 'دوره جامع مهندسی وردپرس مدرن',
             'duration'     => '۴۲ دقیقه',
         ], $atts);
+
+        $default_poster = 'data:image/svg+xml;charset=UTF-8,' . rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675"><rect width="1200" height="675" fill="#020617"/><circle cx="600" cy="337" r="52" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2"/><polygon points="586,315 586,359 624,337" fill="#3b82f6"/></svg>');
+        $poster_url = !empty($atts['poster']) ? $atts['poster'] : $default_poster;
 
         $current_user = wp_get_current_user();
         $user_phone = '';
@@ -174,10 +178,16 @@ class SedRazavi_Course_LMS_Bridge {
 
             <!-- Video wrapper -->
             <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
-                <video class="w-full h-full object-contain" controls poster="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&auto=format&fit=crop&q=80">
-                    <source src="<?php echo esc_url($atts['video_url']); ?>" type="video/mp4">
-                    <?php esc_html_e('مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.', 'sedrazavi-companion'); ?>
-                </video>
+                <?php if (!empty($atts['video_url'])): ?>
+                    <video class="w-full h-full object-contain" controls preload="metadata" poster="<?php echo esc_attr($poster_url); ?>">
+                        <source src="<?php echo esc_url($atts['video_url']); ?>" type="video/mp4">
+                        <?php esc_html_e('مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.', 'sedrazavi-companion'); ?>
+                    </video>
+                <?php else: ?>
+                    <div class="p-6 text-center text-slate-400 text-xs">
+                        <?php esc_html_e('آدرس استریم ویدیوی این درس هنوز تنظیم نشده است.', 'sedrazavi-companion'); ?>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Anti-Piracy Floating Mobile Watermark -->
                 <div class="sr-watermark-overlay absolute pointer-events-none select-none text-[11px] font-mono text-white/35 bg-black/40 px-2 py-0.5 rounded backdrop-blur-xs transition-all duration-1000" id="<?php echo esc_attr($player_id); ?>-wm">

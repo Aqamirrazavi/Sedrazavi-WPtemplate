@@ -14,12 +14,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-if (!function_exists('sedrazavi_render_dynamic_seo_tags')) {
-function sedrazavi_render_dynamic_seo_tags() {
+if (!function_exists('sedrazavi_get_dynamic_page_title')) {
+function sedrazavi_get_dynamic_page_title($default_title = '') {
     $site_name = get_bloginfo('name') ?: 'دفتر وکالت دکتر سیده مریم رضوی';
     $site_desc = get_bloginfo('description') ?: 'مشاوره حقوقی تخصصی، داوری و وکالت پایه یک دادگستری';
 
-    // 1. Dynamic Title
     if (is_front_page() || is_home()) {
         $page_title = $site_name . ' | ' . $site_desc;
     } elseif (is_page('contact') || is_page_template('page-contact.php')) {
@@ -41,9 +40,29 @@ function sedrazavi_render_dynamic_seo_tags() {
     } elseif (is_404()) {
         $page_title = 'برگه یافت نشد (خطای ۴۰۴) | ' . $site_name;
     } else {
-        $page_title = wp_get_document_title();
+        $page_title = $default_title ?: ($site_name . ' | ' . $site_desc);
     }
-    $page_title = esc_html(wp_strip_all_tags($page_title));
+    return wp_strip_all_tags($page_title);
+}
+}
+
+add_filter('pre_get_document_title', function($title) {
+    if (defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION') || function_exists('seopress_init')) {
+        return $title;
+    }
+    return sedrazavi_get_dynamic_page_title($title);
+}, 20);
+
+if (!function_exists('sedrazavi_render_dynamic_seo_tags')) {
+function sedrazavi_render_dynamic_seo_tags() {
+    $site_name = get_bloginfo('name') ?: 'دفتر وکالت دکتر سیده مریم رضوی';
+    $site_desc = get_bloginfo('description') ?: 'مشاوره حقوقی تخصصی، داوری و وکالت پایه یک دادگستری';
+
+    $has_third_party_seo = defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION') || function_exists('seopress_init');
+    $has_companion_og = class_exists('SedRazavi_SEO_Engine');
+
+    // 1. Dynamic Title (rendered here only if core title-tag is not active, avoiding duplicate <title>)
+    $page_title = esc_html(sedrazavi_get_dynamic_page_title());
 
     // 2. Dynamic Canonical & Open Graph URL
     if (is_front_page() || is_home()) {
@@ -100,13 +119,18 @@ function sedrazavi_render_dynamic_seo_tags() {
 
     ?>
     <!-- SedRazavi Dynamic Primary Meta Tags -->
+    <?php if (!$has_third_party_seo && (!function_exists('current_theme_supports') || !current_theme_supports('title-tag'))): ?>
     <title><?php echo $page_title; ?></title>
+    <?php endif; ?>
+    <?php if (!$has_third_party_seo): ?>
     <meta name="description" content="<?php echo $meta_desc; ?>" />
     <meta name="keywords" content="<?php echo $keywords; ?>" />
     <meta name="author" content="<?php echo $lawyer_name; ?>" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="<?php echo $canonical_url; ?>" />
+    <?php endif; ?>
 
+    <?php if (!$has_third_party_seo && !$has_companion_og): ?>
     <!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
     <meta property="og:locale" content="fa_IR" />
     <meta property="og:type" content="<?php echo is_singular() ? 'article' : 'website'; ?>" />
@@ -123,6 +147,7 @@ function sedrazavi_render_dynamic_seo_tags() {
     <meta name="twitter:title" content="<?php echo $page_title; ?>" />
     <meta name="twitter:description" content="<?php echo $meta_desc; ?>" />
     <meta name="twitter:image" content="<?php echo $og_image; ?>" />
+    <?php endif; ?>
 
     <!-- Local SEO Geo Meta Tags (Tehran Vanak) -->
     <meta name="geo.region" content="IR-07" />

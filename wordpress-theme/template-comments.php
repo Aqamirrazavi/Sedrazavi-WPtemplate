@@ -93,12 +93,15 @@ $comments = $comments_query->query($args);
             <?php endif; ?>
         </div>
 
+        <div id="sr-comments-mod-feedback" role="status" aria-live="polite" class="hidden mt-4 p-4 rounded-2xl text-xs font-bold bg-red-500/10 border border-red-500/40 text-red-500"></div>
+
     </div>
 </div>
 
 <script>
 function sedrazaviModComment(commentId, action) {
     if (!confirm('آیا از انجام این عملیات روی دیدگاه اطمینان دارید؟')) return;
+    var fb = document.getElementById('sr-comments-mod-feedback');
     jQuery.post(sedrazavi_ajax_obj.ajax_url, {
         action: 'sedrazavi_moderate_comment_action',
         security: sedrazavi_ajax_obj.nonce,
@@ -107,8 +110,9 @@ function sedrazaviModComment(commentId, action) {
     }, function(res) {
         if (res.success) {
             location.reload();
-        } else {
-            alert(res.data.message || 'خطا در انجام عملیات');
+        } else if (fb) {
+            fb.classList.remove('hidden');
+            fb.textContent = (res.data && res.data.message) ? res.data.message : 'خطا در انجام عملیات';
         }
     });
 }
