@@ -45,8 +45,11 @@ class SedRazavi_ODR_Arbitration {
         }
 
         $uid = get_current_user_id();
-        $is_staff = current_user_can('edit_posts') || current_user_can('manage_options');
-        $is_owner = ((int) $case_post->post_author === $uid) || ((int) get_post_meta($case_id, '_client_user_id', true) === $uid);
+        $is_staff = current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_view_all_cases');
+        $is_owner = ((int) $case_post->post_author === $uid)
+            || ((int) get_post_meta($case_id, '_sedrazavi_client_user_id', true) === $uid)
+            || ((int) get_post_meta($case_id, '_client_user_id', true) === $uid)
+            || ((int) get_post_meta($case_id, '_sedrazavi_assigned_lawyer_id', true) === $uid);
         if (!$is_staff && !$is_owner) {
             wp_send_json_error(array('message' => 'شما مجوز ثبت لایحه در این پرونده را ندارید.'), 403);
         }
@@ -78,12 +81,12 @@ class SedRazavi_ODR_Arbitration {
     }
 
     /**
-     * صدور رأی داوری (صرفاً توسط داور/وکیل دارای مجوز edit_posts یا manage_options)
+     * صدور رأی داوری (صرفاً توسط داور/وکیل دارای مجوز sedrazavi_manage_cases یا manage_options)
      */
     public function ajax_issue_award() {
         check_ajax_referer('sedrazavi_odr_nonce', 'security');
 
-        if (!is_user_logged_in() || (!current_user_can('edit_posts') && !current_user_can('manage_options'))) {
+        if (!is_user_logged_in() || (!current_user_can('sedrazavi_manage_cases') && !current_user_can('manage_options'))) {
             wp_send_json_error(array('message' => 'تنها داور یا مدیر مجاز به صدور رأی داوری است.'), 403);
         }
 

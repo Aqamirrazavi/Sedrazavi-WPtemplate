@@ -208,7 +208,7 @@ if (fs.existsSync(queryEnginePath)) {
   assert(qeContent.includes('class Dynamic_Query_Engine'), 'Dynamic_Query_Engine class is defined');
   assert(qeContent.includes('uas_query_'), 'Transient caching key prefix uas_query_ is used');
   assert(qeContent.includes('invalidate_query_cache'), 'Cache invalidation hook is implemented');
-  assert(qeContent.includes('edit_others_posts'), 'Confidential case dossiers are access-controlled');
+  assert(qeContent.includes('sedrazavi_manage_cases') && qeContent.includes("'sedrazavi_case'"), 'Confidential case dossiers are access-controlled');
 }
 
 const dynamicGridWidgetPath = path.join(__dirname, '..', 'elementor-addon-suite', 'includes', 'widgets', 'class-widget-dynamic-grid.php');

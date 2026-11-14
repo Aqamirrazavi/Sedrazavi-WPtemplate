@@ -8,7 +8,7 @@
  * Author URI: https://github.com/Aqamirrazavi
  * Text Domain: universal-elementor-suite
  * Domain Path: /languages
- * Requires at least: 5.8
+ * Requires at least: 6.0
  * Requires PHP: 7.4
  * Elementor tested up to: 3.25
  * Elementor Pro tested up to: 3.25

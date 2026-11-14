@@ -41,8 +41,10 @@ class Dynamic_Query_Engine {
     public function execute_query(array $settings, $cache_ttl = 3600) {
         $post_type = sanitize_key($settings['post_type'] ?? 'post');
 
-        // Security check: Never expose confidential dossiers
-        if ($post_type === 'case' && !current_user_can('edit_others_posts')) {
+        // Security check: Never expose confidential client dossiers via Elementor grids
+        $confidential_cpts = ['case', 'sedrazavi_case', 'arbitration_case', 'sedrazavi_dashboard'];
+        $can_query_cases = current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_view_all_cases');
+        if (in_array($post_type, $confidential_cpts, true) && !$can_query_cases) {
             $post_type = 'case_study'; // Fallback to public case studies
         }
 

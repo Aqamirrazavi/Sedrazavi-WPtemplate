@@ -2,7 +2,8 @@
 ## SedRazavi Sovereign WordPress & Elementor Production Engine
 **معمار و صاحب‌اثر:** سید امیر حسین رضوی فردویی (`@sedrazavi`)  
 **نسخه اکوسیستم:** 6.0.0 Sovereign Edition  
-**سازگاری تاییدشده:** PHP 8.0 - 8.3 | WordPress 6.4 - 6.7 | Elementor 3.20+ & Elementor Pro  
+**حداقل نیازمندی پشتیبانی‌شده (Minimum Baseline):** PHP >= 7.4 | WordPress >= 6.0 | Elementor >= 3.10 (فقط در بسته‌های المنتوری)  
+**پیکربندی پیشنهادی و هدف CI (Recommended):** PHP 8.0 - 8.3 | WordPress 6.4 - 6.7 | Elementor 3.20+ & Elementor Pro  
 
 ---
 
@@ -85,7 +86,19 @@ npm run test:mpca
 
 # همگام‌سازی فایل‌ها، تایپ‌اسکریپت و بیلد تولیدی
 npm run sync:all
+node scripts/convert-to-standalone-themes.cjs
 npm run build
 node scripts/pack-theme-zips.cjs
 ```
+
+---
+
+## 🔄 سیاست تفکیک سورس و خروجی‌های ساخت (Source-vs-Build & Artifact Policy)
+
+برای شفافیت و تکرارپذیری کامل (Reproducible Builds)، مرز میان **کد منبع (Source)** و **خروجی‌های کامپایل‌شده (Generated Artifacts)** به شرح زیر است (جزئیات کامل در `docs/BUILD_AND_ARTIFACT_POLICY.md`):
+
+- **کد منبع اصلی (Authoritative Sources):** پوشه‌های `src/`، `wordpress-theme/` (به‌جز `app-dist/`)، `elementor-addon-suite/`، `sedrazavi-addons/`، `sedrazavi-companion/` و `scripts/`.
+- **خروجی‌های تولیدی خودکار (Generated Artifacts):** پوشه‌های `dist/`، `public/app-dist/`، `wordpress-theme/app-dist/`، قالب‌های مشتق‌شده در `standalone-themes/` (غیر از تنظیمات اختصاصی صنف) و فایل‌های `*.zip` در ریشه و `public/` همگی توسط زنجیره دستورهای بالا بازتولید می‌شوند و هرگز نباید به‌صورت دستی ویرایش شوند.
+- **ممیزی و نقشه رفع اشکال (Defect Ledger):** فهرست کامل ایرادات P0/P1، علل ریشه‌ای و وضعیت تست در `docs/AUDIT_DEFECT_LEDGER.md` و `IMPLEMENTATION_STATUS.md` نگهداری می‌شود.
+
 

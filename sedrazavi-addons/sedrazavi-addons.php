@@ -8,7 +8,8 @@
  * Author URI: https://t.me/sedrazavi
  * Text Domain: sedrazavi-addons
  * Domain Path: /languages
- * Requires at least: 5.8
+ * Requires at least: 6.0
+ * Tested up to: 6.7
  * Requires PHP: 7.4
  * License: GPL v2 or later
  * Creator Telegram: @sedrazavi
@@ -405,12 +406,18 @@ if (!function_exists('sedrazavi_api_track_case_handler')) {
         }
 
         $args = array(
-            'post_type'      => 'sedrazavi_case',
-            'post_status'    => 'publish',
+            'post_type'      => array('sedrazavi_case', 'case'),
+            'post_status'    => array('private', 'publish'),
             'posts_per_page' => 1,
             'meta_query'     => array(
+                'relation' => 'OR',
                 array(
                     'key'     => '_sedrazavi_case_number',
+                    'value'   => $case_no,
+                    'compare' => '=',
+                ),
+                array(
+                    'key'     => '_case_number',
                     'value'   => $case_no,
                     'compare' => '=',
                 ),
@@ -420,7 +427,7 @@ if (!function_exists('sedrazavi_api_track_case_handler')) {
 
         if ($query->have_posts()) {
             $query->the_post();
-            $stored_phone = get_post_meta(get_the_ID(), '_sedrazavi_client_phone', true);
+            $stored_phone = get_post_meta(get_the_ID(), '_sedrazavi_client_phone', true) ?: get_post_meta(get_the_ID(), '_client_phone', true);
             $clean_stored = $norm($stored_phone);
             if (!empty($clean_stored) && hash_equals($clean_stored, $clean_phone)) {
                 $case_data = array(

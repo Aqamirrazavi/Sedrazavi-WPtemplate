@@ -112,8 +112,9 @@ assert(
 
 assert(
   restAuthContent.includes('check_case_access_permission') &&
-  restAuthContent.includes('current_user_can(\'manage_options\') || current_user_can(\'edit_posts\')'),
-  'check_case_access_permission validates staff/lawyer capabilities'
+  restAuthContent.includes("current_user_can('sedrazavi_manage_cases')") &&
+  !restAuthContent.match(/check_case_access_permission[\s\S]{0,400}edit_posts/),
+  'check_case_access_permission validates explicit legal capabilities (without generic edit_posts bypass)'
 );
 
 assert(
@@ -658,6 +659,62 @@ assert(
   cockpitCompanionCode.includes("$allowed_exts = ['php', 'json'") &&
   cockpitCompanionCode.indexOf('$zip_check->open($zip_file)') < cockpitCompanionCode.indexOf('unzip_file($zip_file, WP_PLUGIN_DIR)'),
   'Frontend Cockpit ajax_install_plugin validates ZIP traversal, size limits, and extensions before unzip_file()'
+);
+
+// -------------------------------------------------------------
+// Test Group 11: P0 Case Anti-IDOR, Legal RBAC Isolation, Private Status & Version/Artifact Policy
+// -------------------------------------------------------------
+console.log('\n🔍 Test Group 11: P0 Case Anti-IDOR, Dedicated Legal Capabilities, Private Status & Matrix');
+
+const caseServicePath = path.join(__dirname, '../wordpress-theme/inc/class-case-data-service.php');
+assert(fs.existsSync(caseServicePath), 'wordpress-theme/inc/class-case-data-service.php exists');
+const caseServiceCode = fs.readFileSync(caseServicePath, 'utf8');
+assert(
+  caseServiceCode.includes("const CANONICAL_CPT = 'sedrazavi_case'") &&
+  caseServiceCode.includes('register_legal_capabilities') &&
+  caseServiceCode.includes('can_user_access_case'),
+  'SedRazavi_Case_Data_Service unifies canonical sedrazavi_case CPT, dedicated capabilities, and Anti-IDOR ownership'
+);
+
+const userRolesCode = fs.readFileSync(path.join(__dirname, '../wordpress-theme/inc/user-roles.php'), 'utf8');
+const dashClassCode = fs.readFileSync(dashCptPath, 'utf8');
+const portalClassCode = fs.readFileSync(path.join(__dirname, '../wordpress-theme/inc/class-sedrazavi-client-portal.php'), 'utf8');
+const odrClassCode = fs.readFileSync(path.join(__dirname, '../sedrazavi-addons/includes/class-sedrazavi-odr-arbitration.php'), 'utf8');
+const dynQueryCode = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/includes/class-dynamic-query-engine.php'), 'utf8');
+
+assert(
+  userRolesCode.includes("'sedrazavi_lawyer'") &&
+  userRolesCode.includes("'sedrazavi_manage_cases'") &&
+  !restApiPhp.match(/function check_lawyer_or_admin_permission[\s\S]{0,300}edit_posts/) &&
+  !dashClassCode.match(/function check_staff_permission[\s\S]{0,300}edit_posts/) &&
+  !portalClassCode.match(/function verify_portal_access[\s\S]{0,500}edit_posts/) &&
+  !odrClassCode.includes("current_user_can('edit_posts')"),
+  'Generic WordPress edit_posts removed from all legal case & arbitration access controls in favor of dedicated capabilities'
+);
+
+assert(
+  restApiPhp.includes('check_cases_read_permission') &&
+  restApiPhp.includes('can_user_access_case') &&
+  restApiPhp.match(/function handle_create_case[\s\S]{0,1500}'post_status'\s*=>\s*'private'/) &&
+  restApiPhp.includes('_sedrazavi_assigned_lawyer_id') &&
+  dynQueryCode.includes("'sedrazavi_case'") &&
+  dynQueryCode.includes("'arbitration_case'"),
+  '/cases enforces per-object Anti-IDOR filtering, private post_status on creation, and Dynamic_Query_Engine blocks all case CPTs'
+);
+
+const styleCssHeader = fs.readFileSync(path.join(__dirname, '../wordpress-theme/style.css'), 'utf8').slice(0, 600);
+const easHeader = fs.readFileSync(path.join(__dirname, '../elementor-addon-suite/elementor-addon-suite.php'), 'utf8').slice(0, 600);
+const compHeader = fs.readFileSync(path.join(__dirname, '../sedrazavi-companion/sedrazavi-companion.php'), 'utf8').slice(0, 600);
+const addonsHeader = fs.readFileSync(addonsMainPath, 'utf8').slice(0, 600);
+
+assert(
+  styleCssHeader.includes('Requires at least: 6.0') &&
+  easHeader.includes('Requires at least: 6.0') &&
+  compHeader.includes('Requires at least: 6.0') &&
+  addonsHeader.includes('Requires at least: 6.0') &&
+  fs.existsSync(path.join(__dirname, '../docs/BUILD_AND_ARTIFACT_POLICY.md')) &&
+  fs.existsSync(path.join(__dirname, '../docs/AUDIT_DEFECT_LEDGER.md')),
+  'Unified Minimum Baseline (WP >= 6.0, PHP >= 7.4) & Source-vs-Build / Defect Ledger documentation verified'
 );
 
 console.log('========================================================================');

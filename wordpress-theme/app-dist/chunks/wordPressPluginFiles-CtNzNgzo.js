@@ -6987,7 +6987,7 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
  * Author URI: https://github.com/Aqamirrazavi
  * Text Domain: universal-elementor-suite
  * Domain Path: /languages
- * Requires at least: 5.8
+ * Requires at least: 6.0
  * Requires PHP: 7.4
  * Elementor tested up to: 3.25
  * Elementor Pro tested up to: 3.25
@@ -9192,8 +9192,10 @@ class Dynamic_Query_Engine {
     public function execute_query(array $settings, $cache_ttl = 3600) {
         $post_type = sanitize_key($settings['post_type'] ?? 'post');
 
-        // Security check: Never expose confidential dossiers
-        if ($post_type === 'case' && !current_user_can('edit_others_posts')) {
+        // Security check: Never expose confidential client dossiers via Elementor grids
+        $confidential_cpts = ['case', 'sedrazavi_case', 'arbitration_case', 'sedrazavi_dashboard'];
+        $can_query_cases = current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_view_all_cases');
+        if (in_array($post_type, $confidential_cpts, true) && !$can_query_cases) {
             $post_type = 'case_study'; // Fallback to public case studies
         }
 
@@ -29879,8 +29881,11 @@ class SedRazavi_ODR_Arbitration {
         }
 
         $uid = get_current_user_id();
-        $is_staff = current_user_can('edit_posts') || current_user_can('manage_options');
-        $is_owner = ((int) $case_post->post_author === $uid) || ((int) get_post_meta($case_id, '_client_user_id', true) === $uid);
+        $is_staff = current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_view_all_cases');
+        $is_owner = ((int) $case_post->post_author === $uid)
+            || ((int) get_post_meta($case_id, '_sedrazavi_client_user_id', true) === $uid)
+            || ((int) get_post_meta($case_id, '_client_user_id', true) === $uid)
+            || ((int) get_post_meta($case_id, '_sedrazavi_assigned_lawyer_id', true) === $uid);
         if (!$is_staff && !$is_owner) {
             wp_send_json_error(array('message' => 'شما مجوز ثبت لایحه در این پرونده را ندارید.'), 403);
         }
@@ -29912,12 +29917,12 @@ class SedRazavi_ODR_Arbitration {
     }
 
     /**
-     * صدور رأی داوری (صرفاً توسط داور/وکیل دارای مجوز edit_posts یا manage_options)
+     * صدور رأی داوری (صرفاً توسط داور/وکیل دارای مجوز sedrazavi_manage_cases یا manage_options)
      */
     public function ajax_issue_award() {
         check_ajax_referer('sedrazavi_odr_nonce', 'security');
 
-        if (!is_user_logged_in() || (!current_user_can('edit_posts') && !current_user_can('manage_options'))) {
+        if (!is_user_logged_in() || (!current_user_can('sedrazavi_manage_cases') && !current_user_can('manage_options'))) {
             wp_send_json_error(array('message' => 'تنها داور یا مدیر مجاز به صدور رأی داوری است.'), 403);
         }
 
@@ -30452,46 +30457,52 @@ if (!function_exists('sedrazavi_addons_register_post_types')) {
             'show_in_rest'      => true,
         ));
 
-        // ۲. پست‌تایپ دعاوی و پرونده‌های حقوقی موکلین (Legal Cases)
-        $case_labels = array(
-            'name'                  => esc_html__('دعاوی و پرونده‌ها', 'sedrazavi-addons'),
-            'singular_name'         => esc_html__('پرونده حقوقی', 'sedrazavi-addons'),
-            'menu_name'             => esc_html__('پرونده‌های موکلین', 'sedrazavi-addons'),
-            'add_new'               => esc_html__('ثبت پرونده جدید', 'sedrazavi-addons'),
-            'add_new_item'          => esc_html__('افزودن پرونده جدید', 'sedrazavi-addons'),
-            'edit_item'             => esc_html__('ویرایش پرونده', 'sedrazavi-addons'),
-            'all_items'             => esc_html__('همه پرونده‌ها', 'sedrazavi-addons'),
-            'search_items'          => esc_html__('جستجوی پرونده', 'sedrazavi-addons'),
-            'not_found'             => esc_html__('پرونده‌ای یافت نشد', 'sedrazavi-addons'),
-        );
-        register_post_type('sedrazavi_case', array(
-            'labels'              => $case_labels,
-            'public'              => false,
-            'publicly_queryable'  => false,
-            'exclude_from_search' => true,
-            'show_ui'             => true,
-            'show_in_menu'        => true,
-            'show_in_nav_menus'   => false,
-            'menu_icon'           => 'dashicons-portfolio',
-            'supports'            => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
-            'has_archive'         => false,
-            'rewrite'             => false,
-            'query_var'           => false,
-            'show_in_rest'        => false,
-        ));
+        // ۲. پست‌تایپ دعاوی و پرونده‌های حقوقی موکلین (Legal Cases - Canonical Private CPT)
+        if (!post_type_exists('sedrazavi_case')) {
+            $case_labels = array(
+                'name'                  => esc_html__('دعاوی و پرونده‌ها', 'sedrazavi-addons'),
+                'singular_name'         => esc_html__('پرونده حقوقی', 'sedrazavi-addons'),
+                'menu_name'             => esc_html__('پرونده‌های موکلین', 'sedrazavi-addons'),
+                'add_new'               => esc_html__('ثبت پرونده جدید', 'sedrazavi-addons'),
+                'add_new_item'          => esc_html__('افزودن پرونده جدید', 'sedrazavi-addons'),
+                'edit_item'             => esc_html__('ویرایش پرونده', 'sedrazavi-addons'),
+                'all_items'             => esc_html__('همه پرونده‌ها', 'sedrazavi-addons'),
+                'search_items'          => esc_html__('جستجوی پرونده', 'sedrazavi-addons'),
+                'not_found'             => esc_html__('پرونده‌ای یافت نشد', 'sedrazavi-addons'),
+            );
+            register_post_type('sedrazavi_case', array(
+                'labels'              => $case_labels,
+                'public'              => false,
+                'publicly_queryable'  => false,
+                'exclude_from_search' => true,
+                'show_ui'             => true,
+                'show_in_menu'        => true,
+                'show_in_nav_menus'   => false,
+                'menu_icon'           => 'dashicons-portfolio',
+                'supports'            => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'author'),
+                'has_archive'         => false,
+                'rewrite'             => false,
+                'query_var'           => false,
+                'show_in_rest'        => false,
+                'capability_type'     => array('sedrazavi_case', 'sedrazavi_cases'),
+                'map_meta_cap'        => true,
+            ));
+        }
 
-        register_taxonomy('case_category', 'sedrazavi_case', array(
-            'labels'            => array(
-                'name'          => esc_html__('حوزه دعاوی', 'sedrazavi-addons'),
-                'singular_name' => esc_html__('حوزه دعوی', 'sedrazavi'),
-            ),
-            'hierarchical'      => true,
-            'public'            => false,
-            'show_ui'           => true,
-            'show_admin_column' => true,
-            'rewrite'           => false,
-            'show_in_rest'      => false,
-        ));
+        if (!taxonomy_exists('case_category')) {
+            register_taxonomy('case_category', 'sedrazavi_case', array(
+                'labels'            => array(
+                    'name'          => esc_html__('حوزه دعاوی', 'sedrazavi-addons'),
+                    'singular_name' => esc_html__('حوزه دعوی', 'sedrazavi-addons'),
+                ),
+                'hierarchical'      => true,
+                'public'            => false,
+                'show_ui'           => true,
+                'show_admin_column' => true,
+                'rewrite'           => false,
+                'show_in_rest'      => false,
+            ));
+        }
 
         // ۳. پست‌تایپ نظرات و رضایت موکلان (Testimonials)
         $testimonial_labels = array(
@@ -32018,7 +32029,8 @@ m~���C����K������I[!+?�\v\0\0L�@��~G��
  * Author URI: https://t.me/sedrazavi
  * Text Domain: sedrazavi-addons
  * Domain Path: /languages
- * Requires at least: 5.8
+ * Requires at least: 6.0
+ * Tested up to: 6.7
  * Requires PHP: 7.4
  * License: GPL v2 or later
  * Creator Telegram: @sedrazavi
@@ -32415,12 +32427,18 @@ if (!function_exists('sedrazavi_api_track_case_handler')) {
         }
 
         $args = array(
-            'post_type'      => 'sedrazavi_case',
-            'post_status'    => 'publish',
+            'post_type'      => array('sedrazavi_case', 'case'),
+            'post_status'    => array('private', 'publish'),
             'posts_per_page' => 1,
             'meta_query'     => array(
+                'relation' => 'OR',
                 array(
                     'key'     => '_sedrazavi_case_number',
+                    'value'   => $case_no,
+                    'compare' => '=',
+                ),
+                array(
+                    'key'     => '_case_number',
                     'value'   => $case_no,
                     'compare' => '=',
                 ),
@@ -32430,7 +32448,7 @@ if (!function_exists('sedrazavi_api_track_case_handler')) {
 
         if ($query->have_posts()) {
             $query->the_post();
-            $stored_phone = get_post_meta(get_the_ID(), '_sedrazavi_client_phone', true);
+            $stored_phone = get_post_meta(get_the_ID(), '_sedrazavi_client_phone', true) ?: get_post_meta(get_the_ID(), '_client_phone', true);
             $clean_stored = $norm($stored_phone);
             if (!empty($clean_stored) && hash_equals($clean_stored, $clean_phone)) {
                 $case_data = array(

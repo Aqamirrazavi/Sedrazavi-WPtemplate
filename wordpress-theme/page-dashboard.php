@@ -7,8 +7,13 @@
 
 get_header();
 
-// بررسی وضعیت لاگین یا دسترسی کاربر
-$is_authorized = is_user_logged_in() || current_user_can('edit_posts') || current_user_can('manage_options');
+// بررسی وضعیت لاگین و مجوز نقش وکیل/مدیر (بدون اتکا به مجوز عمومی edit_posts)
+$is_authorized = is_user_logged_in() && (
+    current_user_can('manage_options') ||
+    current_user_can('sedrazavi_manage_cases') ||
+    current_user_can('sedrazavi_view_cases') ||
+    current_user_can('sedrazavi_view_own_cases')
+);
 ?>
 
 <main id="primary" class="site-main py-10 bg-gray-50 dark:bg-[#070D1E] min-h-screen text-right" dir="rtl">

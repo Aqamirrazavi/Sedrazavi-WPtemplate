@@ -121,6 +121,7 @@ https://github.com/{username}/{repo}/releases/latest/download/sedrazavi-law-them
 ---
 
 ## ۸. مشخصات فنی
-- **ورژن:** 2.5.0
-- **نیازمندی‌ها:** PHP 8.0+ / WordPress 6.0+
-- **سازگاری:** Elementor Pro, ACF Pro, WooCommerce, WPML
+- **ورژن:** 6.0.0
+- **حداقل نیازمندی‌ها (Minimum Baseline):** PHP 7.4+ / WordPress 6.0+
+- **پیکربندی پیشنهادی و تست‌شده (Recommended):** PHP 8.0–8.3 / WordPress 6.4–6.7
+- **سازگاری:** Elementor & Elementor Pro (با پل جایگزین بومی), Gutenberg Block Editor, WooCommerce HPOS, WPML

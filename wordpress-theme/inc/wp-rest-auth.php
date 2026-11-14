@@ -126,10 +126,12 @@ class SedRazavi_WP_REST_Auth {
         }
 
         $current_user_id = get_current_user_id();
-        $allowed_post_types = ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'];
+        $allowed_post_types = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::get_case_post_types()
+            : ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'];
 
-        // 1. Staff with manage_options or edit_posts have global authorized access
-        if (current_user_can('manage_options') || current_user_can('edit_posts')) {
+        // 1. Staff with explicit legal management capabilities have global authorized access (NEVER edit_posts)
+        if (current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_view_all_cases')) {
             return true;
         }
 
@@ -139,11 +141,15 @@ class SedRazavi_WP_REST_Auth {
             if (!empty($case_id)) {
                 if (is_numeric($case_id)) {
                     $case_post = get_post(intval($case_id));
-                    if (
-                        !$case_post ||
-                        !in_array($case_post->post_type, $allowed_post_types, true) ||
-                        ((int) $case_post->post_author !== $current_user_id && (int) get_post_meta($case_post->ID, '_client_user_id', true) !== $current_user_id)
-                    ) {
+                    $owns_case = $case_post && (
+                        class_exists('SedRazavi_Case_Data_Service')
+                            ? SedRazavi_Case_Data_Service::can_user_access_case($case_post, $current_user_id)
+                            : ((int) $case_post->post_author === $current_user_id
+                                || (int) get_post_meta($case_post->ID, '_client_user_id', true) === $current_user_id
+                                || (int) get_post_meta($case_post->ID, '_sedrazavi_client_user_id', true) === $current_user_id
+                                || (int) get_post_meta($case_post->ID, '_sedrazavi_assigned_lawyer_id', true) === $current_user_id)
+                    );
+                    if (!$case_post || !in_array($case_post->post_type, $allowed_post_types, true) || !$owns_case) {
                         return new WP_Error(
                             'rest_case_forbidden',
                             esc_html__('شما اجازه دسترسی به این پرونده قضایی محرمانه را ندارید.', 'sedrazavi'),
@@ -151,11 +157,11 @@ class SedRazavi_WP_REST_Auth {
                         );
                     }
                 } else {
-                    // String identifier mapping: fail closed unless client has an explicit matching dossier assignment
+                    // String identifier mapping: fail closed unless client/assigned counsel has an explicit matching dossier assignment
                     $client_allowed_dossier = (string) get_user_meta($current_user_id, '_sedrazavi_assigned_case_id', true);
                     $owned_posts = get_posts([
                         'post_type'      => $allowed_post_types,
-                        'post_status'    => ['publish', 'private'],
+                        'post_status'    => ['private', 'publish'],
                         'posts_per_page' => 1,
                         'fields'         => 'ids',
                         'meta_query'     => [
@@ -174,9 +180,22 @@ class SedRazavi_WP_REST_Auth {
                                 ],
                             ],
                             [
-                                'key'     => '_client_user_id',
-                                'value'   => $current_user_id,
-                                'compare' => '=',
+                                'relation' => 'OR',
+                                [
+                                    'key'     => '_sedrazavi_client_user_id',
+                                    'value'   => $current_user_id,
+                                    'compare' => '=',
+                                ],
+                                [
+                                    'key'     => '_client_user_id',
+                                    'value'   => $current_user_id,
+                                    'compare' => '=',
+                                ],
+                                [
+                                    'key'     => '_sedrazavi_assigned_lawyer_id',
+                                    'value'   => $current_user_id,
+                                    'compare' => '=',
+                                ],
                             ],
                         ],
                     ]);
@@ -261,7 +280,7 @@ class SedRazavi_WP_REST_Auth {
 
         $user = wp_get_current_user();
         $is_admin = current_user_can('manage_options');
-        $is_lawyer = current_user_can('edit_posts');
+        $is_lawyer = $is_admin || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_view_all_cases') || in_array('sedrazavi_lawyer', (array) $user->roles, true);
 
         return new WP_REST_Response([
             'isLoggedIn'  => true,
@@ -366,14 +385,16 @@ class SedRazavi_WP_REST_Auth {
      */
     public static function handle_get_secure_cases($request) {
         $current_user_id = get_current_user_id();
-        $is_lawyer = current_user_can('edit_posts') || current_user_can('manage_options');
-        $allowed_post_types = ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'];
+        $is_lawyer = current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_view_all_cases');
+        $allowed_post_types = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::get_case_post_types()
+            : ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'];
 
         $cases_output = [];
 
         $cpt_query = new \WP_Query([
             'post_type'      => $allowed_post_types,
-            'post_status'    => ['publish', 'private'],
+            'post_status'    => ['private', 'publish'],
             'posts_per_page' => 50,
             'orderby'        => 'date',
             'order'          => 'DESC',
@@ -383,15 +404,15 @@ class SedRazavi_WP_REST_Auth {
             while ($cpt_query->have_posts()) {
                 $cpt_query->the_post();
                 $pid = get_the_ID();
-                $client_uid = (int) get_post_meta($pid, '_client_user_id', true);
-                $post_author = (int) get_post_field('post_author', $pid);
                 $case_num = get_post_meta($pid, '_sedrazavi_case_number', true) ?: get_post_meta($pid, '_case_number', true);
-                $assigned_dossier = (string) get_user_meta($current_user_id, '_sedrazavi_assigned_case_id', true);
 
-                // Enforce strict ownership: non-staff only see dossiers explicitly assigned to them
-                $is_owner = ($client_uid === $current_user_id)
-                    || ($post_author === $current_user_id)
-                    || (!empty($assigned_dossier) && ($assigned_dossier === (string) $pid || (!empty($case_num) && $assigned_dossier === (string) $case_num)));
+                // Enforce strict per-object ownership: non-staff only see dossiers explicitly assigned to them
+                $is_owner = class_exists('SedRazavi_Case_Data_Service')
+                    ? SedRazavi_Case_Data_Service::can_user_access_case($pid, $current_user_id)
+                    : ((int) get_post_meta($pid, '_client_user_id', true) === $current_user_id
+                        || (int) get_post_meta($pid, '_sedrazavi_client_user_id', true) === $current_user_id
+                        || (int) get_post_meta($pid, '_sedrazavi_assigned_lawyer_id', true) === $current_user_id
+                        || (int) get_post_field('post_author', $pid) === $current_user_id);
 
                 if (!$is_lawyer && !$is_owner) {
                     continue;
@@ -437,8 +458,10 @@ class SedRazavi_WP_REST_Auth {
         }
 
         $current_user_id = get_current_user_id();
-        $is_lawyer = current_user_can('edit_posts') || current_user_can('manage_options');
-        $allowed_post_types = ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'];
+        $is_lawyer = current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_view_all_cases');
+        $allowed_post_types = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::get_case_post_types()
+            : ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'];
 
         $case_post = null;
         if (is_numeric($case_id)) {
@@ -449,7 +472,7 @@ class SedRazavi_WP_REST_Auth {
         } else {
             $matches = get_posts([
                 'post_type'      => $allowed_post_types,
-                'post_status'    => ['publish', 'private'],
+                'post_status'    => ['private', 'publish'],
                 'posts_per_page' => 1,
                 'meta_query'     => [
                     'relation' => 'OR',
@@ -479,14 +502,14 @@ class SedRazavi_WP_REST_Auth {
         }
 
         $pid = $case_post->ID;
-        $client_uid = (int) get_post_meta($pid, '_client_user_id', true);
-        $post_author = (int) $case_post->post_author;
         $case_num = (string) (get_post_meta($pid, '_sedrazavi_case_number', true) ?: get_post_meta($pid, '_case_number', true) ?: $pid);
-        $assigned_dossier = (string) get_user_meta($current_user_id, '_sedrazavi_assigned_case_id', true);
 
-        $is_owner = ($client_uid === $current_user_id)
-            || ($post_author === $current_user_id)
-            || (!empty($assigned_dossier) && ($assigned_dossier === (string) $pid || $assigned_dossier === $case_num));
+        $is_owner = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::can_user_access_case($case_post, $current_user_id)
+            : ((int) get_post_meta($pid, '_client_user_id', true) === $current_user_id
+                || (int) get_post_meta($pid, '_sedrazavi_client_user_id', true) === $current_user_id
+                || (int) get_post_meta($pid, '_sedrazavi_assigned_lawyer_id', true) === $current_user_id
+                || (int) $case_post->post_author === $current_user_id);
 
         if (!$is_lawyer && !$is_owner) {
             return new WP_Error(

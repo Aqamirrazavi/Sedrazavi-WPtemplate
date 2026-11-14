@@ -62,12 +62,12 @@ class SedRazavi_REST_API {
         ));
 
         // 3. Cases Management: wp-json/sedrazavi/v1/cases
-        // Decision: RESTRICTED - Case dockets contain confidential litigation data
+        // Decision: RESTRICTED - Case dockets contain confidential litigation data (Per-object ownership enforced)
         register_rest_route(self::NAMESPACE, '/cases', array(
             array(
                 'methods'             => 'GET',
                 'callback'            => array(__CLASS__, 'handle_get_cases'),
-                'permission_callback' => array(__CLASS__, 'check_lawyer_or_admin_permission'),
+                'permission_callback' => array(__CLASS__, 'check_cases_read_permission'),
             ),
             array(
                 'methods'             => 'POST',
@@ -256,7 +256,27 @@ class SedRazavi_REST_API {
         if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && !is_user_logged_in() && $request && $request->get_header('x-sedrazavi-mock')) {
             return true;
         }
-        return current_user_can('edit_posts') || current_user_can('manage_options');
+        if (class_exists('SedRazavi_Case_Data_Service')) {
+            return SedRazavi_Case_Data_Service::can_create_or_manage_cases();
+        }
+        return current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_create_cases');
+    }
+
+    public static function check_cases_read_permission($request = null) {
+        if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && !is_user_logged_in() && $request && $request->get_header('x-sedrazavi-mock')) {
+            return true;
+        }
+        if (!is_user_logged_in()) {
+            return false;
+        }
+        if (class_exists('SedRazavi_Case_Data_Service')) {
+            if (SedRazavi_Case_Data_Service::can_access_cases_endpoint()) {
+                return true;
+            }
+            $assigned_dossier = get_user_meta(get_current_user_id(), '_sedrazavi_assigned_case_id', true);
+            return !empty($assigned_dossier);
+        }
+        return current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_view_cases') || current_user_can('sedrazavi_view_own_cases');
     }
 
     public static function check_admin_permission($request = null) {
@@ -277,7 +297,7 @@ class SedRazavi_REST_API {
         if (defined('SEDRAZAVI_ALLOW_MOCK_HEADERS') && SEDRAZAVI_ALLOW_MOCK_HEADERS === true && !is_user_logged_in() && $request && $request->get_header('x-sedrazavi-mock')) {
             return true;
         }
-        return is_user_logged_in() || current_user_can('edit_posts') || current_user_can('manage_options');
+        return is_user_logged_in();
     }
 
     public static function check_payment_checkout_permission($request = null) {
@@ -454,13 +474,23 @@ class SedRazavi_REST_API {
 
         $clean_query_phone = $norm_phone($client_phone);
 
-        // Search database
+        $case_post_types = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::get_litigation_post_types()
+            : array('sedrazavi_case', 'case');
+
+        // Search database (includes private confidential dossiers + legacy published)
         $query = new WP_Query(array(
-            'post_type'      => 'sedrazavi_case',
-            'post_status'    => 'publish',
+            'post_type'      => $case_post_types,
+            'post_status'    => array('private', 'publish'),
             'meta_query'     => array(
+                'relation' => 'OR',
                 array(
                     'key'     => '_sedrazavi_case_number',
+                    'value'   => $case_number,
+                    'compare' => '=',
+                ),
+                array(
+                    'key'     => '_case_number',
                     'value'   => $case_number,
                     'compare' => '=',
                 ),
@@ -471,7 +501,7 @@ class SedRazavi_REST_API {
         if ($query->have_posts()) {
             $query->the_post();
             $pid = get_the_ID();
-            $stored_phone = get_post_meta($pid, '_sedrazavi_client_phone', true);
+            $stored_phone = get_post_meta($pid, '_sedrazavi_client_phone', true) ?: get_post_meta($pid, '_client_phone', true);
             $clean_stored_phone = $norm_phone($stored_phone);
 
             // Require exact phone match for confidentiality
@@ -501,44 +531,72 @@ class SedRazavi_REST_API {
 
     /**
      * 3. Handle Cases (GET & POST)
+     * Enforces per-object ownership filtering (Anti-IDOR) and strict `private` visibility on creation.
      */
     public static function handle_get_cases($request) {
-        $query = new WP_Query(array(
-            'post_type'      => 'sedrazavi_case',
-            'post_status'    => 'publish',
-            'posts_per_page' => 50,
-        ));
+        $current_user_id = get_current_user_id();
+        $is_privileged   = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::is_privileged_legal_staff($current_user_id)
+            : (current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases'));
+
+        $query_args = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::build_scoped_case_query_args($current_user_id)
+            : array(
+                'post_type'      => array('sedrazavi_case', 'case'),
+                'post_status'    => array('private', 'publish'),
+                'posts_per_page' => 50,
+            );
+
+        $query = new WP_Query($query_args);
 
         $cases = array();
         if ($query->have_posts()) {
             while ($query->have_posts()) {
                 $query->the_post();
                 $pid = get_the_ID();
+
+                // Enforce strict per-object ownership for non-privileged actors
+                if (!$is_privileged) {
+                    $allowed = class_exists('SedRazavi_Case_Data_Service')
+                        ? SedRazavi_Case_Data_Service::can_user_access_case($pid, $current_user_id)
+                        : ((int) get_post_field('post_author', $pid) === $current_user_id
+                            || (int) get_post_meta($pid, '_sedrazavi_client_user_id', true) === $current_user_id
+                            || (int) get_post_meta($pid, '_client_user_id', true) === $current_user_id
+                            || (int) get_post_meta($pid, '_sedrazavi_assigned_lawyer_id', true) === $current_user_id);
+                    if (!$allowed) {
+                        continue;
+                    }
+                }
+
                 $cases[] = array(
-                    'id'           => $pid,
-                    'case_number'  => get_post_meta($pid, '_sedrazavi_case_number', true) ?: ('CASE-' . $pid),
-                    'client_name'  => get_the_title(),
-                    'case_type'    => get_post_meta($pid, '_sedrazavi_case_type', true) ?: 'حقوقی',
-                    'court_branch' => get_post_meta($pid, '_sedrazavi_court_branch', true) ?: 'دادگاه عمومی حقوقی',
-                    'status'       => get_post_meta($pid, '_sedrazavi_case_status', true) ?: 'در جریان',
-                    'progress'     => (int) (get_post_meta($pid, '_sedrazavi_progress', true) ?: 0),
-                    'next_session' => get_post_meta($pid, '_sedrazavi_next_session', true) ?: 'نامشخص',
+                    'id'              => $pid,
+                    'case_number'     => get_post_meta($pid, '_sedrazavi_case_number', true) ?: get_post_meta($pid, '_case_number', true) ?: ('CASE-' . $pid),
+                    'client_name'     => get_post_meta($pid, '_sedrazavi_client_name', true) ?: get_the_title(),
+                    'case_type'       => get_post_meta($pid, '_sedrazavi_case_type', true) ?: 'حقوقی',
+                    'court_branch'    => get_post_meta($pid, '_sedrazavi_court_branch', true) ?: 'دادگاه عمومی حقوقی',
+                    'status'          => get_post_meta($pid, '_sedrazavi_case_status', true) ?: 'در جریان',
+                    'progress'        => (int) (get_post_meta($pid, '_sedrazavi_progress', true) ?: 0),
+                    'next_session'    => get_post_meta($pid, '_sedrazavi_next_session', true) ?: 'نامشخص',
+                    'visibility'      => get_post_status($pid),
+                    'is_confidential' => true,
                 );
             }
             wp_reset_postdata();
-        } elseif (get_option('sedrazavi_demo_mode', false)) {
-            // Explicit demo mode sample data with demo indicator
+        } elseif ($is_privileged && get_option('sedrazavi_demo_mode', false)) {
+            // Explicit demo mode sample data (restricted to privileged staff only)
             $cases = array(
                 array(
-                    'id'           => 'demo-1',
-                    'is_demo'      => true,
-                    'case_number'  => '1403-LAW-892',
-                    'client_name'  => 'شرکت بین‌المللی تجهیزات پارس (نمونه)',
-                    'case_type'    => 'داوری بازرگانی بین‌المللی',
-                    'court_branch' => 'مرکز داوری اتاق بازرگانی ایران',
-                    'status'       => 'انشای رای داوری',
-                    'progress'     => 85,
-                    'next_session' => '۱۴۰۳/۰۸/۱۲',
+                    'id'              => 'demo-1',
+                    'is_demo'         => true,
+                    'case_number'     => '1403-LAW-892',
+                    'client_name'     => 'شرکت بین‌المللی تجهیزات پارس (نمونه)',
+                    'case_type'       => 'داوری بازرگانی بین‌المللی',
+                    'court_branch'    => 'مرکز داوری اتاق بازرگانی ایران',
+                    'status'          => 'انشای رای داوری',
+                    'progress'        => 85,
+                    'next_session'    => '۱۴۰۳/۰۸/۱۲',
+                    'visibility'      => 'private',
+                    'is_confidential' => true,
                 ),
             );
         }
@@ -547,7 +605,7 @@ class SedRazavi_REST_API {
             'success' => true,
             'cases'   => $cases,
             'total'   => count($cases),
-            'is_demo' => (bool) get_option('sedrazavi_demo_mode', false),
+            'is_demo' => (bool) ($is_privileged && get_option('sedrazavi_demo_mode', false)),
         ), 200);
     }
 
@@ -566,10 +624,17 @@ class SedRazavi_REST_API {
             ? sanitize_text_field($params['case_number'])
             : ('1403-' . substr(wp_generate_uuid4(), 0, 8)); // No rand()
 
+        $creator_id = get_current_user_id();
+        $assigned_lawyer_id = !empty($params['assigned_lawyer_id']) ? absint($params['assigned_lawyer_id']) : $creator_id;
+        $client_user_id     = !empty($params['client_user_id']) ? absint($params['client_user_id']) : 0;
+
+        $canonical_cpt = class_exists('SedRazavi_Case_Data_Service') ? SedRazavi_Case_Data_Service::CANONICAL_CPT : 'sedrazavi_case';
+
         $post_id = wp_insert_post(array(
             'post_title'  => $client,
-            'post_type'   => 'sedrazavi_case',
-            'post_status' => 'publish',
+            'post_type'   => $canonical_cpt,
+            'post_status' => 'private', // Strict confidentiality: never publish client dossiers publicly
+            'post_author' => $creator_id,
         ));
 
         if (!$post_id || is_wp_error($post_id)) {
@@ -580,17 +645,30 @@ class SedRazavi_REST_API {
         }
 
         update_post_meta($post_id, '_sedrazavi_case_number', $case_num);
+        update_post_meta($post_id, '_sedrazavi_client_name', $client);
         update_post_meta($post_id, '_sedrazavi_case_type', isset($params['case_type']) ? sanitize_text_field($params['case_type']) : 'دعاوی حقوقی');
         update_post_meta($post_id, '_sedrazavi_case_status', isset($params['status']) ? sanitize_text_field($params['status']) : 'در جریان رسیدگی');
+        update_post_meta($post_id, '_sedrazavi_assigned_lawyer_id', $assigned_lawyer_id);
+        if ($client_user_id > 0) {
+            update_post_meta($post_id, '_sedrazavi_client_user_id', $client_user_id);
+            update_post_meta($post_id, '_client_user_id', $client_user_id);
+        }
+        if (!empty($params['court_branch'])) {
+            update_post_meta($post_id, '_sedrazavi_court_branch', sanitize_text_field($params['court_branch']));
+        }
         if (!empty($params['client_phone'])) {
-            update_post_meta($post_id, '_sedrazavi_client_phone', sanitize_text_field($params['client_phone']));
+            $norm_phone = class_exists('SedRazavi_Rate_Limiter')
+                ? SedRazavi_Rate_Limiter::normalize_iranian_phone($params['client_phone'])
+                : sanitize_text_field($params['client_phone']);
+            update_post_meta($post_id, '_sedrazavi_client_phone', $norm_phone);
         }
 
         return new WP_REST_Response(array(
             'success'     => true,
             'case_id'     => $post_id,
             'case_number' => $case_num,
-            'message'     => 'پرونده با موفقیت در سامانه ثبت گردید.',
+            'post_status' => 'private',
+            'message'     => 'پرونده با وضعیت محرمانه با موفقیت در سامانه ثبت گردید.',
         ), 201);
     }
 
@@ -1082,17 +1160,21 @@ class SedRazavi_REST_API {
             ), 200);
         }
 
-        // Real counts from CPTs
-        $case_counts = wp_count_posts('sedrazavi_case');
-        $active_cases = isset($case_counts->publish) ? (int) $case_counts->publish : 0;
+        // Real counts from CPTs (both private confidential dossiers & legacy published records)
+        $active_cases = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::count_active_cases()
+            : (function() {
+                $c = wp_count_posts('sedrazavi_case');
+                return (int) ($c->private ?? 0) + (int) ($c->publish ?? 0);
+            })();
 
         $booking_counts = wp_count_posts('sedrazavi_appointment');
         $total_bookings = isset($booking_counts->publish) ? (int) $booking_counts->publish : 0;
 
         // Upcoming sessions (cases with next session set)
         $upcoming_query = new WP_Query(array(
-            'post_type'      => 'sedrazavi_case',
-            'post_status'    => 'publish',
+            'post_type'      => class_exists('SedRazavi_Case_Data_Service') ? SedRazavi_Case_Data_Service::get_litigation_post_types() : array('sedrazavi_case', 'case'),
+            'post_status'    => array('private', 'publish'),
             'meta_query'     => array(
                 array(
                     'key'     => '_sedrazavi_next_session',
@@ -1422,15 +1504,25 @@ class SedRazavi_REST_API {
             ), 400);
         }
 
-        // Search database for the real case
-        $post = is_numeric($case_id) ? get_post($case_id) : null;
-        if (!$post || $post->post_type !== 'sedrazavi_case') {
+        // Search database for the real case across canonical & legacy CPTs with private+publish status
+        $case_post_types = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::get_case_post_types()
+            : array('sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard');
+
+        $post = is_numeric($case_id) ? get_post(absint($case_id)) : null;
+        if (!$post || !in_array($post->post_type, $case_post_types, true)) {
             $q = new WP_Query(array(
-                'post_type'      => 'sedrazavi_case',
-                'post_status'    => 'publish',
+                'post_type'      => $case_post_types,
+                'post_status'    => array('private', 'publish'),
                 'meta_query'     => array(
+                    'relation' => 'OR',
                     array(
                         'key'     => '_sedrazavi_case_number',
+                        'value'   => $case_id,
+                        'compare' => '=',
+                    ),
+                    array(
+                        'key'     => '_case_number',
                         'value'   => $case_id,
                         'compare' => '=',
                     ),
@@ -1442,7 +1534,7 @@ class SedRazavi_REST_API {
             }
         }
 
-        if (!$post || $post->post_type !== 'sedrazavi_case') {
+        if (!$post || !in_array($post->post_type, $case_post_types, true)) {
             if ($is_demo) {
                 return new WP_REST_Response(array(
                     'success'     => true,
@@ -1460,6 +1552,13 @@ class SedRazavi_REST_API {
                 'success' => false,
                 'message' => 'پرونده‌ای با این مشخصات یافت نشد.',
             ), 404);
+        }
+
+        if (class_exists('SedRazavi_Case_Data_Service') && !SedRazavi_Case_Data_Service::can_user_access_case($post)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'شما مجوز مشاهده جدول زمانی این پرونده را ندارید.',
+            ), 403);
         }
 
         $milestones = get_post_meta($post->ID, '_sedrazavi_milestones', true);
@@ -1506,6 +1605,9 @@ class SedRazavi_REST_API {
         ));
 
         foreach ($cases as $post) {
+            if (class_exists('SedRazavi_Case_Data_Service') && !SedRazavi_Case_Data_Service::can_user_access_case($post)) {
+                continue;
+            }
             $pid = $post->ID;
             $next_session = get_post_meta($pid, '_sedrazavi_next_session', true) ?: get_post_meta($pid, '_sedrazavi_hearing_date', true);
             $case_num     = get_post_meta($pid, '_sedrazavi_case_number', true) ?: ('SR-' . $pid);
@@ -1562,6 +1664,9 @@ class SedRazavi_REST_API {
         ));
 
         foreach ($cases as $post) {
+            if (class_exists('SedRazavi_Case_Data_Service') && !SedRazavi_Case_Data_Service::can_user_access_case($post)) {
+                continue;
+            }
             $pid = $post->ID;
             $row = array(
                 get_post_meta($pid, '_sedrazavi_case_number', true) ?: get_post_meta($pid, '_case_number', true) ?: ('SR-' . $pid),

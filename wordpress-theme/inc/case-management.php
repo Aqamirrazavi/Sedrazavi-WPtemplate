@@ -14,37 +14,37 @@ if (!defined('ABSPATH')) {
  */
 if (!function_exists('sedrazavi_register_case_cpt')) {
     function sedrazavi_register_case_cpt() {
-        if (post_type_exists('sedrazavi_case')) {
-            return;
+        if (class_exists('SedRazavi_Case_Data_Service')) {
+            SedRazavi_Case_Data_Service::register_canonical_case_cpt();
+        } elseif (!post_type_exists('sedrazavi_case')) {
+            $labels = array(
+                'name'               => esc_html__('پرونده‌های موکلین', 'sedrazavi'),
+                'singular_name'      => esc_html__('پرونده حقوقی', 'sedrazavi'),
+                'menu_name'          => esc_html__('مدیریت پرونده‌ها', 'sedrazavi'),
+                'add_new'            => esc_html__('ثبت پرونده جدید', 'sedrazavi'),
+                'add_new_item'       => esc_html__('ثبت پرونده حقوقی جدید', 'sedrazavi'),
+                'edit_item'          => esc_html__('ویرایش پرونده', 'sedrazavi'),
+                'all_items'          => esc_html__('همه پرونده‌ها', 'sedrazavi'),
+            );
+
+            register_post_type('sedrazavi_case', array(
+                'labels'              => $labels,
+                'public'              => false,
+                'publicly_queryable'  => false,
+                'exclude_from_search' => true,
+                'show_ui'             => true,
+                'show_in_menu'        => true,
+                'show_in_nav_menus'   => false,
+                'has_archive'         => false,
+                'rewrite'             => false,
+                'query_var'           => false,
+                'menu_icon'           => 'dashicons-portfolio',
+                'supports'            => array('title', 'custom-fields', 'revisions', 'author'),
+                'show_in_rest'        => false,
+                'capability_type'     => array('sedrazavi_case', 'sedrazavi_cases'),
+                'map_meta_cap'        => true,
+            ));
         }
-
-        $labels = array(
-            'name'               => esc_html__('پرونده‌های موکلین', 'sedrazavi'),
-            'singular_name'      => esc_html__('پرونده حقوقی', 'sedrazavi'),
-            'menu_name'          => esc_html__('مدیریت پرونده‌ها', 'sedrazavi'),
-            'add_new'            => esc_html__('ثبت پرونده جدید', 'sedrazavi'),
-            'add_new_item'       => esc_html__('ثبت پرونده حقوقی جدید', 'sedrazavi'),
-            'edit_item'          => esc_html__('ویرایش پرونده', 'sedrazavi'),
-            'all_items'          => esc_html__('همه پرونده‌ها', 'sedrazavi'),
-        );
-
-        $args = array(
-            'labels'              => $labels,
-            'public'              => false,
-            'publicly_queryable'  => false,
-            'exclude_from_search' => true,
-            'show_ui'             => true,
-            'show_in_menu'        => true,
-            'show_in_nav_menus'   => false,
-            'has_archive'         => false,
-            'rewrite'             => false,
-            'query_var'           => false,
-            'menu_icon'           => 'dashicons-portfolio',
-            'supports'            => array('title', 'custom-fields'),
-            'show_in_rest'        => false,
-        );
-
-        register_post_type('sedrazavi_case', $args);
 
         // Register Appointments CPT
         if (!post_type_exists('sedrazavi_appointment')) {
@@ -102,12 +102,22 @@ if (!function_exists('sedrazavi_ajax_track_case')) {
         };
         $clean_phone = $norm_phone($client_phone);
 
+        $case_post_types = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::get_litigation_post_types()
+            : array('sedrazavi_case', 'case');
+
         $query = new WP_Query(array(
-            'post_type'      => 'sedrazavi_case',
-            'post_status'    => 'publish',
+            'post_type'      => $case_post_types,
+            'post_status'    => array('private', 'publish'),
             'meta_query'     => array(
+                'relation' => 'OR',
                 array(
                     'key'     => '_sedrazavi_case_number',
+                    'value'   => $case_number,
+                    'compare' => '=',
+                ),
+                array(
+                    'key'     => '_case_number',
                     'value'   => $case_number,
                     'compare' => '=',
                 ),

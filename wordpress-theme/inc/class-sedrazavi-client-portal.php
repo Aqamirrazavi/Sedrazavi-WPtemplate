@@ -51,10 +51,14 @@ class SedRazavi_Client_Portal {
 
         if (is_user_logged_in()) {
             $uid = get_current_user_id();
-            if (current_user_can('manage_options') || current_user_can('edit_posts')) {
-                return $case;
-            }
-            if ((int) $case->post_author === $uid || (int) get_post_meta($case_id, '_client_user_id', true) === $uid) {
+            if (class_exists('SedRazavi_Case_Data_Service')
+                ? SedRazavi_Case_Data_Service::can_user_access_case($case, $uid)
+                : (current_user_can('manage_options')
+                    || current_user_can('sedrazavi_manage_cases')
+                    || (int) $case->post_author === $uid
+                    || (int) get_post_meta($case_id, '_sedrazavi_client_user_id', true) === $uid
+                    || (int) get_post_meta($case_id, '_client_user_id', true) === $uid
+                    || (int) get_post_meta($case_id, '_sedrazavi_assigned_lawyer_id', true) === $uid)) {
                 return $case;
             }
         }

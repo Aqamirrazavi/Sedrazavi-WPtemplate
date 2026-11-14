@@ -24,7 +24,7 @@ $user_phone = $is_logged_in
     : get_option('sedrazavi_lawyer_mobile', '۰۹۱۲-۳۴۵۶۷۸۹');
 
 $is_admin = current_user_can('manage_options');
-$is_lawyer = current_user_can('edit_posts') || (is_user_logged_in() && in_array('lawyer', (array)$current_user->roles, true));
+$is_lawyer = $is_admin || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_view_all_cases') || ($is_logged_in && (in_array('sedrazavi_lawyer', (array)$current_user->roles, true) || in_array('lawyer', (array)$current_user->roles, true)));
 
 $dashboard_props = [
     'userPhoneNumber'       => $user_phone,

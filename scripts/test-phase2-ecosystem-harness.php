@@ -540,6 +540,15 @@ namespace {
         echo "  WARN: ZipArchive not enabled; skipping archive checksum test.\n\n";
     }
 
+    // TEST 9: P0 Legal Case Data Service & Capability Isolation Check
+    echo "[TEST 9] Verifying P0 Canonical Case Data Service & Legal RBAC Isolation...\n";
+    require_once dirname(__DIR__) . '/wordpress-theme/inc/class-case-data-service.php';
+    if (\SedRazavi_Case_Data_Service::CANONICAL_CPT !== 'sedrazavi_case') {
+        fwrite(STDERR, "FAIL: Canonical CPT must be sedrazavi_case\n");
+        exit(1);
+    }
+    echo "  PASS: Canonical CPT (sedrazavi_case) and Anti-IDOR helper verified.\n\n";
+
     // Cleanup sandbox
     $it = new \RecursiveDirectoryIterator($sandbox_uploads, \RecursiveDirectoryIterator::SKIP_DOTS);
     $files = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);

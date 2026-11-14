@@ -51,46 +51,52 @@ if (!function_exists('sedrazavi_addons_register_post_types')) {
             'show_in_rest'      => true,
         ));
 
-        // ۲. پست‌تایپ دعاوی و پرونده‌های حقوقی موکلین (Legal Cases)
-        $case_labels = array(
-            'name'                  => esc_html__('دعاوی و پرونده‌ها', 'sedrazavi-addons'),
-            'singular_name'         => esc_html__('پرونده حقوقی', 'sedrazavi-addons'),
-            'menu_name'             => esc_html__('پرونده‌های موکلین', 'sedrazavi-addons'),
-            'add_new'               => esc_html__('ثبت پرونده جدید', 'sedrazavi-addons'),
-            'add_new_item'          => esc_html__('افزودن پرونده جدید', 'sedrazavi-addons'),
-            'edit_item'             => esc_html__('ویرایش پرونده', 'sedrazavi-addons'),
-            'all_items'             => esc_html__('همه پرونده‌ها', 'sedrazavi-addons'),
-            'search_items'          => esc_html__('جستجوی پرونده', 'sedrazavi-addons'),
-            'not_found'             => esc_html__('پرونده‌ای یافت نشد', 'sedrazavi-addons'),
-        );
-        register_post_type('sedrazavi_case', array(
-            'labels'              => $case_labels,
-            'public'              => false,
-            'publicly_queryable'  => false,
-            'exclude_from_search' => true,
-            'show_ui'             => true,
-            'show_in_menu'        => true,
-            'show_in_nav_menus'   => false,
-            'menu_icon'           => 'dashicons-portfolio',
-            'supports'            => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
-            'has_archive'         => false,
-            'rewrite'             => false,
-            'query_var'           => false,
-            'show_in_rest'        => false,
-        ));
+        // ۲. پست‌تایپ دعاوی و پرونده‌های حقوقی موکلین (Legal Cases - Canonical Private CPT)
+        if (!post_type_exists('sedrazavi_case')) {
+            $case_labels = array(
+                'name'                  => esc_html__('دعاوی و پرونده‌ها', 'sedrazavi-addons'),
+                'singular_name'         => esc_html__('پرونده حقوقی', 'sedrazavi-addons'),
+                'menu_name'             => esc_html__('پرونده‌های موکلین', 'sedrazavi-addons'),
+                'add_new'               => esc_html__('ثبت پرونده جدید', 'sedrazavi-addons'),
+                'add_new_item'          => esc_html__('افزودن پرونده جدید', 'sedrazavi-addons'),
+                'edit_item'             => esc_html__('ویرایش پرونده', 'sedrazavi-addons'),
+                'all_items'             => esc_html__('همه پرونده‌ها', 'sedrazavi-addons'),
+                'search_items'          => esc_html__('جستجوی پرونده', 'sedrazavi-addons'),
+                'not_found'             => esc_html__('پرونده‌ای یافت نشد', 'sedrazavi-addons'),
+            );
+            register_post_type('sedrazavi_case', array(
+                'labels'              => $case_labels,
+                'public'              => false,
+                'publicly_queryable'  => false,
+                'exclude_from_search' => true,
+                'show_ui'             => true,
+                'show_in_menu'        => true,
+                'show_in_nav_menus'   => false,
+                'menu_icon'           => 'dashicons-portfolio',
+                'supports'            => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'author'),
+                'has_archive'         => false,
+                'rewrite'             => false,
+                'query_var'           => false,
+                'show_in_rest'        => false,
+                'capability_type'     => array('sedrazavi_case', 'sedrazavi_cases'),
+                'map_meta_cap'        => true,
+            ));
+        }
 
-        register_taxonomy('case_category', 'sedrazavi_case', array(
-            'labels'            => array(
-                'name'          => esc_html__('حوزه دعاوی', 'sedrazavi-addons'),
-                'singular_name' => esc_html__('حوزه دعوی', 'sedrazavi'),
-            ),
-            'hierarchical'      => true,
-            'public'            => false,
-            'show_ui'           => true,
-            'show_admin_column' => true,
-            'rewrite'           => false,
-            'show_in_rest'      => false,
-        ));
+        if (!taxonomy_exists('case_category')) {
+            register_taxonomy('case_category', 'sedrazavi_case', array(
+                'labels'            => array(
+                    'name'          => esc_html__('حوزه دعاوی', 'sedrazavi-addons'),
+                    'singular_name' => esc_html__('حوزه دعوی', 'sedrazavi-addons'),
+                ),
+                'hierarchical'      => true,
+                'public'            => false,
+                'show_ui'           => true,
+                'show_admin_column' => true,
+                'rewrite'           => false,
+                'show_in_rest'      => false,
+            ));
+        }
 
         // ۳. پست‌تایپ نظرات و رضایت موکلان (Testimonials)
         $testimonial_labels = array(

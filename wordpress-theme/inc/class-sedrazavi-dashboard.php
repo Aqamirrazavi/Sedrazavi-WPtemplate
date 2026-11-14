@@ -179,7 +179,13 @@ class SedRazavi_Comprehensive_Dashboard {
      * ثبت اندپوینت‌های REST API برای اتصال اپلیکیشن فرانت‌اند React
      */
     public function check_staff_permission() {
-        return is_user_logged_in() && (current_user_can('edit_posts') || current_user_can('manage_options'));
+        if (!is_user_logged_in()) {
+            return false;
+        }
+        if (class_exists('SedRazavi_Case_Data_Service')) {
+            return SedRazavi_Case_Data_Service::is_privileged_legal_staff();
+        }
+        return current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases') || current_user_can('sedrazavi_view_all_cases');
     }
 
     public function register_rest_routes() {
@@ -203,7 +209,7 @@ class SedRazavi_Comprehensive_Dashboard {
         return rest_ensure_response([
             'success'        => true,
             'total_cases'    => $published + $private,
-            'active_cases'   => $published,
+            'active_cases'   => $published + $private,
             'private_cases'  => $private,
             'timestamp'      => current_time('mysql'),
         ]);
@@ -211,19 +217,23 @@ class SedRazavi_Comprehensive_Dashboard {
 
     public function rest_get_cases() {
         $posts = get_posts([
-            'post_type' => 'sedrazavi_dashboard',
+            'post_type'   => ['sedrazavi_dashboard', 'sedrazavi_case'],
             'numberposts' => 20,
-            'post_status' => 'publish',
+            'post_status' => ['private', 'publish'],
         ]);
 
+        $uid = get_current_user_id();
         $data = [];
         foreach ($posts as $p) {
+            if (class_exists('SedRazavi_Case_Data_Service') && !SedRazavi_Case_Data_Service::can_user_access_case($p, $uid)) {
+                continue;
+            }
             $data[] = [
-                'id' => $p->ID,
-                'title' => $p->post_title,
-                'case_number' => get_post_meta($p->ID, '_case_number', true),
-                'client_name' => get_post_meta($p->ID, '_client_name', true),
-                'status' => get_post_meta($p->ID, '_case_status', true),
+                'id'          => $p->ID,
+                'title'       => $p->post_title,
+                'case_number' => get_post_meta($p->ID, '_sedrazavi_case_number', true) ?: get_post_meta($p->ID, '_case_number', true),
+                'client_name' => get_post_meta($p->ID, '_sedrazavi_client_name', true) ?: get_post_meta($p->ID, '_client_name', true),
+                'status'      => get_post_meta($p->ID, '_sedrazavi_case_status', true) ?: get_post_meta($p->ID, '_case_status', true),
             ];
         }
 

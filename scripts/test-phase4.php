@@ -136,13 +136,20 @@ if ($can_create) {
 }
 echo "✓ Unauthorized user blocked from case management.\n";
 
-// Case B: Authenticated lawyer/admin
-$GLOBALS['mock_user_caps']['edit_posts'] = true;
+// Case B: Blog contributor with only edit_posts must be DENIED legal case management
+$GLOBALS['mock_user_caps'] = array('edit_posts' => true);
+if (SedRazavi_REST_API::check_lawyer_or_admin_permission()) {
+    die("FAILED: Contributor holding only generic edit_posts MUST NOT manage legal cases!\n");
+}
+echo "✓ Generic edit_posts contributor strictly blocked from legal cases.\n";
+
+// Case C: Authenticated lawyer with explicit legal capability
+$GLOBALS['mock_user_caps'] = array('sedrazavi_manage_cases' => true);
 $can_create_auth = SedRazavi_REST_API::check_lawyer_or_admin_permission();
 if (!$can_create_auth) {
-    die("FAILED: Authenticated lawyer with edit_posts should have permission!\n");
+    die("FAILED: Authenticated lawyer with sedrazavi_manage_cases should have permission!\n");
 }
-echo "✓ Authorized lawyer granted access.\n";
+echo "✓ Authorized lawyer with sedrazavi_manage_cases granted access.\n";
 
 echo "\n=== 4. TESTING INPUT SANITIZATION & XSS PREVENTION ===\n";
 SedRazavi_Rate_Limiter::reset_rate_limit('booking');

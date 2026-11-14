@@ -218,50 +218,40 @@ if (!function_exists('sedrazavi_register_custom_post_types')) {
             ]);
         }
 
-        // CPT 3: Client Cases & Confidential Docket Tracking ('case')
+        // CPT 3: Canonical Confidential Case Dossiers ('sedrazavi_case') + hidden legacy 'case' compatibility alias
         // CRITICAL PRIVACY FIX: Private by default, excluded from search, sitemaps, and public permalinks
         // Encapsulated: Only loaded when legal niche is explicitly active
-        if ($is_legal && !post_type_exists('case')) {
-            $case_labels = [
-                'name'               => esc_html__('پرونده‌های محرمانه موکلان', 'sedrazavi'),
-                'singular_name'      => esc_html__('پرونده محرمانه', 'sedrazavi'),
-                'menu_name'          => esc_html__('کارتابل پرونده‌های محرمانه', 'sedrazavi'),
-                'add_new'            => esc_html__('ثبت پرونده محرمانه جدید', 'sedrazavi'),
-                'add_new_item'       => esc_html__('ثبت پرونده محرمانه موکل', 'sedrazavi'),
-                'edit_item'          => esc_html__('ویرایش پرونده محرمانه', 'sedrazavi'),
-                'view_item'          => esc_html__('مشاهده پرونده در پنل مدیریت', 'sedrazavi'),
-                'search_items'       => esc_html__('جستجوی پرونده‌ها در پنل مدیریت', 'sedrazavi'),
-                'not_found'          => esc_html__('پرونده‌ای یافت نشد', 'sedrazavi'),
-            ];
+        if ($is_legal) {
+            if (class_exists('SedRazavi_Case_Data_Service')) {
+                SedRazavi_Case_Data_Service::register_canonical_case_cpt();
+            }
 
-            register_post_type('case', [
-                'labels'              => $case_labels,
-                'public'              => false, // Confidential: not public
-                'publicly_queryable'  => false, // Prevent public frontend query
-                'exclude_from_search' => true,  // Exclude from public site search
-                'show_ui'             => true,  // Visible in WP Admin to staff
-                'show_in_menu'        => true,
-                'show_in_nav_menus'   => false,
-                'has_archive'         => false, // No public archive page
-                'rewrite'             => false, // No public permalink route
-                'query_var'           => false,
-                'menu_icon'           => 'dashicons-lock',
-                'supports'            => ['title', 'editor', 'custom-fields', 'revisions', 'author'],
-                'show_in_rest'        => false, // Disallow unauthenticated WP Core REST route
-                'capability_type'     => 'post',
-            ]);
+            if (!post_type_exists('case')) {
+                $case_labels = [
+                    'name'               => esc_html__('پرونده‌های محرمانه موکلان (میراث)', 'sedrazavi'),
+                    'singular_name'      => esc_html__('پرونده محرمانه', 'sedrazavi'),
+                    'menu_name'          => esc_html__('کارتابل پرونده‌های محرمانه (قدیمی)', 'sedrazavi'),
+                    'not_found'          => esc_html__('پرونده‌ای یافت نشد', 'sedrazavi'),
+                ];
 
-            register_taxonomy('case_type', ['case'], [
-                'labels'            => [
-                    'name'          => esc_html__('موضوعات دادرسی محرمانه', 'sedrazavi'),
-                    'singular_name' => esc_html__('موضوع دعوا', 'sedrazavi'),
-                ],
-                'hierarchical'      => true,
-                'public'            => false,
-                'show_ui'           => true,
-                'show_in_rest'      => false,
-                'rewrite'           => false,
-            ]);
+                register_post_type('case', [
+                    'labels'              => $case_labels,
+                    'public'              => false, // Confidential: not public
+                    'publicly_queryable'  => false, // Prevent public frontend query
+                    'exclude_from_search' => true,  // Exclude from public site search
+                    'show_ui'             => false, // Consolidated onto canonical sedrazavi_case UI
+                    'show_in_menu'        => false,
+                    'show_in_nav_menus'   => false,
+                    'has_archive'         => false, // No public archive page
+                    'rewrite'             => false, // No public permalink route
+                    'query_var'           => false,
+                    'menu_icon'           => 'dashicons-lock',
+                    'supports'            => ['title', 'editor', 'custom-fields', 'revisions', 'author'],
+                    'show_in_rest'        => false, // Disallow unauthenticated WP Core REST route
+                    'capability_type'     => ['sedrazavi_case', 'sedrazavi_cases'],
+                    'map_meta_cap'        => true,
+                ]);
+            }
         }
 
         // CPT 4: Public Legal Precedents & Case Studies ('case_study')
@@ -724,7 +714,7 @@ if (!function_exists('enqueue_react_assets')) {
             'email'        => $is_user_auth ? $current_user->user_email : '',
             'roles'        => $is_user_auth ? (array) $current_user->roles : [],
             'isAdmin'      => current_user_can('manage_options'),
-            'isLawyer'     => current_user_can('edit_posts') || ($is_user_auth && in_array('lawyer', (array)$current_user->roles, true)),
+            'isLawyer'     => current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases') || ($is_user_auth && (in_array('sedrazavi_lawyer', (array)$current_user->roles, true) || in_array('lawyer', (array)$current_user->roles, true))),
             'phone'        => $is_user_auth ? (get_user_meta($current_user->ID, 'phone', true) ?: get_user_meta($current_user->ID, 'billing_phone', true) ?: '') : '',
         ];
 
@@ -813,6 +803,7 @@ $sedrazavi_essential_includes = [
     'inc/scenario-controller.php',       // Universal Scenario Controller & Layout Archetypes
     'inc/class-realtime-notifications.php', // Real-Time Lead Notification & Sound Engine
     'inc/class-cloud-catalog.php',       // Cloud Preset Catalog & Child-Theme Factory
+    'inc/class-case-data-service.php',   // Canonical Case CPT Registry & Anti-IDOR Ownership Service
 ];
 
 // Legal Modules (Decoupled & Isolated for legal-firm child theme only)
