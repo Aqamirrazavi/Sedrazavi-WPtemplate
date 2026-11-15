@@ -81,17 +81,155 @@ class Template_Importer {
                     'meta_value'     => $slug,
                 ]);
 
+                $pro_widgets = !empty($data['content']) && is_array($data['content'])
+                    ? self::detect_pro_widgets($data['content'])
+                    : [];
+
                 $manifest[] = [
-                    'slug'        => $slug,
-                    'title'       => $data['title'],
-                    'type'        => $data['type'] ?? $default_type,
-                    'is_imported' => !empty($existing),
-                    'post_id'     => !empty($existing) ? $existing[0]->ID : 0,
-                    'file'        => $file,
+                    'slug'         => $slug,
+                    'title'        => $data['title'],
+                    'type'         => $data['type'] ?? $default_type,
+                    'is_imported'  => !empty($existing),
+                    'post_id'      => !empty($existing) ? $existing[0]->ID : 0,
+                    'pro_required' => !empty($pro_widgets),
+                    'pro_widgets'  => $pro_widgets,
+                    'file'         => $file,
                 ];
             }
         }
         return $manifest;
+    }
+
+    /**
+     * Canonical list of Elementor Pro-only widget slugs detected in templates
+     *
+     * @return array
+     */
+    public static function get_pro_widget_slugs() {
+        return [
+            'theme-site-logo',
+            'nav-menu',
+            'archive-posts',
+            'theme-archive-title',
+            'theme-post-title',
+            'post-info',
+            'theme-post-featured-image',
+            'theme-post-content',
+            'author-box',
+            'post-comments',
+            'form',
+            'posts',
+            'slides',
+            'price-table',
+            'price-list',
+            'flip-box',
+            'call-to-action',
+        ];
+    }
+
+    /**
+     * Detect any Elementor Pro-only widgetType slugs inside a template content tree
+     *
+     * @param array $elements
+     * @return array
+     */
+    public static function detect_pro_widgets(array $elements) {
+        $used = self::extract_widget_types($elements);
+        $pro_slugs = self::get_pro_widget_slugs();
+        $found = [];
+        foreach ($used as $slug) {
+            if (in_array($slug, $pro_slugs, true)) {
+                $found[] = $slug;
+            }
+        }
+        return array_values(array_unique($found));
+    }
+
+    /**
+     * Adapt Elementor Pro Theme Builder widgets into native Elementor Free / uas_* equivalents
+     * during import when Elementor Pro is inactive (never mutates source JSON files on disk).
+     *
+     * @param array $elements Passed by reference
+     * @return int Number of nodes adapted for Elementor Free
+     */
+    public static function adapt_pro_widgets_for_free(array &$elements) {
+        $adapted = 0;
+
+        foreach ($elements as &$el) {
+            if (!is_array($el)) {
+                continue;
+            }
+
+            if (!empty($el['elType']) && $el['elType'] === 'widget' && !empty($el['widgetType'])) {
+                $wt = sanitize_key($el['widgetType']);
+                switch ($wt) {
+                    case 'theme-site-logo':
+                        $el['widgetType'] = 'heading';
+                        $el['settings'] = [
+                            'title'       => function_exists('get_bloginfo') ? get_bloginfo('name') : 'SedRazavi Studio',
+                            'header_size' => 'span',
+                            'link'        => ['url' => function_exists('home_url') ? home_url('/') : '/'],
+                            'align'       => $el['settings']['align'] ?? 'right',
+                        ];
+                        $adapted++;
+                        break;
+                    case 'nav-menu':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_nav_menu]'];
+                        $adapted++;
+                        break;
+                    case 'theme-archive-title':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_archive_title]'];
+                        $adapted++;
+                        break;
+                    case 'archive-posts':
+                        $el['widgetType'] = 'uas_posts_grid';
+                        $el['settings'] = [
+                            'posts_per_page' => isset($el['settings']['posts_per_page']) ? (int) $el['settings']['posts_per_page'] : 9,
+                            'columns'        => isset($el['settings']['columns']) ? (string) $el['settings']['columns'] : '3',
+                        ];
+                        $adapted++;
+                        break;
+                    case 'theme-post-title':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="title"]'];
+                        $adapted++;
+                        break;
+                    case 'post-info':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="meta"]'];
+                        $adapted++;
+                        break;
+                    case 'theme-post-featured-image':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="thumbnail"]'];
+                        $adapted++;
+                        break;
+                    case 'theme-post-content':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="content"]'];
+                        $adapted++;
+                        break;
+                    case 'author-box':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="author"]'];
+                        $adapted++;
+                        break;
+                    case 'post-comments':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="comments"]'];
+                        $adapted++;
+                        break;
+                }
+            }
+
+            if (!empty($el['elements']) && is_array($el['elements'])) {
+                $adapted += self::adapt_pro_widgets_for_free($el['elements']);
+            }
+        }
+
+        return $adapted;
     }
 
     /**
@@ -233,9 +371,10 @@ class Template_Importer {
             if (isset($node['url']) && is_string($node['url']) && $placeholder_base_url) {
                 $url = $node['url'];
                 $is_external_demo = (strpos($url, 'images.unsplash.com') !== false || strpos($url, 'placeholder.com') !== false || strpos($url, 'via.placeholder') !== false);
+                $is_sovereign_relative = (($node['source'] ?? '') === 'sovereign_local') && ($url === '' || strpos($url, 'http') !== 0);
                 $has_orphan_id = !empty($node['id']) && function_exists('get_post_type') && get_post_type((int) $node['id']) !== 'attachment';
 
-                if ($is_external_demo || $has_orphan_id) {
+                if ($is_external_demo || $is_sovereign_relative || $has_orphan_id) {
                     $node['url'] = $pick_placeholder($url);
                     $node['id'] = '';
                     $node['source'] = 'sovereign_local';
@@ -290,6 +429,15 @@ class Template_Importer {
 
         if (!is_array($data) || empty($data['title']) || empty($data['content'])) {
             return ['success' => false, 'message' => 'فرمت فایل قالب نامعتبر است.'];
+        }
+
+        // Automated Elementor Free Fallback Adaptation (only when Elementor Pro is inactive)
+        $pro_widgets = self::detect_pro_widgets($data['content']);
+        $adapted_for_free = false;
+        $adapted_count = 0;
+        if (!defined('ELEMENTOR_PRO_VERSION') && !empty($pro_widgets)) {
+            $adapted_count = self::adapt_pro_widgets_for_free($data['content']);
+            $adapted_for_free = $adapted_count > 0;
         }
 
         // Strict Widget Dependency Gating before database insertion
@@ -347,7 +495,10 @@ class Template_Importer {
         update_post_meta($post_id, '_elementor_data', wp_slash(json_encode($data['content'])));
         update_post_meta($post_id, '_elementor_version', defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : '3.24.0');
         update_post_meta($post_id, '_uas_template_slug', $slug);
+        update_post_meta($post_id, '_uas_template_type', sanitize_key($type));
         update_post_meta($post_id, '_uas_required_widgets', $dep_check['required_widgets']);
+        update_post_meta($post_id, '_uas_pro_widgets', $pro_widgets);
+        update_post_meta($post_id, '_uas_adapted_for_free', $adapted_for_free ? 'yes' : 'no');
 
         if ($type === 'popup' && !empty($data['page_settings'])) {
             update_post_meta($post_id, '_elementor_page_settings', wp_slash(json_encode($data['page_settings'])));
@@ -356,13 +507,15 @@ class Template_Importer {
         self::flush_elementor_css_cache();
 
         return [
-            'success'        => true,
-            'post_id'        => $post_id,
-            'title'          => $data['title'],
-            'slug'           => $slug,
-            'relinked_media' => $relinked_media,
-            'status'         => 'imported',
-            'message'        => 'قالب با موفقیت به کتابخانه الگوهای المنتور اضافه شد.'
+            'success'          => true,
+            'post_id'          => $post_id,
+            'title'            => $data['title'],
+            'slug'             => $slug,
+            'relinked_media'   => $relinked_media,
+            'adapted_for_free' => $adapted_for_free,
+            'adapted_widgets'  => $adapted_count,
+            'status'           => 'imported',
+            'message'          => 'قالب با موفقیت به کتابخانه الگوهای المنتور اضافه شد.'
         ];
     }
 
@@ -395,6 +548,13 @@ class Template_Importer {
 
             if (!is_array($data) || empty($data['title']) || empty($data['content'])) {
                 continue;
+            }
+
+            // Adapt Pro widgets cleanly when Elementor Pro is inactive
+            $pro_widgets = self::detect_pro_widgets($data['content']);
+            $adapted_for_free = false;
+            if (!defined('ELEMENTOR_PRO_VERSION') && !empty($pro_widgets)) {
+                $adapted_for_free = self::adapt_pro_widgets_for_free($data['content']) > 0;
             }
 
             // Strict Widget Dependency Gate
@@ -458,7 +618,10 @@ class Template_Importer {
             update_post_meta($post_id, '_elementor_data', wp_slash(json_encode($data['content'])));
             update_post_meta($post_id, '_elementor_version', defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : '3.24.0');
             update_post_meta($post_id, '_uas_template_slug', $slug);
+            update_post_meta($post_id, '_uas_template_type', sanitize_key($type));
             update_post_meta($post_id, '_uas_required_widgets', $dep_check['required_widgets']);
+            update_post_meta($post_id, '_uas_pro_widgets', $pro_widgets);
+            update_post_meta($post_id, '_uas_adapted_for_free', $adapted_for_free ? 'yes' : 'no');
 
             // If Popup, store page_settings (dimensions, animation, overlay, close button)
             if ($type === 'popup' && !empty($data['page_settings'])) {
@@ -467,11 +630,12 @@ class Template_Importer {
 
             $imported++;
             $results[] = [
-                'id'     => $post_id,
-                'title'  => $data['title'],
-                'slug'   => $slug,
-                'type'   => $type,
-                'status' => 'imported',
+                'id'               => $post_id,
+                'title'            => $data['title'],
+                'slug'             => $slug,
+                'type'             => $type,
+                'adapted_for_free' => $adapted_for_free,
+                'status'           => 'imported',
             ];
         }
 

@@ -1296,6 +1296,11 @@ img {
     background: #FFFFFF;
     color: #0B132B;
 }
+.notice-info {
+    border-right: 4px solid #3B82F6 !important;
+    background: #FFFFFF;
+    color: #0B132B;
+}
 .is-dismissible {
     position: relative;
 }

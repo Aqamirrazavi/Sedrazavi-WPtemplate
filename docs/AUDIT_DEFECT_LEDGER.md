@@ -61,3 +61,20 @@ This ledger traces every security, data-integrity, packaging, and documentation 
 
 - **Affected Files:** `docs/BUILD_AND_ARTIFACT_POLICY.md`, `README.md`, `IMPLEMENTATION_STATUS.md`, `PHASE_HANDOFF.md`
 - **Remediation:** Documented exact Source-vs-Generated boundaries for `public/app-dist/`, `wordpress-theme/app-dist/`, `standalone-themes/`, and `*.zip` packages; maintained strict `BLOCKED (PHP_NOT_INSTALLED)` honesty for PHP CLI (`php -l`) and Docker live WordPress E2E execution until run on a host with PHP 8.x + Docker.
+
+---
+
+## Defect 7 (P0 CI) — GitHub Actions Phase 12 SHA-256 Checksum Mismatches (`20 / 25`)
+
+- **Affected Files:** `scripts/pack-theme-zips.cjs`, `artifacts/evidence/v31.0.0/checksums.sha256`
+- **Root Cause:** `JSZip.file()` used live wall-clock timestamps and unsorted `fs.readdirSync()` traversal order, causing every CI run of `pack-theme-zips.cjs` to produce ZIPs whose SHA-256 differed from committed digests even when source files were identical.
+- **Remediation:** Pinned `DETERMINISTIC_ZIP_DATE` (`2026-01-01T00:00:00Z`), sorted all directory/buffer keys prior to compression, disabled non-deterministic folder entries, and regenerated deterministic SHA-256 digests verified across repeated builds.
+
+---
+
+## Defect 8 (P1 Evidence) — Widget Usage Count Drift (`18` vs `24`), Missing `OPTIONAL_PRO` Flags & Inflated `VERIFIED` CSV Statuses
+
+- **Affected Files:** `scripts/audit-reconcile-evidence.cjs`, `artifacts/evidence/v31.0.0/*-verification.csv`, `qa/*-verification.csv`, `docs/PHASE0_AUDIT_AND_V29_CROSSWALK.md`
+- **Root Cause:** Verification CSVs contained stale hand-typed `widget_ids` claiming 24 used custom widgets, marked Pro Theme Builder JSONs as `pro_required = NO`, and labeled static Node checks as `editor_test = PASS`, `status = VERIFIED`.
+- **Remediation:** Created `scripts/audit-reconcile-evidence.cjs` (`--check` integrated into `npm run test:all`) to compute exact widget usage (`18/31` across `29/33` JSONs, `13/31` unused in JSONs), flag `4` Theme Builder JSONs as `OPTIONAL_PRO`, and enforce strict `STATICALLY_CHECKED` vs `NOT_RUN` labels.
+

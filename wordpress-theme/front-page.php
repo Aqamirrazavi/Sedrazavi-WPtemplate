@@ -7,16 +7,17 @@
  * @version 6.0.0
  */
 
-// بررسی سازگاری کامل با المنتور (Elementor Compatibility)
-if (have_posts()) {
+// بررسی سازگاری کامل با المنتور (Elementor Compatibility) — با بازگشت ایمن در صورت غیرفعال بودن المنتور
+if (did_action('elementor/loaded') && class_exists('\Elementor\Plugin') && have_posts()) {
     while (have_posts()) {
         the_post();
         $elementor_data = get_post_meta(get_the_ID(), '_elementor_data', true);
-        if (!empty($elementor_data)) {
+        $elementor_mode = get_post_meta(get_the_ID(), '_elementor_edit_mode', true);
+        if (!empty($elementor_data) && $elementor_mode === 'builder') {
             get_header();
             the_content();
             get_footer();
-            exit;
+            return;
         }
     }
     rewind_posts();

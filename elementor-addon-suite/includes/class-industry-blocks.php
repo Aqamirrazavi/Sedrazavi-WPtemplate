@@ -37,9 +37,14 @@ class Industry_Blocks {
     }
 
     /**
-     * Enqueue Industry Blocks JS & localized nonce config
+     * Enqueue Industry Blocks JS & localized nonce config via Unified Asset_Manifest
      */
     public function enqueue_industry_assets() {
+        if (class_exists('\UniversalElementorSuite\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('frontend', ['uas-industry-blocks-js']);
+            return;
+        }
+
         wp_register_script(
             'uas-industry-blocks-js',
             UAS_URL . 'assets/js/industry-blocks.js',

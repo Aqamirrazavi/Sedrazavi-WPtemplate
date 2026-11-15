@@ -66,12 +66,16 @@ class WooCommerce_Compatibility {
      * Enqueue styles conditionally so pages without WooCommerce/builders remain lightweight
      */
     public function enqueue_compatibility_assets() {
-        wp_register_style(
-            'uas-ecommerce-compat',
-            UAS_URL . 'assets/css/ecommerce-compat.css',
-            ['uas-standalone-blocks'],
-            UAS_VERSION
-        );
+        if (class_exists('\UniversalElementorSuite\Asset_Manifest')) {
+            Asset_Manifest::instance()->register_scope('frontend', 'styles');
+        } else {
+            wp_register_style(
+                'uas-ecommerce-compat',
+                UAS_URL . 'assets/css/ecommerce-compat.css',
+                ['uas-standalone-blocks'],
+                UAS_VERSION
+            );
+        }
 
         $has_commerce_stack = class_exists('WooCommerce')
             || defined('WOODMART_THEME_DIR')

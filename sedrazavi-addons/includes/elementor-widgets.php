@@ -11,16 +11,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// 1. If Universal Elementor Addon Suite is present, defer directly to the standalone suite
+// 1. Canonical Elementor Suite Check — defer directly to UniversalElementorSuite\Plugin
 if (class_exists('\UniversalElementorSuite\Plugin')) {
-    // Standalone Suite is loaded, no duplicate registration needed.
     return;
 }
 
-// 2. Fallback loader when standalone plugin is not yet active
+// 2. Fallback category registration only when standalone Universal Suite is inactive
 if (!function_exists('sedrazavi_addons_register_elementor_category')) {
     function sedrazavi_addons_register_elementor_category($elements_manager) {
-        if (!class_exists('\Elementor\Plugin')) {
+        if (!class_exists('\Elementor\Plugin') || class_exists('\UniversalElementorSuite\Plugin')) {
             return;
         }
         $elements_manager->add_category(
@@ -34,19 +33,16 @@ if (!function_exists('sedrazavi_addons_register_elementor_category')) {
 }
 add_action('elementor/elements/categories_registered', 'sedrazavi_addons_register_elementor_category');
 
-if (!function_exists('sedrazavi_addons_load_elementor_widgets')) {
-    function sedrazavi_addons_load_elementor_widgets($widgets_manager) {
-        if (!class_exists('\Elementor\Widget_Base')) {
+// Do NOT lazily require_once elementor-addon-suite inside widget registration hooks or register deprecated widgets_registered.
+if (!function_exists('sedrazavi_addons_missing_suite_notice')) {
+    function sedrazavi_addons_missing_suite_notice() {
+        if (class_exists('\UniversalElementorSuite\Plugin') || !did_action('elementor/loaded') || !current_user_can('activate_plugins')) {
             return;
         }
-
-        // Bridge to load standalone suite if available in wp-content/plugins
-        $standalone_suite = WP_PLUGIN_DIR . '/elementor-addon-suite/elementor-addon-suite.php';
-        if (file_exists($standalone_suite)) {
-            require_once $standalone_suite;
-            return;
-        }
+        printf(
+            '<div class="notice notice-info is-dismissible"><p>%s</p></div>',
+            esc_html__('افزونه SedRazavi Addons از شورت‌کدهای تخصصی پشتیبانی می‌کند. برای ویجت‌های بصری المنتور، افزونه مستقل «Universal Elementor Addon Suite» را فعال نمایید.', 'sedrazavi-addons')
+        );
     }
 }
-add_action('elementor/widgets/register', 'sedrazavi_addons_load_elementor_widgets', 20);
-add_action('elementor/widgets/widgets_registered', 'sedrazavi_addons_load_elementor_widgets', 20);
+add_action('admin_notices', 'sedrazavi_addons_missing_suite_notice');

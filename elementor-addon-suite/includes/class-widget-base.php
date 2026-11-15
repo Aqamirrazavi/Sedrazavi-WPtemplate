@@ -60,31 +60,93 @@ abstract class Universal_Widget_Base extends \Elementor\Widget_Base {
     }
 
     /**
-     * Helper: Register standard typography and color controls
+     * Helper: Register standard typography and color controls bound to Elementor Global Kit when available
      *
      * @param string $id_prefix
      * @param string $label
      * @param string $css_selector
      * @param string $default_color
+     * @param string $global_color_key 'primary' | 'secondary' | 'text' | 'accent'
+     * @param string $global_typo_key  'primary' | 'secondary' | 'text' | 'accent'
      */
-    protected function add_typography_and_color_controls($id_prefix, $label, $css_selector, $default_color = '#0f172a') {
-        $this->add_group_control(
-            Group_Control_Typography::get_type(),
-            [
-                'name'     => $id_prefix . '_typography',
-                'label'    => sprintf(esc_html__('تایپوگرافی %s', 'universal-elementor-suite'), $label),
-                'selector' => "{{WRAPPER}} {$css_selector}",
-            ]
-        );
+    protected function add_typography_and_color_controls(
+        $id_prefix,
+        $label,
+        $css_selector,
+        $default_color = '#0f172a',
+        $global_color_key = 'text',
+        $global_typo_key = 'text'
+    ) {
+        $typo_args = [
+            'name'     => $id_prefix . '_typography',
+            'label'    => sprintf(esc_html__('تایپوگرافی %s', 'universal-elementor-suite'), $label),
+            'selector' => "{{WRAPPER}} {$css_selector}",
+        ];
+        if (class_exists('\Elementor\Core\Kits\Documents\Tabs\Global_Typography')) {
+            $typo_map = [
+                'primary'   => \Elementor\Core\Kits\Documents\Tabs\Global_Typography::TYPOGRAPHY_PRIMARY,
+                'secondary' => \Elementor\Core\Kits\Documents\Tabs\Global_Typography::TYPOGRAPHY_SECONDARY,
+                'text'      => \Elementor\Core\Kits\Documents\Tabs\Global_Typography::TYPOGRAPHY_TEXT,
+                'accent'    => \Elementor\Core\Kits\Documents\Tabs\Global_Typography::TYPOGRAPHY_ACCENT,
+            ];
+            if (isset($typo_map[$global_typo_key])) {
+                $typo_args['global'] = ['default' => $typo_map[$global_typo_key]];
+            }
+        }
+        $this->add_group_control(Group_Control_Typography::get_type(), $typo_args);
 
-        $this->add_control(
-            $id_prefix . '_color',
+        $color_args = [
+            'label'     => sprintf(esc_html__('رنگ %s', 'universal-elementor-suite'), $label),
+            'type'      => Controls_Manager::COLOR,
+            'default'   => $default_color,
+            'selectors' => [
+                "{{WRAPPER}} {$css_selector}" => 'color: {{VALUE}};',
+            ],
+        ];
+        if (class_exists('\Elementor\Core\Kits\Documents\Tabs\Global_Colors')) {
+            $color_map = [
+                'primary'   => \Elementor\Core\Kits\Documents\Tabs\Global_Colors::COLOR_PRIMARY,
+                'secondary' => \Elementor\Core\Kits\Documents\Tabs\Global_Colors::COLOR_SECONDARY,
+                'text'      => \Elementor\Core\Kits\Documents\Tabs\Global_Colors::COLOR_TEXT,
+                'accent'    => \Elementor\Core\Kits\Documents\Tabs\Global_Colors::COLOR_ACCENT,
+            ];
+            if (isset($color_map[$global_color_key])) {
+                $color_args['global'] = ['default' => $color_map[$global_color_key]];
+            }
+        }
+        $this->add_control($id_prefix . '_color', $color_args);
+    }
+
+    /**
+     * Helper: Register responsive logical RTL/LTR text alignment control (start/center/end)
+     *
+     * @param string $id
+     * @param string $label
+     * @param string $css_selector
+     */
+    protected function add_rtl_alignment_control($id, $label, $css_selector) {
+        $this->add_responsive_control(
+            $id,
             [
-                'label'     => sprintf(esc_html__('رنگ %s', 'universal-elementor-suite'), $label),
-                'type'      => Controls_Manager::COLOR,
-                'default'   => $default_color,
+                'label'   => $label,
+                'type'    => Controls_Manager::CHOOSE,
+                'options' => [
+                    'start' => [
+                        'title' => esc_html__('شروع (راست در RTL)', 'universal-elementor-suite'),
+                        'icon'  => 'eicon-text-align-right',
+                    ],
+                    'center' => [
+                        'title' => esc_html__('وسط', 'universal-elementor-suite'),
+                        'icon'  => 'eicon-text-align-center',
+                    ],
+                    'end' => [
+                        'title' => esc_html__('انتها (چپ در RTL)', 'universal-elementor-suite'),
+                        'icon'  => 'eicon-text-align-left',
+                    ],
+                ],
+                'default'   => 'start',
                 'selectors' => [
-                    "{{WRAPPER}} {$css_selector}" => 'color: {{VALUE}};',
+                    "{{WRAPPER}} {$css_selector}" => 'text-align: {{VALUE}};',
                 ],
             ]
         );

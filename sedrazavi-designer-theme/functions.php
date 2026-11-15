@@ -73,15 +73,23 @@ add_action('after_setup_theme', 'sedrazavi_designer_theme_setup');
  * and managed directly inside Elementor Pro.
  */
 function sedrazavi_designer_register_elementor_locations($location_manager) {
-    $location_manager->register_all_core_location();
+    if (class_exists('\UniversalElementorSuite\Theme_Builder_Bridge')) {
+        return;
+    }
+    if (is_object($location_manager) && method_exists($location_manager, 'register_all_core_location')) {
+        $location_manager->register_all_core_location();
+    }
 }
-add_action('elementor/theme/register_locations', 'sedrazavi_designer_register_elementor_locations');
+add_action('elementor/theme/register_locations', 'sedrazavi_designer_register_elementor_locations', 20);
 
 /**
  * Global fallback for elementor_theme_do_location if Elementor Pro is inactive
  */
 if (!function_exists('elementor_theme_do_location')) {
     function elementor_theme_do_location($location) {
+        if (class_exists('\UniversalElementorSuite\Theme_Builder_Bridge')) {
+            return \UniversalElementorSuite\Theme_Builder_Bridge::instance()->do_location($location);
+        }
         if (class_exists('\SedRazaviDesignerCore\Theme_Builder_Bridge')) {
             return \SedRazaviDesignerCore\Theme_Builder_Bridge::instance()->do_location($location);
         }

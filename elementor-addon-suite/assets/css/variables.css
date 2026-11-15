@@ -1,0 +1,130 @@
+/**
+ * SedRazavi & Universal Elementor Suite — Unified Design Tokens Stylesheet
+ * Single Source of Truth CSS Custom Properties mapped to tokens.json & Elementor Global Kit.
+ * Supports Light/Dark themes (.dark, [data-theme="dark"], [data-theme="light"]) and RTL/LTR logical layout.
+ *
+ * @package UniversalElementorSuite
+ * @version 4.0.0
+ */
+
+:root,
+html[data-theme="light"] {
+  /* Core Palette (Light Default for Widgets) */
+  --uas-bg-body: #F8FAFC;
+  --uas-bg-surface: #FFFFFF;
+  --uas-bg-card: #FFFFFF;
+  --uas-bg-subtle: #F1F5F9;
+
+  --uas-primary-color: #2563EB;
+  --uas-primary-hover: #1D4ED8;
+  --uas-secondary-color: #0B132B;
+  --uas-accent-color: #D4AF37;
+  --uas-accent-hover: #AA820A;
+
+  --uas-text-main: #0F172A;
+  --uas-text-secondary: #334155;
+  --uas-text-muted: #64748B;
+  --uas-text-inverted: #F8FAFC;
+
+  --uas-border-color: #E2E8F0;
+  --uas-border-subtle: rgba(15, 23, 42, 0.08);
+  --uas-success-color: #10B981;
+  --uas-warning-color: #F59E0B;
+  --uas-danger-color: #EF4444;
+
+  /* Typography Scale */
+  --uas-font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, Arial, sans-serif;
+  --uas-font-display: 'Vazirmatn', 'Playfair Display', Georgia, serif;
+  --uas-text-xs: 0.75rem;
+  --uas-text-sm: 0.875rem;
+  --uas-text-base: 1rem;
+  --uas-text-lg: 1.125rem;
+  --uas-text-xl: 1.25rem;
+  --uas-text-2xl: 1.5rem;
+  --uas-text-3xl: 1.875rem;
+  --uas-text-4xl: 2.25rem;
+  --uas-leading-tight: 1.35;
+  --uas-leading-normal: 1.75;
+
+  /* Spacing Scale */
+  --uas-space-1: 0.25rem;
+  --uas-space-2: 0.5rem;
+  --uas-space-4: 1rem;
+  --uas-space-6: 1.5rem;
+  --uas-space-8: 2rem;
+  --uas-space-12: 3rem;
+  --uas-container-max: 1280px;
+
+  /* Radii & Elevation */
+  --uas-radius-sm: 8px;
+  --uas-radius-md: 12px;
+  --uas-radius-card: 16px;
+  --uas-radius-xl: 24px;
+  --uas-radius-pill: 9999px;
+  --uas-shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.06);
+  --uas-shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --uas-shadow-glow: 0 0 24px rgba(212, 175, 55, 0.25);
+
+  /* Theme Compatibility Bridge (--sr-* aliases) */
+  --sr-primary-accent: var(--uas-accent-color);
+  --sr-font-family: var(--uas-font-family);
+  --sr-radius-sm: var(--uas-radius-sm);
+  --sr-radius-md: var(--uas-radius-md);
+  --sr-radius-xl: var(--uas-radius-xl);
+  --sr-shadow-card: var(--uas-shadow-card);
+  --sr-shadow-glow: var(--uas-shadow-glow);
+}
+
+/* Dark Theme Surface & Polarity Override */
+.dark,
+html.dark,
+html[data-theme="dark"],
+body.dark-mode {
+  --uas-bg-body: #060B18;
+  --uas-bg-surface: #0B132B;
+  --uas-bg-card: #0F172A;
+  --uas-bg-subtle: #162038;
+
+  --uas-primary-color: #3B82F6;
+  --uas-primary-hover: #2563EB;
+  --uas-accent-color: #D4AF37;
+  --uas-accent-hover: #E5C158;
+
+  --uas-text-main: #F8FAFC;
+  --uas-text-secondary: #CBD5E1;
+  --uas-text-muted: #94A3B8;
+  --uas-text-inverted: #0B132B;
+
+  --uas-border-color: #334155;
+  --uas-border-subtle: rgba(255, 255, 255, 0.08);
+  --uas-shadow-card: 0 12px 30px -6px rgba(0, 0, 0, 0.45);
+}
+
+/* Logical RTL / LTR Alignment Helpers */
+[dir="rtl"] .uas-widget-container {
+  direction: rtl;
+  text-align: start;
+  font-family: var(--uas-font-family);
+}
+
+[dir="ltr"] .uas-widget-container {
+  direction: ltr;
+  text-align: start;
+  font-family: var(--uas-font-family);
+}
+
+[dir="ltr"] .uas-flip-rtl {
+  transform: scaleX(-1);
+}
+
+.uas-align-start {
+  text-align: start;
+}
+
+.uas-align-center {
+  text-align: center;
+}
+
+.uas-align-end {
+  text-align: end;
+}

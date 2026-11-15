@@ -2,9 +2,17 @@ const fs = require('fs');
 const path = require('path');
 const JSZip = require('jszip');
 
+// Fixed epoch timestamp so identical sources always produce bit-for-bit identical ZIPs and SHA-256 checksums across CI runs.
+const DETERMINISTIC_ZIP_DATE = new Date('2026-01-01T00:00:00.000Z');
+const DETERMINISTIC_FILE_OPTS = {
+  date: DETERMINISTIC_ZIP_DATE,
+  createFolders: false,
+  unixPermissions: 0o644,
+};
+
 function addDirectoryToZip(zip, folderPath, rootFolderName = '', excludePatterns = []) {
   if (!fs.existsSync(folderPath)) return;
-  const items = fs.readdirSync(folderPath);
+  const items = fs.readdirSync(folderPath).sort();
   for (const item of items) {
     if (item === '.git' || item === 'node_modules' || item.endsWith('.DS_Store') || item.endsWith('.map')) continue;
     if (excludePatterns.some(pat => item === pat || item.startsWith(pat))) continue;
@@ -15,7 +23,7 @@ function addDirectoryToZip(zip, folderPath, rootFolderName = '', excludePatterns
       addDirectoryToZip(zip, fullPath, zipPath, excludePatterns);
     } else {
       const content = fs.readFileSync(fullPath);
-      zip.file(zipPath, content);
+      zip.file(zipPath, content, DETERMINISTIC_FILE_OPTS);
     }
   }
 }
@@ -94,8 +102,8 @@ async function buildZips() {
   // 4d. Dedicated Designer All-In-One Bundle (Theme + Plugin + Guide)
   console.log('Packaging Dedicated Designer Bundle ZIP...');
   const designerBundleZip = new JSZip();
-  designerBundleZip.file('1-پوسته-مستقل-طراح-sedrazavi-designer-theme.zip', designerThemeBuffer);
-  designerBundleZip.file('2-افزونه-هسته-طراح-sedrazavi-designer-core.zip', designerCoreBuffer);
+  designerBundleZip.file('1-پوسته-مستقل-طراح-sedrazavi-designer-theme.zip', designerThemeBuffer, DETERMINISTIC_FILE_OPTS);
+  designerBundleZip.file('2-افزونه-هسته-طراح-sedrazavi-designer-core.zip', designerCoreBuffer, DETERMINISTIC_FILE_OPTS);
   designerBundleZip.file('راهنمای_سریع_طراح_وردپرس_بدون_کدنویسی.txt', `========================================================================
 ⚡ راهنمای استقرار بسته اختصاصی و مستقل طراح وردپرس (No-Code Architect)
 ========================================================================
@@ -114,7 +122,7 @@ async function buildZips() {
    - فعال‌سازی جدول دیتابیس اختصاصی رهگیری سفارش‌ها (SR-XXXXX)
    - فعال‌سازی ۴ ویجت اختصاصی در پنل المنتور (ساعت سه‌گانه، بازی دایناسور نئونی، موزیک پلیر سایبرپانک، کره ساعت جهانی)
 ========================================================================
-`);
+`, DETERMINISTIC_FILE_OPTS);
   const designerBundleBuffer = await designerBundleZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
   fs.writeFileSync(path.join(publicDir, 'sedrazavi-designer-bundle.zip'), designerBundleBuffer);
   fs.writeFileSync(path.join(rootDir, 'sedrazavi-designer-bundle.zip'), designerBundleBuffer);
@@ -133,7 +141,7 @@ async function buildZips() {
   if (!fs.existsSync(standaloneThemesDir)) {
     throw new Error('Missing canonical standalone-themes/ directory. Run scripts/convert-to-standalone-themes.cjs first.');
   }
-  const sFolders = fs.readdirSync(standaloneThemesDir);
+  const sFolders = fs.readdirSync(standaloneThemesDir).sort();
   for (const folder of sFolders) {
     const folderPath = path.join(standaloneThemesDir, folder);
     if (fs.statSync(folderPath).isDirectory()) {
@@ -170,14 +178,13 @@ async function buildZips() {
   // 6. Complete All-in-One Ecosystem Suite ZIP
   console.log('Packaging Complete Ecosystem Suite ZIP...');
   const suiteZip = new JSZip();
-  suiteZip.file('1-افزونه-المنتور-elementor-addon-suite.zip', elementorBuffer);
-  suiteZip.file('2-افزونه-تخصصی-حقوقی-sedrazavi-addons.zip', addonsBuffer);
-  suiteZip.file('3-افزونه-هسته-و-ایمپورت-sedrazavi-companion.zip', companionBuffer);
-  suiteZip.file('4-پوسته-اصلی-sedrazavi-theme.zip', themeBuffer);
+  suiteZip.file('1-افزونه-المنتور-elementor-addon-suite.zip', elementorBuffer, DETERMINISTIC_FILE_OPTS);
+  suiteZip.file('2-افزونه-تخصصی-حقوقی-sedrazavi-addons.zip', addonsBuffer, DETERMINISTIC_FILE_OPTS);
+  suiteZip.file('3-افزونه-هسته-و-ایمپورت-sedrazavi-companion.zip', companionBuffer, DETERMINISTIC_FILE_OPTS);
+  suiteZip.file('4-پوسته-اصلی-sedrazavi-theme.zip', themeBuffer, DETERMINISTIC_FILE_OPTS);
 
-  const standaloneThemesFolderInSuite = suiteZip.folder('پوسته‌های-مستقل-Standalone-Themes');
-  for (const [name, buf] of Object.entries(standaloneZipBuffers)) {
-    standaloneThemesFolderInSuite.file(`${name}.zip`, buf);
+  for (const name of Object.keys(standaloneZipBuffers).sort()) {
+    suiteZip.file(`پوسته‌های-مستقل-Standalone-Themes/${name}.zip`, standaloneZipBuffers[name], DETERMINISTIC_FILE_OPTS);
   }
 
   suiteZip.file('راهنمای_سریع_نصب_و_همگام_سازی.txt', `========================================================================
@@ -209,7 +216,7 @@ async function buildZips() {
 ۱. از منوی «افزونه‌ها > افزودن افزونه جدید > بارگذاری افزونه» هر کدام از افزونه‌های مورد نیاز را نصب و فعال فرمایید.
 ۲. در صورت تمایل به استفاده از پوسته، هر یک از پوسته‌های مستقل را مستقیماً از بخش «نمایش > پوسته‌ها» نصب و فعال کنید.
 ۳. در منوی پیشخوان یا صفحه /frontend-cockpit/ به ابزارهای مدیریت و سازنده کیت سایت دسترسی خواهید داشت.
-========================================================================`);
+========================================================================`, DETERMINISTIC_FILE_OPTS);
 
   const suiteBuffer = await suiteZip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
   fs.writeFileSync(path.join(publicDir, 'sedrazavi-complete-ecosystem.zip'), suiteBuffer);

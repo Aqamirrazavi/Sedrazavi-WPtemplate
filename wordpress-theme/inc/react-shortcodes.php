@@ -107,9 +107,13 @@ function sedrazavi_enqueue_react_runtime() {
     }
     $already_enqueued = true;
 
-    // ۱. انکیو کردن استایل و اسکریپت ثبت‌شده
-    wp_enqueue_style('sedrazavi_react_styles');
-    wp_enqueue_script('sedrazavi_react_bundle');
+    // ۱. جلوگیری از بارگذاری مضاعف باندل اصلی در صورت Enqueue شدن توسط functions.php
+    if (!wp_style_is('sedrazavi-react-bundle-css', 'enqueued')) {
+        wp_enqueue_style('sedrazavi_react_styles');
+    }
+    if (!wp_script_is('sedrazavi-react-bundle-js', 'enqueued')) {
+        wp_enqueue_script('sedrazavi_react_bundle');
+    }
 
     // ۲. آماده‌سازی داده‌های سرور جهت ارسال با wp_localize_script
     $localized_data = array(

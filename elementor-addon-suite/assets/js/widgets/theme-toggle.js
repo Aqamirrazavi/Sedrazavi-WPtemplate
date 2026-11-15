@@ -1,25 +1,40 @@
 /**
- * Universal Theme Switcher JS
+ * Universal Theme Switcher JS (Unified Dark/Light Token Polarity)
  */
 (function($) {
   'use strict';
 
+  function applyThemeMode(mode) {
+    var root = document.documentElement;
+    if (mode === 'dark') {
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      root.setAttribute('data-theme', 'light');
+    }
+    try {
+      localStorage.setItem('uas-theme', mode);
+      localStorage.setItem('sedrazavi_theme', mode);
+    } catch (e) {}
+  }
+
   function initThemeToggle($scope) {
     var $box = $scope.find('.uas-theme-toggle-box');
+    var stored = null;
+    try {
+      stored = localStorage.getItem('uas-theme') || localStorage.getItem('sedrazavi_theme');
+    } catch (e) {}
 
-    // Check existing state from localStorage
-    if (localStorage.getItem('uas-theme') === 'dark' || (!('uas-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      $('html').addClass('dark');
+    if (stored === 'dark' || (!stored && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      applyThemeMode('dark');
+    } else if (stored === 'light') {
+      applyThemeMode('light');
     }
 
-    $box.on('click', function() {
-      if ($('html').hasClass('dark')) {
-        $('html').removeClass('dark');
-        localStorage.setItem('uas-theme', 'light');
-      } else {
-        $('html').addClass('dark');
-        localStorage.setItem('uas-theme', 'dark');
-      }
+    $box.off('click.uasTheme').on('click.uasTheme', function() {
+      var isDark = document.documentElement.classList.contains('dark') || document.documentElement.getAttribute('data-theme') === 'dark';
+      applyThemeMode(isDark ? 'light' : 'dark');
     });
   }
 

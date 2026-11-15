@@ -1,13 +1,14 @@
 /**
  * Universal Elementor Addon Suite - Editor Panel Styling
- * Highlights UAS widgets & category in Elementor panel
+ * Highlights UAS widgets & category in Elementor panel using unified Design Tokens
  */
 
 .elementor-element-wrapper[data-category="universal-addon-suite"] {
-  border-left: 3px solid #D4AF37;
+  border-inline-start: 3px solid var(--uas-accent-color, #D4AF37);
 }
 
 .elementor-panel-category-title[data-category="universal-addon-suite"] {
   font-weight: 700;
-  color: #D4AF37 !important;
+  font-family: var(--uas-font-family, 'Vazirmatn', sans-serif);
+  color: var(--uas-accent-color, #D4AF37) !important;
 }

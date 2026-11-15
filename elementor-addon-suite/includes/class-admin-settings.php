@@ -39,10 +39,15 @@ class Admin_Settings {
     }
 
     /**
-     * Enqueue Admin Styles and Scripts
+     * Enqueue Admin Styles and Scripts cleanly via Unified Asset_Manifest
      */
     public function enqueue_assets($hook) {
         if (strpos($hook, 'universal-elementor') === false) {
+            return;
+        }
+
+        if (class_exists('\UniversalElementorSuite\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('admin', ['uas-admin-settings-css', 'uas-admin-settings-js']);
             return;
         }
 

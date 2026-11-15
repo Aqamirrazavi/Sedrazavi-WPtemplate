@@ -34,12 +34,14 @@ class Auth_Guard {
     }
 
     public static function guard_wp_admin() {
-        if (defined('DOING_AJAX') && DOING_AJAX) {
+        if ((defined('DOING_AJAX') && DOING_AJAX) || (function_exists('wp_doing_ajax') && wp_doing_ajax()) || (defined('WP_CLI') && WP_CLI)) {
             return;
         }
 
-        if (is_user_logged_in() && !current_user_can('manage_options')) {
-            wp_safe_redirect(home_url('/client-dashboard/'));
+        if (is_user_logged_in() && !current_user_can('edit_posts')) {
+            $dashboard_page = get_page_by_path('client-dashboard');
+            $redirect_url = $dashboard_page ? get_permalink($dashboard_page) : home_url('/');
+            wp_safe_redirect($redirect_url);
             exit;
         }
     }

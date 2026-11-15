@@ -1,11 +1,11 @@
-const u=[{id:"case-progress-tracker",componentName:"CaseProgressTracker",shortcodeTag:"react_case_tracker",title:"استپر و رهگیری هوشمند پرونده‌های قضایی",category:"کارتابل و پرونده‌ها",description:"نمایش خط زمانی چندمرحله‌ای دادرسی (دادخواست، لوایح، دادرسی، تجدیدنظر، اجرای حکم) با استعلام برخط و هشدار جلسه بعدی.",badge:"کارتابل موکل",phpDocDescription:"شورت‌کد اختصاصی رهگیری مرحله‌به‌مرحله پرونده موکل با اتصال به دیتابیس یا ورودی دستی",elementorCategory:"سید رضوی - پورتال موکلین",attributes:[{name:"case_number",label:"شماره پرونده",type:"text",defaultValue:"۱۴۰۳-۲۸۴",description:"شماره بایگانی پرونده در شعبه یا سامانه"},{name:"status_code",label:"کد وضعیت قضایی",type:"select",defaultValue:"HEARING_PENDING",options:["ACTIVE","HEARING_PENDING","DECIDED","ENFORCEMENT"],description:"وضعیت کلی پرونده"},{name:"status_text",label:"متن وضعیت جاری",type:"text",defaultValue:"در حال تبادل لوایح و بررسی نظر کارشناس رسمی",description:"توضیحات کوتاه وضعیت"},{name:"hearing_date",label:"تاریخ جلسه بعدی دادگاه",type:"text",defaultValue:"۱۴۰۳/۰۹/۱۸",description:"تاریخ شمسی جلسه رسیدگی"},{name:"days_remaining",label:"روزهای باقیمانده تا جلسه",type:"number",defaultValue:12,description:"شمارش معکوس به روز"},{name:"show_timeline",label:"نمایش خط زمان کامل",type:"boolean",defaultValue:!0,description:"فعال‌سازی نمایش تمام مراحل ۵ گانه"}],sampleAttributes:{case_number:"۱۴۰۳-۲۸۴",status_code:"HEARING_PENDING",status_text:"در حال تبادل لوایح و بررسی نظر کارشناس رسمی",hearing_date:"۱۴۰۳/۰۹/۱۸",days_remaining:12,show_timeline:!0}},{id:"court-fee-calculator",componentName:"CourtFeeCalculator",shortcodeTag:"react_court_calculator",title:"میز جامع محاسبات قضایی، دیه و خسارت تأخیر",category:"مالی و محاسبات",description:"محاسبه‌گر هزینه دادرسی مراحل بدوی و تجدیدنظر، تعرفه حق‌الوکاله کانون، خسارت تأخیر تأدیه بانک مرکزی، مهریه و دیه ماه حرام.",badge:"ابزار مالی",phpDocDescription:"ماشین‌حساب تخصصی دعاوی مالی و کیفری بر اساس آخرین تعرفه‌های قوه قضاییه و شاخص بانک مرکزی",elementorCategory:"سید رضوی - ابزارهای محاسباتی",attributes:[{name:"default_tab",label:"تب پیش‌فرض فعال",type:"select",defaultValue:"court_fee",options:["court_fee","attorney_tariff","delay_damages","diyeh","mehrieh"],description:"بخش فعال در زمان بارگذاری"},{name:"default_claim",label:"مبلغ پیش‌فرض خواسته (ریال)",type:"number",defaultValue:5e8,description:"مبلغ اولیه در فیلد ورودی"},{name:"show_tariff_guide",label:"راهنمای فرمول محاسبات",type:"boolean",defaultValue:!0,description:"نمایش کادرهای تشریحی قوانین زیر فرمول"},{name:"enable_print",label:"کلید چاپ رسمی فاکتور",type:"boolean",defaultValue:!0,description:"امکان چاپ و دریافت نسخه PDF برآورد"}],sampleAttributes:{default_tab:"court_fee",default_claim:5e8,show_tariff_guide:!0,enable_print:!0}},{id:"client-portal-widget",componentName:"ClientPortalQuickAccessWidget",shortcodeTag:"react_client_portal_widget",title:"ابزارک دسترسی سریع به کارتابل و جلسات موکل",category:"کارتابل و پرونده‌ها",description:"خلاصه وضعیت پرونده‌های فعال موکل، تاریخ جلسات پیش‌رو، اسناد دریافتی و تسویه‌حساب‌های مالی.",badge:"کارتابل موکل",phpDocDescription:"ویجت داشبورد اختصاصی موکلین برای صفحات کاربری، سایدبارها یا فوتر برگه موکل",elementorCategory:"سید رضوی - پورتال موکلین",attributes:[{name:"show_financials",label:"نمایش اطلاعات مالی",type:"boolean",defaultValue:!0,description:"نمایش وضعیت حق‌الوکاله و اقساط"},{name:"show_documents",label:"نمایش شمارنده مدارک",type:"boolean",defaultValue:!0,description:"آمار لوایح و مستندات بارگذاری شده"},{name:"max_cases",label:"حداکثر پرونده‌های قابل نمایش",type:"number",defaultValue:3,description:"تعداد پرونده در لیست کشویی"}],sampleAttributes:{show_financials:!0,show_documents:!0,max_cases:3}},{id:"booking-section",componentName:"ContactAndBookingSection",shortcodeTag:"react_booking_modal",title:"سامانه تقویم هوشمند نوبت‌دهی و رزرو مشاوره",category:"رزرو و نوبت‌دهی",description:"تقویم رزرو وقت مشاوره حضوری یا آنلاین با انتخاب شعبه، تاریخ شمسی، موضوع حقوقی و پرداخت بیعانه.",badge:"نوبت‌دهی",phpDocDescription:"فرم تعاملی رزرواسیون جلسه حضوری یا تلفنی با قابلیت اتصال به درگاه بانکی یا پیامک",elementorCategory:"سید رضوی - تماس و رزرو",attributes:[{name:"default_service",label:"حوزه مشاوره پیش‌فرض",type:"select",defaultValue:"commercial",options:["commercial","criminal","family","real-estate"],description:"سرویس انتخابی اولیه"},{name:"title",label:"عنوان فرم رزرو",type:"text",defaultValue:"رزرو نوبت مشاوره با وکیل پایه یک",description:"تیتر بالای بخش رزرو"},{name:"allow_online_payment",label:"امکان واریز پیش‌پرداخت",type:"boolean",defaultValue:!0,description:"فعال‌سازی پرداخت بیعانه جهت تثبیت وقت"},{name:"button_text",label:"متن دکمه ثبت نوبت",type:"text",defaultValue:"ثبت و تایید جلسه مشاوره",description:"متن دکمه اقدام"}],sampleAttributes:{default_service:"commercial",title:"رزرو نوبت مشاوره با وکیل پایه یک",allow_online_payment:!0,button_text:"ثبت و تایید جلسه مشاوره"}},{id:"hero-slider",componentName:"LawyerHeroSlider",shortcodeTag:"react_hero_slider",title:"اسلایدر هیرو پرمیوم با آمار و افتخارات وکیل",category:"بخش‌های اصلی و محتوا",description:"اسلایدر مجلل صفحه اصلی با تصاویر باکیفیت دفتر، نشان رسمی کانون وکلا، سوابق موفقیت و کلیدهای رزرو سریع.",badge:"هیرو و صفحه اصلی",phpDocDescription:"بخش هدر و پرزنتیشن دفتر وکالت با انیمیشن‌های طلایی و بارگذاری بهینه شده",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"autoplay",label:"اسلاید خودکار",type:"boolean",defaultValue:!0,description:"حرکت خودکار اسلایدها"},{name:"interval",label:"فاصله زمانی اسلاید (میلی‌ثانیه)",type:"number",defaultValue:5e3,description:"مدت مکث روی هر اسلاید"},{name:"show_badges",label:"نمایش نشان‌های اعتبار",type:"boolean",defaultValue:!0,description:"مدال‌های ۲۰ سال سابقه و رتبه کانون"}],sampleAttributes:{autoplay:!0,interval:5e3,show_badges:!0}},{id:"services-section",componentName:"ServicesSection",shortcodeTag:"react_services_grid",title:"شبکه هوشمند کارت‌های خدمات حقوقی تخصصی",category:"بخش‌های اصلی و محتوا",description:"کارت‌های خدمات تجاری، بین‌المللی، ملکی و کیفری همراه با آیکون، هزینه تخمینی، دکمه جزئیات و استعلام.",badge:"خدمات حقوقی",phpDocDescription:"نمایش شبکه خدمات تخصصی با فیلتر دسته‌بندی و مودال بازشونده معرفی سرویس",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"category",label:"دسته‌بندی خدمات",type:"select",defaultValue:"all",options:["all","commercial","criminal","family","real-estate"],description:"فیلتر بر اساس حوزه تخصصی"},{name:"count",label:"تعداد خدمات",type:"number",defaultValue:6,description:"حداکثر کارت‌های قابل نمایش"},{name:"columns",label:"تعداد ستون‌ها در دسکتاپ",type:"select",defaultValue:"3",options:["2","3","4"],description:"چیدمان گرید کارت‌ها"},{name:"show_fee",label:"نمایش برآورد هزینه",type:"boolean",defaultValue:!0,description:"نمایش تعرفه پایه در کارت"}],sampleAttributes:{category:"all",count:6,columns:"3",show_fee:!0}},{id:"testimonials-slider",componentName:"TestimonialsSlider",shortcodeTag:"react_testimonials_slider",title:"اسلایدر تجربیات و رضایت‌نامه‌های موکلان",category:"اعتبار و هویت",description:"نمایش نظرات ثبت‌شده با امتیاز ستاره‌ای، مهر رسمی تایید کانون، حوزه پرونده و نتیجه دادرسی.",badge:"اعتبار و رضایت",phpDocDescription:"اسلایدر شیک نظرات تایید شده موکلین حقوقی و حقیقی با فونت دیپلماتیک",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"count",label:"تعداد نظرات",type:"number",defaultValue:4,description:"تعداد بازخوردهای نمایشی"},{name:"autoplay",label:"چرخش اتوماتیک",type:"boolean",defaultValue:!0,description:"انتقال اسلاید هر ۴ ثانیه"},{name:"show_ratings",label:"نمایش ستاره‌های کیفیت",type:"boolean",defaultValue:!0,description:"نمایش امتیاز ۵ ستاره"}],sampleAttributes:{count:4,autoplay:!0,show_ratings:!0}},{id:"articles-section",componentName:"ArticlesSection",shortcodeTag:"react_articles_grid",title:"بانک مقالات تخصصی و تحلیل آراء وحدت رویه",category:"بخش‌های اصلی و محتوا",description:"آخرین مقالات و یادداشت‌های حقوقی با زمان تقریبی مطالعه، دسته‌بندی موضوعی و قابلیت اشتراک‌گذاری.",badge:"مقالات و آموزش",phpDocDescription:"نمایش آخرین یادداشت‌ها و مقالات علمی وکیل با اتصال به پست‌های وبلاگ وردپرس",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"count",label:"تعداد مقالات",type:"number",defaultValue:3,description:"تعداد آخرین مطالب"},{name:"category",label:"دسته‌بندی مقاله",type:"select",defaultValue:"all",options:["all","commercial","criminal","civil"],description:"فیلتر بر اساس تخصص"},{name:"show_read_time",label:"نمایش زمان مطالعه",type:"boolean",defaultValue:!0,description:"نشان مدت زمان تخمینی خواندن"}],sampleAttributes:{count:3,category:"all",show_read_time:!0}},{id:"faq-section",componentName:"FaqSection",shortcodeTag:"react_faq_accordion",title:"آکاردئون هوشمند پرسش و پاسخ‌های حقوقی",category:"بخش‌های اصلی و محتوا",description:"سوالات پرتکرار موکلین درباره حق‌الوکاله، ضمانت پرونده، مدت زمان دادگاه و مراحل وکالت.",badge:"سوالات متداول",phpDocDescription:"آکاردئون ریسپانسیو با داده‌های ساختاریافته Schema.org FAQPage جهت سئو گوگل",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"count",label:"تعداد پرسش‌ها",type:"number",defaultValue:5,description:"تعداد موارد قابل مشاهده"},{name:"open_first",label:"باز بودن آیتم اول",type:"boolean",defaultValue:!0,description:"باز بودن پیش‌فرض سوال اول"},{name:"searchable",label:"نوار جستجوی زنده در سوالات",type:"boolean",defaultValue:!0,description:"امکان جستجوی واژگان حقوقی"}],sampleAttributes:{count:5,open_first:!0,searchable:!0}},{id:"trust-badges",componentName:"TrustBadges",shortcodeTag:"react_trust_badges",title:"نشان‌های رسمی کانون وکلا و گواهینامه‌های ملی",category:"اعتبار و هویت",description:"نمایش نشان کانون وکلای دادگستری، شماره پروانه، نشان اعتماد قوه قضاییه و نماد تجارت الکترونیکی.",badge:"اعتبار رسمی",phpDocDescription:"بلوک مهرها و مجوزهای رسمی پروانه وکالت با قابلیت کلیک جهت اعتبارسنجی",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"style",label:"سبک چیدمان",type:"select",defaultValue:"grid",options:["grid","compact_row","cards"],description:"قالب بصری باکس‌ها"},{name:"show_license",label:"نمایش شماره پروانه وکالت",type:"boolean",defaultValue:!0,description:"درج شماره ۱۸۴۵۲ / ک.و.م"},{name:"animated",label:"انیمیشن شناور طلایی",type:"boolean",defaultValue:!0,description:"جلوه حرکت ملایم کارت‌ها"}],sampleAttributes:{style:"grid",show_license:!0,animated:!0}},{id:"otp-portal",componentName:"OtpAuthModal",shortcodeTag:"react_otp_portal",title:"پرتال امن ورود موکل با سامانه پیامکی و ثنا",category:"کارتابل و پرونده‌ها",description:"سیستم ورود دوعاملی با ارسال کد OTP پیامکی، استعلام کد ملی و ارجاع به پنل اختصاصی موکل.",badge:"امنیت و ورود",phpDocDescription:"دروازه احراز هویت پیامکی بدون نیاز به رمز عبور سنتی سازگار با پیامک‌های کاوه‌نگار/فرازاس‌ام‌اس",elementorCategory:"سید رضوی - پورتال موکلین",attributes:[{name:"enable_sana_notice",label:"پیام انطباق با ثنا",type:"boolean",defaultValue:!0,description:"تذکر تایید هویت ثنا برای پیگیری پرونده"},{name:"redirect_url",label:"آدرس انتقال بعد از ورود",type:"text",defaultValue:"/client-portal",description:"مسیر ریدایرکت خودکار"},{name:"button_label",label:"متن دکمه ورود",type:"text",defaultValue:"ورود به سامانه جامع موکلین",description:"عنوان دکمه بازکننده"}],sampleAttributes:{enable_sana_notice:!0,redirect_url:"/client-portal",button_label:"ورود به سامانه جامع موکلین"}},{id:"live-consultation",componentName:"LiveConsultationDrawer",shortcodeTag:"react_live_consultation",title:"کنسول مشاوره فوری آنلاین و چت حقوقی",category:"رزرو و نوبت‌دهی",description:"دراور بازشونده گفتگوی حقوقی با وکیل، ارسال مستندات پرونده، پیام‌های صوتی و پاسخگویی آنلاین.",badge:"مشاوره آنلاین",phpDocDescription:"دراور پیام‌رسانی و مشاوره فوری با تیم حقوقی دفتر با رمزنگاری داده‌ها",elementorCategory:"سید رضوی - تماس و رزرو",attributes:[{name:"department",label:"دپارتمان پیش‌فرض",type:"select",defaultValue:"corporate",options:["corporate","financial","criminal","family"],description:"بخش حقوقی پاسخ‌دهنده"},{name:"button_title",label:"عنوان دکمه شناور",type:"text",defaultValue:"مشاوره آنلاین با وکیل",description:"متن دکمه اکشن"},{name:"show_online_badge",label:"نمایش نشان برخط سبز",type:"boolean",defaultValue:!0,description:"وضعیت آنلاین بودن دفتر"}],sampleAttributes:{department:"corporate",button_title:"مشاوره آنلاین با وکیل",show_online_badge:!0}},{id:"story-bar",componentName:"StoryBar",shortcodeTag:"react_story_bar",title:"استوری‌بار آموزش و اخبار فوری حقوقی",category:"بخش‌های اصلی و محتوا",description:"نوار استوری شبیه اینستاگرام برای انتشار ویدیوهای کوتاه نکات طلایی حقوقی و آرای جدید دادگاه‌ها.",badge:"آموزش چندرسانه‌ای",phpDocDescription:"نوار مدرن استوری‌های حقوقی با شمارنده بازدید و قابلیت نمایش ویدیوهای عمودی",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"count",label:"تعداد استوری‌ها",type:"number",defaultValue:6,description:"حداکثر آیتم‌های نوار"},{name:"enable_ring",label:"حلقه گرادینت متحرک",type:"boolean",defaultValue:!0,description:"حلقه طلایی دور استوری‌های دیده نشده"}],sampleAttributes:{count:6,enable_ring:!0}},{id:"text-ticker",componentName:"TextBannerSlider",shortcodeTag:"react_text_ticker",title:"نوار متحرک اعلانات قضایی و ساعات پذیرش",category:"بخش‌های اصلی و محتوا",description:"تیکر خبری روان بالای سایت جهت اعلام آخرین اخبار دیوان عالی، اطلاعیه‌های دادگاه و ساعات مشاوره.",badge:"اعلانات فوری",phpDocDescription:"نوار پیمایش خودکار اخبار و اطلاعیه‌های کانون وکلا در هدر یا بالای برگه‌ها",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"speed",label:"سرعت حرکت",type:"select",defaultValue:"normal",options:["slow","normal","fast"],description:"سرعت انیمیشن متن"},{name:"show_bulletin",label:"نمایش آیکون بلندگو",type:"boolean",defaultValue:!0,description:"آیکون زنگوله و اعلان"}],sampleAttributes:{speed:"normal",show_bulletin:!0}},{id:"comments-moderation",componentName:"FrontendCommentsModeration",shortcodeTag:"react_legal_comments",title:"بخش پرسش و پاسخ و نظرات حقوقی موکلان",category:"اعتبار و هویت",description:"سیستم ثبت سوالات حقوقی کاربران با تفکیک پاسخ رسمی وکیل و اعتبارسنجی شماره تماس.",badge:"دیدگاه‌ها",phpDocDescription:"بخش دیدگاه‌های تعاملی با نشان‌های رسمی تاییدیه وکیل و تفکیک پاسخ‌های حقوقی",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"max_display",label:"تعداد دیدگاه اولیه",type:"number",defaultValue:5,description:"تعداد کامنت‌های اولیه"},{name:"allow_new_comments",label:"امکان ارسال نظر جدید",type:"boolean",defaultValue:!0,description:"فعال‌سازی فرم ثبت دیدگاه"}],sampleAttributes:{max_display:5,allow_new_comments:!0}}],z={selectedComponentIds:u.map(o=>o.id),targetType:"theme",shortcodePrefix:"sedrazavi_react_",functionPrefix:"sedrazavi_",engine:"vite-bundle",includeRestApi:!0,includeCurrentUser:!0,includeLawyerProfile:!0,includeAdminAjax:!0,includeSkeleton:!0,elementorSupport:!0,customContainerClass:"sedrazavi-ui-wrapper",autoMountScript:!0};function S(o){const{selectedComponentIds:l,targetType:c,shortcodePrefix:p,functionPrefix:a,engine:r,includeRestApi:g,includeCurrentUser:b,includeLawyerProfile:x,includeAdminAjax:h,includeSkeleton:v,elementorSupport:y,customContainerClass:$,autoMountScript:w}=o,m=u.filter(s=>l.includes(s.id)),B=new Date().toLocaleDateString("fa-IR"),i=p.replace(/[^a-zA-Z0-9_]/g,"_"),t=a.replace(/[^a-zA-Z0-9_]/g,"_");let e=`<?php
+const u=[{id:"case-progress-tracker",componentName:"CaseProgressTracker",shortcodeTag:"react_case_tracker",title:"استپر و رهگیری هوشمند پرونده‌های قضایی",category:"کارتابل و پرونده‌ها",description:"نمایش خط زمانی چندمرحله‌ای دادرسی (دادخواست، لوایح، دادرسی، تجدیدنظر، اجرای حکم) با استعلام برخط و هشدار جلسه بعدی.",badge:"کارتابل موکل",phpDocDescription:"شورت‌کد اختصاصی رهگیری مرحله‌به‌مرحله پرونده موکل با اتصال به دیتابیس یا ورودی دستی",elementorCategory:"سید رضوی - پورتال موکلین",attributes:[{name:"case_number",label:"شماره پرونده",type:"text",defaultValue:"۱۴۰۳-۲۸۴",description:"شماره بایگانی پرونده در شعبه یا سامانه"},{name:"status_code",label:"کد وضعیت قضایی",type:"select",defaultValue:"HEARING_PENDING",options:["ACTIVE","HEARING_PENDING","DECIDED","ENFORCEMENT"],description:"وضعیت کلی پرونده"},{name:"status_text",label:"متن وضعیت جاری",type:"text",defaultValue:"در حال تبادل لوایح و بررسی نظر کارشناس رسمی",description:"توضیحات کوتاه وضعیت"},{name:"hearing_date",label:"تاریخ جلسه بعدی دادگاه",type:"text",defaultValue:"۱۴۰۳/۰۹/۱۸",description:"تاریخ شمسی جلسه رسیدگی"},{name:"days_remaining",label:"روزهای باقیمانده تا جلسه",type:"number",defaultValue:12,description:"شمارش معکوس به روز"},{name:"show_timeline",label:"نمایش خط زمان کامل",type:"boolean",defaultValue:!0,description:"فعال‌سازی نمایش تمام مراحل ۵ گانه"}],sampleAttributes:{case_number:"۱۴۰۳-۲۸۴",status_code:"HEARING_PENDING",status_text:"در حال تبادل لوایح و بررسی نظر کارشناس رسمی",hearing_date:"۱۴۰۳/۰۹/۱۸",days_remaining:12,show_timeline:!0}},{id:"court-fee-calculator",componentName:"CourtFeeCalculator",shortcodeTag:"react_court_calculator",title:"میز جامع محاسبات قضایی، دیه و خسارت تأخیر",category:"مالی و محاسبات",description:"محاسبه‌گر هزینه دادرسی مراحل بدوی و تجدیدنظر، تعرفه حق‌الوکاله کانون، خسارت تأخیر تأدیه بانک مرکزی، مهریه و دیه ماه حرام.",badge:"ابزار مالی",phpDocDescription:"ماشین‌حساب تخصصی دعاوی مالی و کیفری بر اساس آخرین تعرفه‌های قوه قضاییه و شاخص بانک مرکزی",elementorCategory:"سید رضوی - ابزارهای محاسباتی",attributes:[{name:"default_tab",label:"تب پیش‌فرض فعال",type:"select",defaultValue:"court_fee",options:["court_fee","attorney_tariff","delay_damages","diyeh","mehrieh"],description:"بخش فعال در زمان بارگذاری"},{name:"default_claim",label:"مبلغ پیش‌فرض خواسته (ریال)",type:"number",defaultValue:5e8,description:"مبلغ اولیه در فیلد ورودی"},{name:"show_tariff_guide",label:"راهنمای فرمول محاسبات",type:"boolean",defaultValue:!0,description:"نمایش کادرهای تشریحی قوانین زیر فرمول"},{name:"enable_print",label:"کلید چاپ رسمی فاکتور",type:"boolean",defaultValue:!0,description:"امکان چاپ و دریافت نسخه PDF برآورد"}],sampleAttributes:{default_tab:"court_fee",default_claim:5e8,show_tariff_guide:!0,enable_print:!0}},{id:"client-portal-widget",componentName:"ClientPortalQuickAccessWidget",shortcodeTag:"react_client_portal_widget",title:"ابزارک دسترسی سریع به کارتابل و جلسات موکل",category:"کارتابل و پرونده‌ها",description:"خلاصه وضعیت پرونده‌های فعال موکل، تاریخ جلسات پیش‌رو، اسناد دریافتی و تسویه‌حساب‌های مالی.",badge:"کارتابل موکل",phpDocDescription:"ویجت داشبورد اختصاصی موکلین برای صفحات کاربری، سایدبارها یا فوتر برگه موکل",elementorCategory:"سید رضوی - پورتال موکلین",attributes:[{name:"show_financials",label:"نمایش اطلاعات مالی",type:"boolean",defaultValue:!0,description:"نمایش وضعیت حق‌الوکاله و اقساط"},{name:"show_documents",label:"نمایش شمارنده مدارک",type:"boolean",defaultValue:!0,description:"آمار لوایح و مستندات بارگذاری شده"},{name:"max_cases",label:"حداکثر پرونده‌های قابل نمایش",type:"number",defaultValue:3,description:"تعداد پرونده در لیست کشویی"}],sampleAttributes:{show_financials:!0,show_documents:!0,max_cases:3}},{id:"booking-section",componentName:"ContactAndBookingSection",shortcodeTag:"react_booking_modal",title:"سامانه تقویم هوشمند نوبت‌دهی و رزرو مشاوره",category:"رزرو و نوبت‌دهی",description:"تقویم رزرو وقت مشاوره حضوری یا آنلاین با انتخاب شعبه، تاریخ شمسی، موضوع حقوقی و پرداخت بیعانه.",badge:"نوبت‌دهی",phpDocDescription:"فرم تعاملی رزرواسیون جلسه حضوری یا تلفنی با قابلیت اتصال به درگاه بانکی یا پیامک",elementorCategory:"سید رضوی - تماس و رزرو",attributes:[{name:"default_service",label:"حوزه مشاوره پیش‌فرض",type:"select",defaultValue:"commercial",options:["commercial","criminal","family","real-estate"],description:"سرویس انتخابی اولیه"},{name:"title",label:"عنوان فرم رزرو",type:"text",defaultValue:"رزرو نوبت مشاوره با وکیل پایه یک",description:"تیتر بالای بخش رزرو"},{name:"allow_online_payment",label:"امکان واریز پیش‌پرداخت",type:"boolean",defaultValue:!0,description:"فعال‌سازی پرداخت بیعانه جهت تثبیت وقت"},{name:"button_text",label:"متن دکمه ثبت نوبت",type:"text",defaultValue:"ثبت و تایید جلسه مشاوره",description:"متن دکمه اقدام"}],sampleAttributes:{default_service:"commercial",title:"رزرو نوبت مشاوره با وکیل پایه یک",allow_online_payment:!0,button_text:"ثبت و تایید جلسه مشاوره"}},{id:"hero-slider",componentName:"LawyerHeroSlider",shortcodeTag:"react_hero_slider",title:"اسلایدر هیرو پرمیوم با آمار و افتخارات وکیل",category:"بخش‌های اصلی و محتوا",description:"اسلایدر مجلل صفحه اصلی با تصاویر باکیفیت دفتر، نشان رسمی کانون وکلا، سوابق موفقیت و کلیدهای رزرو سریع.",badge:"هیرو و صفحه اصلی",phpDocDescription:"بخش هدر و پرزنتیشن دفتر وکالت با انیمیشن‌های طلایی و بارگذاری بهینه شده",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"autoplay",label:"اسلاید خودکار",type:"boolean",defaultValue:!0,description:"حرکت خودکار اسلایدها"},{name:"interval",label:"فاصله زمانی اسلاید (میلی‌ثانیه)",type:"number",defaultValue:5e3,description:"مدت مکث روی هر اسلاید"},{name:"show_badges",label:"نمایش نشان‌های اعتبار",type:"boolean",defaultValue:!0,description:"مدال‌های ۲۰ سال سابقه و رتبه کانون"}],sampleAttributes:{autoplay:!0,interval:5e3,show_badges:!0}},{id:"services-section",componentName:"ServicesSection",shortcodeTag:"react_services_grid",title:"شبکه هوشمند کارت‌های خدمات حقوقی تخصصی",category:"بخش‌های اصلی و محتوا",description:"کارت‌های خدمات تجاری، بین‌المللی، ملکی و کیفری همراه با آیکون، هزینه تخمینی، دکمه جزئیات و استعلام.",badge:"خدمات حقوقی",phpDocDescription:"نمایش شبکه خدمات تخصصی با فیلتر دسته‌بندی و مودال بازشونده معرفی سرویس",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"category",label:"دسته‌بندی خدمات",type:"select",defaultValue:"all",options:["all","commercial","criminal","family","real-estate"],description:"فیلتر بر اساس حوزه تخصصی"},{name:"count",label:"تعداد خدمات",type:"number",defaultValue:6,description:"حداکثر کارت‌های قابل نمایش"},{name:"columns",label:"تعداد ستون‌ها در دسکتاپ",type:"select",defaultValue:"3",options:["2","3","4"],description:"چیدمان گرید کارت‌ها"},{name:"show_fee",label:"نمایش برآورد هزینه",type:"boolean",defaultValue:!0,description:"نمایش تعرفه پایه در کارت"}],sampleAttributes:{category:"all",count:6,columns:"3",show_fee:!0}},{id:"testimonials-slider",componentName:"TestimonialsSlider",shortcodeTag:"react_testimonials_slider",title:"اسلایدر تجربیات و رضایت‌نامه‌های موکلان",category:"اعتبار و هویت",description:"نمایش نظرات ثبت‌شده با امتیاز ستاره‌ای، مهر رسمی تایید کانون، حوزه پرونده و نتیجه دادرسی.",badge:"اعتبار و رضایت",phpDocDescription:"اسلایدر شیک نظرات تایید شده موکلین حقوقی و حقیقی با فونت دیپلماتیک",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"count",label:"تعداد نظرات",type:"number",defaultValue:4,description:"تعداد بازخوردهای نمایشی"},{name:"autoplay",label:"چرخش اتوماتیک",type:"boolean",defaultValue:!0,description:"انتقال اسلاید هر ۴ ثانیه"},{name:"show_ratings",label:"نمایش ستاره‌های کیفیت",type:"boolean",defaultValue:!0,description:"نمایش امتیاز ۵ ستاره"}],sampleAttributes:{count:4,autoplay:!0,show_ratings:!0}},{id:"articles-section",componentName:"ArticlesSection",shortcodeTag:"react_articles_grid",title:"بانک مقالات تخصصی و تحلیل آراء وحدت رویه",category:"بخش‌های اصلی و محتوا",description:"آخرین مقالات و یادداشت‌های حقوقی با زمان تقریبی مطالعه، دسته‌بندی موضوعی و قابلیت اشتراک‌گذاری.",badge:"مقالات و آموزش",phpDocDescription:"نمایش آخرین یادداشت‌ها و مقالات علمی وکیل با اتصال به پست‌های وبلاگ وردپرس",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"count",label:"تعداد مقالات",type:"number",defaultValue:3,description:"تعداد آخرین مطالب"},{name:"category",label:"دسته‌بندی مقاله",type:"select",defaultValue:"all",options:["all","commercial","criminal","civil"],description:"فیلتر بر اساس تخصص"},{name:"show_read_time",label:"نمایش زمان مطالعه",type:"boolean",defaultValue:!0,description:"نشان مدت زمان تخمینی خواندن"}],sampleAttributes:{count:3,category:"all",show_read_time:!0}},{id:"faq-section",componentName:"FaqSection",shortcodeTag:"react_faq_accordion",title:"آکاردئون هوشمند پرسش و پاسخ‌های حقوقی",category:"بخش‌های اصلی و محتوا",description:"سوالات پرتکرار موکلین درباره حق‌الوکاله، ضمانت پرونده، مدت زمان دادگاه و مراحل وکالت.",badge:"سوالات متداول",phpDocDescription:"آکاردئون ریسپانسیو با داده‌های ساختاریافته Schema.org FAQPage جهت سئو گوگل",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"count",label:"تعداد پرسش‌ها",type:"number",defaultValue:5,description:"تعداد موارد قابل مشاهده"},{name:"open_first",label:"باز بودن آیتم اول",type:"boolean",defaultValue:!0,description:"باز بودن پیش‌فرض سوال اول"},{name:"searchable",label:"نوار جستجوی زنده در سوالات",type:"boolean",defaultValue:!0,description:"امکان جستجوی واژگان حقوقی"}],sampleAttributes:{count:5,open_first:!0,searchable:!0}},{id:"trust-badges",componentName:"TrustBadges",shortcodeTag:"react_trust_badges",title:"نشان‌های رسمی کانون وکلا و گواهینامه‌های ملی",category:"اعتبار و هویت",description:"نمایش نشان کانون وکلای دادگستری، شماره پروانه، نشان اعتماد قوه قضاییه و نماد تجارت الکترونیکی.",badge:"اعتبار رسمی",phpDocDescription:"بلوک مهرها و مجوزهای رسمی پروانه وکالت با قابلیت کلیک جهت اعتبارسنجی",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"style",label:"سبک چیدمان",type:"select",defaultValue:"grid",options:["grid","compact_row","cards"],description:"قالب بصری باکس‌ها"},{name:"show_license",label:"نمایش شماره پروانه وکالت",type:"boolean",defaultValue:!0,description:"درج شماره ۱۸۴۵۲ / ک.و.م"},{name:"animated",label:"انیمیشن شناور طلایی",type:"boolean",defaultValue:!0,description:"جلوه حرکت ملایم کارت‌ها"}],sampleAttributes:{style:"grid",show_license:!0,animated:!0}},{id:"otp-portal",componentName:"OtpAuthModal",shortcodeTag:"react_otp_portal",title:"پرتال امن ورود موکل با سامانه پیامکی و ثنا",category:"کارتابل و پرونده‌ها",description:"سیستم ورود دوعاملی با ارسال کد OTP پیامکی، استعلام کد ملی و ارجاع به پنل اختصاصی موکل.",badge:"امنیت و ورود",phpDocDescription:"دروازه احراز هویت پیامکی بدون نیاز به رمز عبور سنتی سازگار با پیامک‌های کاوه‌نگار/فرازاس‌ام‌اس",elementorCategory:"سید رضوی - پورتال موکلین",attributes:[{name:"enable_sana_notice",label:"پیام انطباق با ثنا",type:"boolean",defaultValue:!0,description:"تذکر تایید هویت ثنا برای پیگیری پرونده"},{name:"redirect_url",label:"آدرس انتقال بعد از ورود",type:"text",defaultValue:"/client-portal",description:"مسیر ریدایرکت خودکار"},{name:"button_label",label:"متن دکمه ورود",type:"text",defaultValue:"ورود به سامانه جامع موکلین",description:"عنوان دکمه بازکننده"}],sampleAttributes:{enable_sana_notice:!0,redirect_url:"/client-portal",button_label:"ورود به سامانه جامع موکلین"}},{id:"live-consultation",componentName:"LiveConsultationDrawer",shortcodeTag:"react_live_consultation",title:"کنسول مشاوره فوری آنلاین و چت حقوقی",category:"رزرو و نوبت‌دهی",description:"دراور بازشونده گفتگوی حقوقی با وکیل، ارسال مستندات پرونده، پیام‌های صوتی و پاسخگویی آنلاین.",badge:"مشاوره آنلاین",phpDocDescription:"دراور پیام‌رسانی و مشاوره فوری با تیم حقوقی دفتر با رمزنگاری داده‌ها",elementorCategory:"سید رضوی - تماس و رزرو",attributes:[{name:"department",label:"دپارتمان پیش‌فرض",type:"select",defaultValue:"corporate",options:["corporate","financial","criminal","family"],description:"بخش حقوقی پاسخ‌دهنده"},{name:"button_title",label:"عنوان دکمه شناور",type:"text",defaultValue:"مشاوره آنلاین با وکیل",description:"متن دکمه اکشن"},{name:"show_online_badge",label:"نمایش نشان برخط سبز",type:"boolean",defaultValue:!0,description:"وضعیت آنلاین بودن دفتر"}],sampleAttributes:{department:"corporate",button_title:"مشاوره آنلاین با وکیل",show_online_badge:!0}},{id:"story-bar",componentName:"StoryBar",shortcodeTag:"react_story_bar",title:"استوری‌بار آموزش و اخبار فوری حقوقی",category:"بخش‌های اصلی و محتوا",description:"نوار استوری شبیه اینستاگرام برای انتشار ویدیوهای کوتاه نکات طلایی حقوقی و آرای جدید دادگاه‌ها.",badge:"آموزش چندرسانه‌ای",phpDocDescription:"نوار مدرن استوری‌های حقوقی با شمارنده بازدید و قابلیت نمایش ویدیوهای عمودی",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"count",label:"تعداد استوری‌ها",type:"number",defaultValue:6,description:"حداکثر آیتم‌های نوار"},{name:"enable_ring",label:"حلقه گرادینت متحرک",type:"boolean",defaultValue:!0,description:"حلقه طلایی دور استوری‌های دیده نشده"}],sampleAttributes:{count:6,enable_ring:!0}},{id:"text-ticker",componentName:"TextBannerSlider",shortcodeTag:"react_text_ticker",title:"نوار متحرک اعلانات قضایی و ساعات پذیرش",category:"بخش‌های اصلی و محتوا",description:"تیکر خبری روان بالای سایت جهت اعلام آخرین اخبار دیوان عالی، اطلاعیه‌های دادگاه و ساعات مشاوره.",badge:"اعلانات فوری",phpDocDescription:"نوار پیمایش خودکار اخبار و اطلاعیه‌های کانون وکلا در هدر یا بالای برگه‌ها",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"speed",label:"سرعت حرکت",type:"select",defaultValue:"normal",options:["slow","normal","fast"],description:"سرعت انیمیشن متن"},{name:"show_bulletin",label:"نمایش آیکون بلندگو",type:"boolean",defaultValue:!0,description:"آیکون زنگوله و اعلان"}],sampleAttributes:{speed:"normal",show_bulletin:!0}},{id:"comments-moderation",componentName:"FrontendCommentsModeration",shortcodeTag:"react_legal_comments",title:"بخش پرسش و پاسخ و نظرات حقوقی موکلان",category:"اعتبار و هویت",description:"سیستم ثبت سوالات حقوقی کاربران با تفکیک پاسخ رسمی وکیل و اعتبارسنجی شماره تماس.",badge:"دیدگاه‌ها",phpDocDescription:"بخش دیدگاه‌های تعاملی با نشان‌های رسمی تاییدیه وکیل و تفکیک پاسخ‌های حقوقی",elementorCategory:"سید رضوی - صفحات اصلی",attributes:[{name:"max_display",label:"تعداد دیدگاه اولیه",type:"number",defaultValue:5,description:"تعداد کامنت‌های اولیه"},{name:"allow_new_comments",label:"امکان ارسال نظر جدید",type:"boolean",defaultValue:!0,description:"فعال‌سازی فرم ثبت دیدگاه"}],sampleAttributes:{max_display:5,allow_new_comments:!0}}],z={selectedComponentIds:u.map(o=>o.id),targetType:"theme",shortcodePrefix:"sedrazavi_react_",functionPrefix:"sedrazavi_",engine:"vite-bundle",includeRestApi:!0,includeCurrentUser:!0,includeLawyerProfile:!0,includeAdminAjax:!0,includeSkeleton:!0,elementorSupport:!0,customContainerClass:"sedrazavi-ui-wrapper",autoMountScript:!0};function E(o){const{selectedComponentIds:l,targetType:c,shortcodePrefix:p,functionPrefix:a,engine:r,includeRestApi:g,includeCurrentUser:h,includeLawyerProfile:b,includeAdminAjax:x,includeSkeleton:v,elementorSupport:y,customContainerClass:$,autoMountScript:w}=o,m=u.filter(s=>l.includes(s.id)),k=new Date().toLocaleDateString("fa-IR"),i=p.replace(/[^a-zA-Z0-9_]/g,"_"),t=a.replace(/[^a-zA-Z0-9_]/g,"_");let e=`<?php
 /**
  * ==============================================================================
  * پکیج اتصال یکپارچه شورت‌کدهای React در وردپرس (WordPress React Shortcode Bridge)
  * ==============================================================================
  * 
  * نسخه: 2.5.0
- * تاریخ تولید: ${B}
+ * تاریخ تولید: ${k}
  * توسعه‌دهنده: دفتر حقوقی و وکالت SedRazavi (سید امیر حسین رضوی فردویی)
  * وب‌سایت: https://t.me/sedrazavi
  * مجوز: GPL v2 or later
@@ -104,12 +104,12 @@ function ${t}enqueue_react_runtime() {
             'endpoint'  => esc_url_raw(rest_url('sedrazavi/v1/')),
             'nonce'     => wp_create_nonce('wp_rest'),
         ),
-`),h&&(e+=`        // اطلاعات امنیتی Admin Ajax سنتی وردپرس
+`),x&&(e+=`        // اطلاعات امنیتی Admin Ajax سنتی وردپرس
         'ajax' => array(
             'url'   => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('${i}ajax_security_nonce'),
         ),
-`),b&&(e+=`        // مشخصات کاربر جاری در صورت لاگین بودن
+`),h&&(e+=`        // مشخصات کاربر جاری در صورت لاگین بودن
         'currentUser' => array(
             'isLoggedIn'   => is_user_logged_in(),
             'id'           => get_current_user_id(),
@@ -117,7 +117,7 @@ function ${t}enqueue_react_runtime() {
             'email'        => is_user_logged_in() ? wp_get_current_user()->user_email : '',
             'roles'        => is_user_logged_in() ? wp_get_current_user()->roles : array(),
         ),
-`),x&&(e+=`        // اطلاعات پایه هویت و پروانه وکیل از تنظیمات پوسته یا پیش‌فرض
+`),b&&(e+=`        // اطلاعات پایه هویت و پروانه وکیل از تنظیمات پوسته یا پیش‌فرض
         'lawyerProfile' => array(
             'name'           => get_option('sedrazavi_lawyer_name', 'سرکار خانم دکتر سیده مریم رضوی'),
             'title'          => get_option('sedrazavi_lawyer_title', 'وکیل پایه یک دادگستری و مشاور ارشد حقوقی'),
@@ -172,7 +172,7 @@ function ${t}render_react_skeleton($component_name, $custom_title = '') {
  * ۵. تعریف شورت‌کدهای اختصاصی برای مؤلفه‌های React (Shortcode Wrappers)
  * ==============================================================================
  */
-`,m.forEach((s,k)=>{const d=`${i}${s.shortcodeTag.replace(/^react_/,"")}`,f=`${t}shortcode_${s.id.replace(/-/g,"_")}`;e+=`
+`,m.forEach((s,B)=>{const d=`${i}${s.shortcodeTag.replace(/^react_/,"")}`,f=`${t}shortcode_${s.id.replace(/-/g,"_")}`;e+=`
 /**
  * [${d}]
  * ${s.title}
@@ -321,7 +321,7 @@ function ${t}react_shortcodes_admin_notice() {
     }
 }
 add_action('admin_notices', '${t}react_shortcodes_admin_notice');
-`,e}function E(o){const{shortcodePrefix:l,elementorSupport:c}=o;return`/**
+`,e}function S(o){const{shortcodePrefix:l,elementorSupport:c}=o;return`/**
  * ==============================================================================
  * موتور مانت خودکار مؤلفه‌های React در وردپرس (WordPress React Component Mount Engine)
  * ==============================================================================
@@ -428,7 +428,7 @@ add_action('admin_notices', '${t}react_shortcodes_admin_notice');
     `:""}
 
 })(window, document);
-`}function A(o){const{targetType:l,functionPrefix:c}=o;return l==="theme"?`// ==============================================================================
+`}function T(o){const{targetType:l,functionPrefix:c}=o;return l==="theme"?`// ==============================================================================
 // اتصال پل شورت‌کدهای React دفتر وکالت SedRazavi
 // این خط کد را در انتهای فایل functions.php پوسته خود قرار دهید:
 // ==============================================================================
@@ -438,7 +438,7 @@ if (file_exists(get_template_directory() . '/inc/sedrazavi-react-shortcodes.php'
 // استفاده به صورت افزونه مستقل وردپرس (Plugin)
 // فایل را در مسیر wp-content/plugins/sedrazavi-react-shortcodes/sedrazavi-react-shortcodes.php
 // قرار داده و از منوی «افزونه‌ها > افزونه‌های نصب‌شده» در پیشخوان وردپرس آن را فعال نمایید.
-// ==============================================================================`}function T(o){const{shortcodePrefix:l,selectedComponentIds:c}=o,p=u.filter(a=>c.includes(a.id));return`# راهنمای جامع اتصال و مانت مؤلفه‌های React در وردپرس (SedRazavi React Shortcodes)
+// ==============================================================================`}function A(o){const{shortcodePrefix:l,selectedComponentIds:c}=o,p=u.filter(a=>c.includes(a.id));return`# راهنمای جامع اتصال و مانت مؤلفه‌های React در وردپرس (SedRazavi React Shortcodes)
 
 این بسته نرم‌افزاری به شما اجازه می‌دهد تمام مؤلفه‌های غنی، مدرن و تعاملی React این داشبورد (نظیر استپر رهگیری پرونده، ماشین‌حساب قضایی، پورتال موکل و...) را به راحتی از طریق **شورت‌کدهای استاندارد وردپرس** در هر برگه، نوشته، ابزارک یا المان المنتور قرار دهید.
 
@@ -497,7 +497,73 @@ ${a.attributes.map(r=>`  - \`${r.name}\` (${r.label} - پیش‌فرض: \`${r.de
 2. از منوی ابزارک‌های سمت راست، ابزارک **«کد کوتاه» (Shortcode)** را به صفحه بکشید.
 3. کد کوتاه دلخواه خود را در کادر پیست نمایید (برای مثال \`[${l}case_tracker case_number="۱۴۰۳-۹۵۴"]\`).
 4. دکمه انتشار را بزنید. مؤلفه React همراه با استایل‌ها و داده‌های زنده به صورت آنی بارگذاری می‌شود!
-`}const C=[{path:"elementor-addon-suite/assets/banner-772x250.webp",filename:"banner-772x250.webp",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/banner-772x250.webp",code:`RIFF\\ \0\0WEBPVP8 P \0\0P�\0�*�\0>m6�I$"�!!��\`�\r�gn�s"X_��=���'�C���?������g��WՇ����g����z������\x07�g��cO�_�=��[�4?r>����\x07���������?�;E���U�{���~\f������e��|;t��������'��W��x��S�o��_�*����'�gR�G����������=���ߠߒ�N������7��T����h���/ٟ�?������\r�������o�~�?H�'���7�O����?��l{���|���33333333333333333333333(�?mC����pbSB1 \r��Ħ�b@\x1B���M\bĀ7���\0o�%4#�ӑvp<"en�f�g��w��c�\r��H\v\f��U������֘�q}U0�gT��{Y)�~fffffffffffff\x1B\\�)��\f/�� p��
+`}const C=[{path:"elementor-addon-suite/assets/asset-manifest.json",filename:"asset-manifest.json",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/asset-manifest.json",code:`{
+  "manifest_version": "2.0.0",
+  "package": "universal-elementor-suite",
+  "scopes": {
+    "frontend": {
+      "styles": [
+        { "handle": "uas-design-tokens", "path": "assets/css/variables.css", "deps": [], "conditional": true },
+        { "handle": "uas-widgets-core", "path": "assets/css/widgets-core.css", "deps": ["uas-design-tokens"], "conditional": true },
+        { "handle": "uas-banner-slider-css", "path": "assets/css/widgets/banner-slider.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-bento-tabs-css", "path": "assets/css/widgets/bento-tabs.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-contact-booking-css", "path": "assets/css/widgets/contact-booking.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-cta-css", "path": "assets/css/widgets/cta.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-dynamic-grid-css", "path": "assets/css/widgets/dynamic-grid.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-faq-css", "path": "assets/css/widgets/faq.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-floating-cta-css", "path": "assets/css/widgets/floating-cta.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-floating-dock-css", "path": "assets/css/widgets/floating-dock.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-hero-css", "path": "assets/css/widgets/hero.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-hero-split-css", "path": "assets/css/widgets/hero-split.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-posts-css", "path": "assets/css/widgets/posts.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-pricing-matrix-css", "path": "assets/css/widgets/pricing-matrix.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-services-grid-css", "path": "assets/css/widgets/services-grid.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-stat-counter-css", "path": "assets/css/widgets/stat-counter.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-story-bar-css", "path": "assets/css/widgets/story-bar.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-team-css", "path": "assets/css/widgets/team.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-testimonials-css", "path": "assets/css/widgets/testimonials.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-theme-toggle-css", "path": "assets/css/widgets/theme-toggle.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-video-css", "path": "assets/css/widgets/video.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-standalone-blocks", "path": "assets/css/standalone-blocks.css", "deps": [], "conditional": true },
+        { "handle": "uas-ecommerce-compat", "path": "assets/css/ecommerce-compat.css", "deps": [], "conditional": true }
+      ],
+      "scripts": [
+        { "handle": "uas-widgets-core", "path": "assets/js/widgets-core.js", "deps": ["jquery"], "in_footer": true, "conditional": true, "localize": "uasFrontendConfig" },
+        { "handle": "uas-before-after-js", "path": "assets/js/widgets/before-after.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-bento-tabs-js", "path": "assets/js/widgets/bento-tabs.js", "deps": ["uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-faq-js", "path": "assets/js/widgets/faq.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-floating-cta-js", "path": "assets/js/widgets/floating-cta.js", "deps": ["uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-floating-dock-js", "path": "assets/js/widgets/floating-dock.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-fomo-countdown-js", "path": "assets/js/widgets/fomo-countdown.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-hero-split-js", "path": "assets/js/widgets/hero-split.js", "deps": ["uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-pricing-matrix-js", "path": "assets/js/widgets/pricing-matrix.js", "deps": ["uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-pricing-switcher-js", "path": "assets/js/widgets/pricing-switcher.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-stat-counter-js", "path": "assets/js/widgets/stat-counter.js", "deps": ["uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-story-bar-js", "path": "assets/js/widgets/story-bar.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-theme-toggle-js", "path": "assets/js/widgets/theme-toggle.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-standalone-blocks-js", "path": "assets/js/standalone-blocks.js", "deps": ["jquery"], "in_footer": true, "conditional": true, "localize": "uasFrontendConfig" },
+        { "handle": "uas-industry-blocks-js", "path": "assets/js/industry-blocks.js", "deps": [], "in_footer": true, "conditional": true, "localize": "uasIndustryConfig" }
+      ]
+    },
+    "editor": {
+      "styles": [
+        { "handle": "uas-design-tokens", "path": "assets/css/variables.css", "deps": [], "conditional": false },
+        { "handle": "uas-editor-styles", "path": "assets/css/editor.css", "deps": ["uas-design-tokens"], "conditional": false }
+      ],
+      "scripts": []
+    },
+    "admin": {
+      "styles": [
+        { "handle": "uas-admin-settings-css", "path": "assets/css/admin-settings.css", "deps": [], "conditional": true },
+        { "handle": "uas-github-admin-css", "path": "assets/css/github-admin.css", "deps": [], "conditional": true }
+      ],
+      "scripts": [
+        { "handle": "uas-admin-settings-js", "path": "assets/js/admin-settings.js", "deps": ["jquery"], "in_footer": true, "conditional": true, "localize": "uasAdminVars" }
+      ]
+    }
+  }
+}
+`},{path:"elementor-addon-suite/assets/banner-772x250.webp",filename:"banner-772x250.webp",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/banner-772x250.webp",code:`RIFF\\ \0\0WEBPVP8 P \0\0P�\0�*�\0>m6�I$"�!!��\`�\r�gn�s"X_��=���'�C���?������g��WՇ����g����z������\x07�g��cO�_�=��[�4?r>����\x07���������?�;E���U�{���~\f������e��|;t��������'��W��x��S�o��_�*����'�gR�G����������=���ߠߒ�N������7��T����h���/ٟ�?������\r�������o�~�?H�'���7�O����?��l{���|���33333333333333333333333(�?mC����pbSB1 \r��Ħ�b@\x1B���M\bĀ7���\0o�%4#�ӑvp<"en�f�g��w��c�\r��H\v\f��U������֘�q}U0�gT��{Y)�~fffffffffffff\x1B\\�)��\f/�� p��
 ���\bV%��5@2��\r��9�0Q[�Y��(1pe�\v$��<�뫈@F��f���)��%�\x07"�Fpb�!\bB�!\bB�!\bB$�\\�o�IK����c,},e�������>�2�#|93�U�:P%w
 ۄ�����_R��ֈ�������������f2w� �\\��f���o��S�m���2�ݓ�!��2R\f��t�J���\f��I\v5��v�KQ�Hʣ �a�H��3F����O�&�'Y'Q8D�4�nָ����o\0�g��#�:Aw2�@'M*mּm�3333333333328IMd�Ѳ�k�\0\0\0��ހ+��yɣ�r�δƍ'�ĵ�CL�9�4~M�d� Ψ̪�c\\8��k"�T93��S�6Y�,j�*�����������\b���\\�hD?�#���,�P��z���u	{����,��,!E\x1BB)3\\n#����U���S\0�/��D\f����2ܙ�A���wc���j��yj͠���7��C�Ǯ�|�����\x1B_)��������xL\0\0\0L�\x1B�<�\`����K>V٭��1��wl�@'�1ؐ����~��A��.�0:�?6��a�}��m��\f�י�����%� 3I;��PZb�M.�J��پ\\��h��ݦ�ť�H���wwwwwwwwwww\\9�\r+��GC����i��\r��02\0nX�@\r�e�\`SE��R���0�שy8���:��:, \r��Ħ�b@\x1B���M\bĀ7���\0o�%1mJ�@���U�^���.�p��\v��\\0/B�zC�\0��?������	�*\0\0\0\0\0\0��q8���8�5D��3�n�9{[�|y��K(\`�?����
 �r�&�#W��|9����L���d�<[��3�����5\r�/��t�;zη.���N�\`GoY�������ah؏\x07{�\x1B�VJ���I1$˿\v8��vu�R��>o�3���X��/I�A�?~d �!:��eK\v�/�V�����]5��9����[u':�O���n=<h�6M5F�h:��2��0�\x07	Eʴv��P�v1~\`�b�aN�J�C��l�ł,<�I{��Ϸ�s���F����M1\rMgxb�͞SM}.NJ,F�z����h��K���\x1B%	\x1BҜq�hx[��\vv涕<�!{\\)���14���6Dɫc�|�/���sK�tQ	�j�n�7G>�_�:}-��x�<U�{8�U�Ez;��i�Wc�'��3(��tdK���<������2<�����~V�R3�.�e�EF\`y�
@@ -1716,16 +1782,17 @@ input:checked + .uas-slider:before {
 }
 `},{path:"elementor-addon-suite/assets/css/editor.css",filename:"editor.css",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/css/editor.css",code:`/**
  * Universal Elementor Addon Suite - Editor Panel Styling
- * Highlights UAS widgets & category in Elementor panel
+ * Highlights UAS widgets & category in Elementor panel using unified Design Tokens
  */
 
 .elementor-element-wrapper[data-category="universal-addon-suite"] {
-  border-left: 3px solid #D4AF37;
+  border-inline-start: 3px solid var(--uas-accent-color, #D4AF37);
 }
 
 .elementor-panel-category-title[data-category="universal-addon-suite"] {
   font-weight: 700;
-  color: #D4AF37 !important;
+  font-family: var(--uas-font-family, 'Vazirmatn', sans-serif);
+  color: var(--uas-accent-color, #D4AF37) !important;
 }
 `},{path:"elementor-addon-suite/assets/css/github-admin.css",filename:"github-admin.css",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/css/github-admin.css",code:`/**
  * GitHub Primer Style for SedRazavi Suite Admin
@@ -3083,36 +3150,148 @@ input:checked + .uas-slider:before {
   }
 }
 
-`},{path:"elementor-addon-suite/assets/css/widgets-core.css",filename:"widgets-core.css",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets-core.css",code:`/**
- * Universal Elementor Addon Suite - Core Widgets CSS
- * Version: 1.0.0
- * Pure, Topic-Agnostic Styles with CSS Custom Properties
+`},{path:"elementor-addon-suite/assets/css/variables.css",filename:"variables.css",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/css/variables.css",code:`/**
+ * SedRazavi & Universal Elementor Suite — Unified Design Tokens Stylesheet
+ * Single Source of Truth CSS Custom Properties mapped to tokens.json & Elementor Global Kit.
+ * Supports Light/Dark themes (.dark, [data-theme="dark"], [data-theme="light"]) and RTL/LTR logical layout.
+ *
+ * @package UniversalElementorSuite
+ * @version 4.0.0
  */
 
-:root {
+:root,
+html[data-theme="light"] {
+  /* Core Palette (Light Default for Widgets) */
+  --uas-bg-body: #F8FAFC;
+  --uas-bg-surface: #FFFFFF;
+  --uas-bg-card: #FFFFFF;
+  --uas-bg-subtle: #F1F5F9;
+
   --uas-primary-color: #2563EB;
   --uas-primary-hover: #1D4ED8;
+  --uas-secondary-color: #0B132B;
   --uas-accent-color: #D4AF37;
-  --uas-text-main: #1E293B;
+  --uas-accent-hover: #AA820A;
+
+  --uas-text-main: #0F172A;
+  --uas-text-secondary: #334155;
   --uas-text-muted: #64748B;
-  --uas-bg-card: #FFFFFF;
+  --uas-text-inverted: #F8FAFC;
+
   --uas-border-color: #E2E8F0;
+  --uas-border-subtle: rgba(15, 23, 42, 0.08);
+  --uas-success-color: #10B981;
+  --uas-warning-color: #F59E0B;
+  --uas-danger-color: #EF4444;
+
+  /* Typography Scale */
+  --uas-font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, Arial, sans-serif;
+  --uas-font-display: 'Vazirmatn', 'Playfair Display', Georgia, serif;
+  --uas-text-xs: 0.75rem;
+  --uas-text-sm: 0.875rem;
+  --uas-text-base: 1rem;
+  --uas-text-lg: 1.125rem;
+  --uas-text-xl: 1.25rem;
+  --uas-text-2xl: 1.5rem;
+  --uas-text-3xl: 1.875rem;
+  --uas-text-4xl: 2.25rem;
+  --uas-leading-tight: 1.35;
+  --uas-leading-normal: 1.75;
+
+  /* Spacing Scale */
+  --uas-space-1: 0.25rem;
+  --uas-space-2: 0.5rem;
+  --uas-space-4: 1rem;
+  --uas-space-6: 1.5rem;
+  --uas-space-8: 2rem;
+  --uas-space-12: 3rem;
+  --uas-container-max: 1280px;
+
+  /* Radii & Elevation */
+  --uas-radius-sm: 8px;
+  --uas-radius-md: 12px;
   --uas-radius-card: 16px;
-  --uas-shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --uas-radius-xl: 24px;
+  --uas-radius-pill: 9999px;
+  --uas-shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.06);
+  --uas-shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --uas-shadow-glow: 0 0 24px rgba(212, 175, 55, 0.25);
+
+  /* Theme Compatibility Bridge (--sr-* aliases) */
+  --sr-primary-accent: var(--uas-accent-color);
+  --sr-font-family: var(--uas-font-family);
+  --sr-radius-sm: var(--uas-radius-sm);
+  --sr-radius-md: var(--uas-radius-md);
+  --sr-radius-xl: var(--uas-radius-xl);
+  --sr-shadow-card: var(--uas-shadow-card);
+  --sr-shadow-glow: var(--uas-shadow-glow);
 }
 
-.dark {
-  --uas-text-main: #F8FAFC;
-  --uas-text-muted: #94A3B8;
+/* Dark Theme Surface & Polarity Override */
+.dark,
+html.dark,
+html[data-theme="dark"],
+body.dark-mode {
+  --uas-bg-body: #060B18;
+  --uas-bg-surface: #0B132B;
   --uas-bg-card: #0F172A;
+  --uas-bg-subtle: #162038;
+
+  --uas-primary-color: #3B82F6;
+  --uas-primary-hover: #2563EB;
+  --uas-accent-color: #D4AF37;
+  --uas-accent-hover: #E5C158;
+
+  --uas-text-main: #F8FAFC;
+  --uas-text-secondary: #CBD5E1;
+  --uas-text-muted: #94A3B8;
+  --uas-text-inverted: #0B132B;
+
   --uas-border-color: #334155;
+  --uas-border-subtle: rgba(255, 255, 255, 0.08);
+  --uas-shadow-card: 0 12px 30px -6px rgba(0, 0, 0, 0.45);
 }
+
+/* Logical RTL / LTR Alignment Helpers */
+[dir="rtl"] .uas-widget-container {
+  direction: rtl;
+  text-align: start;
+  font-family: var(--uas-font-family);
+}
+
+[dir="ltr"] .uas-widget-container {
+  direction: ltr;
+  text-align: start;
+  font-family: var(--uas-font-family);
+}
+
+[dir="ltr"] .uas-flip-rtl {
+  transform: scaleX(-1);
+}
+
+.uas-align-start {
+  text-align: start;
+}
+
+.uas-align-center {
+  text-align: center;
+}
+
+.uas-align-end {
+  text-align: end;
+}
+`},{path:"elementor-addon-suite/assets/css/widgets-core.css",filename:"widgets-core.css",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets-core.css",code:`/**
+ * Universal Elementor Addon Suite - Core Widgets CSS
+ * Version: 4.0.0
+ * Consumes Design Tokens from assets/css/variables.css (handle: uas-design-tokens)
+ */
 
 .uas-widget-container {
   box-sizing: border-box;
   position: relative;
   width: 100%;
   contain: layout style;
+  font-family: var(--uas-font-family, 'Vazirmatn', sans-serif);
 }
 
 .uas-widget-container :focus-visible {
@@ -4138,61 +4317,68 @@ input:checked + .uas-slider:before {
   margin-top: 14px;
 }
 `},{path:"elementor-addon-suite/assets/css/widgets/hero.css",filename:"hero.css",category:"صفحه‌ساز و ویجت‌ها (Elementor Widgets)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/hero.css",code:`/**
- * Universal Hero Widget CSS (Topic-Agnostic)
+ * Universal Hero Widget CSS (Phase 5 Golden Widget Stylesheet)
+ * Token-bound to assets/css/variables.css with Presets, Light/Dark & RTL/LTR logical parity.
  */
 .uas-hero-wrapper {
   position: relative;
   width: 100%;
-  padding: 60px 24px;
+  padding: clamp(2rem, 5vw, 3.75rem) var(--uas-space-6, 1.5rem);
   background: var(--uas-bg-card, #FFFFFF);
-  border-radius: var(--uas-radius-card, 24px);
+  border-radius: var(--uas-radius-xl, 24px);
   border: 1px solid var(--uas-border-color, #E2E8F0);
-  box-shadow: var(--uas-shadow-card, 0 10px 30px rgba(0,0,0,0.05));
+  box-shadow: var(--uas-shadow-card, 0 10px 25px -5px rgba(0, 0, 0, 0.08));
+  font-family: var(--uas-font-family, 'Vazirmatn', sans-serif);
+  color: var(--uas-text-main, #0F172A);
   overflow: hidden;
   box-sizing: border-box;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .uas-hero-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 48px;
-  max-width: 1200px;
-  margin: 0 auto;
+  gap: var(--uas-space-12, 3rem);
+  max-width: var(--uas-container-max, 1280px);
+  margin-inline: auto;
 }
 
 .uas-hero-content {
   flex: 1 1 55%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--uas-space-4, 1rem);
+  text-align: start;
 }
 
 .uas-hero-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--uas-space-2, 0.5rem);
   align-self: flex-start;
-  padding: 6px 16px;
-  border-radius: 9999px;
-  background: rgba(37, 99, 235, 0.1);
+  padding: 0.375rem 1rem;
+  border-radius: var(--uas-radius-pill, 9999px);
+  background: var(--uas-border-subtle, rgba(37, 99, 235, 0.08));
   color: var(--uas-primary-color, #2563EB);
-  font-size: 13px;
+  font-size: var(--uas-text-xs, 0.75rem);
   font-weight: 700;
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  border: 1px solid var(--uas-border-color, #E2E8F0);
 }
 
 .uas-hero-title {
-  font-size: 38px;
-  line-height: 1.35;
+  font-family: var(--uas-font-display, var(--uas-font-family));
+  font-size: clamp(1.75rem, 3.2vw, 2.375rem);
+  line-height: var(--uas-leading-tight, 1.35);
   font-weight: 800;
   color: var(--uas-text-main, #0F172A);
   margin: 0;
 }
 
 .uas-hero-desc {
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: var(--uas-text-base, 1rem);
+  line-height: var(--uas-leading-normal, 1.75);
   color: var(--uas-text-muted, #64748B);
   margin: 0;
 }
@@ -4201,72 +4387,165 @@ input:checked + .uas-slider:before {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 10px;
+  gap: var(--uas-space-4, 1rem);
+  margin-top: var(--uas-space-2, 0.5rem);
 }
 
 .uas-btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 28px;
-  border-radius: 12px;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--uas-radius-md, 12px);
   background: var(--uas-primary-color, #2563EB);
-  color: #FFFFFF;
+  color: var(--uas-text-inverted, #F8FAFC);
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--uas-text-sm, 0.875rem);
   text-decoration: none;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  border: 1px solid transparent;
+  transition: background-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: var(--uas-shadow-sm, 0 2px 6px rgba(15, 23, 42, 0.06));
 }
 
 .uas-btn-primary:hover {
   background: var(--uas-primary-hover, #1D4ED8);
   transform: translateY(-2px);
-  color: #FFFFFF;
+  color: var(--uas-text-inverted, #F8FAFC);
 }
 
 .uas-btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 28px;
-  border-radius: 12px;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--uas-radius-md, 12px);
   background: transparent;
   color: var(--uas-text-main, #0F172A);
-  border: 1px solid var(--uas-border-color, #CBD5E1);
+  border: 1px solid var(--uas-border-color, #E2E8F0);
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--uas-text-sm, 0.875rem);
   text-decoration: none;
-  transition: all 0.25s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
 }
 
 .uas-btn-secondary:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--uas-bg-subtle, #F1F5F9);
+  border-color: var(--uas-primary-color, #2563EB);
   transform: translateY(-2px);
+}
+
+.uas-btn-primary:focus-visible,
+.uas-btn-secondary:focus-visible {
+  outline: 2px solid var(--uas-accent-color, #D4AF37);
+  outline-offset: 2px;
 }
 
 .uas-hero-media {
   flex: 1 1 45%;
+  min-width: 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .uas-hero-img {
+  display: block;
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   height: auto;
-  border-radius: 20px;
+  border-radius: var(--uas-radius-card, 16px);
   object-fit: cover;
-  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
+  box-shadow: var(--uas-shadow-card, 0 10px 25px -5px rgba(0, 0, 0, 0.08));
 }
 
+/* ============================================================================
+ * Presets
+ * ========================================================================= */
+.uas-hero-preset-split-executive {
+  background: linear-gradient(135deg, var(--uas-secondary-color, #0B132B) 0%, #162038 100%);
+  border-color: rgba(212, 175, 55, 0.35);
+  box-shadow: var(--uas-shadow-glow, 0 0 24px rgba(212, 175, 55, 0.25));
+  color: #F8FAFC;
+}
+
+.uas-hero-preset-split-executive .uas-hero-title {
+  color: #F8FAFC;
+}
+
+.uas-hero-preset-split-executive .uas-hero-desc {
+  color: #CBD5E1;
+}
+
+.uas-hero-preset-split-executive .uas-hero-badge {
+  background: rgba(212, 175, 55, 0.14);
+  color: var(--uas-accent-color, #D4AF37);
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.uas-hero-preset-split-executive .uas-btn-primary {
+  background: var(--uas-accent-color, #D4AF37);
+  color: #0B132B;
+}
+
+.uas-hero-preset-split-executive .uas-btn-primary:hover {
+  background: var(--uas-accent-hover, #AA820A);
+  color: #0B132B;
+}
+
+.uas-hero-preset-split-executive .uas-btn-secondary {
+  color: #F8FAFC;
+  border-color: rgba(248, 250, 252, 0.28);
+}
+
+.uas-hero-preset-split-executive .uas-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--uas-accent-color, #D4AF37);
+}
+
+.uas-hero-preset-centered-editorial .uas-hero-inner {
+  flex-direction: column;
+  text-align: center;
+  gap: var(--uas-space-8, 2rem);
+}
+
+.uas-hero-preset-centered-editorial .uas-hero-content {
+  align-items: center;
+  text-align: center;
+  max-width: 780px;
+  margin-inline: auto;
+}
+
+.uas-hero-preset-centered-editorial .uas-hero-badge {
+  align-self: center;
+}
+
+.uas-hero-preset-centered-editorial .uas-hero-actions {
+  justify-content: center;
+}
+
+.uas-hero-preset-centered-editorial .uas-hero-img {
+  max-width: 780px;
+}
+
+.uas-hero-preset-minimal-glass {
+  background: var(--uas-bg-subtle, #F1F5F9);
+  border-color: var(--uas-border-subtle, rgba(15, 23, 42, 0.08));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ============================================================================
+ * Responsive & Reduced Motion
+ * ========================================================================= */
 @media (max-width: 991px) {
   .uas-hero-inner {
     flex-direction: column-reverse;
     text-align: center;
-    gap: 32px;
+    gap: var(--uas-space-8, 2rem);
+  }
+  .uas-hero-content {
+    align-items: center;
+    text-align: center;
   }
   .uas-hero-badge {
     align-self: center;
@@ -4274,8 +4553,17 @@ input:checked + .uas-slider:before {
   .uas-hero-actions {
     justify-content: center;
   }
-  .uas-hero-title {
-    font-size: 28px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uas-hero-wrapper,
+  .uas-btn-primary,
+  .uas-btn-secondary {
+    transition: none;
+  }
+  .uas-btn-primary:hover,
+  .uas-btn-secondary:hover {
+    transform: none;
   }
 }
 `},{path:"elementor-addon-suite/assets/css/widgets/posts.css",filename:"posts.css",category:"صفحه‌ساز و ویجت‌ها (Elementor Widgets)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/css/widgets/posts.css",code:`/**
@@ -6762,27 +7050,42 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
   });
 })(jQuery);
 `},{path:"elementor-addon-suite/assets/js/widgets/theme-toggle.js",filename:"theme-toggle.js",category:"صفحه‌ساز و ویجت‌ها (Elementor Widgets)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/js/widgets/theme-toggle.js",code:`/**
- * Universal Theme Switcher JS
+ * Universal Theme Switcher JS (Unified Dark/Light Token Polarity)
  */
 (function($) {
   'use strict';
 
+  function applyThemeMode(mode) {
+    var root = document.documentElement;
+    if (mode === 'dark') {
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      root.setAttribute('data-theme', 'light');
+    }
+    try {
+      localStorage.setItem('uas-theme', mode);
+      localStorage.setItem('sedrazavi_theme', mode);
+    } catch (e) {}
+  }
+
   function initThemeToggle($scope) {
     var $box = $scope.find('.uas-theme-toggle-box');
+    var stored = null;
+    try {
+      stored = localStorage.getItem('uas-theme') || localStorage.getItem('sedrazavi_theme');
+    } catch (e) {}
 
-    // Check existing state from localStorage
-    if (localStorage.getItem('uas-theme') === 'dark' || (!('uas-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      $('html').addClass('dark');
+    if (stored === 'dark' || (!stored && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      applyThemeMode('dark');
+    } else if (stored === 'light') {
+      applyThemeMode('light');
     }
 
-    $box.on('click', function() {
-      if ($('html').hasClass('dark')) {
-        $('html').removeClass('dark');
-        localStorage.setItem('uas-theme', 'light');
-      } else {
-        $('html').addClass('dark');
-        localStorage.setItem('uas-theme', 'dark');
-      }
+    $box.off('click.uasTheme').on('click.uasTheme', function() {
+      var isDark = document.documentElement.classList.contains('dark') || document.documentElement.getAttribute('data-theme') === 'dark';
+      applyThemeMode(isDark ? 'light' : 'dark');
     });
   }
 
@@ -6790,6 +7093,167 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
     elementorFrontend.hooks.addAction('frontend/element_ready/uas_theme_toggle.default', initThemeToggle);
   });
 })(jQuery);
+`},{path:"elementor-addon-suite/assets/tokens.json",filename:"tokens.json",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: elementor-addon-suite/assets/tokens.json",code:`{
+  "schema_version": "4.0.0",
+  "system": "SedRazavi & Universal Elementor Suite Design System",
+  "colors": {
+    "light": {
+      "bg": "#F8FAFC",
+      "bg_alt": "#F1F5F9",
+      "surface": "#FFFFFF",
+      "surface_card": "#FFFFFF",
+      "surface_hover": "#F8FAFC",
+      "surface_alt": "#E2E8F0",
+      "text_primary": "#0F172A",
+      "text_secondary": "#334155",
+      "text_muted": "#64748B",
+      "text_inverted": "#F8FAFC",
+      "primary": "#2563EB",
+      "primary_hover": "#1D4ED8",
+      "secondary": "#0B132B",
+      "accent": "#D4AF37",
+      "accent_hover": "#AA820A",
+      "border": "#E2E8F0",
+      "border_subtle": "rgba(15, 23, 42, 0.08)",
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "danger": "#EF4444"
+    },
+    "dark": {
+      "bg": "#060B18",
+      "bg_alt": "#070D1E",
+      "surface": "#0B132B",
+      "surface_card": "#0F172A",
+      "surface_hover": "#1C2541",
+      "surface_alt": "#162038",
+      "text_primary": "#F8FAFC",
+      "text_secondary": "#CBD5E1",
+      "text_muted": "#94A3B8",
+      "text_inverted": "#0B132B",
+      "primary": "#3B82F6",
+      "primary_hover": "#2563EB",
+      "secondary": "#1C2541",
+      "accent": "#D4AF37",
+      "accent_hover": "#E5C158",
+      "border": "#334155",
+      "border_subtle": "rgba(255, 255, 255, 0.08)",
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "danger": "#EF4444"
+    }
+  },
+  "typography": {
+    "font_family_sans": "'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, Arial, sans-serif",
+    "font_family_display": "'Vazirmatn', 'Playfair Display', Georgia, serif",
+    "font_family_primary_name": "Vazirmatn",
+    "scale": {
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "1.875rem",
+      "4xl": "2.25rem"
+    },
+    "line_height": {
+      "tight": "1.35",
+      "normal": "1.75",
+      "relaxed": "1.9"
+    }
+  },
+  "spacing": {
+    "xs": "0.25rem",
+    "sm": "0.5rem",
+    "md": "1rem",
+    "lg": "1.5rem",
+    "xl": "2rem",
+    "2xl": "3rem",
+    "3xl": "4.5rem",
+    "container_max_width_px": 1280,
+    "container_padding_px": 16,
+    "widget_gap_px": 20
+  },
+  "radii": {
+    "sm": "8px",
+    "md": "12px",
+    "lg": "16px",
+    "xl": "24px",
+    "pill": "9999px"
+  },
+  "shadows": {
+    "sm": "0 2px 6px rgba(15, 23, 42, 0.06)",
+    "card": "0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04)",
+    "glow": "0 0 24px rgba(212, 175, 55, 0.25)"
+  },
+  "rtl_ltr": {
+    "default_dir": "rtl",
+    "logical_alignment": true,
+    "viewport_md": 768,
+    "viewport_lg": 1025
+  },
+  "elementor_kit": {
+    "system_colors": [
+      { "_id": "primary", "title": "رنگ اصلی (Primary)", "color": "#2563EB" },
+      { "_id": "secondary", "title": "رنگ ثانویه (Secondary / Navy)", "color": "#0B132B" },
+      { "_id": "text", "title": "متن اصلی (Text)", "color": "#1E293B" },
+      { "_id": "accent", "title": "طلایی شاخص (Accent Gold)", "color": "#D4AF37" }
+    ],
+    "custom_colors": [
+      { "_id": "sr_surface", "title": "سطح کارت (Surface)", "color": "#FFFFFF" },
+      { "_id": "sr_surface_dark", "title": "سطح تیره (Dark Surface)", "color": "#0F172A" },
+      { "_id": "sr_muted", "title": "متن فرعی (Muted)", "color": "#64748B" },
+      { "_id": "sr_border", "title": "حاشیه (Border)", "color": "#E2E8F0" },
+      { "_id": "sr_success", "title": "موفقیت (Success)", "color": "#10B981" },
+      { "_id": "sr_warning", "title": "هشدار (Warning)", "color": "#F59E0B" },
+      { "_id": "sr_danger", "title": "خطا (Danger)", "color": "#EF4444" }
+    ],
+    "system_typography": [
+      {
+        "_id": "primary",
+        "title": "سرتیتر اصلی (Primary Heading)",
+        "typography_typography": "custom",
+        "typography_font_family": "Vazirmatn",
+        "typography_font_weight": "800",
+        "typography_font_size": { "unit": "px", "size": 36 },
+        "typography_font_size_tablet": { "unit": "px", "size": 30 },
+        "typography_font_size_mobile": { "unit": "px", "size": 24 },
+        "typography_line_height": { "unit": "em", "size": 1.35 }
+      },
+      {
+        "_id": "secondary",
+        "title": "زیرتیتر (Secondary Heading)",
+        "typography_typography": "custom",
+        "typography_font_family": "Vazirmatn",
+        "typography_font_weight": "700",
+        "typography_font_size": { "unit": "px", "size": 24 },
+        "typography_font_size_tablet": { "unit": "px", "size": 20 },
+        "typography_font_size_mobile": { "unit": "px", "size": 18 },
+        "typography_line_height": { "unit": "em", "size": 1.45 }
+      },
+      {
+        "_id": "text",
+        "title": "متن بدنه (Body Text)",
+        "typography_typography": "custom",
+        "typography_font_family": "Vazirmatn",
+        "typography_font_weight": "400",
+        "typography_font_size": { "unit": "px", "size": 16 },
+        "typography_font_size_tablet": { "unit": "px", "size": 15 },
+        "typography_font_size_mobile": { "unit": "px", "size": 14 },
+        "typography_line_height": { "unit": "em", "size": 1.75 }
+      },
+      {
+        "_id": "accent",
+        "title": "برچسب و دکمه (Accent / CTA)",
+        "typography_typography": "custom",
+        "typography_font_family": "Vazirmatn",
+        "typography_font_weight": "600",
+        "typography_font_size": { "unit": "px", "size": 15 },
+        "typography_line_height": { "unit": "em", "size": 1.5 }
+      }
+    ]
+  }
+}
 `},{path:"elementor-addon-suite/blocks/sovereign-badge/block.json",filename:"block.json",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: elementor-addon-suite/blocks/sovereign-badge/block.json",code:`{
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 2,
@@ -7063,6 +7527,53 @@ final class Universal_Elementor_Addon_Suite {
         if (!get_option('uas_plugin_activated_time')) {
             update_option('uas_plugin_activated_time', time());
         }
+        update_option('uas_version', UAS_VERSION);
+
+        if (function_exists('wp_upload_dir')) {
+            $upload_dir = wp_upload_dir();
+            if (is_array($upload_dir) && empty($upload_dir['error']) && !empty($upload_dir['basedir'])) {
+                wp_mkdir_p(trailingslashit($upload_dir['basedir']) . 'uas-cache/');
+                wp_mkdir_p(trailingslashit($upload_dir['basedir']) . 'uas-standalone-packages/');
+            }
+        }
+
+        if (function_exists('flush_rewrite_rules')) {
+            flush_rewrite_rules(false);
+        }
+    }
+
+    /**
+     * On Plugin Deactivation (Supports Single Site and WordPress Multisite Network-Wide)
+     * Clears transient caches, scheduled cron events, and flushes rewrite rules while preserving user data.
+     */
+    public static function on_deactivation($network_wide = false) {
+        if (function_exists('is_multisite') && is_multisite() && $network_wide) {
+            global $wpdb;
+            $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+            foreach ($blog_ids as $blog_id) {
+                switch_to_blog($blog_id);
+                self::deactivate_single_site();
+                restore_current_blog();
+            }
+        } else {
+            self::deactivate_single_site();
+        }
+    }
+
+    /**
+     * Single Site Deactivation Routine
+     */
+    private static function deactivate_single_site() {
+        if (function_exists('wp_clear_scheduled_hook')) {
+            wp_clear_scheduled_hook('uas_daily_maintenance');
+            wp_clear_scheduled_hook('uas_github_sync_cron');
+        }
+        if (class_exists('\\Elementor\\Plugin') && isset(\\Elementor\\Plugin::$instance->files_manager)) {
+            \\Elementor\\Plugin::$instance->files_manager->clear_cache();
+        }
+        if (function_exists('flush_rewrite_rules')) {
+            flush_rewrite_rules(false);
+        }
     }
 
     /**
@@ -7082,7 +7593,13 @@ final class Universal_Elementor_Addon_Suite {
             return;
         }
 
-        // 2. Always Load Standalone Engine, Industry Blocks, eCommerce/WoodMart Bridge & GitHub Admin
+        // 2. Always Load Unified Asset Manifest, Design Tokens, Standalone Engine, Industry Blocks, eCommerce/WoodMart Bridge & GitHub Admin
+        require_once UAS_PATH . 'includes/class-asset-manifest.php';
+        \\UniversalElementorSuite\\Asset_Manifest::instance();
+
+        require_once UAS_PATH . 'includes/class-design-tokens.php';
+        \\UniversalElementorSuite\\Design_Tokens::instance();
+
         require_once UAS_PATH . 'includes/class-standalone-shortcodes.php';
         \\UniversalElementorSuite\\Standalone_Shortcodes::instance();
 
@@ -7163,7 +7680,7 @@ final class Universal_Elementor_Addon_Suite {
             return;
         }
 
-        $screen = get_current_screen();
+        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
         if (isset($screen->parent_file) && 'plugins.php' === $screen->parent_file && 'update' === $screen->id) {
             return;
         }
@@ -7247,6 +7764,9 @@ Universal_Elementor_Addon_Suite::instance();
 if (function_exists('register_activation_hook')) {
     register_activation_hook(__FILE__, ['Universal_Elementor_Addon_Suite', 'on_activation']);
 }
+if (function_exists('register_deactivation_hook')) {
+    register_deactivation_hook(__FILE__, ['Universal_Elementor_Addon_Suite', 'on_deactivation']);
+}
 `},{path:"elementor-addon-suite/includes/class-admin-settings.php",filename:"class-admin-settings.php",category:"ماژول‌های افزونه (Plugin Includes)",description:"صفحه اختصاصی تنظیمات و فعال/غیرفعال‌سازی ابزارک‌های المنتور در پیشخوان.",code:`<?php
 namespace UniversalElementorSuite;
 
@@ -7288,10 +7808,15 @@ class Admin_Settings {
     }
 
     /**
-     * Enqueue Admin Styles and Scripts
+     * Enqueue Admin Styles and Scripts cleanly via Unified Asset_Manifest
      */
     public function enqueue_assets($hook) {
         if (strpos($hook, 'universal-elementor') === false) {
+            return;
+        }
+
+        if (class_exists('\\UniversalElementorSuite\\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('admin', ['uas-admin-settings-css', 'uas-admin-settings-js']);
             return;
         }
 
@@ -8503,6 +9028,215 @@ class Admin_Settings {
     }
 }
 
+`},{path:"elementor-addon-suite/includes/class-asset-manifest.php",filename:"class-asset-manifest.php",category:"ماژول‌های افزونه (Plugin Includes)",description:"ماژول افزونه وردپرس: elementor-addon-suite/includes/class-asset-manifest.php",code:`<?php
+namespace UniversalElementorSuite;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Unified CSS & JS Asset Manifest Manager
+ *
+ * Serves as Single Source of Truth for frontend, Elementor Editor,
+ * and WP Admin asset handles, eliminating duplicate registrations and
+ * preventing unscoped asset bloat.
+ *
+ * @package Universal_Elementor_Suite
+ */
+class Asset_Manifest {
+
+    private static $_instance = null;
+
+    /**
+     * Cached decoded manifest
+     *
+     * @var array|null
+     */
+    private $manifest = null;
+
+    /**
+     * Track registered scopes per request to guarantee idempotency
+     *
+     * @var array
+     */
+    private $registered_scopes = [];
+
+    public static function instance() {
+        if (is_null(self::$_instance)) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    }
+
+    /**
+     * Load manifest from canonical assets/asset-manifest.json
+     *
+     * @return array
+     */
+    public function get_manifest() {
+        if ($this->manifest !== null) {
+            return $this->manifest;
+        }
+
+        $manifest_path = UAS_PATH . 'assets/asset-manifest.json';
+        if (!file_exists($manifest_path)) {
+            $this->manifest = ['scopes' => []];
+            return $this->manifest;
+        }
+
+        $decoded = json_decode((string) file_get_contents($manifest_path), true);
+        $this->manifest = is_array($decoded) ? $decoded : ['scopes' => []];
+        return $this->manifest;
+    }
+
+    /**
+     * Retrieve entries for a given scope ('frontend', 'editor', 'admin')
+     *
+     * @param string $scope
+     * @return array
+     */
+    public function get_scope_assets($scope) {
+        $manifest = $this->get_manifest();
+        return isset($manifest['scopes'][$scope]) && is_array($manifest['scopes'][$scope])
+            ? $manifest['scopes'][$scope]
+            : ['styles' => [], 'scripts' => []];
+    }
+
+    /**
+     * Register all styles or scripts belonging to a specific scope cleanly once.
+     *
+     * @param string $scope 'frontend' | 'editor' | 'admin'
+     * @param string $kind  'all' | 'styles' | 'scripts'
+     */
+    public function register_scope($scope, $kind = 'all') {
+        $scope_assets = $this->get_scope_assets($scope);
+
+        if (($kind === 'all' || $kind === 'styles') && empty($this->registered_scopes[$scope . ':styles'])) {
+            foreach (($scope_assets['styles'] ?? []) as $entry) {
+                $handle = $entry['handle'] ?? '';
+                $rel    = $entry['path'] ?? '';
+                if (!$handle || !$rel) {
+                    continue;
+                }
+                $abs = UAS_PATH . ltrim($rel, '/');
+                if (!file_exists($abs)) {
+                    continue;
+                }
+                if (!wp_style_is($handle, 'registered')) {
+                    wp_register_style(
+                        $handle,
+                        UAS_URL . ltrim($rel, '/'),
+                        $entry['deps'] ?? [],
+                        defined('UAS_VERSION') ? UAS_VERSION : '1.0.0'
+                    );
+                }
+            }
+            $this->registered_scopes[$scope . ':styles'] = true;
+        }
+
+        if (($kind === 'all' || $kind === 'scripts') && empty($this->registered_scopes[$scope . ':scripts'])) {
+            foreach (($scope_assets['scripts'] ?? []) as $entry) {
+                $handle = $entry['handle'] ?? '';
+                $rel    = $entry['path'] ?? '';
+                if (!$handle || !$rel) {
+                    continue;
+                }
+                $abs = UAS_PATH . ltrim($rel, '/');
+                if (!file_exists($abs)) {
+                    continue;
+                }
+                if (!wp_script_is($handle, 'registered')) {
+                    wp_register_script(
+                        $handle,
+                        UAS_URL . ltrim($rel, '/'),
+                        $entry['deps'] ?? [],
+                        defined('UAS_VERSION') ? UAS_VERSION : '1.0.0',
+                        !empty($entry['in_footer'])
+                    );
+                }
+                if (!empty($entry['localize'])) {
+                    $this->maybe_localize($handle, $entry['localize']);
+                }
+            }
+            $this->registered_scopes[$scope . ':scripts'] = true;
+        }
+    }
+
+    /**
+     * Enqueue non-conditional assets for a scope (or a specific handle)
+     *
+     * @param string $scope
+     * @param array|null $handles Optional explicit subset of handles to enqueue
+     */
+    public function enqueue_scope($scope, $handles = null) {
+        $this->register_scope($scope, 'all');
+        $scope_assets = $this->get_scope_assets($scope);
+
+        foreach (($scope_assets['styles'] ?? []) as $entry) {
+            $handle = $entry['handle'] ?? '';
+            if (!$handle) {
+                continue;
+            }
+            if ($handles !== null && !in_array($handle, $handles, true)) {
+                continue;
+            }
+            if ($handles === null && !empty($entry['conditional'])) {
+                continue;
+            }
+            if (wp_style_is($handle, 'registered')) {
+                wp_enqueue_style($handle);
+            }
+        }
+
+        foreach (($scope_assets['scripts'] ?? []) as $entry) {
+            $handle = $entry['handle'] ?? '';
+            if (!$handle) {
+                continue;
+            }
+            if ($handles !== null && !in_array($handle, $handles, true)) {
+                continue;
+            }
+            if ($handles === null && !empty($entry['conditional'])) {
+                continue;
+            }
+            if (wp_script_is($handle, 'registered')) {
+                wp_enqueue_script($handle);
+            }
+        }
+    }
+
+    /**
+     * Single point localization payload generator (deduplicated per handle)
+     */
+    private function maybe_localize($handle, $object_name) {
+        static $localized = [];
+        $key = $handle . ':' . $object_name;
+        if (!empty($localized[$key])) {
+            return;
+        }
+        $localized[$key] = true;
+
+        if ($object_name === 'uasFrontendConfig') {
+            wp_localize_script($handle, 'uasFrontendConfig', [
+                'restUrl'   => function_exists('rest_url') ? esc_url_raw(rest_url('sedrazavi/v1/')) : '/wp-json/sedrazavi/v1/',
+                'restNonce' => function_exists('wp_create_nonce') ? wp_create_nonce('wp_rest') : '',
+                'ajaxUrl'   => admin_url('admin-ajax.php'),
+                'ajaxNonce' => function_exists('wp_create_nonce') ? wp_create_nonce('uas_industry_nonce') : '',
+            ]);
+        } elseif ($object_name === 'uasIndustryConfig') {
+            wp_localize_script($handle, 'uasIndustryConfig', [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce'   => function_exists('wp_create_nonce') ? wp_create_nonce('uas_industry_nonce') : '',
+            ]);
+        } elseif ($object_name === 'uasAdminVars') {
+            wp_localize_script($handle, 'uasAdminVars', [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce'   => function_exists('wp_create_nonce') ? wp_create_nonce('uas_admin_nonce') : '',
+            ]);
+        }
+    }
+}
 `},{path:"elementor-addon-suite/includes/class-capability-registry.php",filename:"class-capability-registry.php",category:"ماژول‌های افزونه (Plugin Includes)",description:"ماژول افزونه وردپرس: elementor-addon-suite/includes/class-capability-registry.php",code:`<?php
 namespace UniversalElementorSuite;
 
@@ -9149,6 +9883,356 @@ class Contract_Registry {
         ]);
     }
 }
+`},{path:"elementor-addon-suite/includes/class-design-tokens.php",filename:"class-design-tokens.php",category:"ماژول‌های افزونه (Plugin Includes)",description:"ماژول افزونه وردپرس: elementor-addon-suite/includes/class-design-tokens.php",code:`<?php
+namespace UniversalElementorSuite;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Unified Design System & Elementor Global Kit Synchronizer
+ *
+ * Single Source of Truth bridging:
+ *  - assets/tokens.json & assets/css/variables.css
+ *  - WP Options (\`uas_design_tokens\`, \`sedrazavi_global_design_tokens\`)
+ *  - Elementor Active Kit (\`elementor_active_kit\` -> system_colors, custom_colors, system_typography, layout)
+ *  - Frontend, Elementor Preview, and Elementor Editor CSS variables (Light/Dark + RTL/LTR)
+ *
+ * @package UniversalElementorSuite
+ * @since 4.0.0
+ */
+class Design_Tokens {
+
+    const OPTION_KEY       = 'uas_design_tokens';
+    const THEME_OPTION_KEY = 'sedrazavi_global_design_tokens';
+    const KIT_SYNC_OPTION  = 'uas_kit_tokens_synced_v4';
+
+    private static $_instance = null;
+
+    /**
+     * Cached decoded tokens.json schema
+     *
+     * @var array|null
+     */
+    private $schema_cache = null;
+
+    public static function instance() {
+        if (is_null(self::$_instance)) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    }
+
+    private function __construct() {
+        // Inject dynamic token overrides seamlessly across frontend, Elementor preview, and Elementor editor
+        add_action('wp_head', [$this, 'render_dynamic_tokens_css'], 8);
+        add_action('elementor/editor/after_enqueue_styles', [$this, 'enqueue_editor_token_vars'], 20);
+        add_action('elementor/preview/enqueue_styles', [$this, 'enqueue_preview_token_vars'], 20);
+
+        // Synchronize tokens cleanly with Elementor Active Kit when Elementor initializes or theme switches
+        add_action('elementor/init', [$this, 'maybe_sync_elementor_kit'], 25);
+        add_action('after_switch_theme', [$this, 'on_theme_switch']);
+
+        // Admin AJAX endpoint for manual or programmatic Kit synchronization
+        add_action('wp_ajax_uas_sync_design_tokens', [$this, 'ajax_sync_design_tokens']);
+    }
+
+    /**
+     * Load canonical design system schema from assets/tokens.json
+     *
+     * @return array
+     */
+    public function get_schema() {
+        if ($this->schema_cache !== null) {
+            return $this->schema_cache;
+        }
+
+        $file = UAS_PATH . 'assets/tokens.json';
+        if (!file_exists($file)) {
+            $this->schema_cache = [];
+            return [];
+        }
+
+        $decoded = json_decode((string) file_get_contents($file), true);
+        $this->schema_cache = is_array($decoded) ? $decoded : [];
+        return $this->schema_cache;
+    }
+
+    /**
+     * Get active unified color, typography, and layout tokens (merged with WP options)
+     *
+     * @return array
+     */
+    public function get_active_tokens() {
+        $schema       = $this->get_schema();
+        $light        = $schema['colors']['light'] ?? [];
+        $dark         = $schema['colors']['dark'] ?? [];
+        $typography   = $schema['typography'] ?? [];
+        $spacing      = $schema['spacing'] ?? [];
+
+        $plugin_saved = get_option(self::OPTION_KEY, []);
+        $theme_saved  = get_option(self::THEME_OPTION_KEY, []);
+        $plugin_saved = is_array($plugin_saved) ? $plugin_saved : [];
+        $theme_saved  = is_array($theme_saved) ? $theme_saved : [];
+
+        // Reconcile theme gold/navy tokens cleanly if configured by user in SedRazavi Theme Options
+        $accent_gold = !empty($theme_saved['brand.color_gold'])
+            ? sanitize_hex_color($theme_saved['brand.color_gold'])
+            : ($light['accent'] ?? '#D4AF37');
+        $secondary_navy = !empty($theme_saved['brand.color_navy'])
+            ? sanitize_hex_color($theme_saved['brand.color_navy'])
+            : ($light['secondary'] ?? '#0B132B');
+
+        $defaults = [
+            'primary_color'    => $light['primary'] ?? '#2563EB',
+            'secondary_color'  => $secondary_navy ?: '#0B132B',
+            'text_color'       => $light['text_primary'] ?? '#0F172A',
+            'accent_color'     => $accent_gold ?: '#D4AF37',
+            'dark_bg'          => $dark['bg'] ?? '#060B18',
+            'dark_surface'     => $dark['surface'] ?? '#0B132B',
+            'dark_card'        => $dark['surface_card'] ?? '#0F172A',
+            'dark_text'        => $dark['text_primary'] ?? '#F8FAFC',
+            'font_family'      => $typography['font_family_primary_name'] ?? 'Vazirmatn',
+            'font_stack'       => $typography['font_family_sans'] ?? "'Vazirmatn', sans-serif",
+            'container_width'  => intval($spacing['container_max_width_px'] ?? 1280),
+            'default_mode'     => get_option('sedrazavi_default_mode', 'light'),
+        ];
+
+        return wp_parse_args($plugin_saved, $defaults);
+    }
+
+    /**
+     * Build CSS Custom Properties override string bridging --uas-* and --sr-* tokens
+     *
+     * @return string
+     */
+    public function build_dynamic_css() {
+        $t      = $this->get_active_tokens();
+        $is_rtl = function_exists('is_rtl') ? is_rtl() : true;
+
+        $primary   = esc_attr($t['primary_color']);
+        $secondary = esc_attr($t['secondary_color']);
+        $text      = esc_attr($t['text_color']);
+        $accent    = esc_attr($t['accent_color']);
+        $font      = esc_attr($t['font_stack']);
+        $width     = intval($t['container_width']) ?: 1280;
+        $dark_bg   = esc_attr($t['dark_bg']);
+        $dark_surf = esc_attr($t['dark_surface']);
+        $dark_card = esc_attr($t['dark_card']);
+        $dark_text = esc_attr($t['dark_text']);
+
+        $css  = ":root {\\n";
+        $css .= "  --uas-primary-color: {$primary};\\n";
+        $css .= "  --uas-secondary-color: {$secondary};\\n";
+        $css .= "  --uas-accent-color: {$accent};\\n";
+        $css .= "  --uas-text-main: {$text};\\n";
+        $css .= "  --uas-font-family: {$font};\\n";
+        $css .= "  --uas-container-max: {$width}px;\\n";
+        $css .= "  --sr-primary-accent: {$accent};\\n";
+        $css .= "  --sr-gold-accent: {$accent};\\n";
+        $css .= "  --sr-navy-900: {$secondary};\\n";
+        $css .= "  --sr-font-family: {$font};\\n";
+        $css .= "  --uas-dir: " . ($is_rtl ? 'rtl' : 'ltr') . ";\\n";
+        $css .= "}\\n";
+
+        $css .= ".dark, html.dark, html[data-theme=\\"dark\\"], body.dark-mode {\\n";
+        $css .= "  --uas-bg-body: {$dark_bg};\\n";
+        $css .= "  --uas-bg-surface: {$dark_surf};\\n";
+        $css .= "  --uas-bg-card: {$dark_card};\\n";
+        $css .= "  --uas-text-main: {$dark_text};\\n";
+        $css .= "}\\n";
+
+        return $css;
+    }
+
+    /**
+     * Render dynamic tokens CSS in frontend <head>
+     */
+    public function render_dynamic_tokens_css() {
+        echo '<style id="uas-dynamic-design-tokens">' . "\\n" . $this->build_dynamic_css() . "</style>\\n";
+    }
+
+    /**
+     * Attach dynamic tokens inside Elementor Editor
+     */
+    public function enqueue_editor_token_vars() {
+        if (wp_style_is('uas-editor-styles', 'enqueued')) {
+            wp_add_inline_style('uas-editor-styles', $this->build_dynamic_css());
+        }
+    }
+
+    /**
+     * Attach dynamic tokens inside Elementor Preview canvas
+     */
+    public function enqueue_preview_token_vars() {
+        if (wp_style_is('uas-design-tokens', 'registered') || wp_style_is('uas-widgets-core', 'enqueued')) {
+            $handle = wp_style_is('uas-widgets-core', 'enqueued') ? 'uas-widgets-core' : 'uas-design-tokens';
+            wp_add_inline_style($handle, $this->build_dynamic_css());
+        }
+    }
+
+    /**
+     * Sync tokens to Elementor Kit once after activation or version upgrade
+     */
+    public function maybe_sync_elementor_kit() {
+        if (!class_exists('\\Elementor\\Plugin')) {
+            return;
+        }
+        if (!get_option(self::KIT_SYNC_OPTION, false)) {
+            $synced = $this->sync_to_elementor_kit(false);
+            if ($synced) {
+                update_option(self::KIT_SYNC_OPTION, true);
+            }
+        }
+    }
+
+    /**
+     * Re-sync when switching themes
+     */
+    public function on_theme_switch() {
+        $this->sync_to_elementor_kit(true);
+    }
+
+    /**
+     * Synchronize unified Design System tokens into Elementor's Active Global Kit (\`elementor_active_kit\`)
+     *
+     * @param bool $overwrite_existing Whether to overwrite already customized Kit system colors
+     * @return bool
+     */
+    public function sync_to_elementor_kit($overwrite_existing = false) {
+        if (!class_exists('\\Elementor\\Plugin')) {
+            return false;
+        }
+
+        $active_kit_id = intval(get_option('elementor_active_kit', 0));
+        if (!$active_kit_id && isset(\\Elementor\\Plugin::$instance->kits_manager) && method_exists(\\Elementor\\Plugin::$instance->kits_manager, 'get_active_id')) {
+            $active_kit_id = intval(\\Elementor\\Plugin::$instance->kits_manager->get_active_id());
+        }
+
+        if ($active_kit_id <= 0) {
+            return false;
+        }
+
+        $schema       = $this->get_schema();
+        $kit_defaults = $schema['elementor_kit'] ?? [];
+        $tokens       = $this->get_active_tokens();
+
+        $kit_settings = get_post_meta($active_kit_id, '_elementor_page_settings', true);
+        if (!is_array($kit_settings)) {
+            $kit_settings = [];
+        }
+
+        // 1. System Colors (primary, secondary, text, accent)
+        $target_system_colors = [
+            ['_id' => 'primary', 'title' => __('رنگ اصلی (Primary)', 'universal-elementor-suite'), 'color' => $tokens['primary_color']],
+            ['_id' => 'secondary', 'title' => __('رنگ ثانویه (Secondary / Navy)', 'universal-elementor-suite'), 'color' => $tokens['secondary_color']],
+            ['_id' => 'text', 'title' => __('متن اصلی (Text)', 'universal-elementor-suite'), 'color' => $tokens['text_color']],
+            ['_id' => 'accent', 'title' => __('طلایی شاخص (Accent)', 'universal-elementor-suite'), 'color' => $tokens['accent_color']],
+        ];
+
+        if ($overwrite_existing || empty($kit_settings['system_colors']) || !is_array($kit_settings['system_colors'])) {
+            $kit_settings['system_colors'] = $target_system_colors;
+        }
+
+        // 2. Custom Semantic Colors from tokens.json
+        if (!empty($kit_defaults['custom_colors']) && is_array($kit_defaults['custom_colors'])) {
+            if ($overwrite_existing || empty($kit_settings['custom_colors']) || !is_array($kit_settings['custom_colors'])) {
+                $kit_settings['custom_colors'] = $kit_defaults['custom_colors'];
+            } else {
+                // Merge missing custom semantic swatches without clobbering user custom swatches
+                $existing_ids = array_column($kit_settings['custom_colors'], '_id');
+                foreach ($kit_defaults['custom_colors'] as $swatch) {
+                    if (!empty($swatch['_id']) && !in_array($swatch['_id'], $existing_ids, true)) {
+                        $kit_settings['custom_colors'][] = $swatch;
+                    }
+                }
+            }
+        }
+
+        // 3. System Typography (Vazirmatn responsive scale)
+        if (!empty($kit_defaults['system_typography']) && is_array($kit_defaults['system_typography'])) {
+            if ($overwrite_existing || empty($kit_settings['system_typography']) || !is_array($kit_settings['system_typography'])) {
+                $kit_settings['system_typography'] = $kit_defaults['system_typography'];
+            }
+        }
+
+        // 4. Layout Container Width & Breakpoints
+        $container_width = intval($tokens['container_width']) ?: 1280;
+        if ($overwrite_existing || empty($kit_settings['container_width'])) {
+            $kit_settings['container_width'] = [
+                'unit'  => 'px',
+                'size'  => $container_width,
+                'sizes' => [],
+            ];
+        }
+        if ($overwrite_existing || empty($kit_settings['space_between_widgets'])) {
+            $kit_settings['space_between_widgets'] = [
+                'column' => (string) intval($schema['spacing']['widget_gap_px'] ?? 20),
+                'row'    => (string) intval($schema['spacing']['widget_gap_px'] ?? 20),
+                'unit'   => 'px',
+                'isLinked' => true,
+            ];
+        }
+        if (empty($kit_settings['viewport_md'])) {
+            $kit_settings['viewport_md'] = intval($schema['rtl_ltr']['viewport_md'] ?? 768);
+        }
+        if (empty($kit_settings['viewport_lg'])) {
+            $kit_settings['viewport_lg'] = intval($schema['rtl_ltr']['viewport_lg'] ?? 1025);
+        }
+
+        update_post_meta($active_kit_id, '_elementor_page_settings', $kit_settings);
+
+        if (isset(\\Elementor\\Plugin::$instance->files_manager) && method_exists(\\Elementor\\Plugin::$instance->files_manager, 'clear_cache')) {
+            \\Elementor\\Plugin::$instance->files_manager->clear_cache();
+        }
+
+        return true;
+    }
+
+    /**
+     * AJAX endpoint to force-sync unified Design Tokens with Elementor Global Kit
+     */
+    public function ajax_sync_design_tokens() {
+        check_ajax_referer('uas_admin_nonce', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'سطح دسترسی ناکافی است.']);
+        }
+
+        $updates = [];
+        $hex_fields = ['primary_color', 'secondary_color', 'text_color', 'accent_color', 'dark_bg', 'dark_surface', 'dark_card', 'dark_text'];
+        foreach ($hex_fields as $field) {
+            if (!empty($_POST[$field])) {
+                $sanitized = sanitize_hex_color(wp_unslash($_POST[$field]));
+                if ($sanitized) {
+                    $updates[$field] = $sanitized;
+                }
+            }
+        }
+        if (!empty($_POST['font_family'])) {
+            $updates['font_family'] = sanitize_text_field(wp_unslash($_POST['font_family']));
+        }
+        if (!empty($_POST['container_width'])) {
+            $updates['container_width'] = max(960, min(1600, intval($_POST['container_width'])));
+        }
+
+        if (!empty($updates)) {
+            $current = get_option(self::OPTION_KEY, []);
+            $merged  = wp_parse_args($updates, is_array($current) ? $current : []);
+            update_option(self::OPTION_KEY, $merged);
+        }
+
+        $synced = $this->sync_to_elementor_kit(true);
+        wp_send_json_success([
+            'message'    => $synced
+                ? 'توکن‌های طراحی با کیت سراسری المنتور (Global Kit) با موفقیت همگام‌سازی شدند.'
+                : 'توکن‌های CSS ذخیره شدند (افزونه المنتور یا کیت فعال هنوز راه‌اندازی نشده است).',
+            'kit_synced' => $synced,
+            'tokens'     => $this->get_active_tokens(),
+        ]);
+    }
+}
 `},{path:"elementor-addon-suite/includes/class-dynamic-query-engine.php",filename:"class-dynamic-query-engine.php",category:"ماژول‌های افزونه (Plugin Includes)",description:"ماژول افزونه وردپرس: elementor-addon-suite/includes/class-dynamic-query-engine.php",code:`<?php
 namespace UniversalElementorSuite;
 
@@ -9366,6 +10450,11 @@ class GitHub_Admin {
 
     public function enqueue_admin_assets($hook) {
         if (strpos($hook, 'sedrazavi') === false && strpos($hook, 'universal') === false) {
+            return;
+        }
+
+        if (class_exists('\\UniversalElementorSuite\\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('admin', ['uas-github-admin-css']);
             return;
         }
 
@@ -10586,12 +11675,22 @@ class Gutenberg_Blocks {
     }
 
     /**
-     * Enqueue Frontend Styles
+     * Enqueue Frontend Styles (Scoped strictly to posts containing sedrazavi/* blocks)
      */
     public function enqueue_frontend_assets() {
-        wp_register_style('sedrazavi-gutenberg-frontend-css', false, [], UAS_VERSION);
-        wp_add_inline_style('sedrazavi-gutenberg-frontend-css', $this->generate_frontend_css());
-        wp_enqueue_style('sedrazavi-gutenberg-frontend-css');
+        static $registered = false;
+        if (!$registered) {
+            wp_register_style('sedrazavi-gutenberg-frontend-css', false, [], defined('UAS_VERSION') ? UAS_VERSION : '1.0.0');
+            wp_add_inline_style('sedrazavi-gutenberg-frontend-css', $this->generate_frontend_css());
+            $registered = true;
+        }
+
+        if (function_exists('has_blocks') && is_singular() && has_blocks()) {
+            $post = get_post();
+            if ($post && strpos((string) $post->post_content, 'wp:sedrazavi/') !== false) {
+                wp_enqueue_style('sedrazavi-gutenberg-frontend-css');
+            }
+        }
     }
 
     /**
@@ -11358,9 +12457,14 @@ class Industry_Blocks {
     }
 
     /**
-     * Enqueue Industry Blocks JS & localized nonce config
+     * Enqueue Industry Blocks JS & localized nonce config via Unified Asset_Manifest
      */
     public function enqueue_industry_assets() {
+        if (class_exists('\\UniversalElementorSuite\\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('frontend', ['uas-industry-blocks-js']);
+            return;
+        }
+
         wp_register_script(
             'uas-industry-blocks-js',
             UAS_URL . 'assets/js/industry-blocks.js',
@@ -13052,13 +14156,13 @@ class Plugin {
         // Register Custom Elementor Category
         add_action('elementor/elements/categories_registered', [$this, 'register_category']);
 
-        // Register Custom Elementor Widgets
+        // Register Custom Elementor Widgets (Single canonical hook for Elementor >= 3.5)
         add_action('elementor/widgets/register', [$this, 'register_widgets']);
-        add_action('elementor/widgets/widgets_registered', [$this, 'register_widgets']);
 
-        // Register Global Frontend & Editor Assets
+        // Register & Enqueue Scoped Frontend, Preview, and Editor Assets via Asset_Manifest
         add_action('elementor/frontend/after_register_styles', [$this, 'register_frontend_styles']);
         add_action('elementor/frontend/after_register_scripts', [$this, 'register_frontend_scripts']);
+        add_action('elementor/preview/enqueue_styles', [$this, 'enqueue_preview_styles']);
         add_action('elementor/editor/after_enqueue_styles', [$this, 'enqueue_editor_styles']);
 
         // AJAX Action for Manual Template Import
@@ -13181,6 +14285,12 @@ class Plugin {
      * @param \\Elementor\\Widgets_Manager $widgets_manager
      */
     public function register_widgets($widgets_manager) {
+        static $already_registered = false;
+        if ($already_registered) {
+            return;
+        }
+        $already_registered = true;
+
         // 1. Core Widget Base Class
         require_once UAS_PATH . 'includes/class-widget-base.php';
 
@@ -13190,82 +14300,55 @@ class Plugin {
         $widgets_map = self::get_widgets_map();
 
         foreach ($widgets_map as $widget_id => $data) {
-            // Check if widget is disabled in admin settings
             if (in_array($widget_id, $disabled_widgets, true)) {
-                continue; // Skip loading and registration to save memory and improve performance
+                continue;
             }
 
             $filepath = UAS_PATH . 'includes/widgets/' . $data['file'];
             if (file_exists($filepath)) {
                 require_once $filepath;
                 $class_name = $data['class'];
-                if (class_exists($class_name)) {
-                    if (method_exists($widgets_manager, 'register')) {
-                        $widgets_manager->register(new $class_name());
-                    } elseif (method_exists($widgets_manager, 'register_widget_type')) {
-                        $widgets_manager->register_widget_type(new $class_name());
-                    }
+                if (class_exists($class_name) && method_exists($widgets_manager, 'register')) {
+                    $widgets_manager->register(new $class_name());
                 }
             }
         }
     }
 
     /**
-     * Register Frontend CSS
+     * Register Frontend CSS via Unified Asset_Manifest
      */
     public function register_frontend_styles() {
-        wp_register_style('uas-widgets-core', UAS_URL . 'assets/css/widgets-core.css', [], UAS_VERSION);
-        wp_register_style('uas-hero-css', UAS_URL . 'assets/css/widgets/hero.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-services-grid-css', UAS_URL . 'assets/css/widgets/services-grid.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-testimonials-css', UAS_URL . 'assets/css/widgets/testimonials.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-posts-css', UAS_URL . 'assets/css/widgets/posts.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-video-css', UAS_URL . 'assets/css/widgets/video.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-story-bar-css', UAS_URL . 'assets/css/widgets/story-bar.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-team-css', UAS_URL . 'assets/css/widgets/team.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-faq-css', UAS_URL . 'assets/css/widgets/faq.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-contact-booking-css', UAS_URL . 'assets/css/widgets/contact-booking.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-cta-css', UAS_URL . 'assets/css/widgets/cta.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-banner-slider-css', UAS_URL . 'assets/css/widgets/banner-slider.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-floating-dock-css', UAS_URL . 'assets/css/widgets/floating-dock.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-theme-toggle-css', UAS_URL . 'assets/css/widgets/theme-toggle.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-stat-counter-css', UAS_URL . 'assets/css/widgets/stat-counter.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-floating-cta-css', UAS_URL . 'assets/css/widgets/floating-cta.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-pricing-matrix-css', UAS_URL . 'assets/css/widgets/pricing-matrix.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-hero-split-css', UAS_URL . 'assets/css/widgets/hero-split.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-bento-tabs-css', UAS_URL . 'assets/css/widgets/bento-tabs.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-dynamic-grid-css', UAS_URL . 'assets/css/widgets/dynamic-grid.css', ['uas-widgets-core'], UAS_VERSION);
+        if (class_exists('\\UniversalElementorSuite\\Asset_Manifest')) {
+            Asset_Manifest::instance()->register_scope('frontend', 'styles');
+        }
     }
 
     /**
-     * Register Frontend JS
+     * Register Frontend JS via Unified Asset_Manifest
      */
     public function register_frontend_scripts() {
-        wp_register_script('uas-widgets-core', UAS_URL . 'assets/js/widgets-core.js', ['jquery'], UAS_VERSION, true);
-        wp_localize_script('uas-widgets-core', 'uasFrontendConfig', [
-            'restUrl'   => function_exists('rest_url') ? esc_url_raw(rest_url('sedrazavi/v1/')) : '/wp-json/sedrazavi/v1/',
-            'restNonce' => wp_create_nonce('wp_rest'),
-            'ajaxUrl'   => admin_url('admin-ajax.php'),
-            'ajaxNonce' => wp_create_nonce('uas_industry_nonce'),
-        ]);
-        wp_register_script('uas-story-bar-js', UAS_URL . 'assets/js/widgets/story-bar.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-faq-js', UAS_URL . 'assets/js/widgets/faq.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-floating-dock-js', UAS_URL . 'assets/js/widgets/floating-dock.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-theme-toggle-js', UAS_URL . 'assets/js/widgets/theme-toggle.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-pricing-switcher-js', UAS_URL . 'assets/js/widgets/pricing-switcher.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-fomo-countdown-js', UAS_URL . 'assets/js/widgets/fomo-countdown.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-before-after-js', UAS_URL . 'assets/js/widgets/before-after.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-stat-counter-js', UAS_URL . 'assets/js/widgets/stat-counter.js', ['uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-floating-cta-js', UAS_URL . 'assets/js/widgets/floating-cta.js', ['uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-pricing-matrix-js', UAS_URL . 'assets/js/widgets/pricing-matrix.js', ['uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-hero-split-js', UAS_URL . 'assets/js/widgets/hero-split.js', ['uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-bento-tabs-js', UAS_URL . 'assets/js/widgets/bento-tabs.js', ['uas-widgets-core'], UAS_VERSION, true);
+        if (class_exists('\\UniversalElementorSuite\\Asset_Manifest')) {
+            Asset_Manifest::instance()->register_scope('frontend', 'scripts');
+        }
     }
 
     /**
-     * Enqueue Editor Styles
+     * Enqueue Preview Core CSS cleanly inside Elementor Canvas/Preview iframe only
+     */
+    public function enqueue_preview_styles() {
+        if (class_exists('\\UniversalElementorSuite\\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('frontend', ['uas-widgets-core']);
+        }
+    }
+
+    /**
+     * Enqueue Editor Styles strictly in Elementor Editor panel
      */
     public function enqueue_editor_styles() {
-        wp_enqueue_style('uas-editor-styles', UAS_URL . 'assets/css/editor.css', [], UAS_VERSION);
+        if (class_exists('\\UniversalElementorSuite\\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('editor');
+        }
     }
 
     /**
@@ -13307,7 +14390,7 @@ class Sovereign_Motion_Presets {
         add_action('rest_api_init', [$this, 'register_rest_routes']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_motion_styles']);
         add_action('elementor/frontend/after_enqueue_styles', [$this, 'enqueue_motion_styles']);
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_motion_styles']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_motion_styles']);
     }
 
     public function register_rest_routes() {
@@ -13327,9 +14410,24 @@ class Sovereign_Motion_Presets {
         ]);
     }
 
+    public function enqueue_admin_motion_styles($hook = '') {
+        if (strpos((string) $hook, 'sedrazavi') === false && strpos((string) $hook, 'universal') === false) {
+            return;
+        }
+        $this->enqueue_motion_styles();
+    }
+
     public function enqueue_motion_styles() {
+        static $enqueued = false;
+        if ($enqueued) {
+            return;
+        }
+        $enqueued = true;
+
         $css = $this->generate_motion_css();
-        wp_register_style('sedrazavi-motion-engine', false);
+        if (!wp_style_is('sedrazavi-motion-engine', 'registered')) {
+            wp_register_style('sedrazavi-motion-engine', false, [], defined('UAS_VERSION') ? UAS_VERSION : '1.0.0');
+        }
         wp_enqueue_style('sedrazavi-motion-engine');
         wp_add_inline_style('sedrazavi-motion-engine', $css);
     }
@@ -14593,9 +15691,14 @@ class Standalone_Shortcodes {
     }
 
     /**
-     * Enqueue independent CSS & JS for standalone blocks
+     * Enqueue independent CSS & JS for standalone blocks via Unified Asset_Manifest
      */
     public function enqueue_standalone_assets() {
+        if (class_exists('\\UniversalElementorSuite\\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('frontend', ['uas-standalone-blocks', 'uas-standalone-blocks-js']);
+            return;
+        }
+
         wp_register_style(
             'uas-standalone-blocks',
             UAS_URL . 'assets/css/standalone-blocks.css',
@@ -14616,7 +15719,6 @@ class Standalone_Shortcodes {
             'ajaxNonce' => wp_create_nonce('uas_industry_nonce'),
         ]);
 
-        // Auto enqueue if on singular post or page
         wp_enqueue_style('uas-standalone-blocks');
         wp_enqueue_script('uas-standalone-blocks-js');
     }
@@ -15739,17 +16841,155 @@ class Template_Importer {
                     'meta_value'     => $slug,
                 ]);
 
+                $pro_widgets = !empty($data['content']) && is_array($data['content'])
+                    ? self::detect_pro_widgets($data['content'])
+                    : [];
+
                 $manifest[] = [
-                    'slug'        => $slug,
-                    'title'       => $data['title'],
-                    'type'        => $data['type'] ?? $default_type,
-                    'is_imported' => !empty($existing),
-                    'post_id'     => !empty($existing) ? $existing[0]->ID : 0,
-                    'file'        => $file,
+                    'slug'         => $slug,
+                    'title'        => $data['title'],
+                    'type'         => $data['type'] ?? $default_type,
+                    'is_imported'  => !empty($existing),
+                    'post_id'      => !empty($existing) ? $existing[0]->ID : 0,
+                    'pro_required' => !empty($pro_widgets),
+                    'pro_widgets'  => $pro_widgets,
+                    'file'         => $file,
                 ];
             }
         }
         return $manifest;
+    }
+
+    /**
+     * Canonical list of Elementor Pro-only widget slugs detected in templates
+     *
+     * @return array
+     */
+    public static function get_pro_widget_slugs() {
+        return [
+            'theme-site-logo',
+            'nav-menu',
+            'archive-posts',
+            'theme-archive-title',
+            'theme-post-title',
+            'post-info',
+            'theme-post-featured-image',
+            'theme-post-content',
+            'author-box',
+            'post-comments',
+            'form',
+            'posts',
+            'slides',
+            'price-table',
+            'price-list',
+            'flip-box',
+            'call-to-action',
+        ];
+    }
+
+    /**
+     * Detect any Elementor Pro-only widgetType slugs inside a template content tree
+     *
+     * @param array $elements
+     * @return array
+     */
+    public static function detect_pro_widgets(array $elements) {
+        $used = self::extract_widget_types($elements);
+        $pro_slugs = self::get_pro_widget_slugs();
+        $found = [];
+        foreach ($used as $slug) {
+            if (in_array($slug, $pro_slugs, true)) {
+                $found[] = $slug;
+            }
+        }
+        return array_values(array_unique($found));
+    }
+
+    /**
+     * Adapt Elementor Pro Theme Builder widgets into native Elementor Free / uas_* equivalents
+     * during import when Elementor Pro is inactive (never mutates source JSON files on disk).
+     *
+     * @param array $elements Passed by reference
+     * @return int Number of nodes adapted for Elementor Free
+     */
+    public static function adapt_pro_widgets_for_free(array &$elements) {
+        $adapted = 0;
+
+        foreach ($elements as &$el) {
+            if (!is_array($el)) {
+                continue;
+            }
+
+            if (!empty($el['elType']) && $el['elType'] === 'widget' && !empty($el['widgetType'])) {
+                $wt = sanitize_key($el['widgetType']);
+                switch ($wt) {
+                    case 'theme-site-logo':
+                        $el['widgetType'] = 'heading';
+                        $el['settings'] = [
+                            'title'       => function_exists('get_bloginfo') ? get_bloginfo('name') : 'SedRazavi Studio',
+                            'header_size' => 'span',
+                            'link'        => ['url' => function_exists('home_url') ? home_url('/') : '/'],
+                            'align'       => $el['settings']['align'] ?? 'right',
+                        ];
+                        $adapted++;
+                        break;
+                    case 'nav-menu':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_nav_menu]'];
+                        $adapted++;
+                        break;
+                    case 'theme-archive-title':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_archive_title]'];
+                        $adapted++;
+                        break;
+                    case 'archive-posts':
+                        $el['widgetType'] = 'uas_posts_grid';
+                        $el['settings'] = [
+                            'posts_per_page' => isset($el['settings']['posts_per_page']) ? (int) $el['settings']['posts_per_page'] : 9,
+                            'columns'        => isset($el['settings']['columns']) ? (string) $el['settings']['columns'] : '3',
+                        ];
+                        $adapted++;
+                        break;
+                    case 'theme-post-title':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="title"]'];
+                        $adapted++;
+                        break;
+                    case 'post-info':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="meta"]'];
+                        $adapted++;
+                        break;
+                    case 'theme-post-featured-image':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="thumbnail"]'];
+                        $adapted++;
+                        break;
+                    case 'theme-post-content':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="content"]'];
+                        $adapted++;
+                        break;
+                    case 'author-box':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="author"]'];
+                        $adapted++;
+                        break;
+                    case 'post-comments':
+                        $el['widgetType'] = 'shortcode';
+                        $el['settings'] = ['shortcode' => '[uas_dynamic_post_field field="comments"]'];
+                        $adapted++;
+                        break;
+                }
+            }
+
+            if (!empty($el['elements']) && is_array($el['elements'])) {
+                $adapted += self::adapt_pro_widgets_for_free($el['elements']);
+            }
+        }
+
+        return $adapted;
     }
 
     /**
@@ -15891,9 +17131,10 @@ class Template_Importer {
             if (isset($node['url']) && is_string($node['url']) && $placeholder_base_url) {
                 $url = $node['url'];
                 $is_external_demo = (strpos($url, 'images.unsplash.com') !== false || strpos($url, 'placeholder.com') !== false || strpos($url, 'via.placeholder') !== false);
+                $is_sovereign_relative = (($node['source'] ?? '') === 'sovereign_local') && ($url === '' || strpos($url, 'http') !== 0);
                 $has_orphan_id = !empty($node['id']) && function_exists('get_post_type') && get_post_type((int) $node['id']) !== 'attachment';
 
-                if ($is_external_demo || $has_orphan_id) {
+                if ($is_external_demo || $is_sovereign_relative || $has_orphan_id) {
                     $node['url'] = $pick_placeholder($url);
                     $node['id'] = '';
                     $node['source'] = 'sovereign_local';
@@ -15948,6 +17189,15 @@ class Template_Importer {
 
         if (!is_array($data) || empty($data['title']) || empty($data['content'])) {
             return ['success' => false, 'message' => 'فرمت فایل قالب نامعتبر است.'];
+        }
+
+        // Automated Elementor Free Fallback Adaptation (only when Elementor Pro is inactive)
+        $pro_widgets = self::detect_pro_widgets($data['content']);
+        $adapted_for_free = false;
+        $adapted_count = 0;
+        if (!defined('ELEMENTOR_PRO_VERSION') && !empty($pro_widgets)) {
+            $adapted_count = self::adapt_pro_widgets_for_free($data['content']);
+            $adapted_for_free = $adapted_count > 0;
         }
 
         // Strict Widget Dependency Gating before database insertion
@@ -16005,7 +17255,10 @@ class Template_Importer {
         update_post_meta($post_id, '_elementor_data', wp_slash(json_encode($data['content'])));
         update_post_meta($post_id, '_elementor_version', defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : '3.24.0');
         update_post_meta($post_id, '_uas_template_slug', $slug);
+        update_post_meta($post_id, '_uas_template_type', sanitize_key($type));
         update_post_meta($post_id, '_uas_required_widgets', $dep_check['required_widgets']);
+        update_post_meta($post_id, '_uas_pro_widgets', $pro_widgets);
+        update_post_meta($post_id, '_uas_adapted_for_free', $adapted_for_free ? 'yes' : 'no');
 
         if ($type === 'popup' && !empty($data['page_settings'])) {
             update_post_meta($post_id, '_elementor_page_settings', wp_slash(json_encode($data['page_settings'])));
@@ -16014,13 +17267,15 @@ class Template_Importer {
         self::flush_elementor_css_cache();
 
         return [
-            'success'        => true,
-            'post_id'        => $post_id,
-            'title'          => $data['title'],
-            'slug'           => $slug,
-            'relinked_media' => $relinked_media,
-            'status'         => 'imported',
-            'message'        => 'قالب با موفقیت به کتابخانه الگوهای المنتور اضافه شد.'
+            'success'          => true,
+            'post_id'          => $post_id,
+            'title'            => $data['title'],
+            'slug'             => $slug,
+            'relinked_media'   => $relinked_media,
+            'adapted_for_free' => $adapted_for_free,
+            'adapted_widgets'  => $adapted_count,
+            'status'           => 'imported',
+            'message'          => 'قالب با موفقیت به کتابخانه الگوهای المنتور اضافه شد.'
         ];
     }
 
@@ -16053,6 +17308,13 @@ class Template_Importer {
 
             if (!is_array($data) || empty($data['title']) || empty($data['content'])) {
                 continue;
+            }
+
+            // Adapt Pro widgets cleanly when Elementor Pro is inactive
+            $pro_widgets = self::detect_pro_widgets($data['content']);
+            $adapted_for_free = false;
+            if (!defined('ELEMENTOR_PRO_VERSION') && !empty($pro_widgets)) {
+                $adapted_for_free = self::adapt_pro_widgets_for_free($data['content']) > 0;
             }
 
             // Strict Widget Dependency Gate
@@ -16116,7 +17378,10 @@ class Template_Importer {
             update_post_meta($post_id, '_elementor_data', wp_slash(json_encode($data['content'])));
             update_post_meta($post_id, '_elementor_version', defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : '3.24.0');
             update_post_meta($post_id, '_uas_template_slug', $slug);
+            update_post_meta($post_id, '_uas_template_type', sanitize_key($type));
             update_post_meta($post_id, '_uas_required_widgets', $dep_check['required_widgets']);
+            update_post_meta($post_id, '_uas_pro_widgets', $pro_widgets);
+            update_post_meta($post_id, '_uas_adapted_for_free', $adapted_for_free ? 'yes' : 'no');
 
             // If Popup, store page_settings (dimensions, animation, overlay, close button)
             if ($type === 'popup' && !empty($data['page_settings'])) {
@@ -16125,11 +17390,12 @@ class Template_Importer {
 
             $imported++;
             $results[] = [
-                'id'     => $post_id,
-                'title'  => $data['title'],
-                'slug'   => $slug,
-                'type'   => $type,
-                'status' => 'imported',
+                'id'               => $post_id,
+                'title'            => $data['title'],
+                'slug'             => $slug,
+                'type'             => $type,
+                'adapted_for_free' => $adapted_for_free,
+                'status'           => 'imported',
             ];
         }
 
@@ -16190,6 +17456,13 @@ class Theme_Builder_Bridge {
 
     private static $instance = null;
 
+    /**
+     * Active template ID resolved during template_include fallback
+     *
+     * @var int
+     */
+    private static $active_canvas_template_id = 0;
+
     public static function instance() {
         if (null === self::$instance) {
             self::$instance = new self();
@@ -16201,14 +17474,127 @@ class Theme_Builder_Bridge {
         // 1. Elementor Pro Location Registration
         add_action('elementor/theme/register_locations', [$this, 'register_locations']);
 
-        // 2. Elementor Free Fallback Hooks
+        // 2. Elementor Free Dynamic Fallback Shortcodes (used when Pro widgets are adapted for Free)
+        add_action('init', [$this, 'register_free_fallback_shortcodes']);
+
+        // 3. Elementor Free Fallback Hooks
         if (!defined('ELEMENTOR_PRO_VERSION')) {
             add_action('wp_head', [$this, 'inject_header_fallback_css'], 99);
             add_filter('template_include', [$this, 'filter_template_include'], 99);
         }
 
-        // 3. Admin assignment hooks
+        // 4. Admin assignment hooks
         add_action('wp_ajax_uas_assign_theme_template', [$this, 'ajax_assign_theme_template']);
+    }
+
+    /**
+     * Register accessible Elementor Free fallback shortcodes for Pro Theme Builder widgets
+     */
+    public function register_free_fallback_shortcodes() {
+        if (!shortcode_exists('uas_nav_menu')) {
+            add_shortcode('uas_nav_menu', [$this, 'shortcode_nav_menu']);
+        }
+        if (!shortcode_exists('uas_dynamic_post_field')) {
+            add_shortcode('uas_dynamic_post_field', [$this, 'shortcode_dynamic_post_field']);
+        }
+        if (!shortcode_exists('uas_dynamic_archive_title')) {
+            add_shortcode('uas_dynamic_archive_title', [$this, 'shortcode_dynamic_archive_title']);
+        }
+    }
+
+    /**
+     * Fallback shortcode for Pro \`nav-menu\` widget
+     */
+    public function shortcode_nav_menu($atts) {
+        $atts = shortcode_atts([
+            'location' => 'primary',
+            'class'    => 'uas-free-nav-menu',
+        ], $atts, 'uas_nav_menu');
+
+        $location = sanitize_key($atts['location']);
+        if (!has_nav_menu($location)) {
+            $locations = get_nav_menu_locations();
+            if (!empty($locations)) {
+                $keys = array_keys($locations);
+                $location = $keys[0];
+            }
+        }
+
+        ob_start();
+        echo '<nav class="uas-free-nav-wrapper" aria-label="' . esc_attr__('ناوبری اصلی', 'universal-elementor-suite') . '">';
+        if ($location && has_nav_menu($location)) {
+            wp_nav_menu([
+                'theme_location' => $location,
+                'container'      => false,
+                'menu_class'     => sanitize_html_class($atts['class']),
+                'fallback_cb'    => false,
+            ]);
+        } else {
+            wp_page_menu([
+                'menu_class' => sanitize_html_class($atts['class']),
+                'show_home'  => true,
+            ]);
+        }
+        echo '</nav>';
+        return ob_get_clean();
+    }
+
+    /**
+     * Fallback shortcode for Pro Single Post widgets (title, meta, thumbnail, content, author, comments)
+     */
+    public function shortcode_dynamic_post_field($atts) {
+        $atts = shortcode_atts(['field' => 'title'], $atts, 'uas_dynamic_post_field');
+        $field = sanitize_key($atts['field']);
+        $post_id = get_queried_object_id();
+        if (!$post_id && get_the_ID()) {
+            $post_id = get_the_ID();
+        }
+        if (!$post_id) {
+            return '';
+        }
+
+        switch ($field) {
+            case 'title':
+                return '<h1 class="uas-free-post-title">' . esc_html(get_the_title($post_id)) . '</h1>';
+            case 'meta':
+                $author_id = (int) get_post_field('post_author', $post_id);
+                $author = $author_id ? get_the_author_meta('display_name', $author_id) : '';
+                $date = get_the_date('', $post_id);
+                return '<div class="uas-free-post-meta">' . esc_html(trim($author . ($author && $date ? ' • ' : '') . $date)) . '</div>';
+            case 'thumbnail':
+                if (has_post_thumbnail($post_id)) {
+                    return '<div class="uas-free-post-thumb">' . get_the_post_thumbnail($post_id, 'large') . '</div>';
+                }
+                return '';
+            case 'content':
+                $content = get_post_field('post_content', $post_id);
+                return '<div class="uas-free-post-content">' . apply_filters('the_content', $content) . '</div>';
+            case 'author':
+                $author_id = (int) get_post_field('post_author', $post_id);
+                if (!$author_id) {
+                    return '';
+                }
+                $name = get_the_author_meta('display_name', $author_id);
+                $bio  = get_the_author_meta('description', $author_id);
+                return '<div class="uas-free-author-box"><strong>' . esc_html($name) . '</strong>' . ($bio ? '<p>' . esc_html($bio) . '</p>' : '') . '</div>';
+            case 'comments':
+                if (comments_open($post_id) || get_comments_number($post_id)) {
+                    ob_start();
+                    comments_template();
+                    return ob_get_clean();
+                }
+                return '';
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Fallback shortcode for Pro \`theme-archive-title\` widget
+     */
+    public function shortcode_dynamic_archive_title() {
+        $title = function_exists('get_the_archive_title') ? get_the_archive_title() : get_bloginfo('name');
+        return '<h1 class="uas-free-archive-title">' . wp_kses_post($title) . '</h1>';
     }
 
     /**
@@ -16217,21 +17603,23 @@ class Theme_Builder_Bridge {
      * @param \\ElementorPro\\Modules\\ThemeBuilder\\Classes\\Locations_Manager $location_manager
      */
     public function register_locations($location_manager) {
-        $location_manager->register_all_core_location();
+        if (is_object($location_manager) && method_exists($location_manager, 'register_all_core_location')) {
+            $location_manager->register_all_core_location();
+        }
     }
 
     /**
-     * Filter template_include for 404 and Single templates in Elementor Free mode
+     * Filter template_include for 404, Archive, and Single templates in Elementor Free mode
      *
      * @param string $template
      * @return string
      */
     public function filter_template_include($template) {
-        if (!class_exists('\\Elementor\\Plugin')) {
+        if (!$this->is_elementor_ready()) {
             return $template;
         }
 
-        // 404 Fallback Template
+        // Respect explicit Elementor Canvas / blank templates on singular content
         if (is_404()) {
             $tpl_404_id = $this->get_assigned_template_id('404');
             if ($tpl_404_id) {
@@ -16239,11 +17627,17 @@ class Theme_Builder_Bridge {
             }
         }
 
-        // Single Post Fallback Template
         if (is_singular('post')) {
-            $tpl_single_id = $this->get_assigned_template_id('single-post');
+            $tpl_single_id = $this->get_assigned_template_id('single-post') ?: $this->get_assigned_template_id('single');
             if ($tpl_single_id) {
                 return $this->get_canvas_template_path($tpl_single_id);
+            }
+        }
+
+        if (is_archive() || is_home()) {
+            $tpl_archive_id = $this->get_assigned_template_id('archive');
+            if ($tpl_archive_id) {
+                return $this->get_canvas_template_path($tpl_archive_id);
             }
         }
 
@@ -16251,11 +17645,22 @@ class Theme_Builder_Bridge {
     }
 
     /**
+     * Check whether Elementor core frontend engine is loaded and usable
+     *
+     * @return bool
+     */
+    private function is_elementor_ready() {
+        return class_exists('\\Elementor\\Plugin')
+            && isset(\\Elementor\\Plugin::$instance->frontend)
+            && method_exists(\\Elementor\\Plugin::$instance->frontend, 'get_builder_content_for_display');
+    }
+
+    /**
      * Render assigned header template
      */
     public function render_header() {
         $header_id = $this->get_assigned_template_id('header');
-        if ($header_id && class_exists('\\Elementor\\Plugin')) {
+        if ($header_id && $this->is_elementor_ready()) {
             echo '<header class="uas-theme-builder-header" role="banner">';
             echo \\Elementor\\Plugin::$instance->frontend->get_builder_content_for_display($header_id);
             echo '</header>';
@@ -16269,7 +17674,7 @@ class Theme_Builder_Bridge {
      */
     public function render_footer() {
         $footer_id = $this->get_assigned_template_id('footer');
-        if ($footer_id && class_exists('\\Elementor\\Plugin')) {
+        if ($footer_id && $this->is_elementor_ready()) {
             echo '<footer class="uas-theme-builder-footer" role="contentinfo">';
             echo \\Elementor\\Plugin::$instance->frontend->get_builder_content_for_display($footer_id);
             echo '</footer>';
@@ -16281,11 +17686,13 @@ class Theme_Builder_Bridge {
     /**
      * Universal do_location dispatcher for Theme Builder locations
      *
+     * Safely detects whether get_header() has already executed to avoid duplicate header/footer output.
+     *
      * @param string $location
      * @return bool
      */
     public function do_location($location) {
-        if (!class_exists('\\Elementor\\Plugin')) {
+        if (!$this->is_elementor_ready()) {
             return false;
         }
 
@@ -16301,11 +17708,16 @@ class Theme_Builder_Bridge {
             case '404':
                 $tpl_404 = $this->get_assigned_template_id('404');
                 if ($tpl_404) {
-                    get_header();
+                    $header_already_rendered = did_action('get_header') > 0;
+                    if (!$header_already_rendered) {
+                        get_header();
+                    }
                     echo '<main id="content" class="site-main uas-canvas-main uas-theme-builder-404">';
                     echo \\Elementor\\Plugin::$instance->frontend->get_builder_content_for_display($tpl_404);
                     echo '</main>';
-                    get_footer();
+                    if (!$header_already_rendered) {
+                        get_footer();
+                    }
                     return true;
                 }
                 return false;
@@ -16315,12 +17727,12 @@ class Theme_Builder_Bridge {
     }
 
     /**
-     * Render assigned single template
+     * Render assigned single template (guarding against double get_header/get_footer)
      *
      * @return bool
      */
     public function render_single() {
-        if (!class_exists('\\Elementor\\Plugin')) {
+        if (!$this->is_elementor_ready()) {
             return false;
         }
 
@@ -16330,11 +17742,16 @@ class Theme_Builder_Bridge {
         }
 
         if ($single_id) {
-            get_header();
+            $header_already_rendered = did_action('get_header') > 0;
+            if (!$header_already_rendered) {
+                get_header();
+            }
             echo '<main id="content" class="site-main uas-canvas-main uas-theme-builder-single">';
             echo \\Elementor\\Plugin::$instance->frontend->get_builder_content_for_display($single_id);
             echo '</main>';
-            get_footer();
+            if (!$header_already_rendered) {
+                get_footer();
+            }
             return true;
         }
 
@@ -16342,23 +17759,28 @@ class Theme_Builder_Bridge {
     }
 
     /**
-     * Render assigned archive template
+     * Render assigned archive template (guarding against double get_header/get_footer)
      *
      * @return bool
      */
     public function render_archive() {
-        if (!class_exists('\\Elementor\\Plugin')) {
+        if (!$this->is_elementor_ready()) {
             return false;
         }
 
         $archive_id = $this->get_assigned_template_id('archive');
 
         if ($archive_id) {
-            get_header();
+            $header_already_rendered = did_action('get_header') > 0;
+            if (!$header_already_rendered) {
+                get_header();
+            }
             echo '<main id="content" class="site-main uas-canvas-main uas-theme-builder-archive">';
             echo \\Elementor\\Plugin::$instance->frontend->get_builder_content_for_display($archive_id);
             echo '</main>';
-            get_footer();
+            if (!$header_already_rendered) {
+                get_footer();
+            }
             return true;
         }
 
@@ -16366,55 +17788,85 @@ class Theme_Builder_Bridge {
     }
 
     /**
-     * Helper to get assigned template ID by location
+     * Helper to get assigned template ID by location with strict builder validation
      */
     public function get_assigned_template_id($location) {
-        $assigned = get_option('uas_theme_builder_' . $location . '_template_id', 0);
-        if ($assigned && get_post_status($assigned) === 'publish') {
-            return intval($assigned);
+        if (!$this->is_elementor_ready()) {
+            return 0;
         }
 
-        // Automatic fallback: find first imported template of this type
+        $assigned = intval(get_option('uas_theme_builder_' . sanitize_key($location) . '_template_id', 0));
+        if ($assigned && get_post_status($assigned) === 'publish') {
+            $has_data = get_post_meta($assigned, '_elementor_data', true);
+            if (!empty($has_data)) {
+                return $assigned;
+            }
+        }
+
+        // Automatic fallback: find first imported template of this type with valid builder data
         $posts = get_posts([
             'post_type'      => 'elementor_library',
             'posts_per_page' => 1,
             'meta_key'       => '_uas_template_type',
-            'meta_value'     => $location,
+            'meta_value'     => sanitize_key($location),
             'post_status'    => 'publish',
         ]);
 
         if (!empty($posts)) {
-            return intval($posts[0]->ID);
+            $candidate_id = intval($posts[0]->ID);
+            $has_data = get_post_meta($candidate_id, '_elementor_data', true);
+            if (!empty($has_data)) {
+                return $candidate_id;
+            }
         }
 
         return 0;
     }
 
     /**
-     * Get path to canvas wrapper or generate dynamically
+     * Resolve static canvas wrapper path safely (zero writable-uploads PHP generation)
      */
     private function get_canvas_template_path($template_id) {
-        $upload_dir = wp_upload_dir();
-        $wrapper_dir = trailingslashit($upload_dir['basedir']) . 'uas-cache/';
-        wp_mkdir_p($wrapper_dir);
-        $wrapper_file = $wrapper_dir . 'template-canvas-' . $template_id . '.php';
-
-        if (!file_exists($wrapper_file)) {
-            $content = "<?php\\n/**\\n * Auto-generated Elementor Free Theme Builder Template Wrapper\\n */\\nget_header();\\necho '<main id=\\"content\\" class=\\"site-main uas-canvas-main\\">';\\necho \\\\Elementor\\\\Plugin::\\$instance->frontend->get_builder_content_for_display({$template_id});\\necho '</main>';\\nget_footer();\\n";
-            @file_put_contents($wrapper_file, $content);
+        self::$active_canvas_template_id = intval($template_id);
+        $static_wrapper = UAS_PATH . 'includes/templates/canvas-wrapper.php';
+        if (file_exists($static_wrapper)) {
+            return $static_wrapper;
         }
-
-        return $wrapper_file;
+        return '';
     }
 
     /**
-     * CSS injection for smooth header/footer integration
+     * Get the currently resolved canvas template ID
+     *
+     * @return int
+     */
+    public static function get_active_canvas_template_id() {
+        return self::$active_canvas_template_id;
+    }
+
+    /**
+     * Render active canvas template content cleanly
+     *
+     * @return string
+     */
+    public static function render_active_canvas_template() {
+        $tid = self::$active_canvas_template_id;
+        if ($tid > 0 && class_exists('\\Elementor\\Plugin') && isset(\\Elementor\\Plugin::$instance->frontend)) {
+            return \\Elementor\\Plugin::$instance->frontend->get_builder_content_for_display($tid);
+        }
+        return '';
+    }
+
+    /**
+     * CSS injection for smooth header/footer integration and Free fallback styling
      */
     public function inject_header_fallback_css() {
         echo '<style id="uas-theme-builder-bridge-css">
             .uas-theme-builder-header { width: 100%; position: relative; z-index: 100; }
             .uas-theme-builder-footer { width: 100%; position: relative; z-index: 50; }
             .uas-canvas-main { width: 100%; min-height: 50vh; }
+            .uas-free-nav-wrapper ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+            .uas-free-nav-wrapper a { text-decoration: none; color: inherit; }
         </style>';
     }
 
@@ -16517,31 +17969,93 @@ abstract class Universal_Widget_Base extends \\Elementor\\Widget_Base {
     }
 
     /**
-     * Helper: Register standard typography and color controls
+     * Helper: Register standard typography and color controls bound to Elementor Global Kit when available
      *
      * @param string $id_prefix
      * @param string $label
      * @param string $css_selector
      * @param string $default_color
+     * @param string $global_color_key 'primary' | 'secondary' | 'text' | 'accent'
+     * @param string $global_typo_key  'primary' | 'secondary' | 'text' | 'accent'
      */
-    protected function add_typography_and_color_controls($id_prefix, $label, $css_selector, $default_color = '#0f172a') {
-        $this->add_group_control(
-            Group_Control_Typography::get_type(),
-            [
-                'name'     => $id_prefix . '_typography',
-                'label'    => sprintf(esc_html__('تایپوگرافی %s', 'universal-elementor-suite'), $label),
-                'selector' => "{{WRAPPER}} {$css_selector}",
-            ]
-        );
+    protected function add_typography_and_color_controls(
+        $id_prefix,
+        $label,
+        $css_selector,
+        $default_color = '#0f172a',
+        $global_color_key = 'text',
+        $global_typo_key = 'text'
+    ) {
+        $typo_args = [
+            'name'     => $id_prefix . '_typography',
+            'label'    => sprintf(esc_html__('تایپوگرافی %s', 'universal-elementor-suite'), $label),
+            'selector' => "{{WRAPPER}} {$css_selector}",
+        ];
+        if (class_exists('\\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Typography')) {
+            $typo_map = [
+                'primary'   => \\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Typography::TYPOGRAPHY_PRIMARY,
+                'secondary' => \\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Typography::TYPOGRAPHY_SECONDARY,
+                'text'      => \\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Typography::TYPOGRAPHY_TEXT,
+                'accent'    => \\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Typography::TYPOGRAPHY_ACCENT,
+            ];
+            if (isset($typo_map[$global_typo_key])) {
+                $typo_args['global'] = ['default' => $typo_map[$global_typo_key]];
+            }
+        }
+        $this->add_group_control(Group_Control_Typography::get_type(), $typo_args);
 
-        $this->add_control(
-            $id_prefix . '_color',
+        $color_args = [
+            'label'     => sprintf(esc_html__('رنگ %s', 'universal-elementor-suite'), $label),
+            'type'      => Controls_Manager::COLOR,
+            'default'   => $default_color,
+            'selectors' => [
+                "{{WRAPPER}} {$css_selector}" => 'color: {{VALUE}};',
+            ],
+        ];
+        if (class_exists('\\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Colors')) {
+            $color_map = [
+                'primary'   => \\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Colors::COLOR_PRIMARY,
+                'secondary' => \\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Colors::COLOR_SECONDARY,
+                'text'      => \\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Colors::COLOR_TEXT,
+                'accent'    => \\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Colors::COLOR_ACCENT,
+            ];
+            if (isset($color_map[$global_color_key])) {
+                $color_args['global'] = ['default' => $color_map[$global_color_key]];
+            }
+        }
+        $this->add_control($id_prefix . '_color', $color_args);
+    }
+
+    /**
+     * Helper: Register responsive logical RTL/LTR text alignment control (start/center/end)
+     *
+     * @param string $id
+     * @param string $label
+     * @param string $css_selector
+     */
+    protected function add_rtl_alignment_control($id, $label, $css_selector) {
+        $this->add_responsive_control(
+            $id,
             [
-                'label'     => sprintf(esc_html__('رنگ %s', 'universal-elementor-suite'), $label),
-                'type'      => Controls_Manager::COLOR,
-                'default'   => $default_color,
+                'label'   => $label,
+                'type'    => Controls_Manager::CHOOSE,
+                'options' => [
+                    'start' => [
+                        'title' => esc_html__('شروع (راست در RTL)', 'universal-elementor-suite'),
+                        'icon'  => 'eicon-text-align-right',
+                    ],
+                    'center' => [
+                        'title' => esc_html__('وسط', 'universal-elementor-suite'),
+                        'icon'  => 'eicon-text-align-center',
+                    ],
+                    'end' => [
+                        'title' => esc_html__('انتها (چپ در RTL)', 'universal-elementor-suite'),
+                        'icon'  => 'eicon-text-align-left',
+                    ],
+                ],
+                'default'   => 'start',
                 'selectors' => [
-                    "{{WRAPPER}} {$css_selector}" => 'color: {{VALUE}};',
+                    "{{WRAPPER}} {$css_selector}" => 'text-align: {{VALUE}};',
                 ],
             ]
         );
@@ -16818,12 +18332,16 @@ class WooCommerce_Compatibility {
      * Enqueue styles conditionally so pages without WooCommerce/builders remain lightweight
      */
     public function enqueue_compatibility_assets() {
-        wp_register_style(
-            'uas-ecommerce-compat',
-            UAS_URL . 'assets/css/ecommerce-compat.css',
-            ['uas-standalone-blocks'],
-            UAS_VERSION
-        );
+        if (class_exists('\\UniversalElementorSuite\\Asset_Manifest')) {
+            Asset_Manifest::instance()->register_scope('frontend', 'styles');
+        } else {
+            wp_register_style(
+                'uas-ecommerce-compat',
+                UAS_URL . 'assets/css/ecommerce-compat.css',
+                ['uas-standalone-blocks'],
+                UAS_VERSION
+            );
+        }
 
         $has_commerce_stack = class_exists('WooCommerce')
             || defined('WOODMART_THEME_DIR')
@@ -17772,7 +19290,7 @@ class Package_Exporter {
             $secondary_navy = !empty($design_tokens['secondary_color']) ? sanitize_hex_color($design_tokens['secondary_color']) : '#0B132B';
             $font_family    = !empty($design_tokens['font_family']) ? preg_replace('/[^a-zA-Z0-9\\-\\s_]/', '', (string) $design_tokens['font_family']) : 'Vazirmatn';
             $bundle_files['assets/css/kit-design-tokens.css'] = sprintf(
-                ":root {\\n  --sr-primary-accent: %s;\\n  --sr-secondary-base: %s;\\n  --sr-font-family: '%s', sans-serif;\\n}\\n",
+                ":root {\\n  --sr-primary-accent: %1\\$s;\\n  --sr-secondary-base: %2\\$s;\\n  --sr-font-family: '%3\\$s', sans-serif;\\n  --uas-accent-color: %1\\$s;\\n  --uas-secondary-color: %2\\$s;\\n  --uas-font-family: '%3\\$s', sans-serif;\\n}\\n",
                 $primary_gold ?: '#D4AF37',
                 $secondary_navy ?: '#0B132B',
                 $font_family ?: 'Vazirmatn'
@@ -19611,6 +21129,31 @@ class Package_Registry {
         return null;
     }
 }
+`},{path:"elementor-addon-suite/includes/templates/canvas-wrapper.php",filename:"canvas-wrapper.php",category:"صفحه‌ساز و ویجت‌ها (Elementor Widgets)",description:"ماژول افزونه وردپرس: elementor-addon-suite/includes/templates/canvas-wrapper.php",code:`<?php
+/**
+ * Safe Static Canvas Wrapper for Elementor Free Theme Builder Fallback
+ *
+ * Served via template_include without writing executable PHP files into wp-content/uploads/.
+ *
+ * @package UniversalElementorSuite
+ * @since 6.2.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+get_header();
+?>
+<main id="content" class="site-main uas-canvas-main">
+    <?php
+    if (class_exists('\\UniversalElementorSuite\\Theme_Builder_Bridge')) {
+        echo \\UniversalElementorSuite\\Theme_Builder_Bridge::render_active_canvas_template();
+    }
+    ?>
+</main>
+<?php
+get_footer();
 `},{path:"elementor-addon-suite/includes/widgets/class-widget-banner-slider.php",filename:"class-widget-banner-slider.php",category:"صفحه‌ساز و ویجت‌ها (Elementor Widgets)",description:"ابزارک پیشرفته و اختصاصی المنتور: banner-slider",code:`<?php
 namespace UniversalElementorSuite\\Widgets;
 
@@ -22177,6 +23720,8 @@ use Elementor\\Controls_Manager;
 use Elementor\\Group_Control_Typography;
 use Elementor\\Group_Control_Border;
 use Elementor\\Group_Control_Box_Shadow;
+use Elementor\\Group_Control_Image_Size;
+use Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Colors;
 use UniversalElementorSuite\\Universal_Widget_Base;
 
 if (!defined('ABSPATH')) {
@@ -22184,28 +23729,81 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Universal Hero Widget
+ * Universal Hero Widget (Golden Widget Benchmark - Phase 5)
+ *
+ * Topic-agnostic, Elementor-first Hero Banner supporting:
+ * - Global Kit Design Tokens & Custom Presets (4 architectural variants)
+ * - Dynamic Tags compatibility across copy, CTA URLs, accessibility labels & media
+ * - Responsive Flexbox direction, spacing & logical RTL/LTR alignment
+ * - Bundled Sovereign SVG placeholder fallback (Zero external CDN URLs)
+ * - Semantic landmarks, Heading tag allowlist & safe link rel attributes
  */
 class Universal_Hero_Widget extends Universal_Widget_Base {
 
+    /**
+     * Widget Slug
+     *
+     * @return string
+     */
     public function get_name() {
         return 'uas_hero';
     }
 
+    /**
+     * Widget Display Title
+     *
+     * @return string
+     */
     public function get_title() {
         return esc_html__('هیرو بنر مدرن و منعطف', 'universal-elementor-suite');
     }
 
+    /**
+     * Widget Icon
+     *
+     * @return string
+     */
     public function get_icon() {
         return 'eicon-banner';
     }
 
-    public function get_style_depends() {
-        return ['uas-widgets-core', 'uas-hero-css'];
+    /**
+     * Search Keywords inside Elementor Panel
+     *
+     * @return array
+     */
+    public function get_keywords() {
+        return ['hero', 'banner', 'header', 'cta', 'showcase', 'هیرو', 'بنر', 'سربرگ'];
     }
 
+    /**
+     * Required Stylesheets
+     *
+     * @return array
+     */
+    public function get_style_depends() {
+        return ['uas-design-tokens', 'uas-widgets-core', 'uas-hero-css'];
+    }
+
+    /**
+     * Local bundled sovereign placeholder URL (zero external CDN dependencies)
+     *
+     * @return string
+     */
+    protected function get_default_hero_image_url() {
+        if (defined('UAS_URL')) {
+            return trailingslashit(UAS_URL) . 'assets/images/placeholders/hero-showcase.svg';
+        }
+        return '';
+    }
+
+    /**
+     * Register Widget Controls (Content Tab + Style Tab)
+     */
     protected function register_controls() {
-        // Content Tab: Text
+        /* ---------------------------------------------------------------------
+         * TAB_CONTENT: 1. Primary Content & Actions (with Dynamic Tags)
+         * ------------------------------------------------------------------ */
         $this->start_controls_section(
             'section_content',
             [
@@ -22215,12 +23813,26 @@ class Universal_Hero_Widget extends Universal_Widget_Base {
         );
 
         $this->add_control(
+            'show_badge',
+            [
+                'label'        => esc_html__('نمایش نشان بالای عنوان', 'universal-elementor-suite'),
+                'type'         => Controls_Manager::SWITCHER,
+                'label_on'     => esc_html__('بله', 'universal-elementor-suite'),
+                'label_off'    => esc_html__('خیر', 'universal-elementor-suite'),
+                'return_value' => 'yes',
+                'default'      => 'yes',
+            ]
+        );
+
+        $this->add_control(
             'badge_text',
             [
                 'label'       => esc_html__('متن برچسب یا نشان', 'universal-elementor-suite'),
                 'type'        => Controls_Manager::TEXT,
+                'dynamic'     => ['active' => true],
                 'default'     => esc_html__('نوآوری در ارائه خدمات برتر', 'universal-elementor-suite'),
                 'placeholder' => esc_html__('متن نشان بالای عنوان...', 'universal-elementor-suite'),
+                'condition'   => ['show_badge' => 'yes'],
             ]
         );
 
@@ -22229,8 +23841,25 @@ class Universal_Hero_Widget extends Universal_Widget_Base {
             [
                 'label'       => esc_html__('عنوان اصلی', 'universal-elementor-suite'),
                 'type'        => Controls_Manager::TEXTAREA,
+                'rows'        => 2,
+                'dynamic'     => ['active' => true],
                 'default'     => esc_html__('راهکارهای هوشمند و مدرن برای رشد کسب‌وکار شما', 'universal-elementor-suite'),
                 'placeholder' => esc_html__('عنوان اصلی بخش هیرو...', 'universal-elementor-suite'),
+            ]
+        );
+
+        $this->add_control(
+            'title_tag',
+            [
+                'label'   => esc_html__('تگ HTML عنوان (سئو و دسترس‌پذیری)', 'universal-elementor-suite'),
+                'type'    => Controls_Manager::SELECT,
+                'default' => 'h1',
+                'options' => [
+                    'h1'  => 'H1',
+                    'h2'  => 'H2',
+                    'h3'  => 'H3',
+                    'div' => 'DIV',
+                ],
             ]
         );
 
@@ -22239,6 +23868,8 @@ class Universal_Hero_Widget extends Universal_Widget_Base {
             [
                 'label'       => esc_html__('توضیحات فرعی', 'universal-elementor-suite'),
                 'type'        => Controls_Manager::TEXTAREA,
+                'rows'        => 3,
+                'dynamic'     => ['active' => true],
                 'default'     => esc_html__('ارائه مشاوره‌های تخصصی، استراتژی‌های تحول دیجیتال و راهکارهای جامع متناسب با اهداف سازمان شما.', 'universal-elementor-suite'),
                 'placeholder' => esc_html__('متن توضیحات...', 'universal-elementor-suite'),
             ]
@@ -22249,6 +23880,7 @@ class Universal_Hero_Widget extends Universal_Widget_Base {
             [
                 'label'   => esc_html__('متن دکمه اصلی', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::TEXT,
+                'dynamic' => ['active' => true],
                 'default' => esc_html__('شروع همکاری و مشاوره', 'universal-elementor-suite'),
             ]
         );
@@ -22258,8 +23890,25 @@ class Universal_Hero_Widget extends Universal_Widget_Base {
             [
                 'label'       => esc_html__('لینک دکمه اصلی', 'universal-elementor-suite'),
                 'type'        => Controls_Manager::URL,
+                'dynamic'     => ['active' => true],
                 'placeholder' => 'https://example.com/contact',
-                'default'     => ['url' => '#contact'],
+                'options'     => ['url', 'is_external', 'nofollow'],
+                'default'     => [
+                    'url'         => '#contact',
+                    'is_external' => false,
+                    'nofollow'    => false,
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'primary_btn_aria_label',
+            [
+                'label'       => esc_html__('برچسب دسترس‌پذیری دکمه اصلی (Aria Label)', 'universal-elementor-suite'),
+                'type'        => Controls_Manager::TEXT,
+                'dynamic'     => ['active' => true],
+                'default'     => '',
+                'placeholder' => esc_html__('توضیح تکمیلی برای صفحه‌خوان‌ها...', 'universal-elementor-suite'),
             ]
         );
 
@@ -22268,6 +23917,7 @@ class Universal_Hero_Widget extends Universal_Widget_Base {
             [
                 'label'   => esc_html__('متن دکمه ثانویه', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::TEXT,
+                'dynamic' => ['active' => true],
                 'default' => esc_html__('مشاهده خدمات و پروژه‌ها', 'universal-elementor-suite'),
             ]
         );
@@ -22277,25 +23927,212 @@ class Universal_Hero_Widget extends Universal_Widget_Base {
             [
                 'label'       => esc_html__('لینک دکمه ثانویه', 'universal-elementor-suite'),
                 'type'        => Controls_Manager::URL,
+                'dynamic'     => ['active' => true],
                 'placeholder' => 'https://example.com/services',
-                'default'     => ['url' => '#services'],
+                'options'     => ['url', 'is_external', 'nofollow'],
+                'default'     => [
+                    'url'         => '#services',
+                    'is_external' => false,
+                    'nofollow'    => false,
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'secondary_btn_aria_label',
+            [
+                'label'       => esc_html__('برچسب دسترس‌پذیری دکمه ثانویه (Aria Label)', 'universal-elementor-suite'),
+                'type'        => Controls_Manager::TEXT,
+                'dynamic'     => ['active' => true],
+                'default'     => '',
+                'placeholder' => esc_html__('توضیح تکمیلی برای صفحه‌خوان‌ها...', 'universal-elementor-suite'),
+            ]
+        );
+
+        $this->end_controls_section();
+
+        /* ---------------------------------------------------------------------
+         * TAB_CONTENT: 2. Sovereign Media Control (No External Stock CDN)
+         * ------------------------------------------------------------------ */
+        $this->start_controls_section(
+            'section_media',
+            [
+                'label' => esc_html__('رسانه و تصویر شاخص', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_CONTENT,
+            ]
+        );
+
+        $this->add_control(
+            'show_media',
+            [
+                'label'        => esc_html__('نمایش تصویر هیرو', 'universal-elementor-suite'),
+                'type'         => Controls_Manager::SWITCHER,
+                'label_on'     => esc_html__('بله', 'universal-elementor-suite'),
+                'label_off'    => esc_html__('خیر', 'universal-elementor-suite'),
+                'return_value' => 'yes',
+                'default'      => 'yes',
             ]
         );
 
         $this->add_control(
             'hero_image',
             [
-                'label'   => esc_html__('تصویر شاخص هیرو', 'universal-elementor-suite'),
-                'type'    => Controls_Manager::MEDIA,
-                'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800',
+                'label'     => esc_html__('تصویر شاخص هیرو', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::MEDIA,
+                'dynamic'   => ['active' => true],
+                'default'   => [
+                    'url' => $this->get_default_hero_image_url(),
+                ],
+                'condition' => ['show_media' => 'yes'],
+            ]
+        );
+
+        if (class_exists('\\Elementor\\Group_Control_Image_Size')) {
+            $this->add_group_control(
+                Group_Control_Image_Size::get_type(),
+                [
+                    'name'      => 'hero_image_size',
+                    'default'   => 'large',
+                    'condition' => ['show_media' => 'yes'],
+                ]
+            );
+        }
+
+        $this->add_control(
+            'hero_image_alt',
+            [
+                'label'       => esc_html__('متن جایگزین تصویر (Alt Text)', 'universal-elementor-suite'),
+                'type'        => Controls_Manager::TEXT,
+                'dynamic'     => ['active' => true],
+                'default'     => '',
+                'placeholder' => esc_html__('در صورت خالی بودن از عنوان اصلی استفاده می‌شود...', 'universal-elementor-suite'),
+                'condition'   => ['show_media' => 'yes'],
+            ]
+        );
+
+        $this->end_controls_section();
+
+        /* ---------------------------------------------------------------------
+         * TAB_CONTENT: 3. Presets & Responsive Layout (RTL / LTR)
+         * ------------------------------------------------------------------ */
+        $this->start_controls_section(
+            'section_layout_presets',
+            [
+                'label' => esc_html__('پریست‌ها و چیدمان واکنش‌گرا', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_CONTENT,
+            ]
+        );
+
+        $this->add_control(
+            'hero_preset',
+            [
+                'label'   => esc_html__('طرح پیش‌فرض (Preset)', 'universal-elementor-suite'),
+                'type'    => Controls_Manager::SELECT,
+                'default' => 'modern-card',
+                'options' => [
+                    'modern-card'        => esc_html__('کارت مدرن (پیش‌فرض)', 'universal-elementor-suite'),
+                    'split-executive'    => esc_html__('اجرایی لوکس (سرمه‌ای و طلایی)', 'universal-elementor-suite'),
+                    'centered-editorial' => esc_html__('سرمقاله متمرکز', 'universal-elementor-suite'),
+                    'minimal-glass'      => esc_html__('شیشه‌ای مینیمال', 'universal-elementor-suite'),
+                ],
+            ]
+        );
+
+        $this->add_responsive_control(
+            'layout_direction',
+            [
+                'label'   => esc_html__('جهت چیدمان محتوا و تصویر', 'universal-elementor-suite'),
+                'type'    => Controls_Manager::CHOOSE,
+                'options' => [
+                    'row' => [
+                        'title' => esc_html__('افقی (استاندارد)', 'universal-elementor-suite'),
+                        'icon'  => 'eicon-h-align-right',
+                    ],
+                    'row-reverse' => [
+                        'title' => esc_html__('افقی (معکوس)', 'universal-elementor-suite'),
+                        'icon'  => 'eicon-h-align-left',
+                    ],
+                    'column' => [
+                        'title' => esc_html__('عمودی (تصویر پایین)', 'universal-elementor-suite'),
+                        'icon'  => 'eicon-v-align-bottom',
+                    ],
+                    'column-reverse' => [
+                        'title' => esc_html__('عمودی (تصویر بالا)', 'universal-elementor-suite'),
+                        'icon'  => 'eicon-v-align-top',
+                    ],
+                ],
+                'default'   => 'row',
+                'selectors' => [
+                    '{{WRAPPER}} .uas-hero-inner' => 'flex-direction: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->add_rtl_alignment_control(
+            'content_align',
+            esc_html__('ترازبندی متن (RTL/LTR)', 'universal-elementor-suite'),
+            '.uas-hero-content'
+        );
+
+        $this->add_responsive_control(
+            'container_max_width',
+            [
+                'label'      => esc_html__('حداکثر عرض محتوا', 'universal-elementor-suite'),
+                'type'       => Controls_Manager::SLIDER,
+                'size_units' => ['px', '%'],
+                'range'      => [
+                    'px' => ['min' => 640, 'max' => 1600, 'step' => 20],
+                    '%'  => ['min' => 50, 'max' => 100],
+                ],
+                'default'    => ['unit' => 'px', 'size' => 1200],
+                'selectors'  => [
+                    '{{WRAPPER}} .uas-hero-inner' => 'max-width: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->add_responsive_control(
+            'content_gap',
+            [
+                'label'      => esc_html__('فاصله بین متن و تصویر', 'universal-elementor-suite'),
+                'type'       => Controls_Manager::SLIDER,
+                'size_units' => ['px', 'rem'],
+                'range'      => [
+                    'px'  => ['min' => 12, 'max' => 96, 'step' => 4],
+                    'rem' => ['min' => 1, 'max' => 6, 'step' => 0.25],
+                ],
+                'default'    => ['unit' => 'px', 'size' => 48],
+                'selectors'  => [
+                    '{{WRAPPER}} .uas-hero-inner' => 'gap: {{SIZE}}{{UNIT}};',
                 ],
             ]
         );
 
         $this->end_controls_section();
 
-        // Style Tab: Colors & Typography
+        /* ---------------------------------------------------------------------
+         * TAB_STYLE: 1. Wrapper Container (Background, Border, Radius, Shadow, Padding)
+         * ------------------------------------------------------------------ */
+        $this->start_controls_section(
+            'section_style_wrapper',
+            [
+                'label' => esc_html__('قاب و کانتینر هیرو', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_STYLE,
+            ]
+        );
+
+        $this->add_container_style_controls(
+            'hero_wrapper',
+            esc_html__('کانتینر هیرو', 'universal-elementor-suite'),
+            '.uas-hero-wrapper'
+        );
+
+        $this->end_controls_section();
+
+        /* ---------------------------------------------------------------------
+         * TAB_STYLE: 2. Typography & Global Kit Colors
+         * (Preserves title_color, title_typography, desc_color, badge_* IDs)
+         * ------------------------------------------------------------------ */
         $this->start_controls_section(
             'section_style_typography',
             [
@@ -22304,36 +24141,22 @@ class Universal_Hero_Widget extends Universal_Widget_Base {
             ]
         );
 
-        $this->add_control(
-            'title_color',
-            [
-                'label'     => esc_html__('رنگ عنوان', 'universal-elementor-suite'),
-                'type'      => Controls_Manager::COLOR,
-                'default'   => '#0F172A',
-                'selectors' => [
-                    '{{WRAPPER}} .uas-hero-title' => 'color: {{VALUE}};',
-                ],
-            ]
+        $this->add_typography_and_color_controls(
+            'title',
+            esc_html__('عنوان', 'universal-elementor-suite'),
+            '.uas-hero-title',
+            '#0F172A',
+            'primary',
+            'primary'
         );
 
-        $this->add_group_control(
-            Group_Control_Typography::get_type(),
-            [
-                'name'     => 'title_typography',
-                'selector' => '{{WRAPPER}} .uas-hero-title',
-            ]
-        );
-
-        $this->add_control(
-            'desc_color',
-            [
-                'label'     => esc_html__('رنگ توضیحات', 'universal-elementor-suite'),
-                'type'      => Controls_Manager::COLOR,
-                'default'   => '#64748B',
-                'selectors' => [
-                    '{{WRAPPER}} .uas-hero-desc' => 'color: {{VALUE}};',
-                ],
-            ]
+        $this->add_typography_and_color_controls(
+            'desc',
+            esc_html__('توضیحات', 'universal-elementor-suite'),
+            '.uas-hero-desc',
+            '#64748B',
+            'text',
+            'text'
         );
 
         $this->add_control(
@@ -22345,79 +24168,408 @@ class Universal_Hero_Widget extends Universal_Widget_Base {
                 'selectors' => [
                     '{{WRAPPER}} .uas-hero-badge' => 'background-color: {{VALUE}};',
                 ],
+                'condition' => ['show_badge' => 'yes'],
             ]
         );
 
-        $this->add_control(
-            'badge_text_color',
+        $badge_text_args = [
+            'label'     => esc_html__('رنگ متن نشان', 'universal-elementor-suite'),
+            'type'      => Controls_Manager::COLOR,
+            'default'   => '#2563EB',
+            'selectors' => [
+                '{{WRAPPER}} .uas-hero-badge' => 'color: {{VALUE}}; border-color: {{VALUE}};',
+            ],
+            'condition' => ['show_badge' => 'yes'],
+        ];
+        if (class_exists('\\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Colors')) {
+            $badge_text_args['global'] = ['default' => Global_Colors::COLOR_PRIMARY];
+        }
+        $this->add_control('badge_text_color', $badge_text_args);
+
+        $this->add_group_control(
+            Group_Control_Typography::get_type(),
             [
-                'label'     => esc_html__('رنگ متن نشان', 'universal-elementor-suite'),
+                'name'      => 'badge_typography',
+                'label'     => esc_html__('تایپوگرافی نشان', 'universal-elementor-suite'),
+                'selector'  => '{{WRAPPER}} .uas-hero-badge',
+                'condition' => ['show_badge' => 'yes'],
+            ]
+        );
+
+        $this->end_controls_section();
+
+        /* ---------------------------------------------------------------------
+         * TAB_STYLE: 3. CTA Buttons (Primary & Secondary + Hover States)
+         * (Preserves btn_primary_bg control ID for template compatibility)
+         * ------------------------------------------------------------------ */
+        $this->start_controls_section(
+            'section_style_buttons',
+            [
+                'label' => esc_html__('دکمه‌های فراخوان (CTA)', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_STYLE,
+            ]
+        );
+
+        $this->add_group_control(
+            Group_Control_Typography::get_type(),
+            [
+                'name'     => 'btn_primary_typography',
+                'label'    => esc_html__('تایپوگرافی دکمه‌ها', 'universal-elementor-suite'),
+                'selector' => '{{WRAPPER}} .uas-btn-primary, {{WRAPPER}} .uas-btn-secondary',
+            ]
+        );
+
+        $btn_primary_bg_args = [
+            'label'     => esc_html__('رنگ دکمه اصلی', 'universal-elementor-suite'),
+            'type'      => Controls_Manager::COLOR,
+            'default'   => '#2563EB',
+            'selectors' => [
+                '{{WRAPPER}} .uas-btn-primary' => 'background-color: {{VALUE}};',
+            ],
+        ];
+        if (class_exists('\\Elementor\\Core\\Kits\\Documents\\Tabs\\Global_Colors')) {
+            $btn_primary_bg_args['global'] = ['default' => Global_Colors::COLOR_PRIMARY];
+        }
+        $this->add_control('btn_primary_bg', $btn_primary_bg_args);
+
+        $this->add_control(
+            'btn_primary_text_color',
+            [
+                'label'     => esc_html__('رنگ متن دکمه اصلی', 'universal-elementor-suite'),
                 'type'      => Controls_Manager::COLOR,
-                'default'   => '#2563EB',
+                'default'   => '#FFFFFF',
                 'selectors' => [
-                    '{{WRAPPER}} .uas-hero-badge' => 'color: {{VALUE}}; border-color: {{VALUE}};',
+                    '{{WRAPPER}} .uas-btn-primary' => 'color: {{VALUE}};',
                 ],
             ]
         );
 
         $this->add_control(
-            'btn_primary_bg',
+            'btn_primary_hover_bg',
             [
-                'label'     => esc_html__('رنگ دکمه اصلی', 'universal-elementor-suite'),
+                'label'     => esc_html__('پس‌زمینه هاور دکمه اصلی', 'universal-elementor-suite'),
                 'type'      => Controls_Manager::COLOR,
-                'default'   => '#2563EB',
+                'default'   => '#1D4ED8',
                 'selectors' => [
-                    '{{WRAPPER}} .uas-btn-primary' => 'background-color: {{VALUE}};',
+                    '{{WRAPPER}} .uas-btn-primary:hover, {{WRAPPER}} .uas-btn-primary:focus-visible' => 'background-color: {{VALUE}};',
                 ],
+            ]
+        );
+
+        $this->add_control(
+            'btn_secondary_text_color',
+            [
+                'label'     => esc_html__('رنگ متن دکمه ثانویه', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .uas-btn-secondary' => 'color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'btn_secondary_border_color',
+            [
+                'label'     => esc_html__('رنگ کادر دکمه ثانویه', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .uas-btn-secondary' => 'border-color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'btn_secondary_hover_bg',
+            [
+                'label'     => esc_html__('پس‌زمینه هاور دکمه ثانویه', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .uas-btn-secondary:hover, {{WRAPPER}} .uas-btn-secondary:focus-visible' => 'background-color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->add_responsive_control(
+            'btn_padding',
+            [
+                'label'      => esc_html__('فاصله داخلی دکمه‌ها', 'universal-elementor-suite'),
+                'type'       => Controls_Manager::DIMENSIONS,
+                'size_units' => ['px', 'em'],
+                'selectors'  => [
+                    '{{WRAPPER}} .uas-btn-primary, {{WRAPPER}} .uas-btn-secondary' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'btn_border_radius',
+            [
+                'label'      => esc_html__('شعاع گوشه دکمه‌ها', 'universal-elementor-suite'),
+                'type'       => Controls_Manager::DIMENSIONS,
+                'size_units' => ['px', '%'],
+                'selectors'  => [
+                    '{{WRAPPER}} .uas-btn-primary, {{WRAPPER}} .uas-btn-secondary' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->end_controls_section();
+
+        /* ---------------------------------------------------------------------
+         * TAB_STYLE: 4. Hero Media Style
+         * ------------------------------------------------------------------ */
+        $this->start_controls_section(
+            'section_style_media',
+            [
+                'label'     => esc_html__('استایل تصویر شاخص', 'universal-elementor-suite'),
+                'tab'       => Controls_Manager::TAB_STYLE,
+                'condition' => ['show_media' => 'yes'],
+            ]
+        );
+
+        $this->add_responsive_control(
+            'media_max_width',
+            [
+                'label'      => esc_html__('حداکثر عرض تصویر', 'universal-elementor-suite'),
+                'type'       => Controls_Manager::SLIDER,
+                'size_units' => ['px', '%'],
+                'range'      => [
+                    'px' => ['min' => 200, 'max' => 900, 'step' => 10],
+                    '%'  => ['min' => 25, 'max' => 100],
+                ],
+                'selectors'  => [
+                    '{{WRAPPER}} .uas-hero-img' => 'max-width: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'media_object_fit',
+            [
+                'label'     => esc_html__('تناسب برش تصویر (Object Fit)', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::SELECT,
+                'default'   => 'cover',
+                'options'   => [
+                    'cover'   => 'Cover',
+                    'contain' => 'Contain',
+                    'fill'    => 'Fill',
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .uas-hero-img' => 'object-fit: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'media_border_radius',
+            [
+                'label'      => esc_html__('شعاع گوشه تصویر', 'universal-elementor-suite'),
+                'type'       => Controls_Manager::DIMENSIONS,
+                'size_units' => ['px', '%'],
+                'selectors'  => [
+                    '{{WRAPPER}} .uas-hero-img' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->add_group_control(
+            Group_Control_Border::get_type(),
+            [
+                'name'     => 'media_border',
+                'selector' => '{{WRAPPER}} .uas-hero-img',
+            ]
+        );
+
+        $this->add_group_control(
+            Group_Control_Box_Shadow::get_type(),
+            [
+                'name'     => 'media_box_shadow',
+                'selector' => '{{WRAPPER}} .uas-hero-img',
             ]
         );
 
         $this->end_controls_section();
     }
 
+    /**
+     * Build safe link attributes with noopener/noreferrer protection on external URLs
+     *
+     * @param string $attr_key
+     * @param array  $url_control
+     * @param string $aria_label
+     * @param string $default_href
+     * @return string Rendered HTML attribute string
+     */
+    protected function build_safe_link_attrs($attr_key, $url_control, $aria_label = '', $default_href = '#') {
+        $url_data = is_array($url_control) ? $url_control : ['url' => (string) $url_control];
+        $href = !empty($url_data['url']) ? $url_data['url'] : $default_href;
+        $url_data['url'] = $href;
+
+        $is_external = !empty($url_data['is_external']);
+        $is_nofollow = !empty($url_data['nofollow']);
+
+        if (method_exists($this, 'add_link_attributes')) {
+            $this->add_link_attributes($attr_key, $url_data);
+            $rel_parts = [];
+            if ($is_external) {
+                $rel_parts[] = 'noopener';
+                $rel_parts[] = 'noreferrer';
+            }
+            if ($is_nofollow) {
+                $rel_parts[] = 'nofollow';
+            }
+            if (!empty($rel_parts)) {
+                $this->add_render_attribute($attr_key, 'rel', implode(' ', array_unique($rel_parts)));
+            }
+            if (!empty($aria_label)) {
+                $this->add_render_attribute($attr_key, 'aria-label', $aria_label);
+            }
+            $rendered = $this->get_render_attribute_string($attr_key);
+            if (!empty($rendered)) {
+                return $rendered;
+            }
+        }
+
+        $attrs = 'href="' . esc_url($href) . '"';
+        if ($is_external) {
+            $attrs .= ' target="_blank"';
+        }
+        $rel_parts = [];
+        if ($is_external) {
+            $rel_parts[] = 'noopener';
+            $rel_parts[] = 'noreferrer';
+        }
+        if ($is_nofollow) {
+            $rel_parts[] = 'nofollow';
+        }
+        if (!empty($rel_parts)) {
+            $attrs .= ' rel="' . esc_attr(implode(' ', array_unique($rel_parts))) . '"';
+        }
+        if (!empty($aria_label)) {
+            $attrs .= ' aria-label="' . esc_attr($aria_label) . '"';
+        }
+        return $attrs;
+    }
+
+    /**
+     * Render Frontend Output (Accessible, RTL/LTR Aware, Safe Tags & Media)
+     */
     protected function render() {
         $settings = $this->get_settings_for_display();
+
+        // Allowlisted heading tag
+        $raw_tag = $settings['title_tag'] ?? 'h1';
+        $title_tag = in_array($raw_tag, ['h1', 'h2', 'h3', 'div'], true) ? $raw_tag : 'h1';
+
+        // Allowlisted design preset
+        $raw_preset = $settings['hero_preset'] ?? 'modern-card';
+        $allowed_presets = ['modern-card', 'split-executive', 'centered-editorial', 'minimal-glass'];
+        $preset = in_array($raw_preset, $allowed_presets, true) ? $raw_preset : 'modern-card';
+
+        // Conditional document direction (never hardcoded RTL on LTR sites)
+        $dir_attr = (function_exists('is_rtl') && !is_rtl()) ? 'ltr' : 'rtl';
+        $widget_uid = method_exists($this, 'get_id') ? sanitize_html_class($this->get_id()) : 'hero';
+        $title_dom_id = 'uas-hero-title-' . $widget_uid;
+
+        $show_badge = ($settings['show_badge'] ?? 'yes') === 'yes';
+        $show_media = ($settings['show_media'] ?? 'yes') === 'yes';
+        $has_title = !empty($settings['hero_title']);
+
+        $media = is_array($settings['hero_image'] ?? null) ? $settings['hero_image'] : [];
+        $img_url = !empty($media['url']) ? $media['url'] : $this->get_default_hero_image_url();
+        $img_id = !empty($media['id']) ? (int) $media['id'] : 0;
+        $alt_text = !empty($settings['hero_image_alt'])
+            ? $settings['hero_image_alt']
+            : (!empty($settings['hero_title']) ? wp_strip_all_tags($settings['hero_title']) : esc_html__('تصویر هیرو', 'universal-elementor-suite'));
         ?>
-        <div class="uas-hero-wrapper uas-widget-container" dir="rtl">
+        <section
+            class="uas-hero-wrapper uas-widget-container uas-hero-preset-<?php echo esc_attr($preset); ?>"
+            dir="<?php echo esc_attr($dir_attr); ?>"
+            <?php echo $has_title ? 'aria-labelledby="' . esc_attr($title_dom_id) . '"' : ''; ?>
+        >
             <div class="uas-hero-inner">
                 <div class="uas-hero-content">
-                    <?php if (!empty($settings['badge_text'])) : ?>
+                    <?php if ($show_badge && !empty($settings['badge_text'])) : ?>
                         <div class="uas-hero-badge">
-                            <span>★</span>
+                            <span aria-hidden="true">★</span>
                             <span><?php echo esc_html($settings['badge_text']); ?></span>
                         </div>
                     <?php endif; ?>
 
-                    <?php if (!empty($settings['hero_title'])) : ?>
-                        <h1 class="uas-hero-title"><?php echo esc_html($settings['hero_title']); ?></h1>
+                    <?php if ($has_title) : ?>
+                        <<?php echo $title_tag; ?> id="<?php echo esc_attr($title_dom_id); ?>" class="uas-hero-title">
+                            <?php echo esc_html($settings['hero_title']); ?>
+                        </<?php echo $title_tag; ?>>
                     <?php endif; ?>
 
                     <?php if (!empty($settings['hero_desc'])) : ?>
                         <p class="uas-hero-desc"><?php echo esc_html($settings['hero_desc']); ?></p>
                     <?php endif; ?>
 
-                    <div class="uas-hero-actions">
-                        <?php if (!empty($settings['primary_btn_text'])) : ?>
-                            <a href="<?php echo esc_url($settings['primary_btn_url']['url'] ?? '#'); ?>" class="uas-btn-primary">
-                                <?php echo esc_html($settings['primary_btn_text']); ?>
-                            </a>
-                        <?php endif; ?>
+                    <?php if (!empty($settings['primary_btn_text']) || !empty($settings['secondary_btn_text'])) : ?>
+                        <div class="uas-hero-actions">
+                            <?php if (!empty($settings['primary_btn_text'])) : ?>
+                                <a <?php echo $this->build_safe_link_attrs(
+                                    'primary_btn_link',
+                                    $settings['primary_btn_url'] ?? [],
+                                    $settings['primary_btn_aria_label'] ?? '',
+                                    '#contact'
+                                ); ?> class="uas-btn-primary">
+                                    <?php echo esc_html($settings['primary_btn_text']); ?>
+                                </a>
+                            <?php endif; ?>
 
-                        <?php if (!empty($settings['secondary_btn_text'])) : ?>
-                            <a href="<?php echo esc_url($settings['secondary_btn_url']['url'] ?? '#'); ?>" class="uas-btn-secondary">
-                                <?php echo esc_html($settings['secondary_btn_text']); ?>
-                            </a>
-                        <?php endif; ?>
-                    </div>
+                            <?php if (!empty($settings['secondary_btn_text'])) : ?>
+                                <a <?php echo $this->build_safe_link_attrs(
+                                    'secondary_btn_link',
+                                    $settings['secondary_btn_url'] ?? [],
+                                    $settings['secondary_btn_aria_label'] ?? '',
+                                    '#services'
+                                ); ?> class="uas-btn-secondary">
+                                    <?php echo esc_html($settings['secondary_btn_text']); ?>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
-                <?php if (!empty($settings['hero_image']['url'])) : ?>
+                <?php if ($show_media && !empty($img_url)) : ?>
                     <div class="uas-hero-media">
-                        <img src="<?php echo esc_url($settings['hero_image']['url']); ?>" alt="<?php echo esc_attr($settings['hero_title']); ?>" class="uas-hero-img" loading="lazy" />
+                        <?php
+                        $used_wp_attachment = false;
+                        if (
+                            $img_id > 0
+                            && function_exists('get_post_type')
+                            && get_post_type($img_id) === 'attachment'
+                            && class_exists('\\Elementor\\Group_Control_Image_Size')
+                            && method_exists('\\Elementor\\Group_Control_Image_Size', 'get_attachment_image_html')
+                        ) {
+                            $attachment_html = Group_Control_Image_Size::get_attachment_image_html($settings, 'hero_image_size', 'hero_image');
+                            if (!empty($attachment_html)) {
+                                if (strpos($attachment_html, 'class="') !== false) {
+                                    $attachment_html = str_replace('class="', 'class="uas-hero-img ', $attachment_html);
+                                } else {
+                                    $attachment_html = str_replace('<img ', '<img class="uas-hero-img" ', $attachment_html);
+                                }
+                                echo $attachment_html; // Elementor core sanitized attachment markup
+                                $used_wp_attachment = true;
+                            }
+                        }
+
+                        if (!$used_wp_attachment) :
+                            ?>
+                            <img
+                                src="<?php echo esc_url($img_url); ?>"
+                                alt="<?php echo esc_attr($alt_text); ?>"
+                                class="uas-hero-img"
+                                loading="eager"
+                                decoding="async"
+                            />
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>
-        </div>
+        </section>
         <?php
     }
 }
@@ -26778,45 +28930,391 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
   ]
 }`},{path:"elementor-addon-suite/templates/template-designer-landing.json",filename:"template-designer-landing.json",category:"صفحه‌ساز و ویجت‌ها (Elementor Widgets)",description:"قالب آماده و بخش از پیش طراحی‌شده المنتور (template-designer-landing.json)",code:`{
   "version": "0.4",
-  "title": "UAS - لندینگ طراح سایت وردپرس گوتنبرگ (Gutenberg Designer Landing)",
-  "type": "container",
+  "title": "UAS - صفحه فرود جامع بومی کانتینری (Golden Native Container Landing Page)",
+  "type": "page",
   "content": [
     {
-      "id": "uas_cnt_designer_landing",
+      "id": "uas_cnt_dl_hero",
       "elType": "container",
       "isInner": false,
       "settings": {
-        "padding": {
-          "unit": "px",
-          "top": "50",
-          "right": "20",
-          "bottom": "50",
-          "left": "20"
-        },
-        "background_background": "classic",
-        "background_color": "#0F172A",
-        "content_width": "full",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "padding": {
+          "unit": "px",
+          "top": "48",
+          "right": "20",
+          "bottom": "40",
+          "left": "20"
+        }
       },
       "elements": [
         {
-          "id": "uas_wid_designer_hero",
+          "id": "uas_wid_dl_hero",
           "elType": "widget",
           "widgetType": "uas_hero",
           "settings": {
-            "badge_text": "💻 گوتنبرگ بومی ۱۰۰٪ بدون المنتور و صفحه‌ساز سنگین",
+            "hero_preset": "split-executive",
+            "title_tag": "h1",
+            "show_badge": "yes",
+            "badge_text": "معماری بومی کانتینری و سیستم طراحی یکپارچه",
             "hero_title": "طراحی وب‌سایت‌های مدرن، پرسرعت و مقیاس‌پذیر در کلاس جهانی",
-            "hero_desc": "توسعه قالب‌های اختصاصی وردپرس با معماری مستقل و استانداردهای گوگل لایت‌هاوس برای آژانس‌ها، استارتاپ‌ها و کسب‌وکارهای بین‌المللی.",
-            "primary_btn_text": "ارسال بریف و مشاوره پروژه",
+            "hero_desc": "توسعه صفحات فرود تمام‌بومی المنتور با پشتیبانی از RTL/LTR، حالت تاریک و روشن، و سرعت بارگذاری بهینه بدون وابستگی به دارایی‌های خارجی.",
+            "primary_btn_text": "مشاهده خدمات و راهکارها",
             "primary_btn_url": {
-              "url": "#brief",
-              "is_external": false
+              "url": "#services",
+              "is_external": false,
+              "nofollow": false
             },
-            "secondary_btn_text": "مشاهده نمونه‌کارها و نتایج سرعت",
+            "secondary_btn_text": "پرسش‌های متداول و تماس",
             "secondary_btn_url": {
-              "url": "#portfolio",
+              "url": "#faq",
+              "is_external": false,
+              "nofollow": false
+            },
+            "show_media": "yes",
+            "hero_image": {
+              "url": "",
+              "source": "sovereign_local"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_dl_metrics",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "content_width": "boxed",
+        "background_background": "classic",
+        "background_color": "#F8FAFC",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "padding": {
+          "unit": "px",
+          "top": "56",
+          "right": "20",
+          "bottom": "56",
+          "left": "20"
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_wid_dl_stats",
+          "elType": "widget",
+          "widgetType": "uas_stat_counter",
+          "settings": {
+            "columns": "4",
+            "duration": 2000,
+            "stats_list": [
+              {
+                "number": 99,
+                "suffix": "%",
+                "title": "انطباق با هسته و توکن‌های طراحی",
+                "description": "پشتیبانی بومی از حالت تیره و روشن و RTL",
+                "icon": "🎨"
+              },
+              {
+                "number": 120,
+                "suffix": "+",
+                "title": "پروژه و الگوی راه‌اندازی‌شده",
+                "description": "مناسب سایت‌های شرکتی، آژانس و خدماتی",
+                "icon": "🚀"
+              },
+              {
+                "number": 100,
+                "suffix": "%",
+                "title": "استقلال رسانه بدون CDN خارجی",
+                "description": "بارگذاری ایمن از دارایی‌های محلی",
+                "icon": "🛡️"
+              },
+              {
+                "number": 24,
+                "suffix": "/7",
+                "title": "آماده ویرایش در المنتور رایگان و پرو",
+                "description": "ساختار کانتینری استاندارد و منعطف",
+                "icon": "⚡"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_dl_services",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "padding": {
+          "unit": "px",
+          "top": "70",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_wid_dl_services",
+          "elType": "widget",
+          "widgetType": "uas_services_grid",
+          "settings": {
+            "subtitle": "توانمندی‌های کلیدی استودیو",
+            "title": "راهکارهای مهندسی‌شده برای رشد دیجیتال",
+            "columns": "3",
+            "services_list": [
+              {
+                "item_title": "طراحی رابط کاربری و معماری کانتینری",
+                "item_desc": "چیدمان دقیق با Flexbox Container، سلسله‌مراتب تایپوگرافی استاندارد و ویرایش کامل بصری.",
+                "item_link_text": "بررسی جزئیات ←",
+                "item_link_url": {
+                  "url": "#faq",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "بهینه‌سازی عملکرد و دسترس‌پذیری",
+                "item_desc": "ساختار معنایی HTML5، کنترل‌های کیبوردی focus-visible و حذف اسکریپت‌های مزاحم.",
+                "item_link_text": "بررسی جزئیات ←",
+                "item_link_url": {
+                  "url": "#testimonials",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "بومی‌سازی دوزبانه و انتقال‌پذیری",
+                "item_desc": "تغییر خودکار ترازبندی بین RTL و LTR به همراه بسته‌بندی قابل انتقال بین سایت‌ها.",
+                "item_link_text": "بررسی جزئیات ←",
+                "item_link_url": {
+                  "url": "#cta",
+                  "is_external": false
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_dl_split_overview",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "content_width": "boxed",
+        "flex_direction": "row",
+        "flex_direction_tablet": "column",
+        "flex_direction_mobile": "column",
+        "flex_wrap": "wrap",
+        "flex_align_items": "flex-start",
+        "flex_justify_content": "space-between",
+        "flex_gap": {
+          "column": "32",
+          "row": "32",
+          "unit": "px"
+        },
+        "padding": {
+          "unit": "px",
+          "top": "64",
+          "right": "20",
+          "bottom": "64",
+          "left": "20"
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_cnt_dl_split_intro",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "content_width": "full",
+            "width": {
+              "unit": "%",
+              "size": 46
+            },
+            "width_tablet": {
+              "unit": "%",
+              "size": 100
+            },
+            "width_mobile": {
+              "unit": "%",
+              "size": 100
+            },
+            "flex_direction": "column",
+            "flex_gap": {
+              "column": "16",
+              "row": "16",
+              "unit": "px"
+            }
+          },
+          "elements": [
+            {
+              "id": "uas_wid_dl_split_heading",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "پرسش‌های متداول درباره ویرایش و استقرار صفحه در المنتور",
+                "header_size": "h2"
+              }
+            },
+            {
+              "id": "uas_wid_dl_split_copy",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p>تمامی بخش‌های این برگه با کانتینرهای استاندارد Flexbox و ویجت‌های بومی پیاده‌سازی شده‌اند تا مدیران سایت بدون نیاز به کدنویسی و حتی در نسخه رایگان المنتور، محتوای صفحه را مستقیماً ویرایش و منتشر کنند.</p>"
+              }
+            },
+            {
+              "id": "uas_wid_dl_split_btn",
+              "elType": "widget",
+              "widgetType": "button",
+              "settings": {
+                "text": "درخواست مشاوره و دمو",
+                "link": {
+                  "url": "#cta",
+                  "is_external": false
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "uas_cnt_dl_split_faq",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "content_width": "full",
+            "width": {
+              "unit": "%",
+              "size": 50
+            },
+            "width_tablet": {
+              "unit": "%",
+              "size": 100
+            },
+            "width_mobile": {
+              "unit": "%",
+              "size": 100
+            },
+            "flex_direction": "column"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_dl_faq",
+              "elType": "widget",
+              "widgetType": "uas_faq",
+              "settings": {
+                "enable_schema": "yes",
+                "enable_search": "yes",
+                "search_placeholder": "جستجو در پرسش‌های متداول...",
+                "faqs_list": [
+                  {
+                    "question": "آیا این صفحه کاملاً در ویرایشگر المنتور رایگان قابل ویرایش است؟",
+                    "answer": "بله، تمامی سکشن‌ها از کانتینرهای بومی Flexbox و ویجت‌های مستقل uas_* به همراه ویجت‌های هسته المنتور تشکیل شده‌اند و به المنتور پرو وابستگی الزامی ندارند."
+                  },
+                  {
+                    "question": "تغییر رنگ‌ها و تایپوگرافی سراسری چگونه انجام می‌شود؟",
+                    "answer": "کافی است در Site Settings المنتور رنگ‌ها و قلم‌های Global Kit را تغییر دهید تا تمام اجزای صفحه بر اساس توکن‌های variables.css هماهنگ شوند."
+                  },
+                  {
+                    "question": "تصاویر و رسانه‌های دمو از چه منبعی بارگذاری می‌شوند؟",
+                    "answer": "درون‌ریز بومی به شکل خودکار تصاویر نمونه را به دارایی‌های SVG محلی متصل می‌کند تا سایت حتی در محیط‌های آفلاین یا بدون دسترسی خارجی بدون خطا نمایش داده شود."
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_dl_testimonials",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "content_width": "boxed",
+        "background_background": "classic",
+        "background_color": "#0F172A",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "padding": {
+          "unit": "px",
+          "top": "70",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_wid_dl_testimonials",
+          "elType": "widget",
+          "widgetType": "uas_testimonials",
+          "settings": {
+            "columns": "2",
+            "testimonials_list": [
+              {
+                "author_name": "مهندس سهیل رادمهر",
+                "author_role": "مدیر فنی استودیو طراحی پارس",
+                "review_text": "ساختار تمیز کانتینری و نبود وابستگی به اسکریپت‌های سنگین باعث شد سرعت بارگذاری صفحه فرود ما و تجربه ویرایش کارفرما به شکل محسوسی ارتقا یابد.",
+                "rating": "5",
+                "avatar": {
+                  "url": "",
+                  "source": "sovereign_local"
+                }
+              },
+              {
+                "author_name": "دکتر سارا فرهادی",
+                "author_role": "مدیر محصول گروه نرم‌افزاری سپهر",
+                "review_text": "هماهنگی کامل حالت تیره و روشن و تبدیل بدون نقص چیدمان در موبایل و دسکتاپ، نیاز ما به تغییرات کدنویسی دستی را از بین برد.",
+                "rating": "5",
+                "avatar": {
+                  "url": "",
+                  "source": "sovereign_local"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_dl_cta",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "padding": {
+          "unit": "px",
+          "top": "64",
+          "right": "20",
+          "bottom": "72",
+          "left": "20"
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_wid_dl_cta",
+          "elType": "widget",
+          "widgetType": "uas_cta",
+          "settings": {
+            "title": "آماده‌اید برگه اصلی خود را با استاندارد بومی المنتور راه‌اندازی کنید؟",
+            "description": "همین حالا این الگو را از کتابخانه درون‌ریزی کنید یا به‌صورت زنده در ویرایشگر المنتور سفارشی‌سازی نمایید.",
+            "button_text": "شروع پیاده‌سازی ←",
+            "button_url": {
+              "url": "#contact",
               "is_external": false
             }
           }
@@ -27433,21 +29931,28 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
           "elType": "widget",
           "widgetType": "uas_hero",
           "settings": {
+            "hero_preset": "modern-card",
+            "title_tag": "h1",
+            "show_badge": "yes",
             "badge_text": "نوآوری در ارائه خدمات برتر",
             "hero_title": "راهکارهای هوشمند و مدرن برای ارتقای کسب‌وکار شما",
             "hero_desc": "ما با تلفیق تخصص، نوآوری و تکنولوژی‌های پیشرو، سازمان شما را در مسیر دستیابی به اهداف راهبردی و مزیت‌های پایدار رقابتی همراهی می‌کنیم.",
             "primary_btn_text": "درخواست مشاوره رایگان",
             "primary_btn_url": {
               "url": "#contact",
-              "is_external": false
+              "is_external": false,
+              "nofollow": false
             },
             "secondary_btn_text": "مشاهده پروژه‌ها و خدمات",
             "secondary_btn_url": {
               "url": "#services",
-              "is_external": false
+              "is_external": false,
+              "nofollow": false
             },
+            "show_media": "yes",
             "hero_image": {
-              "url": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800"
+              "url": "",
+              "source": "sovereign_local"
             }
           }
         }
@@ -27716,8 +30221,12 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
               "url": "#features",
               "is_external": false
             },
+            "hero_preset": "split-executive",
+            "title_tag": "h1",
+            "show_media": "yes",
             "hero_image": {
-              "url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=900"
+              "url": "",
+              "source": "sovereign_local"
             }
           }
         }
@@ -28779,26 +31288,73 @@ function uas_uninstall_single_blog() {
 
     // 2. Clean up all registered plugin options
     $options_to_delete = [
+        'uas_version',
         'uas_custom_category_name',
         'uas_custom_category_icon',
         'uas_disabled_widgets',
         'uas_delete_templates_on_uninstall',
         'uas_settings',
+        'uas_github_settings',
         'uas_captured_leads_vault',
         'uas_security_audit_logs',
         'uas_plugin_activated_time',
         'uas_theme_builder_header_template_id',
         'uas_theme_builder_footer_template_id',
         'uas_theme_builder_404_template_id',
+        'uas_theme_builder_single_template_id',
         'uas_theme_builder_single-post_template_id',
+        'uas_theme_builder_archive_template_id',
     ];
 
     foreach ($options_to_delete as $opt) {
         delete_option($opt);
     }
 
-    // 3. Clean up all plugin transients via SQL wildcard
-    $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_uas_%' OR option_name LIKE '_transient_timeout_uas_%'");
+    // 3. Clean up dynamic package options & all plugin transients cleanly using $wpdb->prepare
+    $dynamic_prefixes = [
+        'uas_bundle_integrity_%',
+        'uas_bundle_integrity_error_%',
+        'uas_pkg_rollback_snapshot_%',
+        'uas_skipped_templates_%',
+        '_transient_uas_%',
+        '_transient_timeout_uas_%',
+        '_site_transient_uas_%',
+        '_site_transient_timeout_uas_%',
+    ];
+    foreach ($dynamic_prefixes as $like_pattern) {
+        $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $like_pattern));
+    }
+
+    // 4. Clear any scheduled plugin cron events
+    if (function_exists('wp_clear_scheduled_hook')) {
+        wp_clear_scheduled_hook('uas_daily_maintenance');
+        wp_clear_scheduled_hook('uas_github_sync_cron');
+    }
+}
+
+/**
+ * Recursively remove plugin directories inside wp-content/uploads/
+ */
+function uas_uninstall_rmdir_recursive($dir) {
+    if (!is_dir($dir)) {
+        return;
+    }
+    $items = scandir($dir);
+    if (!is_array($items)) {
+        return;
+    }
+    foreach ($items as $item) {
+        if ($item === '.' || $item === '..') {
+            continue;
+        }
+        $path = rtrim($dir, '/\\\\') . DIRECTORY_SEPARATOR . $item;
+        if (is_dir($path)) {
+            uas_uninstall_rmdir_recursive($path);
+        } else {
+            @unlink($path);
+        }
+    }
+    @rmdir($dir);
 }
 
 // Handle Multisite vs Single Site
@@ -28814,24 +31370,15 @@ if (function_exists('is_multisite') && is_multisite()) {
     uas_uninstall_single_blog();
 }
 
-// 4. Remove generated standalone packages and template cache directories
+// 5. Remove generated standalone packages and template cache directories recursively
 $upload_dir = wp_upload_dir();
-$cache_dirs = [
-    trailingslashit($upload_dir['basedir']) . 'uas-standalone-packages/',
-    trailingslashit($upload_dir['basedir']) . 'uas-cache/',
-];
-
-foreach ($cache_dirs as $dir) {
-    if (is_dir($dir)) {
-        $files = glob($dir . '*');
-        if (is_array($files)) {
-            foreach ($files as $f) {
-                if (is_file($f)) {
-                    @unlink($f);
-                }
-            }
-        }
-        @rmdir($dir);
+if (is_array($upload_dir) && empty($upload_dir['error']) && !empty($upload_dir['basedir'])) {
+    $cache_dirs = [
+        trailingslashit($upload_dir['basedir']) . 'uas-standalone-packages',
+        trailingslashit($upload_dir['basedir']) . 'uas-cache',
+    ];
+    foreach ($cache_dirs as $dir) {
+        uas_uninstall_rmdir_recursive($dir);
     }
 }
 `},{path:"sedrazavi-addons/assets/banner-772x250.webp",filename:"banner-772x250.webp",category:"افزونه مکمل (Plugin Addons)",description:"ماژول افزونه وردپرس: sedrazavi-addons/assets/banner-772x250.webp",code:`RIFFZ!\0\0WEBPVP8 N!\0\0��\0�*�\0>m2�I$"��#����\r�gn�unz�\v��ӻoZq��|�_k���G�O����<n�L�Y�[�����Ov_�~���z�c���������_�_����?c����~�|�k�����������?�\x07��~��D�+���o�9���ۯV�<�/�?Ⱦ��{�O�_߿�x��������_��&�)�G�S�_���p�\x07�?���M������_��|\0+���\x07���\v_��O�������>������K�����o�������\b�q�����?�/hO��s��9�s��9�s��9�s��9�s��9�s��6���o�!bsP�9�\bX��,Nj'5\v�����@B��!bsP�9�\b%�h�ΐ�+�/T�A١\b5�DT\0(���\\����sw�����pg�y\bB�!\bB�!\bB�!\b?�\b�|�֧]�eU%B��e�*[�:�ӊ�>��RENFfZ���z���#[�Q�CkF\`�ǋ\b����ў�oҔ�)JR��)JR��)JR����4z�������o~\bB�!\bB�!\bB�!\bB$1�g#�1����R�ͤ�@�b��na��Q<{�ʱM�eo�\0�Ĕ�!\bB�!\bB�!\bB81=:�7��L�\x1B�\\ٖV.�y�K"��d��� ���QH+�q��F�Є<��|K�c�<ah�>u8���2e\0���� �W	|~$�"�D�h�5�֨�U��_��;m�A��E�X>B(:�b�g�1B}m���GA�n�J\x07;����Q�յ�Ԙʣ�\v���e��7��p��7�G�gp�?\b-��s��9�s��9�s���8�	0�����lc�YHn5
@@ -29993,16 +32540,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// 1. If Universal Elementor Addon Suite is present, defer directly to the standalone suite
+// 1. Canonical Elementor Suite Check — defer directly to UniversalElementorSuite\\Plugin
 if (class_exists('\\UniversalElementorSuite\\Plugin')) {
-    // Standalone Suite is loaded, no duplicate registration needed.
     return;
 }
 
-// 2. Fallback loader when standalone plugin is not yet active
+// 2. Fallback category registration only when standalone Universal Suite is inactive
 if (!function_exists('sedrazavi_addons_register_elementor_category')) {
     function sedrazavi_addons_register_elementor_category($elements_manager) {
-        if (!class_exists('\\Elementor\\Plugin')) {
+        if (!class_exists('\\Elementor\\Plugin') || class_exists('\\UniversalElementorSuite\\Plugin')) {
             return;
         }
         $elements_manager->add_category(
@@ -30016,22 +32562,19 @@ if (!function_exists('sedrazavi_addons_register_elementor_category')) {
 }
 add_action('elementor/elements/categories_registered', 'sedrazavi_addons_register_elementor_category');
 
-if (!function_exists('sedrazavi_addons_load_elementor_widgets')) {
-    function sedrazavi_addons_load_elementor_widgets($widgets_manager) {
-        if (!class_exists('\\Elementor\\Widget_Base')) {
+// Do NOT lazily require_once elementor-addon-suite inside widget registration hooks or register deprecated widgets_registered.
+if (!function_exists('sedrazavi_addons_missing_suite_notice')) {
+    function sedrazavi_addons_missing_suite_notice() {
+        if (class_exists('\\UniversalElementorSuite\\Plugin') || !did_action('elementor/loaded') || !current_user_can('activate_plugins')) {
             return;
         }
-
-        // Bridge to load standalone suite if available in wp-content/plugins
-        $standalone_suite = WP_PLUGIN_DIR . '/elementor-addon-suite/elementor-addon-suite.php';
-        if (file_exists($standalone_suite)) {
-            require_once $standalone_suite;
-            return;
-        }
+        printf(
+            '<div class="notice notice-info is-dismissible"><p>%s</p></div>',
+            esc_html__('افزونه SedRazavi Addons از شورت‌کدهای تخصصی پشتیبانی می‌کند. برای ویجت‌های بصری المنتور، افزونه مستقل «Universal Elementor Addon Suite» را فعال نمایید.', 'sedrazavi-addons')
+        );
     }
 }
-add_action('elementor/widgets/register', 'sedrazavi_addons_load_elementor_widgets', 20);
-add_action('elementor/widgets/widgets_registered', 'sedrazavi_addons_load_elementor_widgets', 20);
+add_action('admin_notices', 'sedrazavi_addons_missing_suite_notice');
 `},{path:"sedrazavi-addons/includes/logger.php",filename:"logger.php",category:"ماژول‌های افزونه (Plugin Includes)",description:"لاگر خودکار خطاها و استثنائات در پوشه امنیتی wp-content/uploads/sedrazavi-logs.",code:`<?php
 /**
  * Automated System Logger for SedRazavi Law Firm
@@ -32200,12 +34743,12 @@ if (!class_exists('SedRazavi_Addons_Loader')) {
 // راه‌اندازی نمونه اصلی لودر افزونه
 SedRazavi_Addons_Loader::get_instance();
 
-// ۴. هوک فعال‌سازی مقاوم با Try-Catch جامع (Activation Hook)
-if (!function_exists('sedrazavi_addons_activate')) {
-    function sedrazavi_addons_activate() {
+// ۴. هوک فعال‌سازی مقاوم با پشتیبانی از Multisite و Try-Catch جامع (Activation Hook)
+if (!function_exists('sedrazavi_addons_activate_single_site')) {
+    function sedrazavi_addons_activate_single_site() {
         try {
             global $wpdb;
-            
+
             // ایجاد پوشه لاگ و محافظت امنیتی
             sedrazavi_addons_log_error('افزونه با موفقیت فعال‌سازی شد.', __FILE__, __LINE__, 'INFO');
 
@@ -32229,15 +34772,16 @@ if (!function_exists('sedrazavi_addons_activate')) {
                 KEY status (status)
             ) {$charset_collate};";
 
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
             dbDelta($sql);
 
-            // ثبت زمان نصب اولیه در آپشن‌ها
+            // ثبت زمان نصب اولیه و نسخه در آپشن‌ها
             if (!get_option('sedrazavi_addons_installed')) {
                 update_option('sedrazavi_addons_installed', current_time('mysql'));
             }
+            update_option('sedrazavi_addons_version', SEDRAZAVI_ADDONS_VERSION);
 
-            // ۶. اتوماسیون هوشمند ایجاد خودکار برگه سامانه ری‌اکت در وردپرس (Auto-Provisioning)
+            // اتوماسیون هوشمند ایجاد خودکار برگه سامانه در وردپرس (Auto-Provisioning)
             $existing_page = get_page_by_path('sedrazavi-portal');
             if (!$existing_page) {
                 $page_id = wp_insert_post(array(
@@ -32260,7 +34804,6 @@ if (!function_exists('sedrazavi_addons_activate')) {
             flush_rewrite_rules(false);
 
         } catch (Throwable $e) {
-            // ثبت خطا در فایل لاگ بدون ایجاد صفحه سفید مرگ (WSOD)
             sedrazavi_addons_log_error(
                 'خطا در حین فرآیند فعال‌سازی افزونه: ' . $e->getMessage(),
                 $e->getFile(),
@@ -32270,13 +34813,48 @@ if (!function_exists('sedrazavi_addons_activate')) {
         }
     }
 }
+
+if (!function_exists('sedrazavi_addons_activate')) {
+    function sedrazavi_addons_activate($network_wide = false) {
+        if (function_exists('is_multisite') && is_multisite() && $network_wide) {
+            global $wpdb;
+            $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+            foreach ($blog_ids as $blog_id) {
+                switch_to_blog($blog_id);
+                sedrazavi_addons_activate_single_site();
+                restore_current_blog();
+            }
+        } else {
+            sedrazavi_addons_activate_single_site();
+        }
+    }
+}
 register_activation_hook(__FILE__, 'sedrazavi_addons_activate');
 
-// ۵. هوک غیرفعال‌سازی ایمن (Deactivation Hook)
-if (!function_exists('sedrazavi_addons_deactivate')) {
-    function sedrazavi_addons_deactivate() {
+// ۵. هوک غیرفعال‌سازی ایمن با پشتیبانی از Multisite (Deactivation Hook)
+if (!function_exists('sedrazavi_addons_deactivate_single_site')) {
+    function sedrazavi_addons_deactivate_single_site() {
+        if (function_exists('wp_clear_scheduled_hook')) {
+            wp_clear_scheduled_hook('sedrazavi_addons_daily_cleanup');
+        }
         flush_rewrite_rules(false);
         sedrazavi_addons_log_error('افزونه غیرفعال شد.', __FILE__, __LINE__, 'INFO');
+    }
+}
+
+if (!function_exists('sedrazavi_addons_deactivate')) {
+    function sedrazavi_addons_deactivate($network_wide = false) {
+        if (function_exists('is_multisite') && is_multisite() && $network_wide) {
+            global $wpdb;
+            $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+            foreach ($blog_ids as $blog_id) {
+                switch_to_blog($blog_id);
+                sedrazavi_addons_deactivate_single_site();
+                restore_current_blog();
+            }
+        } else {
+            sedrazavi_addons_deactivate_single_site();
+        }
     }
 }
 register_deactivation_hook(__FILE__, 'sedrazavi_addons_deactivate');
@@ -32337,10 +34915,13 @@ if (!function_exists('sedrazavi_register_universal_shortcodes')) {
     add_shortcode('sedrazavi_tracker', 'sedrazavi_render_react_app_shortcode');
 }
 
-// ۷. اعلان خودکار راهنمای اتوماسیون در پیشخوان وردپرس (Automated Admin Notice)
+// ۷. اعلان خودکار راهنمای اتوماسیون در پیشخوان وردپرس (Automated Admin Notice — فقط برای مدیران)
 add_action('admin_notices', function() {
-    $screen = get_current_screen();
-    if ($screen && in_array($screen->id, array('dashboard', 'plugins', 'edit-page'))) {
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+    if ($screen && in_array($screen->id, array('dashboard', 'plugins', 'edit-page'), true)) {
         $portal_page_id = get_option('sedrazavi_auto_portal_page_id');
         $portal_url = $portal_page_id ? get_permalink($portal_page_id) : home_url('/sedrazavi-portal');
         ?>
@@ -32352,7 +34933,7 @@ add_action('admin_notices', function() {
                 برگه سامانه تعاملی به صورت خودکار ایجاد گردید. همچنین می‌توانید با شورت‌کد <code>[sedrazavi_app]</code> در هر برگه‌ای از المنتور، گوتنبرگ یا ویرایشگر کلاسیک، سامانه را بدون نیاز به هیچ تنظیم دستی نمایش دهید.
             </p>
             <p>
-                <a href="<?php echo esc_url($portal_url); ?>" target="_blank" class="button button-primary" style="background: #D4AF37; border-color: #AA820A; color: #0B132B; font-weight: 700;">
+                <a href="<?php echo esc_url($portal_url); ?>" target="_blank" rel="noopener noreferrer" class="button button-primary" style="background: #D4AF37; border-color: #AA820A; color: #0B132B; font-weight: 700;">
                     🚀 مشاهده سامانه در سایت
                 </a>
             </p>
@@ -32553,4 +35134,65 @@ add_action('before_woocommerce_init', function () {
         \\Automattic\\WooCommerce\\Utilities\\FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, true);
     }
 });
-`}];export{z as D,u as R,C as W,E as a,A as b,T as c,S as g};
+`},{path:"sedrazavi-addons/uninstall.php",filename:"uninstall.php",category:"افزونه مکمل (Plugin Addons)",description:"اسکریپت پاک‌سازی کامل دیتابیس و تنظیمات در زمان حذف افزونه.",code:`<?php
+/**
+ * SedRazavi Addons - Clean Uninstall Routine
+ *
+ * Respects multisite networks, removes plugin configuration/transients, and preserves
+ * legal case/consultation records unless explicit destructive wipe option is enabled.
+ *
+ * @package SedRazavi_Addons
+ */
+
+if (!defined('WP_UNINSTALL_PLUGIN')) {
+    exit;
+}
+
+function sedrazavi_addons_uninstall_single_blog() {
+    global $wpdb;
+
+    $delete_all_data = get_option('sedrazavi_addons_delete_data_on_uninstall', 'no') === 'yes';
+
+    $options = [
+        'sedrazavi_addons_installed',
+        'sedrazavi_addons_version',
+        'sedrazavi_auto_portal_page_id',
+        'sedrazavi_addons_delete_data_on_uninstall',
+        'sedrazavi_addons_settings',
+    ];
+    foreach ($options as $opt) {
+        delete_option($opt);
+    }
+
+    $patterns = [
+        '_transient_sr_rl_%',
+        '_transient_timeout_sr_rl_%',
+        '_transient_sedrazavi_addons_%',
+        '_transient_timeout_sedrazavi_addons_%',
+    ];
+    foreach ($patterns as $like) {
+        $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $like));
+    }
+
+    if (function_exists('wp_clear_scheduled_hook')) {
+        wp_clear_scheduled_hook('sedrazavi_addons_daily_cleanup');
+    }
+
+    if ($delete_all_data) {
+        $table_name = $wpdb->prefix . 'sedrazavi_consultations';
+        $wpdb->query("DROP TABLE IF EXISTS {$table_name}");
+    }
+}
+
+if (function_exists('is_multisite') && is_multisite()) {
+    global $wpdb;
+    $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+    foreach ($blog_ids as $blog_id) {
+        switch_to_blog($blog_id);
+        sedrazavi_addons_uninstall_single_blog();
+        restore_current_blog();
+    }
+} else {
+    sedrazavi_addons_uninstall_single_blog();
+}
+`}];export{z as D,u as R,C as W,S as a,T as b,A as c,E as g};

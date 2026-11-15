@@ -42,8 +42,12 @@
               "url": "#features",
               "is_external": false
             },
+            "hero_preset": "split-executive",
+            "title_tag": "h1",
+            "show_media": "yes",
             "hero_image": {
-              "url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=900"
+              "url": "",
+              "source": "sovereign_local"
             }
           }
         }

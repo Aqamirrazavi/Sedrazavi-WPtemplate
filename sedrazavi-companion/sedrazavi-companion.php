@@ -23,102 +23,168 @@ define('SEDRAZAVI_COMPANION_VERSION', '5.0.0');
 define('SEDRAZAVI_COMPANION_DIR', plugin_dir_path(__FILE__));
 define('SEDRAZAVI_COMPANION_URI', plugin_dir_url(__FILE__));
 
-// Require Core Modules
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-license-manager.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-github-sync.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-component-hub.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-payment-engine.php';
+// Resilient Module Loader (zero fatal WSOD on partial package installs)
+$sedrazavi_companion_modules = [
+    'includes/class-license-manager.php',
+    'includes/class-github-sync.php',
+    'includes/class-component-hub.php',
+    'includes/class-payment-engine.php',
+    'includes/class-course-lms-bridge.php',
+    'includes/class-vip-membership-paywall.php',
+    'includes/class-soft98-download-box.php',
+    'includes/class-magazine-editorial.php',
+    'includes/class-dynamic-client-dashboard.php',
+    'includes/class-demo-importer.php',
+    'includes/class-woocommerce-shetab-gateway.php',
+    'includes/class-design-tokens.php',
+    'includes/class-sms-gateway-adapter.php',
+    'includes/class-email-engine.php',
+    'includes/class-admin-dashboard.php',
+    'includes/class-notification-router.php',
+    'includes/class-seo-engine.php',
+    'includes/class-diagnostic.php',
+    'includes/class-white-label.php',
+    'includes/class-snapshot-engine.php',
+    'includes/class-vector-patterns.php',
+    'includes/class-role-manager.php',
+    'includes/class-modern-comments.php',
+    'includes/class-mega-menu.php',
+    'includes/class-woocommerce-kit.php',
+    'includes/class-audit-logger.php',
+    'includes/class-plugin-compatibility.php',
+    'includes/class-instant-search.php',
+    'includes/class-snapelement-catalog.php',
+    'includes/class-client-proposal.php',
+    'includes/class-offline-queue.php',
+    'includes/class-site-health.php',
+    'includes/class-girih-vector-engine.php',
+    'includes/class-webhook-dispatcher.php',
+    'includes/class-sedrazavi-library-engine.php',
+    'includes/class-legal-intake-appointments.php',
+    'includes/class-legal-matter-portal.php',
+    'includes/class-sedrazavi-diagnostics-doctor.php',
+    'includes/class-sedrazavi-ecosystem-publisher.php',
+    'includes/class-iranian-market-adapter.php',
+    'includes/class-frontend-cockpit.php',
+];
 
-// Multi-Niche Specialized Architecture Modules
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-course-lms-bridge.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-vip-membership-paywall.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-soft98-download-box.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-magazine-editorial.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-dynamic-client-dashboard.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-demo-importer.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-woocommerce-shetab-gateway.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-design-tokens.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-sms-gateway-adapter.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-email-engine.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-admin-dashboard.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-notification-router.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-seo-engine.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-diagnostic.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-white-label.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-snapshot-engine.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-vector-patterns.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-role-manager.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-modern-comments.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-mega-menu.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-woocommerce-kit.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-audit-logger.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-plugin-compatibility.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-instant-search.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-snapelement-catalog.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-client-proposal.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-offline-queue.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-site-health.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-girih-vector-engine.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-webhook-dispatcher.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-sedrazavi-library-engine.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-legal-intake-appointments.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-legal-matter-portal.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-sedrazavi-diagnostics-doctor.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-sedrazavi-ecosystem-publisher.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-iranian-market-adapter.php';
-require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-frontend-cockpit.php';
+foreach ($sedrazavi_companion_modules as $module_rel) {
+    $module_path = SEDRAZAVI_COMPANION_DIR . $module_rel;
+    if (file_exists($module_path)) {
+        try {
+            require_once $module_path;
+        } catch (\Throwable $e) {
+            error_log('[SedRazavi Companion] Module load error (' . $module_rel . '): ' . $e->getMessage());
+        }
+    }
+}
 
 /**
- * Initialize Companion Subsystems
+ * Initialize Companion Subsystems Safely
  */
 function sedrazavi_companion_init() {
-    SedRazavi_License_Manager::get_instance();
-    SedRazavi_GitHub_Shield::get_instance();
-    SedRazavi_Component_Hub::get_instance();
-    SedRazavi_Unified_Payment_Engine::get_instance();
+    $singleton_classes = [
+        'SedRazavi_License_Manager',
+        'SedRazavi_GitHub_Shield',
+        'SedRazavi_Component_Hub',
+        'SedRazavi_Unified_Payment_Engine',
+        'SedRazavi_Course_LMS_Bridge',
+        'SedRazavi_VIP_Paywall',
+        'SedRazavi_Soft98_Download_Box',
+        'SedRazavi_Magazine_Editorial',
+        'SedRazavi_Dynamic_Client_Dashboard',
+        'SedRazavi_Demo_Importer',
+        'SedRazavi_WooCommerce_Shetab_Gateway',
+        'SedRazavi_Design_Tokens',
+        'SedRazavi_SMS_Gateway_Adapter',
+        'SedRazavi_Email_Engine',
+        'SedRazavi_Admin_Dashboard',
+        'SedRazavi_Notification_Router',
+        'SedRazavi_SEO_Engine',
+        'SedRazavi_Diagnostic_Doctor',
+        'SedRazavi_White_Label',
+        'SedRazavi_Snapshot_Engine',
+        'SedRazavi_Vector_Patterns',
+        'SedRazavi_Role_Manager',
+        'SedRazavi_Modern_Comments',
+        'SedRazavi_Mega_Menu_Engine',
+        'SedRazavi_WooCommerce_Kit',
+        'SedRazavi_Audit_Logger',
+        'SedRazavi_Plugin_Compatibility',
+        'SedRazavi_Instant_Search',
+        'SedRazavi_SnapElement_Catalog',
+        'SedRazavi_Client_Proposal',
+        'SedRazavi_Offline_Queue',
+        'SedRazavi_Site_Health',
+        'SedRazavi_Girih_Vector_Engine',
+        'SedRazavi_Webhook_Dispatcher',
+        'SedRazavi_Library_Engine',
+        'SedRazavi_Legal_Intake_Appointments',
+        'SedRazavi_Legal_Matter_Portal',
+        'SedRazavi_Diagnostics_Doctor',
+        'SedRazavi_Ecosystem_Publisher',
+        'SedRazavi_Iranian_Market_Adapter',
+    ];
 
-    // Multi-Niche Services
-    SedRazavi_Course_LMS_Bridge::get_instance();
-    SedRazavi_VIP_Paywall::get_instance();
-    SedRazavi_Soft98_Download_Box::get_instance();
-    SedRazavi_Magazine_Editorial::get_instance();
-    SedRazavi_Dynamic_Client_Dashboard::get_instance();
-    SedRazavi_Demo_Importer::get_instance();
-    SedRazavi_WooCommerce_Shetab_Gateway::get_instance();
-    SedRazavi_Design_Tokens::get_instance();
-    SedRazavi_SMS_Gateway_Adapter::get_instance();
-    SedRazavi_Email_Engine::get_instance();
-    SedRazavi_Admin_Dashboard::get_instance();
-    SedRazavi_Notification_Router::get_instance();
-    SedRazavi_SEO_Engine::get_instance();
-    SedRazavi_Diagnostic_Doctor::get_instance();
-    SedRazavi_White_Label::get_instance();
-    SedRazavi_Snapshot_Engine::get_instance();
-    SedRazavi_Vector_Patterns::get_instance();
-    SedRazavi_Role_Manager::get_instance();
-    SedRazavi_Modern_Comments::get_instance();
-    SedRazavi_Mega_Menu_Engine::get_instance();
-    SedRazavi_WooCommerce_Kit::get_instance();
-    SedRazavi_Audit_Logger::get_instance();
-    SedRazavi_Plugin_Compatibility::get_instance();
-    SedRazavi_Instant_Search::get_instance();
-    SedRazavi_SnapElement_Catalog::get_instance();
-    SedRazavi_Client_Proposal::get_instance();
-    SedRazavi_Offline_Queue::get_instance();
-    SedRazavi_Site_Health::get_instance();
-    SedRazavi_Girih_Vector_Engine::get_instance();
-    SedRazavi_Webhook_Dispatcher::get_instance();
-    SedRazavi_Library_Engine::get_instance();
-    SedRazavi_Legal_Intake_Appointments::get_instance();
-    SedRazavi_Legal_Matter_Portal::get_instance();
-    SedRazavi_Diagnostics_Doctor::get_instance();
-    SedRazavi_Ecosystem_Publisher::get_instance();
-    SedRazavi_Iranian_Market_Adapter::get_instance();
-    if (class_exists('\\SedRazavi\\Frontend_Cockpit_Engine')) {
+    foreach ($singleton_classes as $cls) {
+        if (class_exists($cls) && method_exists($cls, 'get_instance')) {
+            call_user_func([$cls, 'get_instance']);
+        }
+    }
+
+    if (class_exists('\\SedRazavi\\Frontend_Cockpit_Engine') && method_exists('\\SedRazavi\\Frontend_Cockpit_Engine', 'instance')) {
         \SedRazavi\Frontend_Cockpit_Engine::instance();
     }
 }
 add_action('plugins_loaded', 'sedrazavi_companion_init');
+
+/**
+ * Clean Activation & Deactivation Hooks (Multisite-Aware)
+ */
+function sedrazavi_companion_activate_single_site() {
+    if (!get_option('sedrazavi_companion_activated_time')) {
+        update_option('sedrazavi_companion_activated_time', time());
+    }
+    update_option('sedrazavi_companion_version', SEDRAZAVI_COMPANION_VERSION);
+    flush_rewrite_rules(false);
+}
+
+function sedrazavi_companion_activate($network_wide = false) {
+    if (function_exists('is_multisite') && is_multisite() && $network_wide) {
+        global $wpdb;
+        $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+        foreach ($blog_ids as $blog_id) {
+            switch_to_blog($blog_id);
+            sedrazavi_companion_activate_single_site();
+            restore_current_blog();
+        }
+    } else {
+        sedrazavi_companion_activate_single_site();
+    }
+}
+register_activation_hook(__FILE__, 'sedrazavi_companion_activate');
+
+function sedrazavi_companion_deactivate_single_site() {
+    if (function_exists('wp_clear_scheduled_hook')) {
+        wp_clear_scheduled_hook('sedrazavi_companion_health_cron');
+    }
+    flush_rewrite_rules(false);
+}
+
+function sedrazavi_companion_deactivate($network_wide = false) {
+    if (function_exists('is_multisite') && is_multisite() && $network_wide) {
+        global $wpdb;
+        $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+        foreach ($blog_ids as $blog_id) {
+            switch_to_blog($blog_id);
+            sedrazavi_companion_deactivate_single_site();
+            restore_current_blog();
+        }
+    } else {
+        sedrazavi_companion_deactivate_single_site();
+    }
+}
+register_deactivation_hook(__FILE__, 'sedrazavi_companion_deactivate');
 
 add_action('before_woocommerce_init', function () {
     if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
@@ -158,7 +224,9 @@ function sedrazavi_companion_render_admin_dashboard() {
             <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
                 <h3 style="margin-top:0; color:#0F172A;">🔑 وضعیت لایسنس طراح (DRM)</h3>
                 <?php
-                $license_status = SedRazavi_License_Manager::get_instance()->is_valid();
+                $license_status = class_exists('SedRazavi_License_Manager')
+                    ? SedRazavi_License_Manager::get_instance()->is_valid()
+                    : false;
                 if ($license_status): ?>
                     <div style="padding:10px 14px; background:#ECFDF5; color:#065F46; border-radius:8px; font-weight:bold;">
                         ✅ لایسنس آژانس فعال و تایید شده است (قفل امن باز است)

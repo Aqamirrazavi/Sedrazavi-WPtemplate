@@ -17,10 +17,16 @@ class SedRazavi_Elementor_Widgets_Manager {
     public static function init() {
         add_action('elementor/elements/categories_registered', [__CLASS__, 'register_category']);
         add_action('elementor/widgets/register', [__CLASS__, 'register_widgets']);
-        add_action('elementor/theme/register_locations', [__CLASS__, 'register_locations']);
+        // Single Source of Truth: Theme_Builder_Bridge owns location registration when Elementor Suite is active.
+        if (!class_exists('\UniversalElementorSuite\Theme_Builder_Bridge')) {
+            add_action('elementor/theme/register_locations', [__CLASS__, 'register_locations'], 20);
+        }
     }
 
     public static function register_locations($elementor_theme_manager) {
+        if (class_exists('\UniversalElementorSuite\Theme_Builder_Bridge')) {
+            return;
+        }
         $elementor_theme_manager->register_location('header');
         $elementor_theme_manager->register_location('footer');
         $elementor_theme_manager->register_location('single');

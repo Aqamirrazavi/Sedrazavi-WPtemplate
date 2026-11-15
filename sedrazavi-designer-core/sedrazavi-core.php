@@ -26,31 +26,78 @@ define('SEDRAZAVI_CORE_URI', plugin_dir_url(__FILE__));
 /**
  * Autoload Core Modules
  */
-require_once SEDRAZAVI_CORE_DIR . 'inc/database-installer.php';
-require_once SEDRAZAVI_CORE_DIR . 'inc/auto-provisioning.php';
-require_once SEDRAZAVI_CORE_DIR . 'inc/custom-post-types.php';
-require_once SEDRAZAVI_CORE_DIR . 'inc/lead-manager.php';
-require_once SEDRAZAVI_CORE_DIR . 'inc/auth-guard.php';
-require_once SEDRAZAVI_CORE_DIR . 'inc/settings-sync.php';
-require_once SEDRAZAVI_CORE_DIR . 'inc/theme-builder-bridge.php';
-require_once SEDRAZAVI_CORE_DIR . 'inc/local-font-loader.php';
+$sedrazavi_core_modules = [
+    'inc/database-installer.php',
+    'inc/auto-provisioning.php',
+    'inc/custom-post-types.php',
+    'inc/lead-manager.php',
+    'inc/auth-guard.php',
+    'inc/settings-sync.php',
+    'inc/theme-builder-bridge.php',
+    'inc/local-font-loader.php',
+];
+
+foreach ($sedrazavi_core_modules as $core_rel) {
+    $core_file = SEDRAZAVI_CORE_DIR . $core_rel;
+    if (file_exists($core_file)) {
+        try {
+            require_once $core_file;
+        } catch (\Throwable $e) {
+            error_log('[SedRazavi Designer Core] Module load error (' . $core_rel . '): ' . $e->getMessage());
+        }
+    }
+}
 
 /**
- * Activation Hook
+ * Single Site Activation Routine
  */
-function sedrazavi_core_activate() {
-    \SedRazaviDesignerCore\Database_Installer::install();
-    \SedRazaviDesignerCore\Auth_Guard::register_role();
-    \SedRazaviDesignerCore\Auto_Provisioning::provision_pages_and_menus();
-    flush_rewrite_rules();
+function sedrazavi_core_activate_single_site() {
+    if (class_exists('\SedRazaviDesignerCore\Database_Installer')) {
+        \SedRazaviDesignerCore\Database_Installer::install();
+    }
+    if (class_exists('\SedRazaviDesignerCore\Auth_Guard')) {
+        \SedRazaviDesignerCore\Auth_Guard::register_role();
+    }
+    if (class_exists('\SedRazaviDesignerCore\Auto_Provisioning')) {
+        \SedRazaviDesignerCore\Auto_Provisioning::provision_pages_and_menus();
+    }
+    update_option('sedrazavi_core_version', SEDRAZAVI_CORE_VERSION);
+    flush_rewrite_rules(false);
+}
+
+/**
+ * Activation Hook (Multisite-Aware)
+ */
+function sedrazavi_core_activate($network_wide = false) {
+    if (function_exists('is_multisite') && is_multisite() && $network_wide) {
+        global $wpdb;
+        $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+        foreach ($blog_ids as $blog_id) {
+            switch_to_blog($blog_id);
+            sedrazavi_core_activate_single_site();
+            restore_current_blog();
+        }
+    } else {
+        sedrazavi_core_activate_single_site();
+    }
 }
 register_activation_hook(__FILE__, 'sedrazavi_core_activate');
 
 /**
- * Deactivation Hook
+ * Deactivation Hook (Multisite-Aware)
  */
-function sedrazavi_core_deactivate() {
-    flush_rewrite_rules();
+function sedrazavi_core_deactivate($network_wide = false) {
+    if (function_exists('is_multisite') && is_multisite() && $network_wide) {
+        global $wpdb;
+        $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+        foreach ($blog_ids as $blog_id) {
+            switch_to_blog($blog_id);
+            flush_rewrite_rules(false);
+            restore_current_blog();
+        }
+    } else {
+        flush_rewrite_rules(false);
+    }
 }
 register_deactivation_hook(__FILE__, 'sedrazavi_core_deactivate');
 
@@ -58,6 +105,9 @@ register_deactivation_hook(__FILE__, 'sedrazavi_core_deactivate');
  * Register Elementor Widgets Category & Widgets
  */
 function sedrazavi_core_register_elementor_category($elements_manager) {
+    if (!is_object($elements_manager) || !method_exists($elements_manager, 'add_category')) {
+        return;
+    }
     $elements_manager->add_category(
         'sedrazavi-designer',
         [
@@ -69,35 +119,50 @@ function sedrazavi_core_register_elementor_category($elements_manager) {
 add_action('elementor/elements/categories_registered', 'sedrazavi_core_register_elementor_category');
 
 function sedrazavi_core_register_elementor_widgets($widgets_manager) {
-    require_once SEDRAZAVI_CORE_DIR . 'widgets/widget-chrono-clock.php';
-    require_once SEDRAZAVI_CORE_DIR . 'widgets/widget-cyber-dino.php';
-    require_once SEDRAZAVI_CORE_DIR . 'widgets/widget-music-player.php';
-    require_once SEDRAZAVI_CORE_DIR . 'widgets/widget-world-globe.php';
+    if (!class_exists('\Elementor\Widget_Base') || !is_object($widgets_manager) || !method_exists($widgets_manager, 'register')) {
+        return;
+    }
 
-    $widgets_manager->register(new \SedRazaviDesignerCore\Widgets\Widget_Chrono_Clock());
-    $widgets_manager->register(new \SedRazaviDesignerCore\Widgets\Widget_Cyber_Dino());
-    $widgets_manager->register(new \SedRazaviDesignerCore\Widgets\Widget_Music_Player());
-    $widgets_manager->register(new \SedRazaviDesignerCore\Widgets\Widget_World_Globe());
+    $widget_map = [
+        'widgets/widget-chrono-clock.php' => '\SedRazaviDesignerCore\Widgets\Widget_Chrono_Clock',
+        'widgets/widget-cyber-dino.php'   => '\SedRazaviDesignerCore\Widgets\Widget_Cyber_Dino',
+        'widgets/widget-music-player.php' => '\SedRazaviDesignerCore\Widgets\Widget_Music_Player',
+        'widgets/widget-world-globe.php'  => '\SedRazaviDesignerCore\Widgets\Widget_World_Globe',
+    ];
+
+    foreach ($widget_map as $rel => $cls) {
+        $path = SEDRAZAVI_CORE_DIR . $rel;
+        if (file_exists($path)) {
+            require_once $path;
+            if (class_exists($cls)) {
+                $widgets_manager->register(new $cls());
+            }
+        }
+    }
 }
 add_action('elementor/widgets/register', 'sedrazavi_core_register_elementor_widgets');
 
 /**
- * Enqueue Core Plugin Assets
+ * Enqueue Core Plugin Assets (only when files exist)
  */
 function sedrazavi_core_enqueue_assets() {
-    wp_enqueue_style(
-        'sedrazavi-core-widgets',
-        SEDRAZAVI_CORE_URI . 'assets/css/widgets.css',
-        [],
-        SEDRAZAVI_CORE_VERSION
-    );
+    if (file_exists(SEDRAZAVI_CORE_DIR . 'assets/css/widgets.css')) {
+        wp_enqueue_style(
+            'sedrazavi-core-widgets',
+            SEDRAZAVI_CORE_URI . 'assets/css/widgets.css',
+            [],
+            SEDRAZAVI_CORE_VERSION
+        );
+    }
 
-    wp_enqueue_script(
-        'sedrazavi-core-widgets-js',
-        SEDRAZAVI_CORE_URI . 'assets/js/widgets.js',
-        [],
-        SEDRAZAVI_CORE_VERSION,
-        true
-    );
+    if (file_exists(SEDRAZAVI_CORE_DIR . 'assets/js/widgets.js')) {
+        wp_enqueue_script(
+            'sedrazavi-core-widgets-js',
+            SEDRAZAVI_CORE_URI . 'assets/js/widgets.js',
+            [],
+            SEDRAZAVI_CORE_VERSION,
+            true
+        );
+    }
 }
 add_action('wp_enqueue_scripts', 'sedrazavi_core_enqueue_assets');

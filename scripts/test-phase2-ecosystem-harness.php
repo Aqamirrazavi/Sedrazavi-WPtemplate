@@ -60,6 +60,12 @@ namespace Elementor {
     class Group_Control_Box_Shadow { public static function get_type() { return 'box-shadow'; } }
     class Group_Control_Border { public static function get_type() { return 'border'; } }
     class Group_Control_Background { public static function get_type() { return 'background'; } }
+    class Group_Control_Image_Size {
+        public static function get_type() { return 'image-size'; }
+        public static function get_attachment_image_html($settings, $size_key = 'image_size', $image_key = 'image') {
+            return '';
+        }
+    }
 
     class Repeater {
         private $fields = [];
@@ -104,16 +110,57 @@ namespace Elementor {
             }
             return $this->mock_defaults;
         }
-        public function add_render_attribute($el, $key, $val = null) {}
-        public function get_render_attribute_string($el) { return ''; }
+        private $render_attrs = [];
+        public function add_render_attribute($el, $key, $val = null) {
+            if ($val !== null) {
+                $this->render_attrs[$el][$key] = $val;
+            }
+        }
+        public function add_link_attributes($el, array $url_control) {
+            if (!empty($url_control['url'])) {
+                $this->render_attrs[$el]['href'] = $url_control['url'];
+            }
+            if (!empty($url_control['is_external'])) {
+                $this->render_attrs[$el]['target'] = '_blank';
+            }
+            if (!empty($url_control['nofollow'])) {
+                $this->render_attrs[$el]['rel'] = 'nofollow';
+            }
+        }
+        public function get_render_attribute_string($el) {
+            if (empty($this->render_attrs[$el])) {
+                return '';
+            }
+            $parts = [];
+            foreach ($this->render_attrs[$el] as $k => $v) {
+                $parts[] = htmlspecialchars((string) $k, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8') . '"';
+            }
+            return implode(' ', $parts);
+        }
         protected function register_controls() {}
         protected function render() {}
         public function run_controls_and_render_smoke() {
+            $this->render_attrs = [];
             $this->register_controls();
             ob_start();
             $this->render();
             return ob_get_clean();
         }
+    }
+}
+
+namespace Elementor\Core\Kits\Documents\Tabs {
+    class Global_Colors {
+        const COLOR_PRIMARY = 'globals/colors?id=primary';
+        const COLOR_SECONDARY = 'globals/colors?id=secondary';
+        const COLOR_TEXT = 'globals/colors?id=text';
+        const COLOR_ACCENT = 'globals/colors?id=accent';
+    }
+    class Global_Typography {
+        const TYPOGRAPHY_PRIMARY = 'globals/typography?id=primary';
+        const TYPOGRAPHY_SECONDARY = 'globals/typography?id=secondary';
+        const TYPOGRAPHY_TEXT = 'globals/typography?id=text';
+        const TYPOGRAPHY_ACCENT = 'globals/typography?id=accent';
     }
 }
 
@@ -237,6 +284,36 @@ namespace {
     if (!function_exists('get_the_excerpt')) { function get_the_excerpt($id = 0) { return 'خلاصه محتوای نمونه'; } }
     if (!function_exists('get_the_post_thumbnail_url')) { function get_the_post_thumbnail_url($id = 0, $sz = 'medium') { return ''; } }
     if (!function_exists('number_format_i18n')) { function number_format_i18n($n) { return number_format((float) $n); } }
+    if (!function_exists('sanitize_file_name')) { function sanitize_file_name($f) { return preg_replace('/[^a-zA-Z0-9._\-]/', '', (string) $f); } }
+    if (!function_exists('did_action')) { function did_action($tag) { return 0; } }
+    if (!function_exists('get_template_directory')) { function get_template_directory() { return dirname(__DIR__) . '/wordpress-theme'; } }
+    $GLOBALS['mock_posts'] = [];
+    $GLOBALS['mock_post_meta'] = [];
+    $GLOBALS['mock_post_seq'] = 1000;
+    if (!function_exists('wp_insert_post')) {
+        function wp_insert_post($args) {
+            $id = ++$GLOBALS['mock_post_seq'];
+            $GLOBALS['mock_posts'][$id] = $args;
+            return $id;
+        }
+    }
+    if (!function_exists('update_post_meta')) {
+        function update_post_meta($id, $k, $v) {
+            $GLOBALS['mock_post_meta'][$id][$k] = $v;
+            return true;
+        }
+    }
+    if (!function_exists('get_post_meta')) {
+        function get_post_meta($id, $k, $single = false) {
+            return $GLOBALS['mock_post_meta'][$id][$k] ?? ($single ? '' : []);
+        }
+    }
+    if (!function_exists('wp_delete_post')) {
+        function wp_delete_post($id, $force = false) {
+            unset($GLOBALS['mock_posts'][$id], $GLOBALS['mock_post_meta'][$id]);
+            return true;
+        }
+    }
 
     // Load modular packaging & core service classes
     $pkg_dir = UAS_PATH . 'includes/packaging/';
@@ -416,9 +493,15 @@ namespace {
             fwrite(STDERR, "FAIL: Widget {$w_id} ({$cls}) produced empty render output\n");
             exit(1);
         }
+        if ($w_id === 'uas_hero') {
+            if (strpos($html, 'uas-hero-preset-modern-card') === false || strpos($html, 'hero-showcase.svg') === false || strpos($html, 'images.unsplash.com') !== false) {
+                fwrite(STDERR, "FAIL: Phase 5 Golden Widget uas_hero failed preset/sovereign-media render assertion\n");
+                exit(1);
+            }
+        }
         $rendered_widgets++;
     }
-    echo "  PASS: {$rendered_widgets}/31 Elementor Widget_Base classes instantiated, registered controls, and rendered cleanly.\n\n";
+    echo "  PASS: {$rendered_widgets}/31 Elementor Widget_Base classes instantiated, registered controls, and rendered cleanly (incl. uas_hero Golden Widget).\n\n";
 
     // TEST 6: All 33 JSON Templates Dependency Validation + Media Relinker
     echo "[TEST 6] Verifying All 33 Elementor JSON Templates AST & Media Relinking...\n";
@@ -549,6 +632,34 @@ namespace {
     }
     echo "  PASS: Canonical CPT (sedrazavi_case) and Anti-IDOR helper verified.\n\n";
 
+    // TEST 10: Phase 6a Golden Native Container Landing Page + Demo Importer Pipeline
+    echo "[TEST 10] Verifying Phase 6a Golden Landing Page & Demo Importer Pipeline...\n";
+    if (!defined('SEDRAZAVI_COMPANION_DIR')) {
+        define('SEDRAZAVI_COMPANION_DIR', dirname(__DIR__) . '/sedrazavi-companion/');
+    }
+    require_once SEDRAZAVI_COMPANION_DIR . 'includes/class-demo-importer.php';
+    $demo_importer = \SedRazavi_Demo_Importer::get_instance();
+    $demo_page_id = $demo_importer->create_native_elementor_page(
+        'صفحه فرود آزمایشی فاز ۶a',
+        'template-designer-landing',
+        ['description' => 'تست ایمپورت صفحه فرود بومی کانتینری'],
+        'agency-designer'
+    );
+    $imported_el_data = get_post_meta($demo_page_id, '_elementor_data', true);
+    $decoded_el_data  = json_decode((string) $imported_el_data, true);
+    if (
+        empty($demo_page_id) ||
+        !is_array($decoded_el_data) ||
+        count($decoded_el_data) < 6 ||
+        strpos((string) $imported_el_data, 'images.unsplash.com') !== false ||
+        strpos((string) $imported_el_data, 'hero-showcase.svg') === false ||
+        get_post_meta($demo_page_id, '_wp_page_template', true) !== 'elementor_header_footer'
+    ) {
+        fwrite(STDERR, "FAIL: Phase 6a Demo Importer failed Golden Landing Page import & media relinking checks\n");
+        exit(1);
+    }
+    echo "  PASS: Golden Landing Page imported cleanly into post meta with relinked sovereign SVG media & 6 native Flexbox containers.\n\n";
+
     // Cleanup sandbox
     $it = new \RecursiveDirectoryIterator($sandbox_uploads, \RecursiveDirectoryIterator::SKIP_DOTS);
     $files = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
@@ -562,6 +673,6 @@ namespace {
     @rmdir($sandbox_uploads);
 
     echo "\n========================================================================\n";
-    echo ">>> PHASE 2 & STAGE 4/5 ECOSYSTEM HARNESS: 100% PASSED <<<\n";
+    echo ">>> PHASE 2 & STAGE 4/5/6A ECOSYSTEM HARNESS: 100% PASSED <<<\n";
     echo "========================================================================\n";
 }

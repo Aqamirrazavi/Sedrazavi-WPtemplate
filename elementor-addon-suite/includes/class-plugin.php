@@ -52,13 +52,13 @@ class Plugin {
         // Register Custom Elementor Category
         add_action('elementor/elements/categories_registered', [$this, 'register_category']);
 
-        // Register Custom Elementor Widgets
+        // Register Custom Elementor Widgets (Single canonical hook for Elementor >= 3.5)
         add_action('elementor/widgets/register', [$this, 'register_widgets']);
-        add_action('elementor/widgets/widgets_registered', [$this, 'register_widgets']);
 
-        // Register Global Frontend & Editor Assets
+        // Register & Enqueue Scoped Frontend, Preview, and Editor Assets via Asset_Manifest
         add_action('elementor/frontend/after_register_styles', [$this, 'register_frontend_styles']);
         add_action('elementor/frontend/after_register_scripts', [$this, 'register_frontend_scripts']);
+        add_action('elementor/preview/enqueue_styles', [$this, 'enqueue_preview_styles']);
         add_action('elementor/editor/after_enqueue_styles', [$this, 'enqueue_editor_styles']);
 
         // AJAX Action for Manual Template Import
@@ -181,6 +181,12 @@ class Plugin {
      * @param \Elementor\Widgets_Manager $widgets_manager
      */
     public function register_widgets($widgets_manager) {
+        static $already_registered = false;
+        if ($already_registered) {
+            return;
+        }
+        $already_registered = true;
+
         // 1. Core Widget Base Class
         require_once UAS_PATH . 'includes/class-widget-base.php';
 
@@ -190,82 +196,55 @@ class Plugin {
         $widgets_map = self::get_widgets_map();
 
         foreach ($widgets_map as $widget_id => $data) {
-            // Check if widget is disabled in admin settings
             if (in_array($widget_id, $disabled_widgets, true)) {
-                continue; // Skip loading and registration to save memory and improve performance
+                continue;
             }
 
             $filepath = UAS_PATH . 'includes/widgets/' . $data['file'];
             if (file_exists($filepath)) {
                 require_once $filepath;
                 $class_name = $data['class'];
-                if (class_exists($class_name)) {
-                    if (method_exists($widgets_manager, 'register')) {
-                        $widgets_manager->register(new $class_name());
-                    } elseif (method_exists($widgets_manager, 'register_widget_type')) {
-                        $widgets_manager->register_widget_type(new $class_name());
-                    }
+                if (class_exists($class_name) && method_exists($widgets_manager, 'register')) {
+                    $widgets_manager->register(new $class_name());
                 }
             }
         }
     }
 
     /**
-     * Register Frontend CSS
+     * Register Frontend CSS via Unified Asset_Manifest
      */
     public function register_frontend_styles() {
-        wp_register_style('uas-widgets-core', UAS_URL . 'assets/css/widgets-core.css', [], UAS_VERSION);
-        wp_register_style('uas-hero-css', UAS_URL . 'assets/css/widgets/hero.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-services-grid-css', UAS_URL . 'assets/css/widgets/services-grid.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-testimonials-css', UAS_URL . 'assets/css/widgets/testimonials.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-posts-css', UAS_URL . 'assets/css/widgets/posts.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-video-css', UAS_URL . 'assets/css/widgets/video.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-story-bar-css', UAS_URL . 'assets/css/widgets/story-bar.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-team-css', UAS_URL . 'assets/css/widgets/team.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-faq-css', UAS_URL . 'assets/css/widgets/faq.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-contact-booking-css', UAS_URL . 'assets/css/widgets/contact-booking.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-cta-css', UAS_URL . 'assets/css/widgets/cta.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-banner-slider-css', UAS_URL . 'assets/css/widgets/banner-slider.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-floating-dock-css', UAS_URL . 'assets/css/widgets/floating-dock.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-theme-toggle-css', UAS_URL . 'assets/css/widgets/theme-toggle.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-stat-counter-css', UAS_URL . 'assets/css/widgets/stat-counter.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-floating-cta-css', UAS_URL . 'assets/css/widgets/floating-cta.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-pricing-matrix-css', UAS_URL . 'assets/css/widgets/pricing-matrix.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-hero-split-css', UAS_URL . 'assets/css/widgets/hero-split.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-bento-tabs-css', UAS_URL . 'assets/css/widgets/bento-tabs.css', ['uas-widgets-core'], UAS_VERSION);
-        wp_register_style('uas-dynamic-grid-css', UAS_URL . 'assets/css/widgets/dynamic-grid.css', ['uas-widgets-core'], UAS_VERSION);
+        if (class_exists('\UniversalElementorSuite\Asset_Manifest')) {
+            Asset_Manifest::instance()->register_scope('frontend', 'styles');
+        }
     }
 
     /**
-     * Register Frontend JS
+     * Register Frontend JS via Unified Asset_Manifest
      */
     public function register_frontend_scripts() {
-        wp_register_script('uas-widgets-core', UAS_URL . 'assets/js/widgets-core.js', ['jquery'], UAS_VERSION, true);
-        wp_localize_script('uas-widgets-core', 'uasFrontendConfig', [
-            'restUrl'   => function_exists('rest_url') ? esc_url_raw(rest_url('sedrazavi/v1/')) : '/wp-json/sedrazavi/v1/',
-            'restNonce' => wp_create_nonce('wp_rest'),
-            'ajaxUrl'   => admin_url('admin-ajax.php'),
-            'ajaxNonce' => wp_create_nonce('uas_industry_nonce'),
-        ]);
-        wp_register_script('uas-story-bar-js', UAS_URL . 'assets/js/widgets/story-bar.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-faq-js', UAS_URL . 'assets/js/widgets/faq.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-floating-dock-js', UAS_URL . 'assets/js/widgets/floating-dock.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-theme-toggle-js', UAS_URL . 'assets/js/widgets/theme-toggle.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-pricing-switcher-js', UAS_URL . 'assets/js/widgets/pricing-switcher.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-fomo-countdown-js', UAS_URL . 'assets/js/widgets/fomo-countdown.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-before-after-js', UAS_URL . 'assets/js/widgets/before-after.js', ['jquery', 'uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-stat-counter-js', UAS_URL . 'assets/js/widgets/stat-counter.js', ['uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-floating-cta-js', UAS_URL . 'assets/js/widgets/floating-cta.js', ['uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-pricing-matrix-js', UAS_URL . 'assets/js/widgets/pricing-matrix.js', ['uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-hero-split-js', UAS_URL . 'assets/js/widgets/hero-split.js', ['uas-widgets-core'], UAS_VERSION, true);
-        wp_register_script('uas-bento-tabs-js', UAS_URL . 'assets/js/widgets/bento-tabs.js', ['uas-widgets-core'], UAS_VERSION, true);
+        if (class_exists('\UniversalElementorSuite\Asset_Manifest')) {
+            Asset_Manifest::instance()->register_scope('frontend', 'scripts');
+        }
     }
 
     /**
-     * Enqueue Editor Styles
+     * Enqueue Preview Core CSS cleanly inside Elementor Canvas/Preview iframe only
+     */
+    public function enqueue_preview_styles() {
+        if (class_exists('\UniversalElementorSuite\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('frontend', ['uas-widgets-core']);
+        }
+    }
+
+    /**
+     * Enqueue Editor Styles strictly in Elementor Editor panel
      */
     public function enqueue_editor_styles() {
-        wp_enqueue_style('uas-editor-styles', UAS_URL . 'assets/css/editor.css', [], UAS_VERSION);
+        if (class_exists('\UniversalElementorSuite\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('editor');
+        }
     }
 
     /**

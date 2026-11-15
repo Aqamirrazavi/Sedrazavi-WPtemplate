@@ -28,7 +28,7 @@ class Sovereign_Motion_Presets {
         add_action('rest_api_init', [$this, 'register_rest_routes']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_motion_styles']);
         add_action('elementor/frontend/after_enqueue_styles', [$this, 'enqueue_motion_styles']);
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_motion_styles']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_motion_styles']);
     }
 
     public function register_rest_routes() {
@@ -48,9 +48,24 @@ class Sovereign_Motion_Presets {
         ]);
     }
 
+    public function enqueue_admin_motion_styles($hook = '') {
+        if (strpos((string) $hook, 'sedrazavi') === false && strpos((string) $hook, 'universal') === false) {
+            return;
+        }
+        $this->enqueue_motion_styles();
+    }
+
     public function enqueue_motion_styles() {
+        static $enqueued = false;
+        if ($enqueued) {
+            return;
+        }
+        $enqueued = true;
+
         $css = $this->generate_motion_css();
-        wp_register_style('sedrazavi-motion-engine', false);
+        if (!wp_style_is('sedrazavi-motion-engine', 'registered')) {
+            wp_register_style('sedrazavi-motion-engine', false, [], defined('UAS_VERSION') ? UAS_VERSION : '1.0.0');
+        }
         wp_enqueue_style('sedrazavi-motion-engine');
         wp_add_inline_style('sedrazavi-motion-engine', $css);
     }

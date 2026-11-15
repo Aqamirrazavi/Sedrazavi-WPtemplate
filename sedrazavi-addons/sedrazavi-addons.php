@@ -179,12 +179,12 @@ if (!class_exists('SedRazavi_Addons_Loader')) {
 // راه‌اندازی نمونه اصلی لودر افزونه
 SedRazavi_Addons_Loader::get_instance();
 
-// ۴. هوک فعال‌سازی مقاوم با Try-Catch جامع (Activation Hook)
-if (!function_exists('sedrazavi_addons_activate')) {
-    function sedrazavi_addons_activate() {
+// ۴. هوک فعال‌سازی مقاوم با پشتیبانی از Multisite و Try-Catch جامع (Activation Hook)
+if (!function_exists('sedrazavi_addons_activate_single_site')) {
+    function sedrazavi_addons_activate_single_site() {
         try {
             global $wpdb;
-            
+
             // ایجاد پوشه لاگ و محافظت امنیتی
             sedrazavi_addons_log_error('افزونه با موفقیت فعال‌سازی شد.', __FILE__, __LINE__, 'INFO');
 
@@ -208,15 +208,16 @@ if (!function_exists('sedrazavi_addons_activate')) {
                 KEY status (status)
             ) {$charset_collate};";
 
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
             dbDelta($sql);
 
-            // ثبت زمان نصب اولیه در آپشن‌ها
+            // ثبت زمان نصب اولیه و نسخه در آپشن‌ها
             if (!get_option('sedrazavi_addons_installed')) {
                 update_option('sedrazavi_addons_installed', current_time('mysql'));
             }
+            update_option('sedrazavi_addons_version', SEDRAZAVI_ADDONS_VERSION);
 
-            // ۶. اتوماسیون هوشمند ایجاد خودکار برگه سامانه ری‌اکت در وردپرس (Auto-Provisioning)
+            // اتوماسیون هوشمند ایجاد خودکار برگه سامانه در وردپرس (Auto-Provisioning)
             $existing_page = get_page_by_path('sedrazavi-portal');
             if (!$existing_page) {
                 $page_id = wp_insert_post(array(
@@ -239,7 +240,6 @@ if (!function_exists('sedrazavi_addons_activate')) {
             flush_rewrite_rules(false);
 
         } catch (Throwable $e) {
-            // ثبت خطا در فایل لاگ بدون ایجاد صفحه سفید مرگ (WSOD)
             sedrazavi_addons_log_error(
                 'خطا در حین فرآیند فعال‌سازی افزونه: ' . $e->getMessage(),
                 $e->getFile(),
@@ -249,13 +249,48 @@ if (!function_exists('sedrazavi_addons_activate')) {
         }
     }
 }
+
+if (!function_exists('sedrazavi_addons_activate')) {
+    function sedrazavi_addons_activate($network_wide = false) {
+        if (function_exists('is_multisite') && is_multisite() && $network_wide) {
+            global $wpdb;
+            $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+            foreach ($blog_ids as $blog_id) {
+                switch_to_blog($blog_id);
+                sedrazavi_addons_activate_single_site();
+                restore_current_blog();
+            }
+        } else {
+            sedrazavi_addons_activate_single_site();
+        }
+    }
+}
 register_activation_hook(__FILE__, 'sedrazavi_addons_activate');
 
-// ۵. هوک غیرفعال‌سازی ایمن (Deactivation Hook)
-if (!function_exists('sedrazavi_addons_deactivate')) {
-    function sedrazavi_addons_deactivate() {
+// ۵. هوک غیرفعال‌سازی ایمن با پشتیبانی از Multisite (Deactivation Hook)
+if (!function_exists('sedrazavi_addons_deactivate_single_site')) {
+    function sedrazavi_addons_deactivate_single_site() {
+        if (function_exists('wp_clear_scheduled_hook')) {
+            wp_clear_scheduled_hook('sedrazavi_addons_daily_cleanup');
+        }
         flush_rewrite_rules(false);
         sedrazavi_addons_log_error('افزونه غیرفعال شد.', __FILE__, __LINE__, 'INFO');
+    }
+}
+
+if (!function_exists('sedrazavi_addons_deactivate')) {
+    function sedrazavi_addons_deactivate($network_wide = false) {
+        if (function_exists('is_multisite') && is_multisite() && $network_wide) {
+            global $wpdb;
+            $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+            foreach ($blog_ids as $blog_id) {
+                switch_to_blog($blog_id);
+                sedrazavi_addons_deactivate_single_site();
+                restore_current_blog();
+            }
+        } else {
+            sedrazavi_addons_deactivate_single_site();
+        }
     }
 }
 register_deactivation_hook(__FILE__, 'sedrazavi_addons_deactivate');
@@ -316,10 +351,13 @@ if (!function_exists('sedrazavi_register_universal_shortcodes')) {
     add_shortcode('sedrazavi_tracker', 'sedrazavi_render_react_app_shortcode');
 }
 
-// ۷. اعلان خودکار راهنمای اتوماسیون در پیشخوان وردپرس (Automated Admin Notice)
+// ۷. اعلان خودکار راهنمای اتوماسیون در پیشخوان وردپرس (Automated Admin Notice — فقط برای مدیران)
 add_action('admin_notices', function() {
-    $screen = get_current_screen();
-    if ($screen && in_array($screen->id, array('dashboard', 'plugins', 'edit-page'))) {
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+    if ($screen && in_array($screen->id, array('dashboard', 'plugins', 'edit-page'), true)) {
         $portal_page_id = get_option('sedrazavi_auto_portal_page_id');
         $portal_url = $portal_page_id ? get_permalink($portal_page_id) : home_url('/sedrazavi-portal');
         ?>
@@ -331,7 +369,7 @@ add_action('admin_notices', function() {
                 برگه سامانه تعاملی به صورت خودکار ایجاد گردید. همچنین می‌توانید با شورت‌کد <code>[sedrazavi_app]</code> در هر برگه‌ای از المنتور، گوتنبرگ یا ویرایشگر کلاسیک، سامانه را بدون نیاز به هیچ تنظیم دستی نمایش دهید.
             </p>
             <p>
-                <a href="<?php echo esc_url($portal_url); ?>" target="_blank" class="button button-primary" style="background: #D4AF37; border-color: #AA820A; color: #0B132B; font-weight: 700;">
+                <a href="<?php echo esc_url($portal_url); ?>" target="_blank" rel="noopener noreferrer" class="button button-primary" style="background: #D4AF37; border-color: #AA820A; color: #0B132B; font-weight: 700;">
                     🚀 مشاهده سامانه در سایت
                 </a>
             </p>

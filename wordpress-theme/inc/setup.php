@@ -11,25 +11,24 @@ if (!defined('ABSPATH')) {
 
 if (!function_exists('sedrazavi_check_required_plugins')) {
 function sedrazavi_check_required_plugins() {
-    if (!function_exists('is_plugin_active')) {
-        require_once ABSPATH . 'wp-admin/includes/plugin.php';
-    }
-    $required_plugins = array(
-        'elementor/elementor.php' => 'Elementor Page Builder',
-        'advanced-custom-fields/acf.php' => 'Advanced Custom Fields PRO',
-    );
-
-    $missing = array();
-    foreach ($required_plugins as $plugin_path => $name) {
-        if (!is_plugin_active($plugin_path)) {
-            $missing[] = $name;
-        }
+    if (!current_user_can('install_plugins')) {
+        return;
     }
 
-    if (!empty($missing) && current_user_can('install_plugins')) {
-        add_action('admin_notices', function() use ($missing) {
-            echo '<div class="notice notice-warning is-dismissible"><p>';
-            printf(esc_html__('پوسته سید رضوی برای عملکرد کامل نیاز به فعال‌سازی افزونه‌های زیر دارد: %s', 'sedrazavi'), '<strong>' . implode(', ', $missing) . '</strong>');
+    if (!did_action('elementor/loaded')) {
+        add_action('admin_notices', function() {
+            if (did_action('elementor/loaded') || !current_user_can('install_plugins')) {
+                return;
+            }
+            $install_url = wp_nonce_url(
+                self_admin_url('update.php?action=install-plugin&plugin=elementor'),
+                'install-plugin_elementor'
+            );
+            echo '<div class="notice notice-info is-dismissible"><p>';
+            printf(
+                esc_html__('پوسته سید رضوی بدون نیاز به افزونه تجاری با حالت پایه (Native Fallback) کار می‌کند؛ برای ویرایش بصری صفحات می‌توانید نسخه رایگان %1$s را نصب و فعال کنید.', 'sedrazavi'),
+                '<a href="' . esc_url($install_url) . '"><strong>Elementor</strong></a>'
+            );
             echo '</p></div>';
         });
     }

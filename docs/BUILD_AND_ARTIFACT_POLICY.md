@@ -8,7 +8,7 @@ This document establishes clear separation between **authoritative hand-authored
 | :--- | :--- | :--- | :--- |
 | `src/` | TypeScript/React SPA, Security Middleware & Ecosystem Data | **Authoritative Source** | N/A |
 | `wordpress-theme/` *(excluding `app-dist/`)* | Master WordPress Theme PHP/CSS/JS | **Authoritative Source** | N/A |
-| `elementor-addon-suite/`, `sedrazavi-addons/`, `sedrazavi-companion/` | WordPress Plugins (Widgets, Templates, Blocks, Cockpit, Legal) | **Authoritative Source** | N/A |
+| `elementor-addon-suite/`, `sedrazavi-addons/`, `sedrazavi-companion/`, `sedrazavi-designer-core/` | WordPress Plugins (Widgets, Templates, Blocks, Cockpit, Legal, Designer Core) | **Authoritative Source** | N/A |
 | `scripts/` | Build, Packaging, Sync & Verification Suites | **Authoritative Source** | N/A |
 | `public/app-dist/` & `wordpress-theme/app-dist/` | Compiled Vite Frontend Bundle & Assets | **Generated Artifact** | `npm run build` |
 | `standalone-themes/*/` *(runtime includes synced from master theme)* | 8 Decoupled Niche Themes | **Derived / Generated** *(synced from master)* | `node scripts/convert-to-standalone-themes.cjs` |

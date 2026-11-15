@@ -84,6 +84,53 @@ final class Universal_Elementor_Addon_Suite {
         if (!get_option('uas_plugin_activated_time')) {
             update_option('uas_plugin_activated_time', time());
         }
+        update_option('uas_version', UAS_VERSION);
+
+        if (function_exists('wp_upload_dir')) {
+            $upload_dir = wp_upload_dir();
+            if (is_array($upload_dir) && empty($upload_dir['error']) && !empty($upload_dir['basedir'])) {
+                wp_mkdir_p(trailingslashit($upload_dir['basedir']) . 'uas-cache/');
+                wp_mkdir_p(trailingslashit($upload_dir['basedir']) . 'uas-standalone-packages/');
+            }
+        }
+
+        if (function_exists('flush_rewrite_rules')) {
+            flush_rewrite_rules(false);
+        }
+    }
+
+    /**
+     * On Plugin Deactivation (Supports Single Site and WordPress Multisite Network-Wide)
+     * Clears transient caches, scheduled cron events, and flushes rewrite rules while preserving user data.
+     */
+    public static function on_deactivation($network_wide = false) {
+        if (function_exists('is_multisite') && is_multisite() && $network_wide) {
+            global $wpdb;
+            $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE archived = '0' AND spam = '0' AND deleted = '0'");
+            foreach ($blog_ids as $blog_id) {
+                switch_to_blog($blog_id);
+                self::deactivate_single_site();
+                restore_current_blog();
+            }
+        } else {
+            self::deactivate_single_site();
+        }
+    }
+
+    /**
+     * Single Site Deactivation Routine
+     */
+    private static function deactivate_single_site() {
+        if (function_exists('wp_clear_scheduled_hook')) {
+            wp_clear_scheduled_hook('uas_daily_maintenance');
+            wp_clear_scheduled_hook('uas_github_sync_cron');
+        }
+        if (class_exists('\Elementor\Plugin') && isset(\Elementor\Plugin::$instance->files_manager)) {
+            \Elementor\Plugin::$instance->files_manager->clear_cache();
+        }
+        if (function_exists('flush_rewrite_rules')) {
+            flush_rewrite_rules(false);
+        }
     }
 
     /**
@@ -103,7 +150,13 @@ final class Universal_Elementor_Addon_Suite {
             return;
         }
 
-        // 2. Always Load Standalone Engine, Industry Blocks, eCommerce/WoodMart Bridge & GitHub Admin
+        // 2. Always Load Unified Asset Manifest, Design Tokens, Standalone Engine, Industry Blocks, eCommerce/WoodMart Bridge & GitHub Admin
+        require_once UAS_PATH . 'includes/class-asset-manifest.php';
+        \UniversalElementorSuite\Asset_Manifest::instance();
+
+        require_once UAS_PATH . 'includes/class-design-tokens.php';
+        \UniversalElementorSuite\Design_Tokens::instance();
+
         require_once UAS_PATH . 'includes/class-standalone-shortcodes.php';
         \UniversalElementorSuite\Standalone_Shortcodes::instance();
 
@@ -184,7 +237,7 @@ final class Universal_Elementor_Addon_Suite {
             return;
         }
 
-        $screen = get_current_screen();
+        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
         if (isset($screen->parent_file) && 'plugins.php' === $screen->parent_file && 'update' === $screen->id) {
             return;
         }
@@ -267,4 +320,7 @@ final class Universal_Elementor_Addon_Suite {
 Universal_Elementor_Addon_Suite::instance();
 if (function_exists('register_activation_hook')) {
     register_activation_hook(__FILE__, ['Universal_Elementor_Addon_Suite', 'on_activation']);
+}
+if (function_exists('register_deactivation_hook')) {
+    register_deactivation_hook(__FILE__, ['Universal_Elementor_Addon_Suite', 'on_deactivation']);
 }

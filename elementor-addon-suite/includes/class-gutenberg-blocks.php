@@ -229,12 +229,22 @@ class Gutenberg_Blocks {
     }
 
     /**
-     * Enqueue Frontend Styles
+     * Enqueue Frontend Styles (Scoped strictly to posts containing sedrazavi/* blocks)
      */
     public function enqueue_frontend_assets() {
-        wp_register_style('sedrazavi-gutenberg-frontend-css', false, [], UAS_VERSION);
-        wp_add_inline_style('sedrazavi-gutenberg-frontend-css', $this->generate_frontend_css());
-        wp_enqueue_style('sedrazavi-gutenberg-frontend-css');
+        static $registered = false;
+        if (!$registered) {
+            wp_register_style('sedrazavi-gutenberg-frontend-css', false, [], defined('UAS_VERSION') ? UAS_VERSION : '1.0.0');
+            wp_add_inline_style('sedrazavi-gutenberg-frontend-css', $this->generate_frontend_css());
+            $registered = true;
+        }
+
+        if (function_exists('has_blocks') && is_singular() && has_blocks()) {
+            $post = get_post();
+            if ($post && strpos((string) $post->post_content, 'wp:sedrazavi/') !== false) {
+                wp_enqueue_style('sedrazavi-gutenberg-frontend-css');
+            }
+        }
     }
 
     /**

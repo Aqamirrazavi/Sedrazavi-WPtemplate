@@ -386,7 +386,7 @@ class Package_Exporter {
             $secondary_navy = !empty($design_tokens['secondary_color']) ? sanitize_hex_color($design_tokens['secondary_color']) : '#0B132B';
             $font_family    = !empty($design_tokens['font_family']) ? preg_replace('/[^a-zA-Z0-9\-\s_]/', '', (string) $design_tokens['font_family']) : 'Vazirmatn';
             $bundle_files['assets/css/kit-design-tokens.css'] = sprintf(
-                ":root {\n  --sr-primary-accent: %s;\n  --sr-secondary-base: %s;\n  --sr-font-family: '%s', sans-serif;\n}\n",
+                ":root {\n  --sr-primary-accent: %1\$s;\n  --sr-secondary-base: %2\$s;\n  --sr-font-family: '%3\$s', sans-serif;\n  --uas-accent-color: %1\$s;\n  --uas-secondary-color: %2\$s;\n  --uas-font-family: '%3\$s', sans-serif;\n}\n",
                 $primary_gold ?: '#D4AF37',
                 $secondary_navy ?: '#0B132B',
                 $font_family ?: 'Vazirmatn'

@@ -2151,16 +2151,17 @@ $footer_bio = get_theme_mod('sedrazavi_footer_bio', get_bloginfo('description'))
  * @version 6.0.0
  */
 
-// بررسی سازگاری کامل با المنتور (Elementor Compatibility)
-if (have_posts()) {
+// بررسی سازگاری کامل با المنتور (Elementor Compatibility) — با بازگشت ایمن در صورت غیرفعال بودن المنتور
+if (did_action('elementor/loaded') && class_exists('\\Elementor\\Plugin') && have_posts()) {
     while (have_posts()) {
         the_post();
         $elementor_data = get_post_meta(get_the_ID(), '_elementor_data', true);
-        if (!empty($elementor_data)) {
+        $elementor_mode = get_post_meta(get_the_ID(), '_elementor_edit_mode', true);
+        if (!empty($elementor_data) && $elementor_mode === 'builder') {
             get_header();
             the_content();
             get_footer();
-            exit;
+            return;
         }
     }
     rewind_posts();
@@ -5800,10 +5801,16 @@ class SedRazavi_Elementor_Widgets_Manager {
     public static function init() {
         add_action('elementor/elements/categories_registered', [__CLASS__, 'register_category']);
         add_action('elementor/widgets/register', [__CLASS__, 'register_widgets']);
-        add_action('elementor/theme/register_locations', [__CLASS__, 'register_locations']);
+        // Single Source of Truth: Theme_Builder_Bridge owns location registration when Elementor Suite is active.
+        if (!class_exists('\\UniversalElementorSuite\\Theme_Builder_Bridge')) {
+            add_action('elementor/theme/register_locations', [__CLASS__, 'register_locations'], 20);
+        }
     }
 
     public static function register_locations($elementor_theme_manager) {
+        if (class_exists('\\UniversalElementorSuite\\Theme_Builder_Bridge')) {
+            return;
+        }
         $elementor_theme_manager->register_location('header');
         $elementor_theme_manager->register_location('footer');
         $elementor_theme_manager->register_location('single');
@@ -8572,9 +8579,13 @@ function sedrazavi_enqueue_react_runtime() {
     }
     $already_enqueued = true;
 
-    // ۱. انکیو کردن استایل و اسکریپت ثبت‌شده
-    wp_enqueue_style('sedrazavi_react_styles');
-    wp_enqueue_script('sedrazavi_react_bundle');
+    // ۱. جلوگیری از بارگذاری مضاعف باندل اصلی در صورت Enqueue شدن توسط functions.php
+    if (!wp_style_is('sedrazavi-react-bundle-css', 'enqueued')) {
+        wp_enqueue_style('sedrazavi_react_styles');
+    }
+    if (!wp_script_is('sedrazavi-react-bundle-js', 'enqueued')) {
+        wp_enqueue_script('sedrazavi_react_bundle');
+    }
 
     // ۲. آماده‌سازی داده‌های سرور جهت ارسال با wp_localize_script
     $localized_data = array(
@@ -12271,25 +12282,24 @@ if (!defined('ABSPATH')) {
 
 if (!function_exists('sedrazavi_check_required_plugins')) {
 function sedrazavi_check_required_plugins() {
-    if (!function_exists('is_plugin_active')) {
-        require_once ABSPATH . 'wp-admin/includes/plugin.php';
-    }
-    $required_plugins = array(
-        'elementor/elementor.php' => 'Elementor Page Builder',
-        'advanced-custom-fields/acf.php' => 'Advanced Custom Fields PRO',
-    );
-
-    $missing = array();
-    foreach ($required_plugins as $plugin_path => $name) {
-        if (!is_plugin_active($plugin_path)) {
-            $missing[] = $name;
-        }
+    if (!current_user_can('install_plugins')) {
+        return;
     }
 
-    if (!empty($missing) && current_user_can('install_plugins')) {
-        add_action('admin_notices', function() use ($missing) {
-            echo '<div class="notice notice-warning is-dismissible"><p>';
-            printf(esc_html__('پوسته سید رضوی برای عملکرد کامل نیاز به فعال‌سازی افزونه‌های زیر دارد: %s', 'sedrazavi'), '<strong>' . implode(', ', $missing) . '</strong>');
+    if (!did_action('elementor/loaded')) {
+        add_action('admin_notices', function() {
+            if (did_action('elementor/loaded') || !current_user_can('install_plugins')) {
+                return;
+            }
+            $install_url = wp_nonce_url(
+                self_admin_url('update.php?action=install-plugin&plugin=elementor'),
+                'install-plugin_elementor'
+            );
+            echo '<div class="notice notice-info is-dismissible"><p>';
+            printf(
+                esc_html__('پوسته سید رضوی بدون نیاز به افزونه تجاری با حالت پایه (Native Fallback) کار می‌کند؛ برای ویرایش بصری صفحات می‌توانید نسخه رایگان %1$s را نصب و فعال کنید.', 'sedrazavi'),
+                '<a href="' . esc_url($install_url) . '"><strong>Elementor</strong></a>'
+            );
             echo '</p></div>';
         });
     }
@@ -13638,6 +13648,7 @@ class SedRazavi_Design_Tokens {
 
     public static function init() {
         add_action('wp_head', [__CLASS__, 'inject_css_variables'], 5);
+        add_action('elementor/editor/after_enqueue_styles', [__CLASS__, 'inject_css_variables'], 25);
         add_action('rest_api_init', [__CLASS__, 'register_token_routes']);
     }
 
@@ -13701,6 +13712,8 @@ class SedRazavi_Design_Tokens {
         echo ':root {' . PHP_EOL;
         echo '  --color-gold-primary: ' . esc_attr($tokens['brand.color_gold']) . ';' . PHP_EOL;
         echo '  --color-navy-dark: ' . esc_attr($tokens['brand.color_navy']) . ';' . PHP_EOL;
+        echo '  --uas-accent-color: ' . esc_attr($tokens['brand.color_gold']) . ';' . PHP_EOL;
+        echo '  --uas-secondary-color: ' . esc_attr($tokens['brand.color_navy']) . ';' . PHP_EOL;
         echo '  --lawyer-name: "' . esc_attr($tokens['lawyer.name']) . '";' . PHP_EOL;
         echo '  --lawyer-phone: "' . esc_attr($tokens['contact.phone']) . '";' . PHP_EOL;
         echo '  --lawyer-hours: "' . esc_attr($tokens['contact.hours']) . '";' . PHP_EOL;
@@ -13746,9 +13759,13 @@ class SedRazavi_Design_Tokens {
 
         update_option(self::OPTION_KEY, $tokens);
 
+        if (class_exists('\\UniversalElementorSuite\\Design_Tokens')) {
+            \\UniversalElementorSuite\\Design_Tokens::instance()->sync_to_elementor_kit(true);
+        }
+
         return rest_ensure_response([
             'success' => true,
-            'message' => 'متغیرهای سراسری قالب با موفقیت ذخیره شدند.',
+            'message' => 'متغیرهای سراسری قالب با موفقیت ذخیره شدند و با کیت المنتور همگام شدند.',
             'tokens'  => $tokens,
         ]);
     }
@@ -20843,17 +20860,18 @@ if ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_loca
 
 get_header();
 
-// 2. Direct Elementor Builder Mode Support (if designed directly with Elementor)
+// 2. Direct Elementor Builder Mode Support (only when Elementor plugin is active)
 $is_elementor_post = false;
-if ( is_singular() ) {
-    $mode = get_post_meta( get_the_ID(), '_elementor_edit_mode', true );
-    if ( $mode === 'builder' ) {
+if (is_singular() && did_action('elementor/loaded') && class_exists('\\Elementor\\Plugin')) {
+    $mode = get_post_meta(get_the_ID(), '_elementor_edit_mode', true);
+    $data = get_post_meta(get_the_ID(), '_elementor_data', true);
+    if ($mode === 'builder' && !empty($data)) {
         $is_elementor_post = true;
     }
 }
 
-if ( $is_elementor_post ) :
-    while ( have_posts() ) : the_post();
+if ($is_elementor_post) :
+    while (have_posts()) : the_post();
         the_content();
     endwhile;
     get_footer();
@@ -22258,6 +22276,11 @@ img {
 .notice,
 .notice-warning {
     border-right: 4px solid var(--sr-gold-400) !important;
+    background: #FFFFFF;
+    color: #0B132B;
+}
+.notice-info {
+    border-right: 4px solid #3B82F6 !important;
     background: #FFFFFF;
     color: #0B132B;
 }

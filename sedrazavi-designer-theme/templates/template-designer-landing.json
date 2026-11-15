@@ -1,44 +1,390 @@
 {
   "version": "0.4",
-  "title": "UAS - لندینگ طراح سایت وردپرس گوتنبرگ (Gutenberg Designer Landing)",
-  "type": "container",
+  "title": "UAS - صفحه فرود جامع بومی کانتینری (Golden Native Container Landing Page)",
+  "type": "page",
   "content": [
     {
-      "id": "uas_cnt_designer_landing",
+      "id": "uas_cnt_dl_hero",
       "elType": "container",
       "isInner": false,
       "settings": {
-        "padding": {
-          "unit": "px",
-          "top": "50",
-          "right": "20",
-          "bottom": "50",
-          "left": "20"
-        },
-        "background_background": "classic",
-        "background_color": "#0F172A",
-        "content_width": "full",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "padding": {
+          "unit": "px",
+          "top": "48",
+          "right": "20",
+          "bottom": "40",
+          "left": "20"
+        }
       },
       "elements": [
         {
-          "id": "uas_wid_designer_hero",
+          "id": "uas_wid_dl_hero",
           "elType": "widget",
           "widgetType": "uas_hero",
           "settings": {
-            "badge_text": "💻 گوتنبرگ بومی ۱۰۰٪ بدون المنتور و صفحه‌ساز سنگین",
+            "hero_preset": "split-executive",
+            "title_tag": "h1",
+            "show_badge": "yes",
+            "badge_text": "معماری بومی کانتینری و سیستم طراحی یکپارچه",
             "hero_title": "طراحی وب‌سایت‌های مدرن، پرسرعت و مقیاس‌پذیر در کلاس جهانی",
-            "hero_desc": "توسعه قالب‌های اختصاصی وردپرس با معماری مستقل و استانداردهای گوگل لایت‌هاوس برای آژانس‌ها، استارتاپ‌ها و کسب‌وکارهای بین‌المللی.",
-            "primary_btn_text": "ارسال بریف و مشاوره پروژه",
+            "hero_desc": "توسعه صفحات فرود تمام‌بومی المنتور با پشتیبانی از RTL/LTR، حالت تاریک و روشن، و سرعت بارگذاری بهینه بدون وابستگی به دارایی‌های خارجی.",
+            "primary_btn_text": "مشاهده خدمات و راهکارها",
             "primary_btn_url": {
-              "url": "#brief",
-              "is_external": false
+              "url": "#services",
+              "is_external": false,
+              "nofollow": false
             },
-            "secondary_btn_text": "مشاهده نمونه‌کارها و نتایج سرعت",
+            "secondary_btn_text": "پرسش‌های متداول و تماس",
             "secondary_btn_url": {
-              "url": "#portfolio",
+              "url": "#faq",
+              "is_external": false,
+              "nofollow": false
+            },
+            "show_media": "yes",
+            "hero_image": {
+              "url": "",
+              "source": "sovereign_local"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_dl_metrics",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "content_width": "boxed",
+        "background_background": "classic",
+        "background_color": "#F8FAFC",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "padding": {
+          "unit": "px",
+          "top": "56",
+          "right": "20",
+          "bottom": "56",
+          "left": "20"
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_wid_dl_stats",
+          "elType": "widget",
+          "widgetType": "uas_stat_counter",
+          "settings": {
+            "columns": "4",
+            "duration": 2000,
+            "stats_list": [
+              {
+                "number": 99,
+                "suffix": "%",
+                "title": "انطباق با هسته و توکن‌های طراحی",
+                "description": "پشتیبانی بومی از حالت تیره و روشن و RTL",
+                "icon": "🎨"
+              },
+              {
+                "number": 120,
+                "suffix": "+",
+                "title": "پروژه و الگوی راه‌اندازی‌شده",
+                "description": "مناسب سایت‌های شرکتی، آژانس و خدماتی",
+                "icon": "🚀"
+              },
+              {
+                "number": 100,
+                "suffix": "%",
+                "title": "استقلال رسانه بدون CDN خارجی",
+                "description": "بارگذاری ایمن از دارایی‌های محلی",
+                "icon": "🛡️"
+              },
+              {
+                "number": 24,
+                "suffix": "/7",
+                "title": "آماده ویرایش در المنتور رایگان و پرو",
+                "description": "ساختار کانتینری استاندارد و منعطف",
+                "icon": "⚡"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_dl_services",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "padding": {
+          "unit": "px",
+          "top": "70",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_wid_dl_services",
+          "elType": "widget",
+          "widgetType": "uas_services_grid",
+          "settings": {
+            "subtitle": "توانمندی‌های کلیدی استودیو",
+            "title": "راهکارهای مهندسی‌شده برای رشد دیجیتال",
+            "columns": "3",
+            "services_list": [
+              {
+                "item_title": "طراحی رابط کاربری و معماری کانتینری",
+                "item_desc": "چیدمان دقیق با Flexbox Container، سلسله‌مراتب تایپوگرافی استاندارد و ویرایش کامل بصری.",
+                "item_link_text": "بررسی جزئیات ←",
+                "item_link_url": {
+                  "url": "#faq",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "بهینه‌سازی عملکرد و دسترس‌پذیری",
+                "item_desc": "ساختار معنایی HTML5، کنترل‌های کیبوردی focus-visible و حذف اسکریپت‌های مزاحم.",
+                "item_link_text": "بررسی جزئیات ←",
+                "item_link_url": {
+                  "url": "#testimonials",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "بومی‌سازی دوزبانه و انتقال‌پذیری",
+                "item_desc": "تغییر خودکار ترازبندی بین RTL و LTR به همراه بسته‌بندی قابل انتقال بین سایت‌ها.",
+                "item_link_text": "بررسی جزئیات ←",
+                "item_link_url": {
+                  "url": "#cta",
+                  "is_external": false
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_dl_split_overview",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "content_width": "boxed",
+        "flex_direction": "row",
+        "flex_direction_tablet": "column",
+        "flex_direction_mobile": "column",
+        "flex_wrap": "wrap",
+        "flex_align_items": "flex-start",
+        "flex_justify_content": "space-between",
+        "flex_gap": {
+          "column": "32",
+          "row": "32",
+          "unit": "px"
+        },
+        "padding": {
+          "unit": "px",
+          "top": "64",
+          "right": "20",
+          "bottom": "64",
+          "left": "20"
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_cnt_dl_split_intro",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "content_width": "full",
+            "width": {
+              "unit": "%",
+              "size": 46
+            },
+            "width_tablet": {
+              "unit": "%",
+              "size": 100
+            },
+            "width_mobile": {
+              "unit": "%",
+              "size": 100
+            },
+            "flex_direction": "column",
+            "flex_gap": {
+              "column": "16",
+              "row": "16",
+              "unit": "px"
+            }
+          },
+          "elements": [
+            {
+              "id": "uas_wid_dl_split_heading",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "پرسش‌های متداول درباره ویرایش و استقرار صفحه در المنتور",
+                "header_size": "h2"
+              }
+            },
+            {
+              "id": "uas_wid_dl_split_copy",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p>تمامی بخش‌های این برگه با کانتینرهای استاندارد Flexbox و ویجت‌های بومی پیاده‌سازی شده‌اند تا مدیران سایت بدون نیاز به کدنویسی و حتی در نسخه رایگان المنتور، محتوای صفحه را مستقیماً ویرایش و منتشر کنند.</p>"
+              }
+            },
+            {
+              "id": "uas_wid_dl_split_btn",
+              "elType": "widget",
+              "widgetType": "button",
+              "settings": {
+                "text": "درخواست مشاوره و دمو",
+                "link": {
+                  "url": "#cta",
+                  "is_external": false
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "uas_cnt_dl_split_faq",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "content_width": "full",
+            "width": {
+              "unit": "%",
+              "size": 50
+            },
+            "width_tablet": {
+              "unit": "%",
+              "size": 100
+            },
+            "width_mobile": {
+              "unit": "%",
+              "size": 100
+            },
+            "flex_direction": "column"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_dl_faq",
+              "elType": "widget",
+              "widgetType": "uas_faq",
+              "settings": {
+                "enable_schema": "yes",
+                "enable_search": "yes",
+                "search_placeholder": "جستجو در پرسش‌های متداول...",
+                "faqs_list": [
+                  {
+                    "question": "آیا این صفحه کاملاً در ویرایشگر المنتور رایگان قابل ویرایش است؟",
+                    "answer": "بله، تمامی سکشن‌ها از کانتینرهای بومی Flexbox و ویجت‌های مستقل uas_* به همراه ویجت‌های هسته المنتور تشکیل شده‌اند و به المنتور پرو وابستگی الزامی ندارند."
+                  },
+                  {
+                    "question": "تغییر رنگ‌ها و تایپوگرافی سراسری چگونه انجام می‌شود؟",
+                    "answer": "کافی است در Site Settings المنتور رنگ‌ها و قلم‌های Global Kit را تغییر دهید تا تمام اجزای صفحه بر اساس توکن‌های variables.css هماهنگ شوند."
+                  },
+                  {
+                    "question": "تصاویر و رسانه‌های دمو از چه منبعی بارگذاری می‌شوند؟",
+                    "answer": "درون‌ریز بومی به شکل خودکار تصاویر نمونه را به دارایی‌های SVG محلی متصل می‌کند تا سایت حتی در محیط‌های آفلاین یا بدون دسترسی خارجی بدون خطا نمایش داده شود."
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_dl_testimonials",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "content_width": "boxed",
+        "background_background": "classic",
+        "background_color": "#0F172A",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "padding": {
+          "unit": "px",
+          "top": "70",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_wid_dl_testimonials",
+          "elType": "widget",
+          "widgetType": "uas_testimonials",
+          "settings": {
+            "columns": "2",
+            "testimonials_list": [
+              {
+                "author_name": "مهندس سهیل رادمهر",
+                "author_role": "مدیر فنی استودیو طراحی پارس",
+                "review_text": "ساختار تمیز کانتینری و نبود وابستگی به اسکریپت‌های سنگین باعث شد سرعت بارگذاری صفحه فرود ما و تجربه ویرایش کارفرما به شکل محسوسی ارتقا یابد.",
+                "rating": "5",
+                "avatar": {
+                  "url": "",
+                  "source": "sovereign_local"
+                }
+              },
+              {
+                "author_name": "دکتر سارا فرهادی",
+                "author_role": "مدیر محصول گروه نرم‌افزاری سپهر",
+                "review_text": "هماهنگی کامل حالت تیره و روشن و تبدیل بدون نقص چیدمان در موبایل و دسکتاپ، نیاز ما به تغییرات کدنویسی دستی را از بین برد.",
+                "rating": "5",
+                "avatar": {
+                  "url": "",
+                  "source": "sovereign_local"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_dl_cta",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "padding": {
+          "unit": "px",
+          "top": "64",
+          "right": "20",
+          "bottom": "72",
+          "left": "20"
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_wid_dl_cta",
+          "elType": "widget",
+          "widgetType": "uas_cta",
+          "settings": {
+            "title": "آماده‌اید برگه اصلی خود را با استاندارد بومی المنتور راه‌اندازی کنید؟",
+            "description": "همین حالا این الگو را از کتابخانه درون‌ریزی کنید یا به‌صورت زنده در ویرایشگر المنتور سفارشی‌سازی نمایید.",
+            "button_text": "شروع پیاده‌سازی ←",
+            "button_url": {
+              "url": "#contact",
               "is_external": false
             }
           }

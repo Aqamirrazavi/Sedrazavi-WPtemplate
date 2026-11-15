@@ -31,6 +31,11 @@ class GitHub_Admin {
             return;
         }
 
+        if (class_exists('\UniversalElementorSuite\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('admin', ['uas-github-admin-css']);
+            return;
+        }
+
         wp_enqueue_style(
             'uas-github-admin-css',
             UAS_URL . 'assets/css/github-admin.css',

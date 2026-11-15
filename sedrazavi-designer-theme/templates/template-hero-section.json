@@ -26,21 +26,28 @@
           "elType": "widget",
           "widgetType": "uas_hero",
           "settings": {
+            "hero_preset": "modern-card",
+            "title_tag": "h1",
+            "show_badge": "yes",
             "badge_text": "نوآوری در ارائه خدمات برتر",
             "hero_title": "راهکارهای هوشمند و مدرن برای ارتقای کسب‌وکار شما",
             "hero_desc": "ما با تلفیق تخصص، نوآوری و تکنولوژی‌های پیشرو، سازمان شما را در مسیر دستیابی به اهداف راهبردی و مزیت‌های پایدار رقابتی همراهی می‌کنیم.",
             "primary_btn_text": "درخواست مشاوره رایگان",
             "primary_btn_url": {
               "url": "#contact",
-              "is_external": false
+              "is_external": false,
+              "nofollow": false
             },
             "secondary_btn_text": "مشاهده پروژه‌ها و خدمات",
             "secondary_btn_url": {
               "url": "#services",
-              "is_external": false
+              "is_external": false,
+              "nofollow": false
             },
+            "show_media": "yes",
             "hero_image": {
-              "url": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800"
+              "url": "",
+              "source": "sovereign_local"
             }
           }
         }

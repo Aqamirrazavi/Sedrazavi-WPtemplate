@@ -30,9 +30,14 @@ class Standalone_Shortcodes {
     }
 
     /**
-     * Enqueue independent CSS & JS for standalone blocks
+     * Enqueue independent CSS & JS for standalone blocks via Unified Asset_Manifest
      */
     public function enqueue_standalone_assets() {
+        if (class_exists('\UniversalElementorSuite\Asset_Manifest')) {
+            Asset_Manifest::instance()->enqueue_scope('frontend', ['uas-standalone-blocks', 'uas-standalone-blocks-js']);
+            return;
+        }
+
         wp_register_style(
             'uas-standalone-blocks',
             UAS_URL . 'assets/css/standalone-blocks.css',
@@ -53,7 +58,6 @@ class Standalone_Shortcodes {
             'ajaxNonce' => wp_create_nonce('uas_industry_nonce'),
         ]);
 
-        // Auto enqueue if on singular post or page
         wp_enqueue_style('uas-standalone-blocks');
         wp_enqueue_script('uas-standalone-blocks-js');
     }

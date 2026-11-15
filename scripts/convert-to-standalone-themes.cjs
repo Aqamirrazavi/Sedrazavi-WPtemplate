@@ -308,7 +308,18 @@ if (fs.existsSync(designerThemeDir)) {
   if (fs.existsSync(srcPageTpl)) {
     fs.copyFileSync(srcPageTpl, path.join(designerThemeDir, 'page-frontend-cockpit.php'));
   }
-  console.log('✅ Synced page-frontend-cockpit.php & removed duplicate Cockpit engine from sedrazavi-designer-theme!');
+
+  // Sync canonical Elementor JSON templates from elementor-addon-suite to prevent ZIP drift
+  const canonicalTplDir = path.join(__dirname, '../elementor-addon-suite/templates');
+  const designerCoreDir = path.join(__dirname, '../sedrazavi-designer-core');
+  [path.join(designerThemeDir, 'templates'), path.join(designerCoreDir, 'templates')].forEach((destTplDir) => {
+    if (fs.existsSync(canonicalTplDir) && fs.existsSync(destTplDir)) {
+      fs.readdirSync(canonicalTplDir).filter((f) => f.endsWith('.json')).forEach((file) => {
+        fs.copyFileSync(path.join(canonicalTplDir, file), path.join(destTplDir, file));
+      });
+    }
+  });
+  console.log('✅ Synced page-frontend-cockpit.php, canonical templates & removed duplicate Cockpit engine from sedrazavi-designer-theme!');
 }
 
 console.log('\n🎉 ALL 8 VERTICAL THEMES CONVERTED TO 100% AUTONOMOUS STANDALONE PARENT THEMES!');

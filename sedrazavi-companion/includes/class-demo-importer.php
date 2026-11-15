@@ -204,21 +204,39 @@ class SedRazavi_Demo_Importer {
         ];
 
         foreach ($demo['pages'] as $page_title) {
-            $existing_page = get_page_by_title($page_title);
+            $existing_page = function_exists('get_page_by_title') ? get_page_by_title($page_title) : null;
             $template_slug = isset($template_map[$page_title]) ? $template_map[$page_title] : 'template-designer-landing';
 
             if (!$existing_page) {
-                $page_id = $this->create_native_elementor_page($page_title, $template_slug, $demo);
-                $imported_pages[] = ['id' => $page_id, 'title' => $page_title];
+                $page_id = $this->create_native_elementor_page($page_title, $template_slug, $demo, $demo_id);
+                if (!is_wp_error($page_id) && $page_id > 0) {
+                    $imported_pages[] = ['id' => $page_id, 'title' => $page_title, 'slug' => $template_slug];
+                }
             } else {
-                // If page exists, update its Elementor metadata if empty
                 $has_elem_data = get_post_meta($existing_page->ID, '_elementor_data', true);
                 if (empty($has_elem_data)) {
-                    $this->inject_elementor_metadata($existing_page->ID, $template_slug);
+                    $this->inject_elementor_metadata($existing_page->ID, $template_slug, null, $demo_id);
                 }
-                $imported_pages[] = ['id' => $existing_page->ID, 'title' => $page_title];
+                $imported_pages[] = ['id' => $existing_page->ID, 'title' => $page_title, 'slug' => $template_slug];
             }
         }
+
+        // Sync Elementor Global Kit Design Tokens when suite is active
+        if (class_exists('\UniversalElementorSuite\Design_Tokens')) {
+            \UniversalElementorSuite\Design_Tokens::instance()->sync_elementor_active_kit();
+        }
+
+        // Persist imported page IDs for atomic reset/rollback
+        $tracked_pages = get_option('sedrazavi_demo_imported_pages', []);
+        if (!is_array($tracked_pages)) {
+            $tracked_pages = [];
+        }
+        foreach ($imported_pages as $tp) {
+            if (!in_array((int) $tp['id'], $tracked_pages, true)) {
+                $tracked_pages[] = (int) $tp['id'];
+            }
+        }
+        update_option('sedrazavi_demo_imported_pages', $tracked_pages);
 
         // 4. Setup Primary Navigation Menu if needed
         $menu_name = 'منوی اصلی - ' . $demo['name'];
@@ -259,11 +277,12 @@ class SedRazavi_Demo_Importer {
         }
 
         return rest_ensure_response([
-            'success'     => true,
-            'message'     => "دموی {$demo['name']} با موفقیت درون‌ریزی و پیکربندی گردید.",
-            'demoId'      => $demo_id,
-            'pagesCount'  => count($imported_pages),
-            'homePageUrl' => home_url('/'),
+            'success'       => true,
+            'message'       => "دموی {$demo['name']} با موفقیت درون‌ریزی و پیکربندی گردید.",
+            'demoId'        => $demo_id,
+            'pagesCount'    => count($imported_pages),
+            'importedPages' => $imported_pages,
+            'homePageUrl'   => home_url('/'),
         ]);
     }
 
@@ -272,9 +291,24 @@ class SedRazavi_Demo_Importer {
         update_option('sedrazavi_header_style', 'minimal-landing');
         update_option('sedrazavi_footer_style', 'minimal-single');
 
+        $deleted_pages = 0;
+        $tracked_pages = get_option('sedrazavi_demo_imported_pages', []);
+        if (is_array($tracked_pages)) {
+            foreach ($tracked_pages as $pid) {
+                $pid = (int) $pid;
+                if ($pid > 0 && get_post_meta($pid, '_uas_imported_demo_id', true)) {
+                    if (wp_delete_post($pid, true)) {
+                        $deleted_pages++;
+                    }
+                }
+            }
+        }
+        delete_option('sedrazavi_demo_imported_pages');
+
         return rest_ensure_response([
-            'success' => true,
-            'message' => 'پیکربندی با موفقیت به حالت استودیو طراحی مینیمال بازگردانی شد.',
+            'success'      => true,
+            'deletedPages' => $deleted_pages,
+            'message'      => 'پیکربندی و صفحات دمو با موفقیت بازگردانی و پاک‌سازی شد.',
         ]);
     }
 
@@ -377,9 +411,17 @@ class SedRazavi_Demo_Importer {
                     var demoId = this.getAttribute('data-demo-id');
                     var demoName = this.getAttribute('data-demo-name');
 
-                    if (!confirm('آیا از درون‌ریزی دموی «' + demoName + '» اطمینان دارید؟')) {
+                    // Accessible two-step inline confirmation (avoids native confirm dialog)
+                    if (this.getAttribute('data-armed') !== 'yes') {
+                        buttons.forEach(function(b) {
+                            b.removeAttribute('data-armed');
+                            b.innerText = 'درون‌ریزی دموی ' + b.getAttribute('data-demo-name') + ' ←';
+                        });
+                        this.setAttribute('data-armed', 'yes');
+                        this.innerText = 'تأیید نهایی نصب «' + demoName + '»؟ (دوباره کلیک کنید)';
                         return;
                     }
+                    this.removeAttribute('data-armed');
 
                     // Disable buttons and show status
                     buttons.forEach(function(b) { b.disabled = true; b.style.opacity = '0.6'; });
@@ -440,12 +482,13 @@ class SedRazavi_Demo_Importer {
     }
 
     /**
-     * Create a page with native Elementor JSON template and Gutenberg fallback
+     * Create a Golden Native Elementor Container Landing Page with Gutenberg fallback
      */
-    private function create_native_elementor_page($page_title, $template_slug = '', $demo = []) {
-        $elementor_data = $this->resolve_template_json_data($template_slug);
+    public function create_native_elementor_page($page_title, $template_slug = 'template-designer-landing', $demo = [], $demo_id = '') {
+        $meta_out = [];
+        $elementor_data = $this->resolve_template_json_data($template_slug, $meta_out);
 
-        // Fallback Gutenberg content when Elementor is not present
+        // Fallback Gutenberg content when Elementor is inactive
         $fallback_content = "<!-- wp:group {\"layout\":{\"type\":\"constrained\"}} -->\n";
         $fallback_content .= "<div class=\"wp-block-group sr-starter-page-content\">\n";
         $fallback_content .= "<h2>" . esc_html($page_title) . "</h2>\n";
@@ -461,32 +504,73 @@ class SedRazavi_Demo_Importer {
         ]);
 
         if (!is_wp_error($page_id) && $page_id > 0) {
-            $this->inject_elementor_metadata($page_id, $template_slug, $elementor_data);
+            $this->inject_elementor_metadata($page_id, $template_slug, $elementor_data, $demo_id, $meta_out);
         }
 
         return $page_id;
     }
 
     /**
-     * Resolve JSON data for a given template slug
+     * Resolve, Free-adapt, validate dependencies & relink sovereign media inside Elementor JSON
      */
-    private function resolve_template_json_data($template_slug) {
-        $candidate_dirs = [
-            WP_PLUGIN_DIR . '/elementor-addon-suite/templates/',
-            SEDRAZAVI_COMPANION_DIR . 'templates/',
-            get_template_directory() . '/templates/',
-        ];
+    public function resolve_template_json_data($template_slug, &$meta_out = []) {
+        $template_slug = sanitize_file_name((string) $template_slug);
+        $candidate_dirs = [];
+        if (defined('UAS_PATH')) {
+            $candidate_dirs[] = trailingslashit(UAS_PATH) . 'templates/';
+        }
+        if (defined('WP_PLUGIN_DIR')) {
+            $candidate_dirs[] = trailingslashit(WP_PLUGIN_DIR) . 'elementor-addon-suite/templates/';
+        }
+        if (defined('SEDRAZAVI_COMPANION_DIR')) {
+            $candidate_dirs[] = dirname(SEDRAZAVI_COMPANION_DIR) . '/elementor-addon-suite/templates/';
+            $candidate_dirs[] = trailingslashit(SEDRAZAVI_COMPANION_DIR) . 'templates/';
+        }
+        if (function_exists('get_template_directory')) {
+            $candidate_dirs[] = trailingslashit(get_template_directory()) . 'templates/';
+        }
 
-        foreach ($candidate_dirs as $dir) {
+        foreach (array_unique(array_filter($candidate_dirs)) as $dir) {
             $path = $dir . $template_slug . '.json';
             if (file_exists($path)) {
                 $raw = file_get_contents($path);
                 $decoded = json_decode($raw, true);
+                $elements = null;
+                $doc_type = 'wp-page';
+
                 if (isset($decoded['content']) && is_array($decoded['content'])) {
-                    return wp_slash(wp_json_encode($decoded['content']));
+                    $elements = $decoded['content'];
+                    if (!empty($decoded['type'])) {
+                        $doc_type = sanitize_key($decoded['type']);
+                    }
                 } elseif (is_array($decoded)) {
-                    return wp_slash(wp_json_encode($decoded));
+                    $elements = $decoded;
                 }
+
+                if (!is_array($elements)) {
+                    continue;
+                }
+
+                $meta_out = [
+                    'template_type'    => $doc_type,
+                    'required_widgets' => [],
+                    'missing_widgets'  => [],
+                    'relinked_media'   => 0,
+                    'adapted_for_free' => false,
+                ];
+
+                if (class_exists('\UniversalElementorSuite\Template_Importer')) {
+                    if (!defined('ELEMENTOR_PRO_VERSION')) {
+                        $adapted = \UniversalElementorSuite\Template_Importer::adapt_pro_widgets_for_free($elements);
+                        $meta_out['adapted_for_free'] = $adapted > 0;
+                    }
+                    $dep = \UniversalElementorSuite\Template_Importer::validate_template_widget_dependencies($elements);
+                    $meta_out['required_widgets'] = $dep['required_widgets'] ?? [];
+                    $meta_out['missing_widgets']  = $dep['missing_widgets'] ?? [];
+                    $meta_out['relinked_media']   = \UniversalElementorSuite\Template_Importer::relink_template_media($elements);
+                }
+
+                return wp_slash(wp_json_encode($elements));
             }
         }
 
@@ -494,23 +578,31 @@ class SedRazavi_Demo_Importer {
     }
 
     /**
-     * Inject Elementor metadata into a post
+     * Inject Elementor metadata into a post safely (compatible with active or inactive Elementor)
      */
-    public function inject_elementor_metadata($post_id, $template_slug = '', $elementor_data = null) {
+    public function inject_elementor_metadata($post_id, $template_slug = '', $elementor_data = null, $demo_id = '', $meta_out = []) {
         if ($elementor_data === null) {
-            $elementor_data = $this->resolve_template_json_data($template_slug);
+            $elementor_data = $this->resolve_template_json_data($template_slug, $meta_out);
         }
 
+        $has_elementor = class_exists('\Elementor\Plugin') || did_action('elementor/loaded');
         update_post_meta($post_id, '_elementor_edit_mode', 'builder');
-        update_post_meta($post_id, '_elementor_template_type', 'wp-page');
-        update_post_meta($post_id, '_elementor_version', defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : '3.20.0');
-        update_post_meta($post_id, '_wp_page_template', 'elementor_header_footer');
+        update_post_meta($post_id, '_elementor_template_type', $meta_out['template_type'] ?? 'wp-page');
+        update_post_meta($post_id, '_elementor_version', defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : '3.24.0');
+        update_post_meta($post_id, '_wp_page_template', $has_elementor ? 'elementor_header_footer' : 'default');
+        update_post_meta($post_id, '_uas_template_slug', sanitize_key($template_slug));
 
+        if (!empty($demo_id)) {
+            update_post_meta($post_id, '_uas_imported_demo_id', sanitize_key($demo_id));
+        }
+        if (!empty($meta_out['required_widgets'])) {
+            update_post_meta($post_id, '_uas_required_widgets', $meta_out['required_widgets']);
+        }
         if (!empty($elementor_data)) {
             update_post_meta($post_id, '_elementor_data', $elementor_data);
         }
 
-        if (class_exists('\Elementor\Plugin')) {
+        if (class_exists('\Elementor\Plugin') && isset(\Elementor\Plugin::$instance->files_manager)) {
             \Elementor\Plugin::$instance->files_manager->clear_cache();
         }
     }

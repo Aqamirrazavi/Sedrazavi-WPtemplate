@@ -199,6 +199,9 @@ class Settings_Sync {
     }
 
     public static function maybe_sync_kit() {
+        if (!class_exists('\Elementor\Plugin')) {
+            return;
+        }
         if (!get_option('sedrazavi_kit_synced', false)) {
             self::sync_elementor_kit();
             update_option('sedrazavi_kit_synced', true);
@@ -206,6 +209,9 @@ class Settings_Sync {
     }
 
     public static function sync_elementor_kit($custom_payload = null) {
+        if (!class_exists('\Elementor\Plugin')) {
+            return;
+        }
         $active_kit_id = get_option('elementor_active_kit');
         if (!$active_kit_id) {
             return;
@@ -251,7 +257,39 @@ class Settings_Sync {
             ],
         ];
 
-        // Container default padding
+        // Semantic Custom Swatches for Designer Ecosystem
+        $kit_settings['custom_colors'] = [
+            ['_id' => 'sr_surface', 'title' => __('سطح کارت (Surface)', 'sedrazavi-designer-core'), 'color' => '#0F172A'],
+            ['_id' => 'sr_gold', 'title' => __('طلایی سلطنتی (Gold Accent)', 'sedrazavi-designer-core'), 'color' => '#D4AF37'],
+            ['_id' => 'sr_muted', 'title' => __('متن فرعی (Muted)', 'sedrazavi-designer-core'), 'color' => '#94A3B8'],
+        ];
+
+        // Global Typography (Vazirmatn SSOT)
+        if (empty($kit_settings['system_typography'])) {
+            $kit_settings['system_typography'] = [
+                [
+                    '_id'                     => 'primary',
+                    'title'                   => __('سرتیتر اصلی (Primary)', 'sedrazavi-designer-core'),
+                    'typography_typography'   => 'custom',
+                    'typography_font_family'  => 'Vazirmatn',
+                    'typography_font_weight'  => '800',
+                    'typography_font_size'    => ['unit' => 'px', 'size' => 36],
+                ],
+                [
+                    '_id'                     => 'text',
+                    'title'                   => __('متن بدنه (Body Text)', 'sedrazavi-designer-core'),
+                    'typography_typography'   => 'custom',
+                    'typography_font_family'  => 'Vazirmatn',
+                    'typography_font_weight'  => '400',
+                    'typography_font_size'    => ['unit' => 'px', 'size' => 16],
+                ],
+            ];
+        }
+
+        // Container default width & padding
+        if (empty($kit_settings['container_width'])) {
+            $kit_settings['container_width'] = ['unit' => 'px', 'size' => 1280, 'sizes' => []];
+        }
         $kit_settings['container_padding'] = [
             'unit'     => 'px',
             'top'      => '0',

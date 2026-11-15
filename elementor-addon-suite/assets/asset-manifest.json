@@ -1,0 +1,66 @@
+{
+  "manifest_version": "2.0.0",
+  "package": "universal-elementor-suite",
+  "scopes": {
+    "frontend": {
+      "styles": [
+        { "handle": "uas-design-tokens", "path": "assets/css/variables.css", "deps": [], "conditional": true },
+        { "handle": "uas-widgets-core", "path": "assets/css/widgets-core.css", "deps": ["uas-design-tokens"], "conditional": true },
+        { "handle": "uas-banner-slider-css", "path": "assets/css/widgets/banner-slider.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-bento-tabs-css", "path": "assets/css/widgets/bento-tabs.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-contact-booking-css", "path": "assets/css/widgets/contact-booking.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-cta-css", "path": "assets/css/widgets/cta.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-dynamic-grid-css", "path": "assets/css/widgets/dynamic-grid.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-faq-css", "path": "assets/css/widgets/faq.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-floating-cta-css", "path": "assets/css/widgets/floating-cta.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-floating-dock-css", "path": "assets/css/widgets/floating-dock.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-hero-css", "path": "assets/css/widgets/hero.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-hero-split-css", "path": "assets/css/widgets/hero-split.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-posts-css", "path": "assets/css/widgets/posts.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-pricing-matrix-css", "path": "assets/css/widgets/pricing-matrix.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-services-grid-css", "path": "assets/css/widgets/services-grid.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-stat-counter-css", "path": "assets/css/widgets/stat-counter.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-story-bar-css", "path": "assets/css/widgets/story-bar.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-team-css", "path": "assets/css/widgets/team.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-testimonials-css", "path": "assets/css/widgets/testimonials.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-theme-toggle-css", "path": "assets/css/widgets/theme-toggle.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-video-css", "path": "assets/css/widgets/video.css", "deps": ["uas-widgets-core"], "conditional": true },
+        { "handle": "uas-standalone-blocks", "path": "assets/css/standalone-blocks.css", "deps": [], "conditional": true },
+        { "handle": "uas-ecommerce-compat", "path": "assets/css/ecommerce-compat.css", "deps": [], "conditional": true }
+      ],
+      "scripts": [
+        { "handle": "uas-widgets-core", "path": "assets/js/widgets-core.js", "deps": ["jquery"], "in_footer": true, "conditional": true, "localize": "uasFrontendConfig" },
+        { "handle": "uas-before-after-js", "path": "assets/js/widgets/before-after.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-bento-tabs-js", "path": "assets/js/widgets/bento-tabs.js", "deps": ["uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-faq-js", "path": "assets/js/widgets/faq.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-floating-cta-js", "path": "assets/js/widgets/floating-cta.js", "deps": ["uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-floating-dock-js", "path": "assets/js/widgets/floating-dock.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-fomo-countdown-js", "path": "assets/js/widgets/fomo-countdown.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-hero-split-js", "path": "assets/js/widgets/hero-split.js", "deps": ["uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-pricing-matrix-js", "path": "assets/js/widgets/pricing-matrix.js", "deps": ["uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-pricing-switcher-js", "path": "assets/js/widgets/pricing-switcher.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-stat-counter-js", "path": "assets/js/widgets/stat-counter.js", "deps": ["uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-story-bar-js", "path": "assets/js/widgets/story-bar.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-theme-toggle-js", "path": "assets/js/widgets/theme-toggle.js", "deps": ["jquery", "uas-widgets-core"], "in_footer": true, "conditional": true },
+        { "handle": "uas-standalone-blocks-js", "path": "assets/js/standalone-blocks.js", "deps": ["jquery"], "in_footer": true, "conditional": true, "localize": "uasFrontendConfig" },
+        { "handle": "uas-industry-blocks-js", "path": "assets/js/industry-blocks.js", "deps": [], "in_footer": true, "conditional": true, "localize": "uasIndustryConfig" }
+      ]
+    },
+    "editor": {
+      "styles": [
+        { "handle": "uas-design-tokens", "path": "assets/css/variables.css", "deps": [], "conditional": false },
+        { "handle": "uas-editor-styles", "path": "assets/css/editor.css", "deps": ["uas-design-tokens"], "conditional": false }
+      ],
+      "scripts": []
+    },
+    "admin": {
+      "styles": [
+        { "handle": "uas-admin-settings-css", "path": "assets/css/admin-settings.css", "deps": [], "conditional": true },
+        { "handle": "uas-github-admin-css", "path": "assets/css/github-admin.css", "deps": [], "conditional": true }
+      ],
+      "scripts": [
+        { "handle": "uas-admin-settings-js", "path": "assets/js/admin-settings.js", "deps": ["jquery"], "in_footer": true, "conditional": true, "localize": "uasAdminVars" }
+      ]
+    }
+  }
+}

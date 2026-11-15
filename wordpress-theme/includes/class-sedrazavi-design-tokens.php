@@ -18,6 +18,7 @@ class SedRazavi_Design_Tokens {
 
     public static function init() {
         add_action('wp_head', [__CLASS__, 'inject_css_variables'], 5);
+        add_action('elementor/editor/after_enqueue_styles', [__CLASS__, 'inject_css_variables'], 25);
         add_action('rest_api_init', [__CLASS__, 'register_token_routes']);
     }
 
@@ -81,6 +82,8 @@ class SedRazavi_Design_Tokens {
         echo ':root {' . PHP_EOL;
         echo '  --color-gold-primary: ' . esc_attr($tokens['brand.color_gold']) . ';' . PHP_EOL;
         echo '  --color-navy-dark: ' . esc_attr($tokens['brand.color_navy']) . ';' . PHP_EOL;
+        echo '  --uas-accent-color: ' . esc_attr($tokens['brand.color_gold']) . ';' . PHP_EOL;
+        echo '  --uas-secondary-color: ' . esc_attr($tokens['brand.color_navy']) . ';' . PHP_EOL;
         echo '  --lawyer-name: "' . esc_attr($tokens['lawyer.name']) . '";' . PHP_EOL;
         echo '  --lawyer-phone: "' . esc_attr($tokens['contact.phone']) . '";' . PHP_EOL;
         echo '  --lawyer-hours: "' . esc_attr($tokens['contact.hours']) . '";' . PHP_EOL;
@@ -126,9 +129,13 @@ class SedRazavi_Design_Tokens {
 
         update_option(self::OPTION_KEY, $tokens);
 
+        if (class_exists('\UniversalElementorSuite\Design_Tokens')) {
+            \UniversalElementorSuite\Design_Tokens::instance()->sync_to_elementor_kit(true);
+        }
+
         return rest_ensure_response([
             'success' => true,
-            'message' => 'متغیرهای سراسری قالب با موفقیت ذخیره شدند.',
+            'message' => 'متغیرهای سراسری قالب با موفقیت ذخیره شدند و با کیت المنتور همگام شدند.',
             'tokens'  => $tokens,
         ]);
     }

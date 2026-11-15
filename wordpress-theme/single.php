@@ -17,17 +17,18 @@ if ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_loca
 
 get_header();
 
-// 2. Direct Elementor Builder Mode Support (if designed directly with Elementor)
+// 2. Direct Elementor Builder Mode Support (only when Elementor plugin is active)
 $is_elementor_post = false;
-if ( is_singular() ) {
-    $mode = get_post_meta( get_the_ID(), '_elementor_edit_mode', true );
-    if ( $mode === 'builder' ) {
+if (is_singular() && did_action('elementor/loaded') && class_exists('\Elementor\Plugin')) {
+    $mode = get_post_meta(get_the_ID(), '_elementor_edit_mode', true);
+    $data = get_post_meta(get_the_ID(), '_elementor_data', true);
+    if ($mode === 'builder' && !empty($data)) {
         $is_elementor_post = true;
     }
 }
 
-if ( $is_elementor_post ) :
-    while ( have_posts() ) : the_post();
+if ($is_elementor_post) :
+    while (have_posts()) : the_post();
         the_content();
     endwhile;
     get_footer();
