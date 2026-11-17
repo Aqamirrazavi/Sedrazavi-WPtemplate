@@ -159,6 +159,27 @@ class Sovereign_Motion_Presets {
             pointer-events: none;
         }
         .sz-hover-gold-flare:hover::after { opacity: 1; transform: scale(1); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .sz-motion-active,
+            .sz-anim-gold-glow,
+            .sz-anim-float-slow,
+            .sz-anim-shimmer-gold,
+            .sz-anim-pulse-emerald,
+            .sz-anim-rotate-orb,
+            .sz-anim-fade-up-spring,
+            .sz-anim-holo-glow {
+                animation: none !important;
+                transform: none !important;
+            }
+            .sz-hover-lift,
+            .sz-hover-lift:hover,
+            .sz-hover-gold-flare,
+            .sz-hover-gold-flare::after {
+                transition: none !important;
+                transform: none !important;
+            }
+        }
         ';
     }
 

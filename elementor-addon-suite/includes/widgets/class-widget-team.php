@@ -86,13 +86,16 @@ class Universal_Team_Widget extends Universal_Widget_Base {
             ]
         );
 
+        $default_avatar = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/client-avatar.svg' : '';
+
         $repeater->add_control(
             'photo',
             [
                 'label'   => esc_html__('تصویر چهره', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300',
+                    'url'    => $default_avatar,
+                    'source' => 'sovereign_local',
                 ],
             ]
         );
@@ -108,19 +111,19 @@ class Universal_Team_Widget extends Universal_Widget_Base {
                         'name'  => esc_html__('دکتر سارا شمس', 'universal-elementor-suite'),
                         'role'  => esc_html__('مدیر ارشد محصول و استراتژیست', 'universal-elementor-suite'),
                         'bio'   => esc_html__('بیش از ۱۲ سال تجربه در رهبری تیم‌های فنی و هدایت پروژه‌های بین‌المللی مقیاس‌پذیر.', 'universal-elementor-suite'),
-                        'photo' => ['url' => 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300'],
+                        'photo' => ['url' => $default_avatar, 'source' => 'sovereign_local'],
                     ],
                     [
                         'name'  => esc_html__('مهندس رضا علوی', 'universal-elementor-suite'),
                         'role'  => esc_html__('راهبر ارشد معماری سیستم', 'universal-elementor-suite'),
                         'bio'   => esc_html__('متخصص طراحی پایگاه‌های داده توزیع‌شده، امنیت سایبری و بهینه‌سازی زیرساخت‌های ابری.', 'universal-elementor-suite'),
-                        'photo' => ['url' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300'],
+                        'photo' => ['url' => $default_avatar, 'source' => 'sovereign_local'],
                     ],
                     [
                         'name'  => esc_html__('رویا معتمدی', 'universal-elementor-suite'),
                         'role'  => esc_html__('مدیر ارتباط با مشتریان و توسعه بازار', 'universal-elementor-suite'),
                         'bio'   => esc_html__('دارای سوابق درخشان در تدوین راهبردهای افزایش رضایت ذی‌نفعان و گسترش بازارهای صادراتی.', 'universal-elementor-suite'),
-                        'photo' => ['url' => 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=300'],
+                        'photo' => ['url' => $default_avatar, 'source' => 'sovereign_local'],
                     ],
                 ],
                 'title_field' => '{{{ name }}} ({{{ role }}})',
@@ -132,13 +135,17 @@ class Universal_Team_Widget extends Universal_Widget_Base {
 
     protected function render() {
         $settings = $this->get_settings_for_display();
+        $dir      = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
+        $fallback = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/client-avatar.svg' : '';
         ?>
-        <div class="uas-team-wrapper uas-widget-container" dir="rtl">
+        <div class="uas-team-wrapper uas-widget-container" dir="<?php echo esc_attr($dir); ?>">
             <div class="uas-team-grid">
-                <?php foreach ($settings['team_list'] as $item) : ?>
+                <?php foreach ($settings['team_list'] as $item) :
+                    $photo_url = !empty($item['photo']['url']) ? $item['photo']['url'] : $fallback;
+                ?>
                     <div class="uas-team-card">
-                        <?php if (!empty($item['photo']['url'])) : ?>
-                            <img src="<?php echo esc_url($item['photo']['url']); ?>" alt="<?php echo esc_attr($item['name']); ?>" class="uas-team-photo" loading="lazy" />
+                        <?php if (!empty($photo_url)) : ?>
+                            <img src="<?php echo esc_url($photo_url); ?>" alt="<?php echo esc_attr($item['name']); ?>" class="uas-team-photo" loading="lazy" decoding="async" />
                         <?php endif; ?>
                         <h3 class="uas-team-name"><?php echo esc_html($item['name']); ?></h3>
                         <span class="uas-team-role"><?php echo esc_html($item['role']); ?></span>

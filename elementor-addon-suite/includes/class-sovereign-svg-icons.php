@@ -66,6 +66,8 @@ class Sovereign_Svg_Icons {
         $custom_class = esc_attr($atts['class']);
         $stroke = esc_attr($atts['stroke']);
 
+        $clean_path = self::sanitize_svg_markup($icon['path']);
+
         return sprintf(
             '<span class="sr-svg-icon sr-icon-%1$s %2$s" style="display:inline-flex;align-items:center;justify-content:center;color:%3$s;" aria-label="%4$s"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="%5$d" height="%5$d" viewBox="%6$s" fill="none" stroke="currentColor" stroke-width="%7$s" stroke-linecap="round" stroke-linejoin="round">%8$s</svg></span>',
             esc_attr($name),
@@ -75,8 +77,44 @@ class Sovereign_Svg_Icons {
             $size,
             esc_attr($icon['viewBox']),
             $stroke,
-            $icon['path']
+            $clean_path
         );
+    }
+
+    /**
+     * Strict SVG Markup Sanitizer (Phase 9 Security Policy):
+     * Strips executable tags, inline event attributes, and dangerous URIs.
+     *
+     * @param string $raw_svg Raw SVG XML/path fragment
+     * @return string Sanitized safe SVG markup
+     */
+    public static function sanitize_svg_markup($raw_svg) {
+        $svg = (string) $raw_svg;
+        // 1. Strip dangerous elements (<script>, <foreignObject>, <iframe>, <object>, <embed>)
+        $svg = preg_replace('/<\s*(script|foreignObject|iframe|object|embed|style|meta)\b[^>]*>[\s\S]*?<\/\s*\1\s*>/i', '', $svg);
+        $svg = preg_replace('/<\s*(script|foreignObject|iframe|object|embed)\b[^>]*\/?>/i', '', $svg);
+        // 2. Strip inline event handlers (on*) and javascript:/data:text/html URIs
+        $svg = preg_replace('/\son[a-z]+\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $svg);
+        $svg = preg_replace('/(?:javascript|vbscript|data\s*:\s*text\/html)\s*:/i', '', $svg);
+
+        if (function_exists('wp_kses')) {
+            $svg = wp_kses($svg, [
+                'svg'            => ['xmlns' => true, 'width' => true, 'height' => true, 'viewbox' => true, 'viewBox' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true, 'aria-hidden' => true, 'class' => true],
+                'g'              => ['fill' => true, 'stroke' => true, 'transform' => true, 'opacity' => true, 'class' => true],
+                'path'           => ['d' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'opacity' => true],
+                'circle'         => ['cx' => true, 'cy' => true, 'r' => true, 'fill' => true, 'stroke' => true],
+                'rect'           => ['x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'ry' => true, 'fill' => true, 'stroke' => true],
+                'line'           => ['x1' => true, 'y1' => true, 'x2' => true, 'y2' => true, 'stroke' => true],
+                'polyline'       => ['points' => true, 'fill' => true, 'stroke' => true],
+                'polygon'        => ['points' => true, 'fill' => true, 'stroke' => true],
+                'defs'           => [],
+                'lineargradient' => ['id' => true, 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true],
+                'stop'           => ['offset' => true, 'stop-color' => true, 'stop-opacity' => true],
+                'title'          => [],
+            ]);
+        }
+
+        return $svg;
     }
 
     public function get_icons_catalog() {

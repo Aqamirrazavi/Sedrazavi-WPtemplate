@@ -65,3 +65,51 @@ add_action('sedrazavi_after_booking_created', function($booking_id) {
     }
 });
 
+// 7. Contact Form 7 & Intake Notification Adapter Bridge (Guarded)
+if (defined('WPCF7_VERSION') || class_exists('WPCF7_ContactForm')) {
+    add_action('wpcf7_mail_sent', function($contact_form) {
+        if (is_object($contact_form) && method_exists($contact_form, 'id')) {
+            do_action('sedrazavi_after_external_form_sent', 'cf7', (int) $contact_form->id());
+        }
+    });
+}
+
+add_action('sedrazavi_after_intake_submitted', function($ref_code, $topic, $urgency) {
+    if (class_exists('SedRazavi_Notification_Router')) {
+        $router = SedRazavi_Notification_Router::get_instance();
+        if (method_exists($router, 'dispatch_event')) {
+            $router->dispatch_event('legal_intake_received', [
+                'reference_code' => sanitize_text_field((string) $ref_code),
+                'topic'          => sanitize_text_field((string) $topic),
+                'urgency'        => sanitize_key((string) $urgency),
+            ]);
+        }
+    }
+}, 10, 3);
+
+// 8. WPML / Polylang Multilingual & RTL Locale Adapter
+if (!function_exists('sedrazavi_get_multilingual_locale_meta')) {
+    function sedrazavi_get_multilingual_locale_meta() {
+        $lang = function_exists('pll_current_language')
+            ? (string) pll_current_language('slug')
+            : (defined('ICL_LANGUAGE_CODE') ? (string) ICL_LANGUAGE_CODE : substr((string) get_locale(), 0, 2));
+        return [
+            'lang'   => sanitize_key($lang ?: 'fa'),
+            'dir'    => is_rtl() ? 'rtl' : 'ltr',
+            'plugin' => function_exists('pll_current_language') ? 'polylang' : (defined('ICL_SITEPRESS_VERSION') ? 'wpml' : 'core'),
+        ];
+    }
+}
+
+// 9. WooCommerce HPOS (High-Performance Order Storage) Status Adapter
+if (!function_exists('sedrazavi_is_wc_hpos_active')) {
+    function sedrazavi_is_wc_hpos_active() {
+        if (!class_exists('WooCommerce')) {
+            return false;
+        }
+        if (class_exists('\Automattic\WooCommerce\Utilities\OrderUtil') && method_exists('\Automattic\WooCommerce\Utilities\OrderUtil', 'custom_orders_table_usage_is_enabled')) {
+            return (bool) \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+        }
+        return get_option('woocommerce_custom_orders_table_enabled') === 'yes';
+    }
+}

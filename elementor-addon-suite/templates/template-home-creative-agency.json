@@ -41,6 +41,13 @@
             "secondary_btn_url": {
               "url": "#contact",
               "is_external": false
+            },
+            "hero_preset": "split-executive",
+            "title_tag": "h1",
+            "show_media": "yes",
+            "hero_image": {
+              "url": "",
+              "source": "sovereign_local"
             }
           }
         }
@@ -65,12 +72,24 @@
       },
       "elements": [
         {
+          "id": "uas_wid_agency_portfolio_heading",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "ویترین دستاوردها و یادداشت‌های تخصصی",
+            "header_size": "h2",
+            "align": "right"
+          }
+        },
+        {
           "id": "uas_wid_agency_portfolio",
           "elType": "widget",
           "widgetType": "uas_posts_grid",
           "settings": {
-            "title": "ویترین دستاوردها و نمونه‌کارهای شاخص",
-            "subtitle": "نگاهی به منتخبی از تجارب موفق طراحی محصول و نرم‌افزار"
+            "posts_per_page": 3,
+            "columns": "3",
+            "show_date": "yes",
+            "read_more_text": "مطالعه ادامه مقاله ←"
           }
         }
       ]
@@ -99,10 +118,10 @@
           "widgetType": "uas_cta",
           "settings": {
             "title": "آماده‌اید پروژه بعدی خود را متحول کنید؟",
-            "subtitle": "همین امروز با مشاوران ارشد طراحی ما تماس بگیرید و مشاوره اولیه رایگان دریافت کنید.",
+            "description": "همین امروز با مشاوران ارشد طراحی ما تماس بگیرید و مشاوره اولیه رایگان دریافت کنید.",
             "button_text": "شروع همکاری حرفه‌ای",
             "button_url": {
-              "url": "#contact"
+              "url": "/contact/"
             }
           }
         }

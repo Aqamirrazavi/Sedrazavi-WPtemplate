@@ -52,10 +52,12 @@ class Universal_Video_Widget extends Universal_Widget_Base {
             [
                 'label'       => esc_html__('لینک ویدیو (آپارات، یوتیوب، MP4)', 'universal-elementor-suite'),
                 'type'        => Controls_Manager::URL,
-                'placeholder' => 'https://www.youtube.com/watch?v=...',
-                'default'     => ['url' => 'https://www.w3schools.com/html/mov_bbb.mp4'],
+                'placeholder' => 'https://example.com/media/intro.mp4',
+                'default'     => ['url' => ''],
             ]
         );
+
+        $default_poster = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '';
 
         $this->add_control(
             'poster_image',
@@ -63,7 +65,8 @@ class Universal_Video_Widget extends Universal_Widget_Base {
                 'label'   => esc_html__('تصویر پوستر ویدیو', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800',
+                    'url'    => $default_poster,
+                    'source' => 'sovereign_local',
                 ],
             ]
         );
@@ -72,18 +75,32 @@ class Universal_Video_Widget extends Universal_Widget_Base {
     }
 
     protected function render() {
-        $settings = $this->get_settings_for_display();
-        $video_url = $settings['video_url']['url'] ?? '#';
+        $settings   = $this->get_settings_for_display();
+        $video_url  = $settings['video_url']['url'] ?? '';
+        $poster_url = !empty($settings['poster_image']['url'])
+            ? $settings['poster_image']['url']
+            : (defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '');
+        $dir        = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
+        $title      = $settings['video_title'] ?? '';
         ?>
-        <div class="uas-video-wrapper uas-widget-container" dir="rtl">
-            <a href="<?php echo esc_url($video_url); ?>" target="_blank" rel="noopener noreferrer" class="uas-video-poster-box">
-                <?php if (!empty($settings['poster_image']['url'])) : ?>
-                    <img src="<?php echo esc_url($settings['poster_image']['url']); ?>" alt="<?php echo esc_attr($settings['video_title']); ?>" class="uas-video-poster-img" loading="lazy" />
-                <?php endif; ?>
-                <div class="uas-video-play-btn">▶</div>
-            </a>
-            <?php if (!empty($settings['video_title'])) : ?>
-                <div class="uas-video-caption"><?php echo esc_html($settings['video_title']); ?></div>
+        <div class="uas-video-wrapper uas-widget-container" dir="<?php echo esc_attr($dir); ?>">
+            <?php if (!empty($video_url)) : ?>
+                <a href="<?php echo esc_url($video_url); ?>" target="_blank" rel="noopener noreferrer" class="uas-video-poster-box" aria-label="<?php echo esc_attr($title ?: esc_html__('پخش ویدیو', 'universal-elementor-suite')); ?>">
+                    <?php if (!empty($poster_url)) : ?>
+                        <img src="<?php echo esc_url($poster_url); ?>" alt="<?php echo esc_attr($title); ?>" class="uas-video-poster-img" loading="lazy" decoding="async" />
+                    <?php endif; ?>
+                    <div class="uas-video-play-btn" aria-hidden="true">▶</div>
+                </a>
+            <?php else : ?>
+                <div class="uas-video-poster-box" role="region" aria-label="<?php echo esc_attr($title ?: esc_html__('پیش‌نمایش ویدیو', 'universal-elementor-suite')); ?>">
+                    <?php if (!empty($poster_url)) : ?>
+                        <img src="<?php echo esc_url($poster_url); ?>" alt="<?php echo esc_attr($title); ?>" class="uas-video-poster-img" loading="lazy" decoding="async" />
+                    <?php endif; ?>
+                    <div class="uas-video-play-btn" aria-hidden="true">▶</div>
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($title)) : ?>
+                <div class="uas-video-caption"><?php echo esc_html($title); ?></div>
             <?php endif; ?>
         </div>
         <?php

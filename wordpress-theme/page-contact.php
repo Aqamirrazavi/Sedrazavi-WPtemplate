@@ -8,6 +8,11 @@
  */
 
 if (!defined('ABSPATH')) exit;
+
+if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content('template-contact-booking-split')) {
+    return;
+}
+
 get_header();
 ?>
 

@@ -17,30 +17,46 @@
         },
         "background_background": "classic",
         "background_color": "#070D1E",
-        "content_width": "full",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 24
+        }
       },
       "elements": [
         {
-          "id": "uas_wid_single_video_hero",
+          "id": "uas_wid_single_video_player",
           "elType": "widget",
-          "widgetType": "uas_hero",
+          "widgetType": "uas_video",
           "settings": {
-            "badge_text": "🎬 سینما پلیر و دانلود چندکیفیتی",
-            "hero_title": "پخش برخط سخنرانی همراه با فصول زمانی و جزوه PDF",
-            "hero_desc": "امکان دریافت فایل در ۴ کیفیت (1080p, 720p, صوت MP3 و خلاصه متنی جزوه).",
-            "primary_btn_text": "پخش کیفیت ۱۰۸۰p",
-            "primary_btn_url": {
+            "video_title": "پخش برخط سخنرانی و تحلیل کاربردی با پوستر اختصاصی",
+            "video_url": {
               "url": "#cinema-player",
               "is_external": false
             },
-            "secondary_btn_text": "فهرست فصول و سرفصل‌ها",
-            "secondary_btn_url": {
-              "url": "#chapters",
-              "is_external": false
+            "poster_image": {
+              "url": "hero-showcase.svg",
+              "source": "sovereign_local"
             }
+          }
+        },
+        {
+          "id": "uas_wid_single_video_download",
+          "elType": "widget",
+          "widgetType": "uas_download_box",
+          "settings": {
+            "box_title": "دانلود بسته کامل فایل ویدیویی، صوت MP3 و جزوه PDF",
+            "version": "v6.0.0",
+            "filesize": "۴۸ مگابایت",
+            "os": "windows,mac,linux,android",
+            "password": "www.example.com",
+            "direct_url": "#download-direct-server-1",
+            "mirror_url": "#download-mirror-server-2",
+            "box_bg_color": "#0f172a",
+            "primary_accent_color": "#2563eb"
           }
         }
       ]

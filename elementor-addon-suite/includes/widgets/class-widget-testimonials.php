@@ -107,13 +107,16 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
             ]
         );
 
+        $default_avatar = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/client-avatar.svg' : '';
+
         $repeater->add_control(
             'avatar',
             [
                 'label'   => esc_html__('تصویر چهره یا لوگو', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
+                    'url'    => $default_avatar,
+                    'source' => 'sovereign_local',
                 ],
             ]
         );
@@ -130,14 +133,14 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
                         'author_role' => esc_html__('مدیر ارشد نوآوری گروه آروین', 'universal-elementor-suite'),
                         'review_text' => esc_html__('همکاری با این مجموعه یکی از بهترین تصمیمات توسعه تجاری ما بود. سرعت پیاده‌سازی و کیفیت خروجی فراتر از انتظار ظاهر شد.', 'universal-elementor-suite'),
                         'rating'      => '5',
-                        'avatar'      => ['url' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'],
+                        'avatar'      => ['url' => $default_avatar, 'source' => 'sovereign_local'],
                     ],
                     [
                         'author_name' => esc_html__('دکتر امیرحسین رضایی', 'universal-elementor-suite'),
                         'author_role' => esc_html__('مدیرعامل هلدینگ پایا', 'universal-elementor-suite'),
                         'review_text' => esc_html__('سطح حرفه‌ای‌گری، شفافیت در ارائه گزارش‌های پیشرفت و تسلط تیم بر استانداردهای روز، اطمینان خاطر کامل را برای ما به ارمغان آورد.', 'universal-elementor-suite'),
                         'rating'      => '5',
-                        'avatar'      => ['url' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'],
+                        'avatar'      => ['url' => $default_avatar, 'source' => 'sovereign_local'],
                     ],
                 ],
                 'title_field' => '{{{ author_name }}} - {{{ author_role }}}',
@@ -201,24 +204,28 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
 
     protected function render() {
         $settings = $this->get_settings_for_display();
+        $dir      = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
+        $fallback = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/client-avatar.svg' : '';
         ?>
-        <div class="uas-testimonials-wrapper uas-widget-container" dir="rtl">
+        <div class="uas-testimonials-wrapper uas-widget-container" dir="<?php echo esc_attr($dir); ?>">
             <div class="uas-testimonials-grid">
-                <?php foreach ($settings['testimonials_list'] as $item) : ?>
+                <?php foreach ($settings['testimonials_list'] as $item) :
+                    $stars = intval($item['rating'] ?? 5);
+                    $avatar_url = !empty($item['avatar']['url']) ? $item['avatar']['url'] : $fallback;
+                ?>
                     <div class="uas-testimonial-card">
-                        <div class="uas-testimonial-quote-icon">❝</div>
+                        <div class="uas-testimonial-quote-icon" aria-hidden="true">❝</div>
                         <p class="uas-testimonial-text"><?php echo esc_html($item['review_text']); ?></p>
 
-                        <div class="uas-testimonial-rating">
+                        <div class="uas-testimonial-rating" aria-label="<?php echo esc_attr(sprintf('%d از ۵ ستاره', $stars)); ?>">
                             <?php
-                            $stars = intval($item['rating'] ?? 5);
                             echo str_repeat('★', $stars) . str_repeat('☆', 5 - $stars);
                             ?>
                         </div>
 
                         <div class="uas-testimonial-author">
-                            <?php if (!empty($item['avatar']['url'])) : ?>
-                                <img src="<?php echo esc_url($item['avatar']['url']); ?>" alt="<?php echo esc_attr($item['author_name']); ?>" class="uas-testimonial-avatar" loading="lazy" />
+                            <?php if (!empty($avatar_url)) : ?>
+                                <img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr($item['author_name']); ?>" class="uas-testimonial-avatar" loading="lazy" decoding="async" />
                             <?php endif; ?>
                             <div class="uas-testimonial-meta">
                                 <h4 class="uas-testimonial-name"><?php echo esc_html($item['author_name']); ?></h4>

@@ -5085,6 +5085,10 @@ body.dark-mode {
   cursor: pointer;
   flex-shrink: 0;
   text-align: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-family: inherit;
 }
 
 .uas-story-ring {
@@ -6240,7 +6244,10 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
         if (!fb) return;
         var nameInput = form.querySelector('input[name="full_name"]');
         var phoneInput = form.querySelector('input[name="phone"]');
+        var serviceSelect = form.querySelector('select[name="service_type"]');
         var detailsInput = form.querySelector('textarea[name="details"], textarea[name="message"], input[name="subject"]');
+        var trapInput = form.querySelector('input[name="sr_website_trap"]');
+        var consentInput = form.querySelector('input[name="privacy_consent"]');
         var submitBtn = form.querySelector('button[type="submit"]');
 
         if (!nameInput || !nameInput.value.trim() || !phoneInput || !phoneInput.value.trim()) {
@@ -6252,13 +6259,42 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
           return;
         }
 
+        if (consentInput && !consentInput.checked) {
+          fb.style.display = 'block';
+          fb.style.background = 'rgba(239,68,68,0.12)';
+          fb.style.border = '1px solid #ef4444';
+          fb.style.color = '#fca5a5';
+          fb.textContent = 'تایید شرایط محرمانگی و حریم خصوصی برای ثبت درخواست الزامی است.';
+          return;
+        }
+
         var cfg = window.uasFrontendConfig || {};
-        var endpoint = (cfg.restUrl || '/wp-json/sedrazavi/v1/').replace(/\\/+$/, '') + '/inquiry/submit';
+        var submitMode = form.dataset.submitMode === 'legal_intake' ? 'legal_intake' : 'inquiry';
+        var routeSuffix = submitMode === 'legal_intake' ? '/intake/submit' : '/inquiry/submit';
+        var endpoint = (cfg.restUrl || '/wp-json/sedrazavi/v1/').replace(/\\/+$/, '') + routeSuffix;
         var origText = submitBtn ? submitBtn.textContent : '';
         if (submitBtn) {
           submitBtn.disabled = true;
           submitBtn.textContent = 'در حال ارسال...';
         }
+
+        var payload = submitMode === 'legal_intake'
+          ? {
+              name: nameInput.value.trim(),
+              phone: phoneInput.value.trim(),
+              topic: serviceSelect ? serviceSelect.value : 'general',
+              details: detailsInput ? detailsInput.value.trim() : '',
+              privacy_consent: consentInput ? consentInput.checked : true,
+              sr_website_trap: trapInput ? trapInput.value : ''
+            }
+          : {
+              full_name: nameInput.value.trim(),
+              phone: phoneInput.value.trim(),
+              service_type: serviceSelect ? serviceSelect.value : 'elementor_contact_booking',
+              details: detailsInput ? detailsInput.value.trim() : '',
+              privacy_consent: consentInput ? consentInput.checked : true,
+              sr_website_trap: trapInput ? trapInput.value : ''
+            };
 
         fetch(endpoint, {
           method: 'POST',
@@ -6267,12 +6303,7 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
             'Content-Type': 'application/json',
             'X-WP-Nonce': cfg.restNonce || ''
           },
-          body: JSON.stringify({
-            full_name: nameInput.value.trim(),
-            phone: phoneInput.value.trim(),
-            service_type: 'elementor_contact_booking',
-            details: detailsInput ? detailsInput.value.trim() : ''
-          })
+          body: JSON.stringify(payload)
         })
           .then(function (res) {
             return res.json().then(function (data) {
@@ -6280,14 +6311,16 @@ R:�����{�r�&����	�̻��Ȍ]�Jj��2e��eE�
             });
           })
           .then(function (result) {
-            if (!result.ok || !result.data || !result.data.success) {
+            var isOk = result.ok && result.data && (result.data.success || result.data.status === 'success');
+            if (!isOk) {
               throw new Error((result.data && result.data.message) || 'ثبت درخواست در سرور با خطا مواجه شد.');
             }
+            var refCode = result.data.tracking_code || result.data.reference_code || '';
             fb.style.display = 'block';
             fb.style.background = 'rgba(16,185,129,0.12)';
             fb.style.border = '1px solid #10b981';
             fb.style.color = '#6ee7b7';
-            fb.textContent = result.data.message || ('درخواست شما با شناسه پیگیری ' + (result.data.tracking_code || '') + ' ثبت گردید.');
+            fb.textContent = (result.data.message || 'درخواست شما با موفقیت ثبت گردید.') + (refCode ? ' (کد پیگیری: ' + refCode + ')' : '');
             form.reset();
           })
           .catch(function (err) {
@@ -10283,6 +10316,11 @@ class Dynamic_Query_Engine {
             $post_type = 'case_study'; // Fallback to public case studies
         }
 
+        $post_type_query = $post_type;
+        if ($post_type === 'services' && function_exists('post_type_exists') && post_type_exists('service')) {
+            $post_type_query = ['services', 'service'];
+        }
+
         $posts_per_page = intval($settings['posts_per_page'] ?? 6);
         $orderby        = sanitize_key($settings['orderby'] ?? 'date');
         $order          = (strtoupper($settings['order'] ?? 'DESC') === 'ASC') ? 'ASC' : 'DESC';
@@ -10291,7 +10329,7 @@ class Dynamic_Query_Engine {
 
         // Build WP_Query args
         $args = [
-            'post_type'           => $post_type,
+            'post_type'           => $post_type_query,
             'post_status'         => 'publish',
             'posts_per_page'      => $posts_per_page,
             'orderby'             => $orderby,
@@ -10410,8 +10448,11 @@ class Dynamic_Query_Engine {
         if (post_type_exists('portfolio')) {
             $types['portfolio'] = 'پروژه‌ها و نمونه‌کارها (Portfolio)';
         }
+        if (post_type_exists('services')) {
+            $types['services'] = 'خدمات و سرویس‌ها (Services)';
+        }
         if (post_type_exists('service')) {
-            $types['service'] = 'خدمات سازمانی (Services)';
+            $types['service'] = 'خدمات سازمانی (Service CPT)';
         }
         if (post_type_exists('product')) {
             $types['product'] = 'محصولات فروشگاه (WooCommerce Products)';
@@ -11483,6 +11524,7 @@ class Gutenberg_Blocks {
         }
 
         add_action('init', [$this, 'register_blocks']);
+        add_action('init', [$this, 'register_block_patterns']);
         add_action('enqueue_block_editor_assets', [$this, 'enqueue_editor_assets']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
     }
@@ -11650,12 +11692,54 @@ class Gutenberg_Blocks {
             ],
             'render_callback' => [$this, 'render_icon_block'],
         ]);
+        if (function_exists('register_block_pattern_category')) {
+            register_block_pattern_category('sedrazavi-sovereign', [
+                'label' => __('الگوهای بومی سیدرضوی (SedRazavi Sovereign)', 'universal-elementor-suite'),
+            ]);
+        }
+    }
+
+    /**
+     * Register turnkey native WordPress Gutenberg Block Patterns wired to Sovereign blocks
+     */
+    public function register_block_patterns() {
+        if (!function_exists('register_block_pattern')) {
+            return;
+        }
+
+        if (function_exists('register_block_pattern_category')) {
+            register_block_pattern_category('sedrazavi-sovereign', [
+                'label' => __('الگوهای بومی سیدرضوی (SedRazavi Sovereign)', 'universal-elementor-suite'),
+            ]);
+        }
+
+        register_block_pattern('sedrazavi/hero-sovereign', [
+            'title'       => __('بخش هیرو حاکمیتی با پس‌زمینه وکتور', 'universal-elementor-suite'),
+            'description' => __('الگوی آماده هیرو گوتنبرگ با پس‌زمینه وکتور و نشان اعتماد.', 'universal-elementor-suite'),
+            'categories'  => ['sedrazavi-sovereign'],
+            'content'     => '<!-- wp:sedrazavi/sovereign-vector-bg {"presetId":1,"mode":"motion","overlay":"gradient","minHeight":"420px"} /-->' . "\\n" . '<!-- wp:sedrazavi/sovereign-badge {"badgeId":1,"size":"md","showLabel":true} /-->',
+        ]);
+
+        register_block_pattern('sedrazavi/services-bento', [
+            'title'       => __('شبکه خدمات و سکشن بنتو سیدرضوی', 'universal-elementor-suite'),
+            'description' => __('ترکیب سکشن آماده و ویجت سازمانی با توکن‌های طراحی یکپارچه.', 'universal-elementor-suite'),
+            'categories'  => ['sedrazavi-sovereign'],
+            'content'     => '<!-- wp:sedrazavi/sovereign-section {"sectionId":1,"colorMode":"dark","padding":"lg"} /-->' . "\\n" . '<!-- wp:sedrazavi/sovereign-widget {"widgetId":1,"theme":"dark"} /-->',
+        ]);
+
+        register_block_pattern('sedrazavi/trust-strip', [
+            'title'       => __('نوار اعتماد، آیکون و جداکننده وکتور', 'universal-elementor-suite'),
+            'description' => __('الگوی سبک اعتماد برای صفحات فرود گوتنبرگ.', 'universal-elementor-suite'),
+            'categories'  => ['sedrazavi-sovereign'],
+            'content'     => '<!-- wp:sedrazavi/sovereign-icon {"iconId":1,"size":40} /-->' . "\\n" . '<!-- wp:sedrazavi/sovereign-divider {"dividerId":1,"height":64} /-->',
+        ]);
     }
 
     /**
      * Enqueue Gutenberg Editor JavaScript, SSR Preview & Controls
      */
     public function enqueue_editor_assets() {
+        $token_deps = wp_style_is('uas-design-tokens', 'registered') ? ['uas-design-tokens'] : [];
         wp_register_script(
             'sedrazavi-gutenberg-blocks',
             false,
@@ -11669,7 +11753,7 @@ class Gutenberg_Blocks {
         wp_enqueue_script('sedrazavi-gutenberg-blocks');
 
         $editor_css = $this->generate_editor_css() . "\\n" . $this->generate_frontend_css();
-        wp_register_style('sedrazavi-gutenberg-editor-css', false, [], UAS_VERSION);
+        wp_register_style('sedrazavi-gutenberg-editor-css', false, $token_deps, UAS_VERSION);
         wp_add_inline_style('sedrazavi-gutenberg-editor-css', $editor_css);
         wp_enqueue_style('sedrazavi-gutenberg-editor-css');
     }
@@ -11680,7 +11764,8 @@ class Gutenberg_Blocks {
     public function enqueue_frontend_assets() {
         static $registered = false;
         if (!$registered) {
-            wp_register_style('sedrazavi-gutenberg-frontend-css', false, [], defined('UAS_VERSION') ? UAS_VERSION : '1.0.0');
+            $token_deps = wp_style_is('uas-design-tokens', 'registered') ? ['uas-design-tokens'] : [];
+            wp_register_style('sedrazavi-gutenberg-frontend-css', false, $token_deps, defined('UAS_VERSION') ? UAS_VERSION : '1.0.0');
             wp_add_inline_style('sedrazavi-gutenberg-frontend-css', $this->generate_frontend_css());
             $registered = true;
         }
@@ -11778,9 +11863,10 @@ class Gutenberg_Blocks {
             }
         }
 
+        $dir = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
         ob_start();
         ?>
-        <div class="sedrazavi-block-widget theme-<?php echo esc_attr($theme); ?>" dir="rtl" data-widget-id="<?php echo esc_attr($widgetId); ?>" style="--widget-accent: <?php echo esc_attr($accent); ?>; padding: 20px; background: <?php echo $theme === 'light' ? '#FFFFFF' : '#0F172A'; ?>; border: 1px solid <?php echo esc_attr($accent); ?>44; border-radius: 12px; margin: 18px 0; color: <?php echo $theme === 'light' ? '#0F172A' : '#F8FAFC'; ?>;">
+        <div class="sedrazavi-block-widget theme-<?php echo esc_attr($theme); ?>" dir="<?php echo esc_attr($dir); ?>" data-widget-id="<?php echo esc_attr($widgetId); ?>" style="--widget-accent: <?php echo esc_attr($accent); ?>; padding: 20px; background: <?php echo $theme === 'light' ? 'var(--uas-surface-light, #FFFFFF)' : 'var(--uas-bg-surface, #0F172A)'; ?>; border: 1px solid <?php echo esc_attr($accent); ?>44; border-radius: 12px; margin: 18px 0; color: <?php echo $theme === 'light' ? '#0F172A' : '#F8FAFC'; ?>;">
             <?php if (!empty($customTitle)) : ?>
                 <h4 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 700; color: <?php echo esc_attr($accent); ?>;"><?php echo esc_html($title); ?></h4>
             <?php endif; ?>
@@ -11848,9 +11934,10 @@ class Gutenberg_Blocks {
         ];
         $badge_title = $badge_labels[(($badgeId - 1) % count($badge_labels)) + 1] . ' #' . $badgeId;
 
+        $dir = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
         ob_start();
         ?>
-        <div class="sedrazavi-trust-badge size-<?php echo esc_attr($size); ?>" dir="rtl" data-badge-id="<?php echo esc_attr($badgeId); ?>" style="display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; background: rgba(15, 23, 42, 0.85); border: 1px solid <?php echo esc_attr($color); ?>; border-radius: 10px; backdrop-filter: blur(8px);">
+        <div class="sedrazavi-trust-badge size-<?php echo esc_attr($size); ?>" dir="<?php echo esc_attr($dir); ?>" data-badge-id="<?php echo esc_attr($badgeId); ?>" style="display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; background: rgba(15, 23, 42, 0.85); border: 1px solid <?php echo esc_attr($color); ?>; border-radius: 10px; backdrop-filter: blur(8px);">
             <div aria-hidden="true" style="width: <?php echo esc_attr($dims); ?>px; height: <?php echo esc_attr($dims); ?>px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: <?php echo esc_attr($color); ?>;">
                 <svg aria-hidden="true" width="<?php echo esc_attr($dims); ?>" height="<?php echo esc_attr($dims); ?>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -11903,9 +11990,10 @@ class Gutenberg_Blocks {
         $bg = $colorMode === 'light' ? '#F8FAFC' : '#0B0F19';
         $text_color = $colorMode === 'light' ? '#0F172A' : '#F8FAFC';
 
+        $dir = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
         ob_start();
         ?>
-        <section class="sedrazavi-section-blueprint mode-<?php echo esc_attr($colorMode); ?>" dir="rtl" style="background: <?php echo esc_attr($bg); ?>; color: <?php echo esc_attr($text_color); ?>; padding: <?php echo esc_attr($pad_val); ?>; border-radius: 16px; border: 1px solid rgba(212,175,55,0.2); margin: 30px 0;">
+        <section class="sedrazavi-section-blueprint mode-<?php echo esc_attr($colorMode); ?>" dir="<?php echo esc_attr($dir); ?>" style="background: <?php echo esc_attr($bg); ?>; color: <?php echo esc_attr($text_color); ?>; padding: <?php echo esc_attr($pad_val); ?>; border-radius: 16px; border: 1px solid rgba(212,175,55,0.2); margin: 30px 0;">
             <div style="max-width: 1140px; margin: 0 auto; text-align: center;">
                 <span style="display: inline-block; padding: 6px 14px; background: rgba(212,175,55,0.15); border: 1px solid #D4AF37; border-radius: 9999px; font-size: 12px; color: #D4AF37; margin-bottom: 16px;">سکشن آماده سوییت سیدرضوی #<?php echo esc_html($sectionId); ?></span>
                 <h3 style="font-size: 26px; font-weight: 800; margin: 0 0 14px 0; color: <?php echo esc_attr($text_color); ?>;">طرح‌بندی آماده واکنش‌گرا و مدرن</h3>
@@ -12392,10 +12480,11 @@ class Gutenberg_Blocks {
     }
 
     private function generate_editor_css() {
+        $dir = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
         return "
         .sedrazavi-editor-box {
-            font-family: inherit;
-            direction: rtl;
+            font-family: var(--uas-font-sans, Vazirmatn, inherit);
+            direction: {$dir};
             margin: 12px 0;
         }
         ";
@@ -12414,6 +12503,13 @@ class Gutenberg_Blocks {
         @keyframes sedrazavi-motion-preset-3 {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .sedrazavi-motion-wrapper,
+            .sedrazavi-block-vector-bg animateTransform {
+                animation: none !important;
+                transition: none !important;
+            }
         }
         ";
     }
@@ -14165,6 +14261,9 @@ class Plugin {
         add_action('elementor/preview/enqueue_styles', [$this, 'enqueue_preview_styles']);
         add_action('elementor/editor/after_enqueue_styles', [$this, 'enqueue_editor_styles']);
 
+        // Performance: non-blocking defer for frontend uas-* scripts outside WP Admin / Elementor Preview
+        add_filter('script_loader_tag', [$this, 'defer_frontend_widget_scripts'], 10, 3);
+
         // AJAX Action for Manual Template Import
         add_action('wp_ajax_uas_import_templates', [$this, 'ajax_import_templates']);
         add_action('wp_ajax_uas_import_single_template', [$this, 'ajax_import_single_template']);
@@ -14352,6 +14451,27 @@ class Plugin {
     }
 
     /**
+     * Add non-blocking defer attribute to frontend uas-* widget scripts (Performance / Core Web Vitals)
+     *
+     * @param string $tag
+     * @param string $handle
+     * @param string $src
+     * @return string
+     */
+    public function defer_frontend_widget_scripts($tag, $handle, $src = '') {
+        if (is_admin() || strpos((string) $handle, 'uas-') !== 0) {
+            return $tag;
+        }
+        if (class_exists('\\Elementor\\Plugin') && isset(\\Elementor\\Plugin::$instance->preview) && \\Elementor\\Plugin::$instance->preview->is_preview_mode()) {
+            return $tag;
+        }
+        if (strpos($tag, ' defer') !== false) {
+            return $tag;
+        }
+        return str_replace(' src=', ' defer src=', $tag);
+    }
+
+    /**
      * Get Category Slug
      *
      * @return string
@@ -14521,6 +14641,27 @@ class Sovereign_Motion_Presets {
             pointer-events: none;
         }
         .sz-hover-gold-flare:hover::after { opacity: 1; transform: scale(1); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .sz-motion-active,
+            .sz-anim-gold-glow,
+            .sz-anim-float-slow,
+            .sz-anim-shimmer-gold,
+            .sz-anim-pulse-emerald,
+            .sz-anim-rotate-orb,
+            .sz-anim-fade-up-spring,
+            .sz-anim-holo-glow {
+                animation: none !important;
+                transform: none !important;
+            }
+            .sz-hover-lift,
+            .sz-hover-lift:hover,
+            .sz-hover-gold-flare,
+            .sz-hover-gold-flare::after {
+                transition: none !important;
+                transform: none !important;
+            }
+        }
         ';
     }
 
@@ -14916,6 +15057,8 @@ class Sovereign_Svg_Icons {
         $custom_class = esc_attr($atts['class']);
         $stroke = esc_attr($atts['stroke']);
 
+        $clean_path = self::sanitize_svg_markup($icon['path']);
+
         return sprintf(
             '<span class="sr-svg-icon sr-icon-%1$s %2$s" style="display:inline-flex;align-items:center;justify-content:center;color:%3$s;" aria-label="%4$s"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="%5$d" height="%5$d" viewBox="%6$s" fill="none" stroke="currentColor" stroke-width="%7$s" stroke-linecap="round" stroke-linejoin="round">%8$s</svg></span>',
             esc_attr($name),
@@ -14925,8 +15068,44 @@ class Sovereign_Svg_Icons {
             $size,
             esc_attr($icon['viewBox']),
             $stroke,
-            $icon['path']
+            $clean_path
         );
+    }
+
+    /**
+     * Strict SVG Markup Sanitizer (Phase 9 Security Policy):
+     * Strips executable tags, inline event attributes, and dangerous URIs.
+     *
+     * @param string $raw_svg Raw SVG XML/path fragment
+     * @return string Sanitized safe SVG markup
+     */
+    public static function sanitize_svg_markup($raw_svg) {
+        $svg = (string) $raw_svg;
+        // 1. Strip dangerous elements (<script>, <foreignObject>, <iframe>, <object>, <embed>)
+        $svg = preg_replace('/<\\s*(script|foreignObject|iframe|object|embed|style|meta)\\b[^>]*>[\\s\\S]*?<\\/\\s*\\1\\s*>/i', '', $svg);
+        $svg = preg_replace('/<\\s*(script|foreignObject|iframe|object|embed)\\b[^>]*\\/?>/i', '', $svg);
+        // 2. Strip inline event handlers (on*) and javascript:/data:text/html URIs
+        $svg = preg_replace('/\\son[a-z]+\\s*=\\s*(?:"[^"]*"|\\'[^\\']*\\'|[^\\s>]+)/i', '', $svg);
+        $svg = preg_replace('/(?:javascript|vbscript|data\\s*:\\s*text\\/html)\\s*:/i', '', $svg);
+
+        if (function_exists('wp_kses')) {
+            $svg = wp_kses($svg, [
+                'svg'            => ['xmlns' => true, 'width' => true, 'height' => true, 'viewbox' => true, 'viewBox' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true, 'aria-hidden' => true, 'class' => true],
+                'g'              => ['fill' => true, 'stroke' => true, 'transform' => true, 'opacity' => true, 'class' => true],
+                'path'           => ['d' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'opacity' => true],
+                'circle'         => ['cx' => true, 'cy' => true, 'r' => true, 'fill' => true, 'stroke' => true],
+                'rect'           => ['x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'ry' => true, 'fill' => true, 'stroke' => true],
+                'line'           => ['x1' => true, 'y1' => true, 'x2' => true, 'y2' => true, 'stroke' => true],
+                'polyline'       => ['points' => true, 'fill' => true, 'stroke' => true],
+                'polygon'        => ['points' => true, 'fill' => true, 'stroke' => true],
+                'defs'           => [],
+                'lineargradient' => ['id' => true, 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true],
+                'stop'           => ['offset' => true, 'stop-color' => true, 'stop-opacity' => true],
+                'title'          => [],
+            ]);
+        }
+
+        return $svg;
     }
 
     public function get_icons_catalog() {
@@ -21271,13 +21450,17 @@ class Universal_Before_After_Widget extends Universal_Widget_Base {
             ]
         );
 
+        $default_before = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/saas-dashboard.svg' : '';
+        $default_after  = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '';
+
         $this->add_control(
             'before_image',
             [
                 'label'   => esc_html__('تصویر قبل (Before)', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800',
+                    'url'    => $default_before,
+                    'source' => 'sovereign_local',
                 ],
             ]
         );
@@ -21288,7 +21471,8 @@ class Universal_Before_After_Widget extends Universal_Widget_Base {
                 'label'   => esc_html__('تصویر بعد (After)', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1541888946425-d0fbb186f5f7?auto=format&fit=crop&q=80&w=800',
+                    'url'    => $default_after,
+                    'source' => 'sovereign_local',
                 ],
             ]
         );
@@ -21347,37 +21531,41 @@ class Universal_Before_After_Widget extends Universal_Widget_Base {
     }
 
     protected function render() {
-        $settings = $this->get_settings_for_display();
-        $widget_id = $this->get_id();
-        $pos = !empty($settings['initial_position']['size']) ? (int)$settings['initial_position']['size'] : 50;
-        $before_url = !empty($settings['before_image']['url']) ? esc_url($settings['before_image']['url']) : '';
-        $after_url = !empty($settings['after_image']['url']) ? esc_url($settings['after_image']['url']) : '';
+        $settings   = $this->get_settings_for_display();
+        $widget_id  = $this->get_id();
+        $pos        = !empty($settings['initial_position']['size']) ? (int) $settings['initial_position']['size'] : 50;
+        $fallback_b = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/saas-dashboard.svg' : '';
+        $fallback_a = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '';
+        $before_url = !empty($settings['before_image']['url']) ? esc_url($settings['before_image']['url']) : esc_url($fallback_b);
+        $after_url  = !empty($settings['after_image']['url']) ? esc_url($settings['after_image']['url']) : esc_url($fallback_a);
+        $before_lbl = $settings['before_label'] ?? esc_html__('وضعیت قبلی', 'universal-elementor-suite');
+        $after_lbl  = $settings['after_label'] ?? esc_html__('نتیجه بهینه‌سازی', 'universal-elementor-suite');
         ?>
         <div class="uas-ba-container" id="uas-ba-<?php echo esc_attr($widget_id); ?>" style="position:relative; width:100%; max-width:800px; margin:auto; overflow:hidden; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.15); user-select:none; aspect-ratio:16/9; background:#0f172a;">
             
             <!-- After Image (Background) -->
-            <img src="<?php echo $after_url; ?>" alt="After" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; pointer-events:none;">
+            <img src="<?php echo $after_url; ?>" alt="<?php echo esc_attr($after_lbl); ?>" loading="lazy" decoding="async" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; pointer-events:none;">
             <span style="position:absolute; bottom:16px; left:16px; background:rgba(0,0,0,0.65); color:#fff; font-size:12px; font-weight:700; padding:4px 12px; border-radius:6px; backdrop-filter:blur(4px); pointer-events:none; z-index:2;">
-                <?php echo esc_html($settings['after_label']); ?>
+                <?php echo esc_html($after_lbl); ?>
             </span>
 
             <!-- Before Image (Clipped Overlay) -->
             <div class="uas-ba-before" style="position:absolute; top:0; left:0; width:<?php echo $pos; ?>%; height:100%; overflow:hidden; z-index:3;">
-                <img src="<?php echo $before_url; ?>" alt="Before" style="position:absolute; top:0; left:0; width:800px; max-width:none; height:100%; object-fit:cover; pointer-events:none;">
+                <img src="<?php echo $before_url; ?>" alt="<?php echo esc_attr($before_lbl); ?>" loading="lazy" decoding="async" style="position:absolute; top:0; left:0; width:800px; max-width:none; height:100%; object-fit:cover; pointer-events:none;">
                 <span style="position:absolute; bottom:16px; right:16px; background:rgba(0,0,0,0.65); color:#fff; font-size:12px; font-weight:700; padding:4px 12px; border-radius:6px; backdrop-filter:blur(4px); pointer-events:none;">
-                    <?php echo esc_html($settings['before_label']); ?>
+                    <?php echo esc_html($before_lbl); ?>
                 </span>
             </div>
 
             <!-- Draggable Handle Divider -->
-            <div class="uas-ba-handle" style="position:absolute; top:0; bottom:0; left:<?php echo $pos; ?>%; width:4px; background:#8B5CF6; z-index:4; cursor:ew-resize; transform:translateX(-50%);">
+            <div class="uas-ba-handle" aria-hidden="true" style="position:absolute; top:0; bottom:0; left:<?php echo $pos; ?>%; width:4px; background:#8B5CF6; z-index:4; cursor:ew-resize; transform:translateX(-50%);">
                 <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:36px; height:36px; border-radius:50%; background:#8B5CF6; color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(0,0,0,0.3); font-size:14px; font-weight:bold;">
                     ⇄
                 </div>
             </div>
 
             <!-- Native Range Input for seamless Dragging / Accessibility -->
-            <input type="range" min="0" max="100" value="<?php echo $pos; ?>" class="uas-ba-range" aria-label="<?php echo esc_attr__('کنترل اسلایدر مقایسه', 'universal-elementor-suite'); ?>" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:ew-resize; z-index:5; margin:0;">
+            <input type="range" min="0" max="100" value="<?php echo $pos; ?>" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?php echo $pos; ?>" class="uas-ba-range" aria-label="<?php echo esc_attr__('کنترل اسلایدر مقایسه', 'universal-elementor-suite'); ?>" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:ew-resize; z-index:5; margin:0;">
         </div>
         <?php
     }
@@ -21912,13 +22100,74 @@ class Universal_Contact_Booking_Widget extends Universal_Widget_Base {
             ]
         );
 
+        $this->add_control(
+            'submit_mode',
+            [
+                'label'   => esc_html__('مسیر ثبت اطلاعات (Workflow)', 'universal-elementor-suite'),
+                'type'    => Controls_Manager::SELECT,
+                'default' => 'inquiry',
+                'options' => [
+                    'inquiry'      => esc_html__('استعلام پروژه / مشاوره عمومی (/inquiry/submit)', 'universal-elementor-suite'),
+                    'legal_intake' => esc_html__('صف پذیرش و تریاژ حقوقی با کد رهگیری (/intake/submit)', 'universal-elementor-suite'),
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'enable_consent',
+            [
+                'label'        => esc_html__('الزامی‌سازی تایید حریم خصوصی', 'universal-elementor-suite'),
+                'type'         => Controls_Manager::SWITCHER,
+                'label_on'     => esc_html__('بله', 'universal-elementor-suite'),
+                'label_off'    => esc_html__('خیر', 'universal-elementor-suite'),
+                'return_value' => 'yes',
+                'default'      => 'yes',
+            ]
+        );
+
+        $this->add_control(
+            'consent_label',
+            [
+                'label'     => esc_html__('متن رضایت‌نامه حریم خصوصی', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::TEXT,
+                'default'   => esc_html__('شرایط محرمانگی و سیاست نگهداری داده‌ها را مطالعه کرده و می‌پذیرم.', 'universal-elementor-suite'),
+                'condition' => ['enable_consent' => 'yes'],
+            ]
+        );
+
+        $this->end_controls_section();
+
+        $this->start_controls_section(
+            'section_style',
+            [
+                'label' => esc_html__('استایل و رنگ‌بندی فرم', 'universal-elementor-suite'),
+                'tab'   => Controls_Manager::TAB_STYLE,
+            ]
+        );
+
+        $this->add_control(
+            'accent_color',
+            [
+                'label'     => esc_html__('رنگ دکمه و حاشیه تاکیدی', 'universal-elementor-suite'),
+                'type'      => Controls_Manager::COLOR,
+                'default'   => '#D4AF37',
+                'selectors' => [
+                    '{{WRAPPER}} .uas-booking-wrapper' => '--uas-booking-accent: {{VALUE}};',
+                ],
+            ]
+        );
+
         $this->end_controls_section();
     }
 
     protected function render() {
-        $settings = $this->get_settings_for_display();
+        $settings    = $this->get_settings_for_display();
+        $dir         = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
+        $submit_mode = !empty($settings['submit_mode']) ? sanitize_key($settings['submit_mode']) : 'inquiry';
+        $consent_on  = !isset($settings['enable_consent']) || $settings['enable_consent'] === 'yes';
+        $consent_txt = !empty($settings['consent_label']) ? $settings['consent_label'] : __('شرایط محرمانگی و سیاست نگهداری داده‌ها را می‌پذیرم.', 'universal-elementor-suite');
         ?>
-        <div class="uas-booking-wrapper uas-widget-container" dir="rtl">
+        <div class="uas-booking-wrapper uas-widget-container" dir="<?php echo esc_attr($dir); ?>">
             <?php if (!empty($settings['form_title'])) : ?>
                 <div class="uas-booking-header">
                     <h3 class="uas-booking-title"><?php echo esc_html($settings['form_title']); ?></h3>
@@ -21928,7 +22177,13 @@ class Universal_Contact_Booking_Widget extends Universal_Widget_Base {
                 </div>
             <?php endif; ?>
 
-            <form class="uas-booking-form uas-widget-booking-form">
+            <form class="uas-booking-form uas-widget-booking-form" data-submit-mode="<?php echo esc_attr($submit_mode); ?>">
+                <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+                    <label>Website
+                        <input type="text" name="sr_website_trap" value="" tabindex="-1" autocomplete="off" />
+                    </label>
+                </div>
+
                 <div class="uas-form-group">
                     <label class="uas-form-label">نام و نام خانوادگی:</label>
                     <input type="text" name="full_name" class="uas-form-input" placeholder="مثال: علی احمدی" required />
@@ -21942,9 +22197,9 @@ class Universal_Contact_Booking_Widget extends Universal_Widget_Base {
                 <div class="uas-form-group">
                     <label class="uas-form-label">نوع خدمت مورد نیاز:</label>
                     <select name="service_type" class="uas-form-select">
-                        <option>مشاوره عمومی و ارزیابی اولیه</option>
-                        <option>برنامه‌ریزی استراتژیک و توسعه</option>
-                        <option>پشتیبانی فنی و اختصاصی</option>
+                        <option value="مشاوره عمومی و ارزیابی اولیه">مشاوره عمومی و ارزیابی اولیه</option>
+                        <option value="برنامه‌ریزی استراتژیک و توسعه">برنامه‌ریزی استراتژیک و توسعه</option>
+                        <option value="پشتیبانی فنی و اختصاصی">پشتیبانی فنی و اختصاصی</option>
                     </select>
                 </div>
 
@@ -21952,6 +22207,15 @@ class Universal_Contact_Booking_Widget extends Universal_Widget_Base {
                     <label class="uas-form-label">شرح مختصر درخواست:</label>
                     <textarea name="details" class="uas-form-textarea" rows="3" placeholder="توضیحات تکمیلی خود را بنویسید..."></textarea>
                 </div>
+
+                <?php if ($consent_on) : ?>
+                    <div class="uas-form-group uas-consent-group">
+                        <label class="uas-consent-label" style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;">
+                            <input type="checkbox" name="privacy_consent" value="1" required style="margin-top:3px;" />
+                            <span><?php echo esc_html($consent_txt); ?></span>
+                        </label>
+                    </div>
+                <?php endif; ?>
 
                 <button type="submit" class="uas-form-submit">
                     <?php echo esc_html($settings['submit_btn_text']); ?>
@@ -24770,8 +25034,10 @@ class Universal_Posts_Widget extends Universal_Widget_Base {
         ];
 
         $query = new \\WP_Query($args);
+        $dir   = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
+        $placeholder_thumb = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '';
         ?>
-        <div class="uas-posts-wrapper uas-widget-container" dir="rtl">
+        <div class="uas-posts-wrapper uas-widget-container" dir="<?php echo esc_attr($dir); ?>">
             <div class="uas-posts-grid">
                 <?php if ($query->have_posts()) : ?>
                     <?php while ($query->have_posts()) : $query->the_post(); ?>
@@ -24779,7 +25045,7 @@ class Universal_Posts_Widget extends Universal_Widget_Base {
                             <?php if (has_post_thumbnail()) : ?>
                                 <div class="uas-post-thumb-wrapper">
                                     <a href="<?php the_permalink(); ?>">
-                                        <?php the_post_thumbnail('medium_large', ['class' => 'uas-post-thumb']); ?>
+                                        <?php the_post_thumbnail('medium_large', ['class' => 'uas-post-thumb', 'loading' => 'lazy', 'decoding' => 'async']); ?>
                                     </a>
                                 </div>
                             <?php endif; ?>
@@ -24807,9 +25073,11 @@ class Universal_Posts_Widget extends Universal_Widget_Base {
                     <!-- Sample Topic-Agnostic Placeholders if no posts exist -->
                     <?php for ($i = 1; $i <= $count; $i++) : ?>
                         <article class="uas-post-card">
-                            <div class="uas-post-thumb-wrapper">
-                                <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&q=80&w=400" alt="Sample post" class="uas-post-thumb" />
-                            </div>
+                            <?php if (!empty($placeholder_thumb)) : ?>
+                                <div class="uas-post-thumb-wrapper">
+                                    <img src="<?php echo esc_url($placeholder_thumb); ?>" alt="<?php echo esc_attr(sprintf('پیش‌نمایش مقاله %d', $i)); ?>" class="uas-post-thumb" loading="lazy" decoding="async" />
+                                </div>
+                            <?php endif; ?>
                             <div class="uas-post-body">
                                 <span class="uas-post-date">امروز</span>
                                 <h3 class="uas-post-title"><a href="#">راهنمای جامع بهره‌وری و تحلیل شاخص‌های عملکرد <?php echo $i; ?></a></h3>
@@ -26270,13 +26538,18 @@ class Universal_Story_Bar_Widget extends Universal_Widget_Base {
             ]
         );
 
+        $default_story_hero = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '';
+        $default_story_saas = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/saas-dashboard.svg' : '';
+        $default_story_ava  = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/client-avatar.svg' : '';
+
         $repeater->add_control(
             'story_image',
             [
                 'label'   => esc_html__('تصویر کاور استوری', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=200',
+                    'url'    => $default_story_hero,
+                    'source' => 'sovereign_local',
                 ],
             ]
         );
@@ -26298,19 +26571,19 @@ class Universal_Story_Bar_Widget extends Universal_Widget_Base {
                 'fields'      => $repeater->get_controls(),
                 'default'     => [
                     [
-                        'story_title' => esc_html__('اصول مذاکره', 'universal-elementor-suite'),
-                        'story_image' => ['url' => 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=200'],
+                        'story_title'   => esc_html__('اصول مذاکره', 'universal-elementor-suite'),
+                        'story_image'   => ['url' => $default_story_hero, 'source' => 'sovereign_local'],
                         'story_content' => esc_html__('گوش دادن فعال و درک منافع متقابل، کلید دستیابی به توافقات پایدار است.', 'universal-elementor-suite'),
                     ],
                     [
-                        'story_title' => esc_html__('مدیریت ریسک', 'universal-elementor-suite'),
-                        'story_image' => ['url' => 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=200'],
+                        'story_title'   => esc_html__('مدیریت ریسک', 'universal-elementor-suite'),
+                        'story_image'   => ['url' => $default_story_saas, 'source' => 'sovereign_local'],
                         'story_content' => esc_html__('پیش‌بینی سناریوهای بحران مانع از تحمیل هزینه‌های سنگین غیرمنتظره می‌گردد.', 'universal-elementor-suite'),
                     ],
                     [
-                        'story_title' => esc_html__('توسعه فردی', 'universal-elementor-suite'),
-                        'story_image' => ['url' => 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200'],
-                        'story_content' => esc_html__('یادگیری پیوسته و بهره‌گیری از ابزارهای هوش مصنوعی موجب برتری رقابتی است.', 'universal-elementor-suite'),
+                        'story_title'   => esc_html__('توسعه فردی', 'universal-elementor-suite'),
+                        'story_image'   => ['url' => $default_story_ava, 'source' => 'sovereign_local'],
+                        'story_content' => esc_html__('یادگیری پیوسته و بهره‌گیری از ابزارهای دیجیتال موجب برتری رقابتی است.', 'universal-elementor-suite'),
                     ],
                 ],
                 'title_field' => '{{{ story_title }}}',
@@ -26322,23 +26595,27 @@ class Universal_Story_Bar_Widget extends Universal_Widget_Base {
 
     protected function render() {
         $settings = $this->get_settings_for_display();
+        $dir      = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
+        $fallback = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '';
         ?>
-        <div class="uas-story-bar-wrapper uas-widget-container" dir="rtl">
+        <div class="uas-story-bar-wrapper uas-widget-container" dir="<?php echo esc_attr($dir); ?>">
             <?php if (!empty($settings['bar_title'])) : ?>
                 <div class="uas-story-header">
-                    <span>⚡</span>
+                    <span aria-hidden="true">⚡</span>
                     <span><?php echo esc_html($settings['bar_title']); ?></span>
                 </div>
             <?php endif; ?>
 
             <div class="uas-story-scroll">
-                <?php foreach ($settings['stories_list'] as $item) : ?>
-                    <div class="uas-story-item" data-title="<?php echo esc_attr($item['story_title']); ?>" data-content="<?php echo esc_attr($item['story_content']); ?>">
+                <?php foreach ($settings['stories_list'] as $item) :
+                    $img_url = !empty($item['story_image']['url']) ? $item['story_image']['url'] : $fallback;
+                ?>
+                    <button type="button" class="uas-story-item" data-title="<?php echo esc_attr($item['story_title']); ?>" data-content="<?php echo esc_attr($item['story_content']); ?>">
                         <div class="uas-story-ring">
-                            <img src="<?php echo esc_url($item['story_image']['url'] ?? ''); ?>" alt="<?php echo esc_attr($item['story_title']); ?>" class="uas-story-avatar" loading="lazy" />
+                            <img src="<?php echo esc_url($img_url); ?>" alt="<?php echo esc_attr($item['story_title']); ?>" class="uas-story-avatar" loading="lazy" decoding="async" />
                         </div>
                         <span class="uas-story-title"><?php echo esc_html($item['story_title']); ?></span>
-                    </div>
+                    </button>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -26433,13 +26710,16 @@ class Universal_Team_Widget extends Universal_Widget_Base {
             ]
         );
 
+        $default_avatar = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/client-avatar.svg' : '';
+
         $repeater->add_control(
             'photo',
             [
                 'label'   => esc_html__('تصویر چهره', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300',
+                    'url'    => $default_avatar,
+                    'source' => 'sovereign_local',
                 ],
             ]
         );
@@ -26455,19 +26735,19 @@ class Universal_Team_Widget extends Universal_Widget_Base {
                         'name'  => esc_html__('دکتر سارا شمس', 'universal-elementor-suite'),
                         'role'  => esc_html__('مدیر ارشد محصول و استراتژیست', 'universal-elementor-suite'),
                         'bio'   => esc_html__('بیش از ۱۲ سال تجربه در رهبری تیم‌های فنی و هدایت پروژه‌های بین‌المللی مقیاس‌پذیر.', 'universal-elementor-suite'),
-                        'photo' => ['url' => 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300'],
+                        'photo' => ['url' => $default_avatar, 'source' => 'sovereign_local'],
                     ],
                     [
                         'name'  => esc_html__('مهندس رضا علوی', 'universal-elementor-suite'),
                         'role'  => esc_html__('راهبر ارشد معماری سیستم', 'universal-elementor-suite'),
                         'bio'   => esc_html__('متخصص طراحی پایگاه‌های داده توزیع‌شده، امنیت سایبری و بهینه‌سازی زیرساخت‌های ابری.', 'universal-elementor-suite'),
-                        'photo' => ['url' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300'],
+                        'photo' => ['url' => $default_avatar, 'source' => 'sovereign_local'],
                     ],
                     [
                         'name'  => esc_html__('رویا معتمدی', 'universal-elementor-suite'),
                         'role'  => esc_html__('مدیر ارتباط با مشتریان و توسعه بازار', 'universal-elementor-suite'),
                         'bio'   => esc_html__('دارای سوابق درخشان در تدوین راهبردهای افزایش رضایت ذی‌نفعان و گسترش بازارهای صادراتی.', 'universal-elementor-suite'),
-                        'photo' => ['url' => 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=300'],
+                        'photo' => ['url' => $default_avatar, 'source' => 'sovereign_local'],
                     ],
                 ],
                 'title_field' => '{{{ name }}} ({{{ role }}})',
@@ -26479,13 +26759,17 @@ class Universal_Team_Widget extends Universal_Widget_Base {
 
     protected function render() {
         $settings = $this->get_settings_for_display();
+        $dir      = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
+        $fallback = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/client-avatar.svg' : '';
         ?>
-        <div class="uas-team-wrapper uas-widget-container" dir="rtl">
+        <div class="uas-team-wrapper uas-widget-container" dir="<?php echo esc_attr($dir); ?>">
             <div class="uas-team-grid">
-                <?php foreach ($settings['team_list'] as $item) : ?>
+                <?php foreach ($settings['team_list'] as $item) :
+                    $photo_url = !empty($item['photo']['url']) ? $item['photo']['url'] : $fallback;
+                ?>
                     <div class="uas-team-card">
-                        <?php if (!empty($item['photo']['url'])) : ?>
-                            <img src="<?php echo esc_url($item['photo']['url']); ?>" alt="<?php echo esc_attr($item['name']); ?>" class="uas-team-photo" loading="lazy" />
+                        <?php if (!empty($photo_url)) : ?>
+                            <img src="<?php echo esc_url($photo_url); ?>" alt="<?php echo esc_attr($item['name']); ?>" class="uas-team-photo" loading="lazy" decoding="async" />
                         <?php endif; ?>
                         <h3 class="uas-team-name"><?php echo esc_html($item['name']); ?></h3>
                         <span class="uas-team-role"><?php echo esc_html($item['role']); ?></span>
@@ -26606,13 +26890,16 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
             ]
         );
 
+        $default_avatar = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/client-avatar.svg' : '';
+
         $repeater->add_control(
             'avatar',
             [
                 'label'   => esc_html__('تصویر چهره یا لوگو', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
+                    'url'    => $default_avatar,
+                    'source' => 'sovereign_local',
                 ],
             ]
         );
@@ -26629,14 +26916,14 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
                         'author_role' => esc_html__('مدیر ارشد نوآوری گروه آروین', 'universal-elementor-suite'),
                         'review_text' => esc_html__('همکاری با این مجموعه یکی از بهترین تصمیمات توسعه تجاری ما بود. سرعت پیاده‌سازی و کیفیت خروجی فراتر از انتظار ظاهر شد.', 'universal-elementor-suite'),
                         'rating'      => '5',
-                        'avatar'      => ['url' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'],
+                        'avatar'      => ['url' => $default_avatar, 'source' => 'sovereign_local'],
                     ],
                     [
                         'author_name' => esc_html__('دکتر امیرحسین رضایی', 'universal-elementor-suite'),
                         'author_role' => esc_html__('مدیرعامل هلدینگ پایا', 'universal-elementor-suite'),
                         'review_text' => esc_html__('سطح حرفه‌ای‌گری، شفافیت در ارائه گزارش‌های پیشرفت و تسلط تیم بر استانداردهای روز، اطمینان خاطر کامل را برای ما به ارمغان آورد.', 'universal-elementor-suite'),
                         'rating'      => '5',
-                        'avatar'      => ['url' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'],
+                        'avatar'      => ['url' => $default_avatar, 'source' => 'sovereign_local'],
                     ],
                 ],
                 'title_field' => '{{{ author_name }}} - {{{ author_role }}}',
@@ -26700,24 +26987,28 @@ class Universal_Testimonials_Widget extends Universal_Widget_Base {
 
     protected function render() {
         $settings = $this->get_settings_for_display();
+        $dir      = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
+        $fallback = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/client-avatar.svg' : '';
         ?>
-        <div class="uas-testimonials-wrapper uas-widget-container" dir="rtl">
+        <div class="uas-testimonials-wrapper uas-widget-container" dir="<?php echo esc_attr($dir); ?>">
             <div class="uas-testimonials-grid">
-                <?php foreach ($settings['testimonials_list'] as $item) : ?>
+                <?php foreach ($settings['testimonials_list'] as $item) :
+                    $stars = intval($item['rating'] ?? 5);
+                    $avatar_url = !empty($item['avatar']['url']) ? $item['avatar']['url'] : $fallback;
+                ?>
                     <div class="uas-testimonial-card">
-                        <div class="uas-testimonial-quote-icon">❝</div>
+                        <div class="uas-testimonial-quote-icon" aria-hidden="true">❝</div>
                         <p class="uas-testimonial-text"><?php echo esc_html($item['review_text']); ?></p>
 
-                        <div class="uas-testimonial-rating">
+                        <div class="uas-testimonial-rating" aria-label="<?php echo esc_attr(sprintf('%d از ۵ ستاره', $stars)); ?>">
                             <?php
-                            $stars = intval($item['rating'] ?? 5);
                             echo str_repeat('★', $stars) . str_repeat('☆', 5 - $stars);
                             ?>
                         </div>
 
                         <div class="uas-testimonial-author">
-                            <?php if (!empty($item['avatar']['url'])) : ?>
-                                <img src="<?php echo esc_url($item['avatar']['url']); ?>" alt="<?php echo esc_attr($item['author_name']); ?>" class="uas-testimonial-avatar" loading="lazy" />
+                            <?php if (!empty($avatar_url)) : ?>
+                                <img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr($item['author_name']); ?>" class="uas-testimonial-avatar" loading="lazy" decoding="async" />
                             <?php endif; ?>
                             <div class="uas-testimonial-meta">
                                 <h4 class="uas-testimonial-name"><?php echo esc_html($item['author_name']); ?></h4>
@@ -26857,10 +27148,12 @@ class Universal_Video_Widget extends Universal_Widget_Base {
             [
                 'label'       => esc_html__('لینک ویدیو (آپارات، یوتیوب، MP4)', 'universal-elementor-suite'),
                 'type'        => Controls_Manager::URL,
-                'placeholder' => 'https://www.youtube.com/watch?v=...',
-                'default'     => ['url' => 'https://www.w3schools.com/html/mov_bbb.mp4'],
+                'placeholder' => 'https://example.com/media/intro.mp4',
+                'default'     => ['url' => ''],
             ]
         );
+
+        $default_poster = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '';
 
         $this->add_control(
             'poster_image',
@@ -26868,7 +27161,8 @@ class Universal_Video_Widget extends Universal_Widget_Base {
                 'label'   => esc_html__('تصویر پوستر ویدیو', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800',
+                    'url'    => $default_poster,
+                    'source' => 'sovereign_local',
                 ],
             ]
         );
@@ -26877,18 +27171,32 @@ class Universal_Video_Widget extends Universal_Widget_Base {
     }
 
     protected function render() {
-        $settings = $this->get_settings_for_display();
-        $video_url = $settings['video_url']['url'] ?? '#';
+        $settings   = $this->get_settings_for_display();
+        $video_url  = $settings['video_url']['url'] ?? '';
+        $poster_url = !empty($settings['poster_image']['url'])
+            ? $settings['poster_image']['url']
+            : (defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '');
+        $dir        = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
+        $title      = $settings['video_title'] ?? '';
         ?>
-        <div class="uas-video-wrapper uas-widget-container" dir="rtl">
-            <a href="<?php echo esc_url($video_url); ?>" target="_blank" rel="noopener noreferrer" class="uas-video-poster-box">
-                <?php if (!empty($settings['poster_image']['url'])) : ?>
-                    <img src="<?php echo esc_url($settings['poster_image']['url']); ?>" alt="<?php echo esc_attr($settings['video_title']); ?>" class="uas-video-poster-img" loading="lazy" />
-                <?php endif; ?>
-                <div class="uas-video-play-btn">▶</div>
-            </a>
-            <?php if (!empty($settings['video_title'])) : ?>
-                <div class="uas-video-caption"><?php echo esc_html($settings['video_title']); ?></div>
+        <div class="uas-video-wrapper uas-widget-container" dir="<?php echo esc_attr($dir); ?>">
+            <?php if (!empty($video_url)) : ?>
+                <a href="<?php echo esc_url($video_url); ?>" target="_blank" rel="noopener noreferrer" class="uas-video-poster-box" aria-label="<?php echo esc_attr($title ?: esc_html__('پخش ویدیو', 'universal-elementor-suite')); ?>">
+                    <?php if (!empty($poster_url)) : ?>
+                        <img src="<?php echo esc_url($poster_url); ?>" alt="<?php echo esc_attr($title); ?>" class="uas-video-poster-img" loading="lazy" decoding="async" />
+                    <?php endif; ?>
+                    <div class="uas-video-play-btn" aria-hidden="true">▶</div>
+                </a>
+            <?php else : ?>
+                <div class="uas-video-poster-box" role="region" aria-label="<?php echo esc_attr($title ?: esc_html__('پیش‌نمایش ویدیو', 'universal-elementor-suite')); ?>">
+                    <?php if (!empty($poster_url)) : ?>
+                        <img src="<?php echo esc_url($poster_url); ?>" alt="<?php echo esc_attr($title); ?>" class="uas-video-poster-img" loading="lazy" decoding="async" />
+                    <?php endif; ?>
+                    <div class="uas-video-play-btn" aria-hidden="true">▶</div>
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($title)) : ?>
+                <div class="uas-video-caption"><?php echo esc_html($title); ?></div>
             <?php endif; ?>
         </div>
         <?php
@@ -28586,9 +28894,32 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
         "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 20
+        }
       },
       "elements": [
+        {
+          "id": "uas_popup_wid_email_otp",
+          "elType": "widget",
+          "widgetType": "uas_email_otp",
+          "settings": {
+            "title": "احراز هویت سریع با کد یکبار مصرف ایمیل",
+            "subtitle": "برای مشاهده وضعیت جاری و اطلاعات اختصاصی، ایمیل ثبت‌شده خود را وارد نمایید."
+          }
+        },
+        {
+          "id": "uas_popup_wid_client_portal",
+          "elType": "widget",
+          "widgetType": "uas_client_portal",
+          "settings": {
+            "portal_title": "پورتال رهگیری وضعیت سفارش‌ها و درخواست‌ها",
+            "show_stats": "yes",
+            "card_bg": "#0F172A"
+          }
+        },
         {
           "id": "uas_popup_wid_tracker",
           "elType": "widget",
@@ -28875,9 +29206,55 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
   ]
 }`},{path:"elementor-addon-suite/templates/template-contact-booking-split.json",filename:"template-contact-booking-split.json",category:"صفحه‌ساز و ویجت‌ها (Elementor Widgets)",description:"قالب آماده و بخش از پیش طراحی‌شده المنتور (template-contact-booking-split.json)",code:`{
   "version": "0.4",
-  "title": "UAS - رزرو آنلاین و نوبت‌دهی مشاوره حقوقی (Smart Booking & Intake)",
-  "type": "container",
+  "title": "UAS - رزرو آنلاین و نوبت‌دهی مشاوره (Smart Contact & Booking Split)",
+  "type": "page",
   "content": [
+    {
+      "id": "uas_cnt_contact_header",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "background_background": "gradient",
+        "background_color": "#0B152F",
+        "background_color_b": "#111C3D",
+        "padding": {
+          "unit": "px",
+          "top": "70",
+          "right": "20",
+          "bottom": "50",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_contact_hero",
+          "elType": "widget",
+          "widgetType": "uas_hero",
+          "settings": {
+            "badge_text": "پذیرش حضوری، تلفنی و آنلاین",
+            "hero_title": "ارتباط مستقیم و رزرو نوبت مشاوره تخصصی",
+            "hero_desc": "پرسش خود را مطرح کنید یا زمان جلسه مشاوره تخصصی را با کارشناسان ارشد ما هماهنگ نمایید.",
+            "primary_btn_text": "تکمیل فرم نوبت‌دهی",
+            "primary_btn_url": {
+              "url": "#booking-form-section",
+              "is_external": false
+            },
+            "secondary_btn_text": "سوالات متداول پذیرش",
+            "secondary_btn_url": {
+              "url": "#booking-faq",
+              "is_external": false
+            },
+            "hero_preset": "centered-luxury",
+            "title_tag": "h1",
+            "show_media": "no"
+          }
+        }
+      ]
+    },
     {
       "id": "uas_cnt_booking_split_01",
       "elType": "container",
@@ -28885,10 +29262,137 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
       "settings": {
         "padding": {
           "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0F172A",
+        "content_width": "boxed",
+        "flex_direction": "row",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center",
+        "flex_wrap": "wrap",
+        "flex_gap": {
+          "unit": "px",
+          "size": 28
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_cnt_sub_contact_info",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 44
+            },
+            "background_background": "classic",
+            "background_color": "#162038",
+            "padding": {
+              "unit": "px",
+              "top": "28",
+              "right": "28",
+              "bottom": "28",
+              "left": "28"
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_contact_info_heading",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "نشانی دفتر مرکزی و اطلاعات تماس",
+                "header_size": "h2",
+                "align": "right"
+              }
+            },
+            {
+              "id": "uas_wid_contact_info_desc",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p style='color:#cbd5e1;font-size:14px;line-height:1.9;'>تیم پشتیبانی و دبیرخانه ما در روزهای کاری شنبه تا چهارشنبه پاسخگوی تماس‌ها و هماهنگی جلسات مشاوره حضوری و آنلاین است.</p>"
+              }
+            },
+            {
+              "id": "uas_wid_contact_info_list",
+              "elType": "widget",
+              "widgetType": "icon-list",
+              "settings": {
+                "icon_list": [
+                  {
+                    "text": "نشانی: تهران، بالاتر از میدان ونک، برج تخصصی، طبقه ۸",
+                    "link": {
+                      "url": "#"
+                    }
+                  },
+                  {
+                    "text": "تلفن تماس مستقیم: ۰۲۱-۸۸۸۸۸۸۸۸",
+                    "link": {
+                      "url": "tel:02188888888"
+                    }
+                  },
+                  {
+                    "text": "ساعات پذیرش: شنبه تا چهارشنبه ۱۴:۰۰ الی ۲۰:۰۰",
+                    "link": {
+                      "url": "#"
+                    }
+                  },
+                  {
+                    "text": "پست الکترونیک: info@sedrazavi-law.com",
+                    "link": {
+                      "url": "mailto:info@sedrazavi-law.com"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "uas_cnt_sub_contact_form",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 56
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_booking_split_01",
+              "elType": "widget",
+              "widgetType": "uas_contact_booking",
+              "settings": {
+                "form_title": "رزرو جلسه مشاوره و ثبت درخواست آنلاین",
+                "form_desc": "امکان هماهنگی جلسه حضوری در دفتر ونک یا مشاوره آنلاین با متخصصان و وکیل پایه یک.",
+                "submit_btn_text": "ثبت نهایی درخواست نوبت ←"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_contact_faq",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
           "top": "50",
-          "right": "0",
-          "bottom": "50",
-          "left": "0"
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
         },
         "background_background": "classic",
         "background_color": "#0B152F",
@@ -28899,30 +29403,23 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
       },
       "elements": [
         {
-          "id": "uas_wid_booking_split_01",
+          "id": "uas_wid_contact_faq",
           "elType": "widget",
-          "widgetType": "uas_contact_booking",
+          "widgetType": "uas_faq",
           "settings": {
-            "booking_title": "رزرو جلسه مشاوره حقوقی تخصصی",
-            "booking_subtitle": "امکان هماهنگی جلسه حضوری در دفتر ونک یا مشاوره آنلاین ویدیویی با وکیل پایه یک",
-            "consultation_types": [
+            "enable_schema": "yes",
+            "enable_search": "yes",
+            "search_placeholder": "جستجو در راهنمای نوبت‌دهی و مشاوره...",
+            "faqs_list": [
               {
-                "label": "مشاوره حضوری در دفتر (تهران، ونک)",
-                "price": "۱,۵۰۰,۰۰۰ تومان"
+                "question": "چگونه زمان قطعی جلسه مشاوره تایید می‌شود؟",
+                "answer": "بلافاصله پس از ثبت فرم، شماره پیگیری برای شما نمایش داده شده و دبیرخانه ظرف ۲ ساعت کاری زمان قطعی را تایید می‌کند."
               },
               {
-                "label": "مشاوره تلفنی مستقیم با وکیل",
-                "price": "۸۰۰,۰۰۰ تومان"
-              },
-              {
-                "label": "مشاوره آنلاین تصویری بین‌المللی",
-                "price": "۲,۲۰۰,۰۰۰ تومان"
+                "question": "آیا امکان ارسال مدارک و پیش‌نویس قرارداد پیش از جلسه وجود دارد؟",
+                "answer": "بله، پس از هماهنگی اولیه لینک امن بارگذاری اسناد در کارتابل محرمانه در اختیار شما قرار می‌گیرد."
               }
-            ],
-            "office_address": "تهران، میدان ونک، خیابان ونک، برج نگار، طبقه ۱۵",
-            "office_phone": "۰۲۱-۸۸۷۷۶۶۵۵",
-            "office_email": "booking@sedrazavi-law.ir",
-            "office_hours": "شنبه تا چهارشنبه: ۰۹:۰۰ الی ۱۹:۰۰"
+            ]
           }
         }
       ]
@@ -29800,6 +30297,80 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
   "type": "header",
   "content": [
     {
+      "id": "uas_cnt_header_ticker_bar",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "background_background": "classic",
+        "background_color": "#0B132B",
+        "padding": {
+          "unit": "px",
+          "top": "8",
+          "right": "24",
+          "bottom": "8",
+          "left": "24"
+        },
+        "content_width": "boxed",
+        "flex_direction": "row",
+        "flex_align_items": "center",
+        "flex_justify_content": "space-between",
+        "flex_wrap": "wrap",
+        "flex_gap": {
+          "unit": "px",
+          "size": 16
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_cnt_sub_header_ticker",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 75
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_header_news_ticker",
+              "elType": "widget",
+              "widgetType": "uas_news_ticker",
+              "settings": {
+                "ticker_badge": "اطلاعیه فوری",
+                "posts_count": 5
+              }
+            }
+          ]
+        },
+        {
+          "id": "uas_cnt_sub_header_theme_toggle",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 20
+            },
+            "flex_direction": "column",
+            "flex_align_items": "flex-end"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_header_theme_toggle",
+              "elType": "widget",
+              "widgetType": "uas_theme_toggle",
+              "settings": {
+                "label": "حالت شب / روز"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "uas_cnt_header_glass",
       "elType": "container",
       "isInner": false,
@@ -29990,25 +30561,102 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
           "elType": "widget",
           "widgetType": "uas_hero",
           "settings": {
-            "badge_text": "مشاوره راهبردی و راهکارهای جامع سازمانی",
+            "badge_text": "مشاوره راهبردی، حاکمیت شرکتی و راهکارهای جامع سازمانی",
             "hero_title": "هدایت کسب‌وکارها به‌سوی رشد پایدار و مزیت‌های ماندگار",
-            "hero_desc": "ما با تلفیق سال‌ها تجربه ارشد مدیریتی، تحلیل عمیق بازار و فناوری‌های نوین، به مدیران ارشد سازمان‌ها در اتخاذ تصمیمات استراتژیک یاری می‌رسانیم.",
+            "hero_desc": "ما با تلفیق سال‌ها تجربه ارشد مدیریتی و حقوقی، تحلیل عمیق بازار و فناوری‌های نوین، به مدیران ارشد در اتخاذ تصمیمات استراتژیک یاری می‌رسانیم.",
             "primary_btn_text": "درخواست جلسه استراتژی",
             "primary_btn_url": {
-              "url": "#booking",
+              "url": "/contact/",
               "is_external": false
             },
             "secondary_btn_text": "مطالعه حوزه‌های عملکرد",
             "secondary_btn_url": {
-              "url": "#practice-areas",
+              "url": "/services/",
               "is_external": false
+            },
+            "hero_preset": "split-executive",
+            "title_tag": "h1",
+            "show_media": "yes",
+            "hero_image": {
+              "url": "",
+              "source": "sovereign_local"
             }
           }
         }
       ]
     },
     {
-      "id": "uas_cnt_corp_stats",
+      "id": "uas_cnt_corp_pillars",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "50",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0B132B",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_corp_pillars",
+          "elType": "widget",
+          "widgetType": "uas_services_grid",
+          "settings": {
+            "subtitle": "منشور ارزش و حوزه‌های تخصصی",
+            "title": "ارکان اصلی خدمات سازمانی و هلدینگ",
+            "columns": "4",
+            "services_list": [
+              {
+                "item_title": "حاکمیت شرکتی و انطباق",
+                "item_desc": "تدوین آیین‌نامه‌ها، منشور اخلاق حرفه‌ای و تطبیق ساختار قراردادهای هلدینگ با مقررات.",
+                "item_link_text": "جزئیات ←",
+                "item_link_url": {
+                  "url": "/services/",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "تضمین کیفیت و شفافیت مالی",
+                "item_desc": "برآورد شفاف بودجه، گزارش‌دهی مستمر شاخص‌ها و ممیزی فنی پیش از اجرای پروژه.",
+                "item_link_text": "جزئیات ←",
+                "item_link_url": {
+                  "url": "/services/",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "محرمانگی مطلق اطلاعات",
+                "item_desc": "صیانت کامل از اسرار تجاری و اسناد مالی کارفرمایان مطابق استانداردهای امنیتی.",
+                "item_link_text": "جزئیات ←",
+                "item_link_url": {
+                  "url": "/services/",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "گزارش‌دهی و مدیریت بحران",
+                "item_desc": "پایش مستمر پیشرفت گام‌به‌گام و پشتیبانی فوری در پرونده‌ها و مناقصات کلان.",
+                "item_link_text": "تماس ←",
+                "item_link_url": {
+                  "url": "/contact/",
+                  "is_external": false
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_corp_milestones",
       "elType": "container",
       "isInner": false,
       "settings": {
@@ -30026,12 +30674,12 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
       },
       "elements": [
         {
-          "id": "uas_wid_corp_timeline",
+          "id": "uas_wid_corp_milestones",
           "elType": "widget",
-          "widgetType": "uas_case_timeline",
+          "widgetType": "uas_firm_milestones",
           "settings": {
-            "title": "مراحل گام‌به‌گام پیاده‌سازی تحول سازمانی",
-            "subtitle": "از ارزیابی وضعیت فعلی تا دستیابی به نتایج ملموس مالی و عملیاتی"
+            "title": "مسیر رشد، سوابق علمی و نقاط عطف مجموعه",
+            "subtitle": "دو دهه تجربه تخصصی، دستاوردهای ملی و چشم‌انداز توسعه بین‌المللی"
           }
         }
       ]
@@ -30048,6 +30696,8 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
           "bottom": "60",
           "left": "20"
         },
+        "background_background": "classic",
+        "background_color": "#0F172A",
         "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
@@ -30055,12 +30705,50 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
       },
       "elements": [
         {
+          "id": "uas_wid_corp_team_heading",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "تیم مشاوران ارشد و شرکای کلیدی",
+            "header_size": "h2",
+            "align": "center"
+          }
+        },
+        {
           "id": "uas_wid_corp_team",
           "elType": "widget",
           "widgetType": "uas_team",
           "settings": {
-            "title": "تیم مشاوران ارشد و شرکای کلیدی",
-            "subtitle": "متخصصان برجسته با سوابق اجرایی در صنایع گوناگون"
+            "columns": "3",
+            "team_list": [
+              {
+                "name": "دکتر سارا شمس",
+                "role": "مدیر ارشد راهبرد و سرمایه‌گذاری",
+                "bio": "بیش از ۱۲ سال تجربه در هدایت پروژه‌های توسعه بازار و ساختاردهی هلدینگ‌های تخصصی.",
+                "photo": {
+                  "url": "",
+                  "source": "sovereign_local"
+                }
+              },
+              {
+                "name": "مهندس رضا علوی",
+                "role": "راهبر ارشد معماری و تحول دیجیتال",
+                "bio": "متخصص طراحی سامانه‌های مقیاس‌پذیر، امنیت سازمانی و زیرساخت‌های مدرن ابری.",
+                "photo": {
+                  "url": "",
+                  "source": "sovereign_local"
+                }
+              },
+              {
+                "name": "رویا معتمدی",
+                "role": "مدیر امور قراردادها و ارتباط با سرمایه‌گذاران",
+                "bio": "سوابق اجرایی برجسته در تدوین موافقت‌نامه‌های تجاری و توسعه همکاری‌های بین‌المللی.",
+                "photo": {
+                  "url": "",
+                  "source": "sovereign_local"
+                }
+              }
+            ]
           }
         }
       ]
@@ -30109,6 +30797,13 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
             "secondary_btn_url": {
               "url": "#contact",
               "is_external": false
+            },
+            "hero_preset": "split-executive",
+            "title_tag": "h1",
+            "show_media": "yes",
+            "hero_image": {
+              "url": "",
+              "source": "sovereign_local"
             }
           }
         }
@@ -30133,12 +30828,24 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
       },
       "elements": [
         {
+          "id": "uas_wid_agency_portfolio_heading",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "ویترین دستاوردها و یادداشت‌های تخصصی",
+            "header_size": "h2",
+            "align": "right"
+          }
+        },
+        {
           "id": "uas_wid_agency_portfolio",
           "elType": "widget",
           "widgetType": "uas_posts_grid",
           "settings": {
-            "title": "ویترین دستاوردها و نمونه‌کارهای شاخص",
-            "subtitle": "نگاهی به منتخبی از تجارب موفق طراحی محصول و نرم‌افزار"
+            "posts_per_page": 3,
+            "columns": "3",
+            "show_date": "yes",
+            "read_more_text": "مطالعه ادامه مقاله ←"
           }
         }
       ]
@@ -30167,10 +30874,10 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
           "widgetType": "uas_cta",
           "settings": {
             "title": "آماده‌اید پروژه بعدی خود را متحول کنید؟",
-            "subtitle": "همین امروز با مشاوران ارشد طراحی ما تماس بگیرید و مشاوره اولیه رایگان دریافت کنید.",
+            "description": "همین امروز با مشاوران ارشد طراحی ما تماس بگیرید و مشاوره اولیه رایگان دریافت کنید.",
             "button_text": "شروع همکاری حرفه‌ای",
             "button_url": {
-              "url": "#contact"
+              "url": "/contact/"
             }
           }
         }
@@ -30358,20 +31065,50 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
         },
         "background_background": "classic",
         "background_color": "#070D1E",
-        "content_width": "full",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 28
+        }
       },
       "elements": [
+        {
+          "id": "uas_wid_podcast_hero_split",
+          "elType": "widget",
+          "widgetType": "uas_hero_split",
+          "settings": {
+            "badge_text": "🎙️ رادیو و پادکست‌های تخصصی",
+            "headline": "مرکز شنیداری، تحلیل‌های صوتی و گفت‌وگوهای تخصصی",
+            "description": "پخش برخط اپیزودها، دانلود فایل صوتی با کیفیت بالا و دسترسی به متن کامل پیاده‌سازی‌شده هر قسمت.",
+            "bullets_list": [
+              {
+                "bullet_text": "دسترسی فوری به آرشیو کامل اپیزودهای تحلیلی و آموزشی"
+              },
+              {
+                "bullet_text": "دریافت نسخه متنی و خلاصه نکات کلیدی هر قسمت به صورت PDF"
+              },
+              {
+                "bullet_text": "اطلاع‌رسانی خودکار انتشار قسمت‌های جدید از طریق پیامک یا ایمیل"
+              }
+            ],
+            "lead_title": "عضویت در خبرنامه شنیداری",
+            "lead_desc": "شماره تماس خود را وارد کنید تا لینک دانلود اپیزودهای ویژه برای شما ارسال شود:",
+            "input_placeholder": "شماره همراه (مثلاً ۰۹۱۲...)",
+            "submit_btn_text": "دریافت لینک اپیزودهای ویژه ⚡",
+            "trust_guarantee": "🔒 اطلاعات شما محفوظ است و هرزنامه ارسال نمی‌شود."
+          }
+        },
         {
           "id": "uas_wid_podcast_hero",
           "elType": "widget",
           "widgetType": "uas_hero",
           "settings": {
-            "badge_text": "🎙️ رادیو و پادکست‌های اختصاصی",
-            "hero_title": "مرکز شنیداری و سخنرانی‌های صوتی تخصصی",
-            "hero_desc": "پخش برخط، کنترل سرعت پخش، دانلود مستقیم فایل MP3 و دریافت متن کامل سخنرانی با فرمت PDF.",
+            "badge_text": "🎧 آخرین اپیزود منتشر شده",
+            "hero_title": "آرشیو دسته‌بندی‌شده پادکست‌ها و میزگردهای تخصصی",
+            "hero_desc": "تمامی قسمت‌ها با ساختار استاندارد صوتی، برچسب موضوعی و امکان پخش در تمامی مرورگرها آماده شنیدن هستند.",
             "primary_btn_text": "پخش آخرین اپیزود",
             "primary_btn_url": {
               "url": "#latest-episode",
@@ -30390,7 +31127,7 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
 }`},{path:"elementor-addon-suite/templates/template-portfolio-showcase.json",filename:"template-portfolio-showcase.json",category:"صفحه‌ساز و ویجت‌ها (Elementor Widgets)",description:"قالب آماده و بخش از پیش طراحی‌شده المنتور (template-portfolio-showcase.json)",code:`{
   "version": "0.4",
   "title": "UAS - نمونه‌کارها و پروژه‌های طراحی وب (Portfolio & Case Studies)",
-  "type": "container",
+  "type": "page",
   "content": [
     {
       "id": "uas_cnt_portfolio_showcase",
@@ -30399,14 +31136,15 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
       "settings": {
         "padding": {
           "unit": "px",
-          "top": "50",
+          "top": "80",
           "right": "20",
-          "bottom": "50",
+          "bottom": "70",
           "left": "20"
         },
-        "background_background": "classic",
+        "background_background": "gradient",
         "background_color": "#0A0F1D",
-        "content_width": "full",
+        "background_color_b": "#1E1B4B",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
         "flex_justify_content": "center"
@@ -30417,17 +31155,168 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
           "elType": "widget",
           "widgetType": "uas_hero",
           "settings": {
-            "badge_text": "🚀 شوکیس پروژه‌ها و بنچمارک لایت‌هاوس",
+            "badge_text": "ویترین پروژه‌ها و بنچمارک لایت‌هاوس",
             "hero_title": "نمونه‌کارهای تخصصی طراحی سایت با امتیاز سرعت ۱۰۰",
-            "hero_desc": "معماری گوتنبرگ فرست، لودتایم زیر یک ثانیه و تطابق کامل با استانداردهای گوگل Core Web Vitals.",
+            "hero_desc": "معماری کانتینری بومی المنتور و گوتنبرگ، زمان بارگذاری زیر ۵۰۰ میلی‌ثانیه و تطابق کامل با استانداردهای گوگل Core Web Vitals.",
             "primary_btn_text": "ثبت بریف اختصاصی پروژه",
             "primary_btn_url": {
-              "url": "#brief-form",
+              "url": "/contact/",
               "is_external": false
             },
-            "secondary_btn_text": "بررسی بنچمارک سرعت",
+            "secondary_btn_text": "مشاهده خدمات استودیو",
             "secondary_btn_url": {
-              "url": "#metrics",
+              "url": "/services/",
+              "is_external": false
+            },
+            "hero_preset": "split-executive",
+            "title_tag": "h1",
+            "show_media": "yes",
+            "hero_image": {
+              "url": "",
+              "source": "sovereign_local"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_portfolio_dynamic_grid",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "70",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0F172A",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_portfolio_heading",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "آرشیو زنده پروژه‌ها و مطالعات موردی",
+            "header_size": "h2",
+            "align": "right"
+          }
+        },
+        {
+          "id": "uas_wid_portfolio_dynamic_grid",
+          "elType": "widget",
+          "widgetType": "uas_dynamic_grid",
+          "settings": {
+            "columns": "3",
+            "query_post_type": "portfolio",
+            "query_posts_per_page": 6,
+            "query_orderby": "date",
+            "query_order": "DESC",
+            "query_cache_ttl": 3600,
+            "btn_text": "بررسی کیس‌استادی پروژه ↗"
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_portfolio_testimonials",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0B132B",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_portfolio_proof_heading",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "دیدگاه مدیران پروژه‌ها و کارفرمایان",
+            "header_size": "h2",
+            "align": "center"
+          }
+        },
+        {
+          "id": "uas_wid_portfolio_testimonials",
+          "elType": "widget",
+          "widgetType": "uas_testimonials",
+          "settings": {
+            "columns": "2",
+            "testimonials_list": [
+              {
+                "author_name": "مهندس فرهاد شریفی",
+                "author_role": "مدیر محصول پلتفرم سازمانی",
+                "review_text": "مهاجرت وب‌سایت ما به ساختار کانتینری جدید، امتیاز سرعت موبایل را به بالای ۹۸ رساند و نرخ تبدیل فرم‌های فروش را دو برابر کرد.",
+                "rating": "5",
+                "avatar": {
+                  "url": "",
+                  "source": "sovereign_local"
+                }
+              },
+              {
+                "author_name": "دکتر نرگس هاشمی",
+                "author_role": "بنیان‌گذار مجموعه مشاوره حقوقی",
+                "review_text": "یکپارچگی طراحی بصری، راست‌چین دقیق فارسی و ویرایش آسان بدون نیاز به کدنویسی در المنتور تجربه تیم ما را متحول کرد.",
+                "rating": "5",
+                "avatar": {
+                  "url": "",
+                  "source": "sovereign_local"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_portfolio_cta",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0A0F1D",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_portfolio_cta",
+          "elType": "widget",
+          "widgetType": "uas_cta",
+          "settings": {
+            "title": "آماده ساخت پروژه بعدی خود با استاندارد لایت‌هاوس ۱۰۰ هستید؟",
+            "description": "با ارسال مشخصات پروژه، طرح اولیه، زمان‌بندی و برآورد شفاف هزینه را در کمتر از ۲۴ ساعت دریافت نمایید.",
+            "button_text": "ارسال بریف و درخواست مشاوره ←",
+            "button_url": {
+              "url": "/contact/",
               "is_external": false
             }
           }
@@ -30490,26 +31379,74 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
         "padding": {
           "unit": "px",
           "top": "50",
-          "right": "0",
+          "right": "20",
           "bottom": "50",
-          "left": "0"
+          "left": "20"
         },
         "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 28
+        }
       },
       "elements": [
+        {
+          "id": "uas_wid_price_switcher_01",
+          "elType": "widget",
+          "widgetType": "uas_pricing_switcher",
+          "settings": {
+            "section_badge": "تعرفه‌ها و اشتراک‌ها",
+            "section_title": "پلن متناسب با کسب‌وکار خود را انتخاب کنید",
+            "monthly_label": "پرداخت ماهانه",
+            "yearly_label": "پرداخت سالانه (۲۰٪ تخفیف)",
+            "p1_name": "استارتاپ",
+            "p1_price_monthly": "۲۹۰,۰۰۰ تومان",
+            "p1_price_yearly": "۲,۳۲۰,۰۰۰ تومان",
+            "p1_desc": "مناسب فریلنسرها و شروع کسب‌وکارهای آنلاین نوپا",
+            "p1_features": "دسترسی به الگوهای پایه\\nبه‌روزرسانی خودکار ۶ ماهه\\nپشتیبانی تیکتی استاندارد\\nامکان اتصال به یک دامنه",
+            "p1_btn_text": "شروع با پلن پایه",
+            "p1_btn_url": {
+              "url": "#plan1",
+              "is_external": false
+            },
+            "p2_featured": "yes",
+            "p2_badge": "محبوب‌ترین انتخاب",
+            "p2_name": "حرفه‌ای و سازمانی",
+            "p2_price_monthly": "۵۹۰,۰۰۰ تومان",
+            "p2_price_yearly": "۴,۷۲۰,۰۰۰ تومان",
+            "p2_desc": "ایده‌آل برای تیم‌های فعال و وب‌سایت‌های پرترافیک",
+            "p2_features": "دسترسی نامحدود به تمام الگوها\\nبه‌روزرسانی مادام‌العمر\\nپشتیبانی اولویت‌دار ۲۴ ساعته\\nنصب روی ۵ وب‌سایت مجزا\\nابزارهای پیشرفته فرم و پاپ‌آپ",
+            "p2_btn_text": "سفارش پلن حرفه‌ای",
+            "p2_btn_url": {
+              "url": "#plan2",
+              "is_external": false
+            },
+            "p3_name": "انترپرایز و توسعه نامحدود",
+            "p3_price_monthly": "۱,۲۰۰,۰۰۰ تومان",
+            "p3_price_yearly": "۹,۶۰۰,۰۰۰ تومان",
+            "p3_desc": "پاسخگوی تمام نیازهای شرکت‌ها و هولدینگ‌های بزرگ",
+            "p3_features": "نصب روی بی‌نهایت وب‌سایت\\nتوسعه اختصاصی ماژول‌ها\\nمشاوره اختصاصی طراحی و سئو\\nضمانت کیفیت پیاده‌سازی\\nاتصال مستقیم به API",
+            "p3_btn_text": "مشاوره و خرید پلن",
+            "p3_btn_url": {
+              "url": "#plan3",
+              "is_external": false
+            },
+            "primary_color": "#8B5CF6"
+          }
+        },
         {
           "id": "uas_wid_price_cta_01",
           "elType": "widget",
           "widgetType": "uas_cta",
           "settings": {
-            "title": "پلن‌های شفاف، منعطف و متناسب با رشد سازمان شما",
-            "description": "از میان گزینه‌های استاندارد، حرفه‌ای و سازمانی، مناسب‌ترین بسته متناسب با بودجه و نیازمندی‌های کسب‌وکار خود را انتخاب فرمایید.",
-            "button_text": "مشاهده جزئیات پلن‌های تعرفه و استعلام فوری ←",
+            "title": "نیاز به بسته سفارشی یا مشاوره انتخاب پلن دارید؟",
+            "description": "با کارشناسان فروش سازمانی تماس بگیرید تا مناسب‌ترین ساختار متناسب با بودجه و نیازمندی‌های مجموعه شما پیشنهاد شود.",
+            "button_text": "درخواست استعلام سفارشی ←",
             "button_url": {
-              "url": "#pricing",
+              "url": "#pricing-inquiry",
               "is_external": false
             }
           }
@@ -30539,7 +31476,11 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
         "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 32
+        }
       },
       "elements": [
         {
@@ -30555,7 +31496,8 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
                 "review_text": "همکاری با این مجموعه یکی از بهترین تصمیمات توسعه تجاری ما بود. دقت بالا در جزئیات، سرعت پیاده‌سازی و انطباق کامل با نیازهای ما فراتر از حد انتظار ظاهر شد.",
                 "rating": "5",
                 "avatar": {
-                  "url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
+                  "url": "client-avatar.svg",
+                  "source": "sovereign_local"
                 }
               },
               {
@@ -30564,10 +31506,40 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
                 "review_text": "سطح حرفه‌ای‌گری، شفافیت در ارائه گزارش‌های پیشرفت و تسلط تیم بر استانداردهای روز، اطمینان خاطر کامل را برای ما و سهامداران مجموعه به ارمغان آورد.",
                 "rating": "5",
                 "avatar": {
-                  "url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"
+                  "url": "client-avatar.svg",
+                  "source": "sovereign_local"
                 }
               }
             ]
+          }
+        },
+        {
+          "id": "uas_wid_client_before_after",
+          "elType": "widget",
+          "widgetType": "uas_before_after",
+          "settings": {
+            "before_image": {
+              "url": "saas-dashboard.svg",
+              "source": "sovereign_local"
+            },
+            "after_image": {
+              "url": "hero-showcase.svg",
+              "source": "sovereign_local"
+            },
+            "before_label": "وضعیت پیش از بهینه‌سازی",
+            "after_label": "خروجی نهایی استاندارد",
+            "initial_position": {
+              "size": 50
+            },
+            "handle_color": "#8B5CF6"
+          }
+        },
+        {
+          "id": "uas_wid_client_radar_chart",
+          "elType": "widget",
+          "widgetType": "uas_radar_chart",
+          "settings": {
+            "chart_title": "ماتریس ارزیابی کیفیت و توزیع حوزه‌های تخصصی"
           }
         }
       ]
@@ -30593,7 +31565,11 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
         "content_width": "full",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 12
+        }
       },
       "elements": [
         {
@@ -30613,6 +31589,14 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
             "phone_number": "02188889999",
             "show_whatsapp_btn": "yes",
             "whatsapp_number": "989123456789"
+          }
+        },
+        {
+          "id": "uas_wid_floating_dock_01",
+          "elType": "widget",
+          "widgetType": "uas_floating_dock",
+          "settings": {
+            "enable_scroll_top": "yes"
           }
         }
       ]
@@ -30688,8 +31672,54 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
 }`},{path:"elementor-addon-suite/templates/template-services-bento.json",filename:"template-services-bento.json",category:"صفحه‌ساز و ویجت‌ها (Elementor Widgets)",description:"قالب آماده و بخش از پیش طراحی‌شده المنتور (template-services-bento.json)",code:`{
   "version": "0.4",
   "title": "UAS - گرید بنتو خدمات و قابلیت‌های تخصصی (Services Bento Grid)",
-  "type": "container",
+  "type": "page",
   "content": [
+    {
+      "id": "uas_cnt_bento_hero",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "background_background": "gradient",
+        "background_color": "#0B132B",
+        "background_color_b": "#1C2541",
+        "padding": {
+          "unit": "px",
+          "top": "70",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_bento_hero",
+          "elType": "widget",
+          "widgetType": "uas_hero",
+          "settings": {
+            "badge_text": "حوزه‌های تخصصی خدمات و راهکارهای مهندسی و حقوقی",
+            "hero_title": "خدمات جامع، شفاف و نتیجه‌محور برای سازمان‌ها و موکلان",
+            "hero_desc": "از معماری پلتفرم‌های وب و تحول دیجیتال تا مشاوره تخصصی قراردادها، داوری تجاری و نمایندگی حرفه‌ای.",
+            "primary_btn_text": "درخواست مشاوره و نوبت",
+            "primary_btn_url": {
+              "url": "/contact/",
+              "is_external": false
+            },
+            "secondary_btn_text": "مشاهده فهرست خدمات",
+            "secondary_btn_url": {
+              "url": "#services-catalog",
+              "is_external": false
+            },
+            "hero_preset": "centered-luxury",
+            "title_tag": "h1",
+            "show_media": "no"
+          }
+        }
+      ]
+    },
     {
       "id": "uas_cnt_bento_01",
       "elType": "container",
@@ -30697,10 +31727,10 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
       "settings": {
         "padding": {
           "unit": "px",
-          "top": "60",
-          "right": "0",
+          "top": "70",
+          "right": "20",
           "bottom": "60",
-          "left": "0"
+          "left": "20"
         },
         "background_background": "classic",
         "background_color": "#0B132B",
@@ -30715,48 +31745,120 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
           "elType": "widget",
           "widgetType": "uas_services_grid",
           "settings": {
-            "section_title": "خدمات راهبردی و قابلیت‌های تخصصی سازمان",
-            "section_subtitle": "ارائه راهکارهای یکپارچه طراحی، مهندسی نرم‌افزار، مشاوره مدیریت و ارتقای مزیت‌های رقابتی",
-            "layout_style": "bento",
+            "subtitle": "دپارتمان‌های محوری و خدمات کلیدی",
+            "title": "سرویس‌های راهبردی و قابلیت‌های تخصصی مجموعه",
             "columns": "3",
-            "services": [
+            "services_list": [
               {
-                "title": "طراحی محصول و تجربه کاربری (UI/UX)",
-                "description": "خلق رابط‌های کاربری چشم‌نواز با هویت بصری اختصاصی، استانداردهای بین‌المللی و حداکثر نرخ تبدیل.",
-                "icon": "eicon-paint-brush",
-                "badge": "طراحی خلاق",
-                "link": {
-                  "url": "#design"
+                "item_title": "طراحی محصول، برندینگ و تجربه کاربری (UI/UX)",
+                "item_desc": "خلق رابط‌های کاربری مدرن، دیزاین سیستم یکپارچه و صفحات فرود با بالاترین نرخ تبدیل و استاندارد دسترس‌پذیری.",
+                "item_link_text": "بررسی نمونه‌کارها ←",
+                "item_link_url": {
+                  "url": "/portfolio/",
+                  "is_external": false
                 }
               },
               {
-                "title": "توسعه و مهندسی سیستم‌های ابری",
-                "description": "پیاده‌سازی پلتفرم‌های مقیاس‌پذیر، پرسرعت و امن با معماری مدرن و بهینه‌سازی شده برای بار ترافیکی بالا.",
-                "icon": "eicon-code",
-                "badge": "فناوری و توسعه",
-                "link": {
-                  "url": "#cloud"
+                "item_title": "مهندسی وردپرس بومی، ووکامرس و المنتور",
+                "item_desc": "پیاده‌سازی پلتفرم‌های پرسرعت و ماژولار با ساختار استاندارد کانتینری، سئوی فنی و امنیت سازمانی.",
+                "item_link_text": "ثبت بریف پروژه ←",
+                "item_link_url": {
+                  "url": "/contact/",
+                  "is_external": false
                 }
               },
               {
-                "title": "استراتژی رشد و تحول دیجیتال",
-                "description": "بهینه‌سازی قیف فروش، بازاریابی داده‌محور و پیاده‌سازی اتوماسیون‌های هوشمند برای رشد پایدار کسب‌وکار.",
-                "icon": "eicon-grow",
-                "badge": "استراتژی و مشاوره",
-                "link": {
-                  "url": "#growth"
-                }
-              },
-              {
-                "title": "امنیت سایبری و مدیریت ریسک",
-                "description": "پایش و ممیزی مستمر، حفاظت از دارایی‌های دیجیتال و رمزنگاری پیشرفته داده‌های سازمانی.",
-                "icon": "eicon-shield-check",
-                "badge": "امنیت و پایایی",
-                "link": {
-                  "url": "#security"
+                "item_title": "مشاوره قراردادها، داوری و تطبیق حقوقی",
+                "item_desc": "تدوین و ممیزی قراردادهای تجاری، فناوری و بین‌المللی همراه با ارزیابی ریسک و پیگیری تخصصی پرونده‌ها.",
+                "item_link_text": "رزرو جلسه تخصصی ←",
+                "item_link_url": {
+                  "url": "/contact/",
+                  "is_external": false
                 }
               }
             ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_bento_dynamic_loop",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0F172A",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_bento_dynamic_heading",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "فهرست پویای خدمات ثبت‌شده در سامانه",
+            "header_size": "h2",
+            "align": "right"
+          }
+        },
+        {
+          "id": "uas_wid_bento_dynamic_grid",
+          "elType": "widget",
+          "widgetType": "uas_dynamic_grid",
+          "settings": {
+            "columns": "3",
+            "query_post_type": "services",
+            "query_posts_per_page": 6,
+            "query_orderby": "date",
+            "query_order": "DESC",
+            "query_cache_ttl": 3600,
+            "btn_text": "مشاهده جزئیات خدمت ←"
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_bento_cta",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0B132B",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_bento_cta",
+          "elType": "widget",
+          "widgetType": "uas_cta",
+          "settings": {
+            "title": "نیاز به دریافت برآورد دقیق یا جلسه مشاوره تخصصی دارید؟",
+            "description": "هم‌اکنون درخواست خود را ثبت کنید تا زمان‌بندی، هزینه و نقشه راه دقیق اجرایی برایتان تدوین گردد.",
+            "button_text": "رزرو جلسه و ارسال بریف ←",
+            "button_url": {
+              "url": "/contact/",
+              "is_external": false
+            }
           }
         }
       ]
@@ -30894,7 +31996,7 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
               "widgetType": "uas_cta",
               "settings": {
                 "title": "دریافت مشاوره تخصصی",
-                "subtitle": "برای راه‌اندازی پروژه‌های خود با متخصصان ما گفتگو کنید.",
+                "description": "برای راه‌اندازی پروژه‌های خود با متخصصان ما گفتگو کنید.",
                 "button_text": "رزرو آنلاین جلسه",
                 "button_url": {
                   "url": "#booking"
@@ -30955,7 +32057,8 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
               "widgetType": "image",
               "settings": {
                 "image": {
-                  "url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800"
+                  "url": "product-studio.svg",
+                  "source": "sovereign_local"
                 },
                 "caption_source": "none"
               }
@@ -31034,30 +32137,46 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
         },
         "background_background": "classic",
         "background_color": "#070D1E",
-        "content_width": "full",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 24
+        }
       },
       "elements": [
         {
-          "id": "uas_wid_single_video_hero",
+          "id": "uas_wid_single_video_player",
           "elType": "widget",
-          "widgetType": "uas_hero",
+          "widgetType": "uas_video",
           "settings": {
-            "badge_text": "🎬 سینما پلیر و دانلود چندکیفیتی",
-            "hero_title": "پخش برخط سخنرانی همراه با فصول زمانی و جزوه PDF",
-            "hero_desc": "امکان دریافت فایل در ۴ کیفیت (1080p, 720p, صوت MP3 و خلاصه متنی جزوه).",
-            "primary_btn_text": "پخش کیفیت ۱۰۸۰p",
-            "primary_btn_url": {
+            "video_title": "پخش برخط سخنرانی و تحلیل کاربردی با پوستر اختصاصی",
+            "video_url": {
               "url": "#cinema-player",
               "is_external": false
             },
-            "secondary_btn_text": "فهرست فصول و سرفصل‌ها",
-            "secondary_btn_url": {
-              "url": "#chapters",
-              "is_external": false
+            "poster_image": {
+              "url": "hero-showcase.svg",
+              "source": "sovereign_local"
             }
+          }
+        },
+        {
+          "id": "uas_wid_single_video_download",
+          "elType": "widget",
+          "widgetType": "uas_download_box",
+          "settings": {
+            "box_title": "دانلود بسته کامل فایل ویدیویی، صوت MP3 و جزوه PDF",
+            "version": "v6.0.0",
+            "filesize": "۴۸ مگابایت",
+            "os": "windows,mac,linux,android",
+            "password": "www.example.com",
+            "direct_url": "#download-direct-server-1",
+            "mirror_url": "#download-mirror-server-2",
+            "box_bg_color": "#0f172a",
+            "primary_accent_color": "#2563eb"
           }
         }
       ]
@@ -31066,10 +32185,60 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
 }`},{path:"elementor-addon-suite/templates/template-store-showcase.json",filename:"template-store-showcase.json",category:"صفحه‌ساز و ویجت‌ها (Elementor Widgets)",description:"قالب آماده و بخش از پیش طراحی‌شده المنتور (template-store-showcase.json)",code:`{
   "version": "0.4",
   "title": "UAS - فروشگاه آنلاین منعطف ووکامرس (Flexible eCommerce Store)",
-  "type": "container",
+  "type": "page",
   "content": [
     {
       "id": "uas_cnt_store_showcase",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "80",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        },
+        "background_background": "gradient",
+        "background_color": "#064E3B",
+        "background_color_b": "#0F172A",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_store_hero",
+          "elType": "widget",
+          "widgetType": "uas_hero",
+          "settings": {
+            "badge_text": "ووکامرس پیشرفته، HPOS و سبد خرید سریع",
+            "hero_title": "فروشگاه آنلاین منعطف با بالاترین سرعت و تجربه خرید مدرن",
+            "hero_desc": "سبد خرید شناور بلادرنگ، اتصال ایمن به درگاه‌های شبکه شتاب، فیلترهای هوشمند ویژگی‌ها و بهینه‌شده برای نرخ تبدیل بالا.",
+            "primary_btn_text": "مشاهده کاتالوگ محصولات",
+            "primary_btn_url": {
+              "url": "#store-products",
+              "is_external": false
+            },
+            "secondary_btn_text": "پشتیبانی و پیگیری سفارش",
+            "secondary_btn_url": {
+              "url": "/contact/",
+              "is_external": false
+            },
+            "hero_preset": "split-executive",
+            "title_tag": "h1",
+            "show_media": "yes",
+            "hero_image": {
+              "url": "",
+              "source": "sovereign_local"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_store_trust",
       "elType": "container",
       "isInner": false,
       "settings": {
@@ -31081,29 +32250,139 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
           "left": "20"
         },
         "background_background": "classic",
-        "background_color": "#064E3B",
-        "content_width": "full",
+        "background_color": "#0B132B",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
         "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_wid_store_hero",
+          "id": "uas_wid_store_trust_grid",
           "elType": "widget",
-          "widgetType": "uas_hero",
+          "widgetType": "uas_services_grid",
           "settings": {
-            "badge_text": "🛍️ ووکامرس پیشرفته و ادغام وودمارت",
-            "hero_title": "فروشگاه آنلاین منعطف با بالاترین سرعت و تجربه کاربری مدرن",
-            "hero_desc": "سبد خرید شناور بلادرنگ، فیلترهای AJAX هوشمند، درگاه‌های پرداخت متصل و سیستم رهگیری سفارش.",
-            "primary_btn_text": "مشاهده کاتالوگ محصولات",
-            "primary_btn_url": {
-              "url": "#products",
-              "is_external": false
-            },
-            "secondary_btn_text": "پیشنهادات شگفت‌انگیز",
-            "secondary_btn_url": {
-              "url": "#deals",
+            "subtitle": "مزایای خرید از فروشگاه",
+            "title": "تضمین کیفیت، تحویل سریع و پرداخت ایمن",
+            "columns": "4",
+            "services_list": [
+              {
+                "item_title": "ارسال سریع سراسری",
+                "item_desc": "ارسال اکسپرس سفارش‌های فیزیکی و تحویل آنی محصولات دیجیتال.",
+                "item_link_text": "شیوه ارسال ←",
+                "item_link_url": {
+                  "url": "#store-products",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "ضمانت اصالت و بازگشت",
+                "item_desc": "۷ روز ضمانت بررسی فنی و اصالت کامل تمامی کالاها و لایسنس‌ها.",
+                "item_link_text": "شرایط ضمانت ←",
+                "item_link_url": {
+                  "url": "/contact/",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "پرداخت امن شاپرک",
+                "item_desc": "اتصال مستقیم به درگاه‌های معتبر بانکی با تایید خودکار فاکتور.",
+                "item_link_text": "مشاهده محصولات ←",
+                "item_link_url": {
+                  "url": "#store-products",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "پشتیبانی تخصصی پس از خرید",
+                "item_desc": "پاسخگویی سریع تیم فنی و خدمات پس از فروش برای تمامی خریدها.",
+                "item_link_text": "ارتباط با پشتیبانی ←",
+                "item_link_url": {
+                  "url": "/contact/",
+                  "is_external": false
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_store_products",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0F172A",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_store_products_heading",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "محصولات و بسته‌های برگزیده فروشگاه",
+            "header_size": "h2",
+            "align": "right"
+          }
+        },
+        {
+          "id": "uas_wid_store_products_grid",
+          "elType": "widget",
+          "widgetType": "uas_dynamic_grid",
+          "settings": {
+            "columns": "4",
+            "query_post_type": "product",
+            "query_posts_per_page": 8,
+            "query_orderby": "date",
+            "query_order": "DESC",
+            "query_cache_ttl": 1800,
+            "btn_text": "مشاهده و افزودن به سبد ↗"
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_store_cta",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#064E3B",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_store_cta",
+          "elType": "widget",
+          "widgetType": "uas_cta",
+          "settings": {
+            "title": "نیاز به مشاوره پیش از خرید یا صدور پیش‌فاکتور سازمانی دارید؟",
+            "description": "با کارشناسان فروش تماس بگیرید تا مناسب‌ترین بسته یا محصول متناسب با نیاز کسب‌وکارتان معرفی شود.",
+            "button_text": "ارتباط با واحد فروش ←",
+            "button_url": {
+              "url": "/contact/",
               "is_external": false
             }
           }
@@ -31130,10 +32409,14 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
         },
         "background_background": "classic",
         "background_color": "#070D1E",
-        "content_width": "full",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 24
+        }
       },
       "elements": [
         {
@@ -31141,18 +32424,47 @@ K)�Ӄ���N�-ǂm�����a�$�!G�g\r\r��.�Z��!�
           "elType": "widget",
           "widgetType": "uas_hero",
           "settings": {
-            "badge_text": "🎬 رسانه و سخنرانی‌های تخصصی",
-            "hero_title": "مرکز ویدئوها، تحلیل‌های کاربردی و آموزش‌های ویدیویی",
-            "hero_desc": "پخش آنلاین با کیفیت‌های متعدد، امکان دانلود فایل صوتی و دسترسی به سرفصل‌های زمانی تعاملی.",
-            "primary_btn_text": "مشاهده ویدئوی شاخص",
+            "badge_text": "🎬 رسانه و دوره‌های تخصصی ویدیویی",
+            "hero_title": "مرکز ویدئوها، کارگاه‌های کاربردی و آموزش‌های ویدیویی",
+            "hero_desc": "پخش آنلاین با حفاظت استریم، دسترسی به سرفصل‌های زمانی و دریافت بسته‌های آموزشی.",
+            "primary_btn_text": "مشاهده جلسه شاخص",
             "primary_btn_url": {
               "url": "#featured-video",
               "is_external": false
             },
-            "secondary_btn_text": "کانال آپارات و یوتیوب",
+            "secondary_btn_text": "فهرست کامل دوره‌ها",
             "secondary_btn_url": {
-              "url": "#channels",
+              "url": "#courses",
               "is_external": false
+            }
+          }
+        },
+        {
+          "id": "uas_wid_video_spotplayer",
+          "elType": "widget",
+          "widgetType": "uas_spotplayer_course",
+          "settings": {
+            "course_title": "دوره جامع طراحی و بهینه‌سازی معماری دیجیتال",
+            "lesson_title": "فصل ۱ - بخش اول: استانداردسازی ساختار محتوا و تجربه کاربری",
+            "video_url": "",
+            "show_watermark": "yes",
+            "player_bg_color": "#0b132b",
+            "accent_color": "#3b82f6"
+          }
+        },
+        {
+          "id": "uas_wid_video_featured_preview",
+          "elType": "widget",
+          "widgetType": "uas_video",
+          "settings": {
+            "video_title": "خلاصه تصویری سرفصل‌های کارگاه عملی",
+            "video_url": {
+              "url": "#featured-video",
+              "is_external": false
+            },
+            "poster_image": {
+              "url": "saas-dashboard.svg",
+              "source": "sovereign_local"
             }
           }
         }

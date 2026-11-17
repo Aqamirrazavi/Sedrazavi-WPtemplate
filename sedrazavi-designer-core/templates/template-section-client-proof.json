@@ -20,7 +20,11 @@
         "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 32
+        }
       },
       "elements": [
         {
@@ -36,7 +40,8 @@
                 "review_text": "همکاری با این مجموعه یکی از بهترین تصمیمات توسعه تجاری ما بود. دقت بالا در جزئیات، سرعت پیاده‌سازی و انطباق کامل با نیازهای ما فراتر از حد انتظار ظاهر شد.",
                 "rating": "5",
                 "avatar": {
-                  "url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
+                  "url": "client-avatar.svg",
+                  "source": "sovereign_local"
                 }
               },
               {
@@ -45,10 +50,40 @@
                 "review_text": "سطح حرفه‌ای‌گری، شفافیت در ارائه گزارش‌های پیشرفت و تسلط تیم بر استانداردهای روز، اطمینان خاطر کامل را برای ما و سهامداران مجموعه به ارمغان آورد.",
                 "rating": "5",
                 "avatar": {
-                  "url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"
+                  "url": "client-avatar.svg",
+                  "source": "sovereign_local"
                 }
               }
             ]
+          }
+        },
+        {
+          "id": "uas_wid_client_before_after",
+          "elType": "widget",
+          "widgetType": "uas_before_after",
+          "settings": {
+            "before_image": {
+              "url": "saas-dashboard.svg",
+              "source": "sovereign_local"
+            },
+            "after_image": {
+              "url": "hero-showcase.svg",
+              "source": "sovereign_local"
+            },
+            "before_label": "وضعیت پیش از بهینه‌سازی",
+            "after_label": "خروجی نهایی استاندارد",
+            "initial_position": {
+              "size": 50
+            },
+            "handle_color": "#8B5CF6"
+          }
+        },
+        {
+          "id": "uas_wid_client_radar_chart",
+          "elType": "widget",
+          "widgetType": "uas_radar_chart",
+          "settings": {
+            "chart_title": "ماتریس ارزیابی کیفیت و توزیع حوزه‌های تخصصی"
           }
         }
       ]

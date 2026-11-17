@@ -1043,7 +1043,8 @@ img {
 }
 .archive-posts-section,
 .content-area,
-.site-main {
+.site-main,
+.sedrazavi-elementor-migrated-page {
     width: 100%;
     min-height: 60vh;
 }

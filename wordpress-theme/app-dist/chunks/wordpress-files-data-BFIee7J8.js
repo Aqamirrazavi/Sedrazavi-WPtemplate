@@ -2151,29 +2151,9 @@ $footer_bio = get_theme_mod('sedrazavi_footer_bio', get_bloginfo('description'))
  * @version 6.0.0
  */
 
-// بررسی سازگاری کامل با المنتور (Elementor Compatibility) — با بازگشت ایمن در صورت غیرفعال بودن المنتور
-if (did_action('elementor/loaded') && class_exists('\\Elementor\\Plugin') && have_posts()) {
-    while (have_posts()) {
-        the_post();
-        $elementor_data = get_post_meta(get_the_ID(), '_elementor_data', true);
-        $elementor_mode = get_post_meta(get_the_ID(), '_elementor_edit_mode', true);
-        if (!empty($elementor_data) && $elementor_mode === 'builder') {
-            get_header();
-            the_content();
-            get_footer();
-            return;
-        }
-    }
-    rewind_posts();
-}
+// Resolve archetype from query parameter (sandboxed), theme option, or active child theme
+$archetype = isset($_GET['archetype']) ? sanitize_text_field(wp_unslash($_GET['archetype'])) : get_option('sedrazavi_active_archetype', 'agency-designer');
 
-// بارگذاری سربرگ استاندارد وردپرس (هدر، منوها و متادیتا)
-get_header();
-
-// Determine archetype from query parameter (for live previews), theme mod, or option
-$archetype = isset($_GET['archetype']) ? sanitize_text_field($_GET['archetype']) : get_option('sedrazavi_active_archetype', 'agency-designer');
-
-// Fallback to active child theme detection if available
 $current_theme = wp_get_theme();
 $parent_or_child = $current_theme->get('Template');
 if (!empty($parent_or_child)) {
@@ -2189,7 +2169,39 @@ if (!empty($parent_or_child)) {
     }
 }
 
-// Load corresponding archetype front-page template
+$archetype_template_map = array(
+    'agency-designer' => 'template-designer-landing',
+    'corporate-pro'   => 'template-home-corporate-pro',
+    'store-modern'    => 'template-store-showcase',
+    'legal-firm'      => 'template-home-saas-master',
+);
+$elementor_fallback_slug = isset($archetype_template_map[$archetype]) ? $archetype_template_map[$archetype] : 'template-designer-landing';
+
+// سازگاری اول با المنتور (Elementor-First Rendering) — با بازگشت ایمن در صورت غیرفعال بودن المنتور
+if (did_action('elementor/loaded') && class_exists('\\Elementor\\Plugin')) {
+    if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content($elementor_fallback_slug)) {
+        return;
+    }
+    if (have_posts()) {
+        while (have_posts()) {
+            the_post();
+            $elementor_data = get_post_meta(get_the_ID(), '_elementor_data', true);
+            $elementor_mode = get_post_meta(get_the_ID(), '_elementor_edit_mode', true);
+            if (!empty($elementor_data) && $elementor_mode === 'builder') {
+                get_header();
+                the_content();
+                get_footer();
+                return;
+            }
+        }
+        rewind_posts();
+    }
+}
+
+// بارگذاری سربرگ استاندارد وردپرس (هدر، منوها و متادیتا)
+get_header();
+
+// Load corresponding archetype front-page fallback template when Elementor is inactive or no template exists
 switch ($archetype) {
     case 'store-modern':
         get_template_part('template-parts/front', 'store');
@@ -5999,6 +6011,105 @@ class SedRazavi_Elementor_Legal_Suite_Widget extends \\Elementor\\Widget_Base {
     }
 }
 }
+
+if (!function_exists('sedrazavi_try_render_elementor_page_content')) {
+    /**
+     * Render native Elementor page builder content or imported Elementor Library template
+     * cleanly before falling back to hardcoded PHP markup.
+     *
+     * Guardrails:
+     * - Returns false immediately when Elementor plugin is not active.
+     * - Respects manual Gutenberg block pages unless explicitly saved in Elementor builder.
+     * - Never opens duplicate <main> landmarks (header.php opens #main-content and footer.php closes it).
+     *
+     * @param string $fallback_template_slug Optional _uas_template_slug in elementor_library
+     * @param array  $args                   Optional flags (require_explicit_page)
+     * @return bool True if rendered via Elementor, false if theme fallback should run
+     */
+    function sedrazavi_try_render_elementor_page_content($fallback_template_slug = '', $args = []) {
+        if (!did_action('elementor/loaded') || !class_exists('\\Elementor\\Plugin')) {
+            return false;
+        }
+
+        $require_explicit = !empty($args['require_explicit_page']);
+        $page_id = function_exists('get_queried_object_id') ? (int) get_queried_object_id() : 0;
+        if ($page_id <= 0 && function_exists('get_the_ID')) {
+            $page_id = (int) get_the_ID();
+        }
+
+        // 1. Direct Elementor Builder page or Elementor editor/preview mode
+        $is_preview_or_edit = false;
+        $elementor_instance = \\Elementor\\Plugin::$instance ?? null;
+        if ($elementor_instance) {
+            if (isset($elementor_instance->preview) && is_object($elementor_instance->preview) && method_exists($elementor_instance->preview, 'is_preview_mode') && $elementor_instance->preview->is_preview_mode()) {
+                $is_preview_or_edit = true;
+            }
+            if (isset($elementor_instance->editor) && is_object($elementor_instance->editor) && method_exists($elementor_instance->editor, 'is_edit_mode') && $elementor_instance->editor->is_edit_mode()) {
+                $is_preview_or_edit = true;
+            }
+        }
+
+        $elementor_data = $page_id > 0 ? get_post_meta($page_id, '_elementor_data', true) : '';
+        $elementor_mode = $page_id > 0 ? get_post_meta($page_id, '_elementor_edit_mode', true) : '';
+
+        if ($is_preview_or_edit || ($elementor_mode === 'builder' && !empty($elementor_data))) {
+            get_header();
+            echo '<div class="sedrazavi-elementor-migrated-page" data-elementor-source="page">';
+            if (have_posts()) {
+                while (have_posts()) {
+                    the_post();
+                    the_content();
+                }
+                rewind_posts();
+            } elseif ($page_id > 0 && $elementor_instance && isset($elementor_instance->frontend) && method_exists($elementor_instance->frontend, 'get_builder_content_for_display')) {
+                echo $elementor_instance->frontend->get_builder_content_for_display($page_id);
+            }
+            echo '</div>';
+            get_footer();
+            return true;
+        }
+
+        // 2. Imported Elementor Library template by _uas_template_slug (when page uses theme template)
+        if ($require_explicit || empty($fallback_template_slug)) {
+            return false;
+        }
+
+        // Respect manually authored Gutenberg block pages
+        if ($page_id > 0 && function_exists('has_blocks')) {
+            $raw_post_content = (string) get_post_field('post_content', $page_id);
+            if ($raw_post_content !== '' && has_blocks($raw_post_content)) {
+                return false;
+            }
+        }
+
+        $slug = sanitize_key($fallback_template_slug);
+        $templates = get_posts([
+            'post_type'      => 'elementor_library',
+            'post_status'    => 'publish',
+            'posts_per_page' => 1,
+            'meta_key'       => '_uas_template_slug',
+            'meta_value'     => $slug,
+        ]);
+
+        if (empty($templates)) {
+            return false;
+        }
+
+        $tpl_id = (int) $templates[0]->ID;
+        $tpl_data = get_post_meta($tpl_id, '_elementor_data', true);
+        if (empty($tpl_data) || !$elementor_instance || !isset($elementor_instance->frontend) || !method_exists($elementor_instance->frontend, 'get_builder_content_for_display')) {
+            return false;
+        }
+
+        get_header();
+        echo '<div class="sedrazavi-elementor-migrated-page" data-elementor-source="library" data-uas-template="' . esc_attr($slug) . '">';
+        echo $elementor_instance->frontend->get_builder_content_for_display($tpl_id);
+        echo '</div>';
+        get_footer();
+        return true;
+    }
+}
+
 `},{path:"inc/class-sedrazavi-security.php",filename:"class-sedrazavi-security.php",category:"بخش‌های داخلی (Inc)",description:"محافظت امنیتی پیشرفته و فیلتر فایل‌های مجاز دادگستری.",code:`<?php
 /**
  * SedRazavi Security & Hardening Suite (Part 10)
@@ -7257,6 +7368,54 @@ add_action('sedrazavi_after_booking_created', function($booking_id) {
     }
 });
 
+// 7. Contact Form 7 & Intake Notification Adapter Bridge (Guarded)
+if (defined('WPCF7_VERSION') || class_exists('WPCF7_ContactForm')) {
+    add_action('wpcf7_mail_sent', function($contact_form) {
+        if (is_object($contact_form) && method_exists($contact_form, 'id')) {
+            do_action('sedrazavi_after_external_form_sent', 'cf7', (int) $contact_form->id());
+        }
+    });
+}
+
+add_action('sedrazavi_after_intake_submitted', function($ref_code, $topic, $urgency) {
+    if (class_exists('SedRazavi_Notification_Router')) {
+        $router = SedRazavi_Notification_Router::get_instance();
+        if (method_exists($router, 'dispatch_event')) {
+            $router->dispatch_event('legal_intake_received', [
+                'reference_code' => sanitize_text_field((string) $ref_code),
+                'topic'          => sanitize_text_field((string) $topic),
+                'urgency'        => sanitize_key((string) $urgency),
+            ]);
+        }
+    }
+}, 10, 3);
+
+// 8. WPML / Polylang Multilingual & RTL Locale Adapter
+if (!function_exists('sedrazavi_get_multilingual_locale_meta')) {
+    function sedrazavi_get_multilingual_locale_meta() {
+        $lang = function_exists('pll_current_language')
+            ? (string) pll_current_language('slug')
+            : (defined('ICL_LANGUAGE_CODE') ? (string) ICL_LANGUAGE_CODE : substr((string) get_locale(), 0, 2));
+        return [
+            'lang'   => sanitize_key($lang ?: 'fa'),
+            'dir'    => is_rtl() ? 'rtl' : 'ltr',
+            'plugin' => function_exists('pll_current_language') ? 'polylang' : (defined('ICL_SITEPRESS_VERSION') ? 'wpml' : 'core'),
+        ];
+    }
+}
+
+// 9. WooCommerce HPOS (High-Performance Order Storage) Status Adapter
+if (!function_exists('sedrazavi_is_wc_hpos_active')) {
+    function sedrazavi_is_wc_hpos_active() {
+        if (!class_exists('WooCommerce')) {
+            return false;
+        }
+        if (class_exists('\\Automattic\\WooCommerce\\Utilities\\OrderUtil') && method_exists('\\Automattic\\WooCommerce\\Utilities\\OrderUtil', 'custom_orders_table_usage_is_enabled')) {
+            return (bool) \\Automattic\\WooCommerce\\Utilities\\OrderUtil::custom_orders_table_usage_is_enabled();
+        }
+        return get_option('woocommerce_custom_orders_table_enabled') === 'yes';
+    }
+}
 `},{path:"inc/legal-vault-deadlines.php",filename:"legal-vault-deadlines.php",category:"بخش‌های داخلی (Inc)",description:"گاوصندوق اسناد محرمانه و مواعد قانونی تجدیدنظر و دیوان.",code:`<?php
 /**
  * Module: Judicial Deadlines & Client Encrypted Vault Engine (Phase 7)
@@ -12048,12 +12207,19 @@ function sedrazavi_render_dynamic_seo_tags() {
     <?php if (!$has_third_party_seo && (!function_exists('current_theme_supports') || !current_theme_supports('title-tag'))): ?>
     <title><?php echo $page_title; ?></title>
     <?php endif; ?>
-    <?php if (!$has_third_party_seo): ?>
+    <?php if (!$has_third_party_seo):
+        $is_noindex = is_search() || is_404() || isset($_GET['preview_theme']) || isset($_GET['replytocom']);
+        $robots_content = $is_noindex
+            ? 'noindex, nofollow'
+            : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+    ?>
     <meta name="description" content="<?php echo $meta_desc; ?>" />
     <meta name="keywords" content="<?php echo $keywords; ?>" />
     <meta name="author" content="<?php echo $lawyer_name; ?>" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="robots" content="<?php echo esc_attr($robots_content); ?>" />
+    <?php if (!is_404()): ?>
     <link rel="canonical" href="<?php echo $canonical_url; ?>" />
+    <?php endif; ?>
     <?php endif; ?>
 
     <?php if (!$has_third_party_seo && !$has_companion_og): ?>
@@ -14600,6 +14766,11 @@ msgstr ""
  */
 
 if (!defined('ABSPATH')) exit;
+
+if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content('template-home-corporate-pro')) {
+    return;
+}
+
 get_header();
 ?>
 
@@ -15318,6 +15489,11 @@ get_header();
  */
 
 if (!defined('ABSPATH')) exit;
+
+if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content('template-contact-booking-split')) {
+    return;
+}
+
 get_header();
 ?>
 
@@ -17606,6 +17782,14 @@ get_footer();
  * @version 6.0.0
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content('', array('require_explicit_page' => true))) {
+    return;
+}
+
 get_header();
 
 // Sample precedents for SSR fallback
@@ -17631,7 +17815,7 @@ $precedents = [
 ];
 ?>
 
-<main id="primary" class="site-main py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-[#060B18] text-slate-800 dark:text-slate-100 min-h-screen">
+<div id="primary" class="content-area py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-[#060B18] text-slate-800 dark:text-slate-100 min-h-screen">
     <div class="max-w-7xl mx-auto space-y-8">
         
         <!-- هدر سامانه هوش حقوقی -->
@@ -17691,7 +17875,7 @@ $precedents = [
         </section>
 
     </div>
-</main>
+</div>
 
 <?php
 get_footer();
@@ -18615,6 +18799,14 @@ get_footer();
  * @version 3.1.0
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content('template-portfolio-showcase')) {
+    return;
+}
+
 get_header();
 ?>
 
@@ -18660,8 +18852,39 @@ get_header();
             </div>
         </div>
 
-        <!-- Case Studies Grid -->
+        <!-- Case Studies Grid (Dynamic portfolio CPT when populated, static showcase fallback otherwise) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <?php
+            $portfolio_q = post_type_exists('portfolio') ? new WP_Query(array('post_type' => 'portfolio', 'posts_per_page' => 6, 'post_status' => 'publish')) : null;
+            if ($portfolio_q && $portfolio_q->have_posts()) :
+                while ($portfolio_q->have_posts()) : $portfolio_q->the_post();
+            ?>
+                <div class="bg-white dark:bg-[#0B132B] rounded-3xl p-6 border border-gray-200 dark:border-gray-800 shadow-xl space-y-5 hover:border-indigo-500/40 transition-all flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="aspect-video rounded-2xl bg-gradient-to-tr from-indigo-950 via-slate-900 to-indigo-900 border border-white/10 flex items-center justify-center text-4xl shadow-inner relative overflow-hidden">
+                            <?php if (has_post_thumbnail()) : ?>
+                                <?php the_post_thumbnail('medium_large', array('class' => 'w-full h-full object-cover')); ?>
+                            <?php else : ?>
+                                <span>🏛️</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="space-y-1">
+                            <h3 class="text-lg font-bold font-serif text-gray-900 dark:text-white"><?php the_title(); ?></h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed"><?php echo wp_trim_words(get_the_excerpt(), 24); ?></p>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                        <span class="text-xs text-emerald-500 font-bold">✓ پروژه منتشرشده</span>
+                        <a href="<?php the_permalink(); ?>" class="sedrazavi-btn-pill px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors">
+                            مشاهده جزئیات پروژه ←
+                        </a>
+                    </div>
+                </div>
+            <?php
+                endwhile;
+                wp_reset_postdata();
+            else :
+            ?>
             
             <!-- Project 1 -->
             <div class="bg-white dark:bg-[#0B132B] rounded-3xl p-6 border border-gray-200 dark:border-gray-800 shadow-xl space-y-5 hover:border-indigo-500/40 transition-all flex flex-col justify-between">
@@ -18736,6 +18959,7 @@ get_header();
                     </a>
                 </div>
             </div>
+            <?php endif; ?>
 
         </div>
 
@@ -18925,6 +19149,11 @@ get_footer();
  */
 
 if (!defined('ABSPATH')) exit;
+
+if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content('template-services-bento')) {
+    return;
+}
+
 get_header();
 ?>
 
@@ -18938,7 +19167,7 @@ get_header();
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-right">
             <?php
-            $services = new WP_Query(array('post_type' => 'service', 'posts_per_page' => 12));
+            $services = new WP_Query(array('post_type' => array('services', 'service'), 'posts_per_page' => 12, 'post_status' => 'publish'));
             if ($services->have_posts()) :
                 while ($services->have_posts()) : $services->the_post();
             ?>
@@ -18995,6 +19224,14 @@ get_header();
  * @package SedRazavi
  * @version 3.1.0
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content('template-store-showcase')) {
+    return;
+}
 
 get_header();
 ?>
@@ -22026,7 +22263,8 @@ img {
 }
 .archive-posts-section,
 .content-area,
-.site-main {
+.site-main,
+.sedrazavi-elementor-migrated-page {
     width: 100%;
     min-height: 60vh;
 }
@@ -25304,6 +25542,11 @@ get_footer();
           "slug": "light-canvas",
           "color": "#F8FAFC",
           "name": "Light Canvas"
+        },
+        {
+          "slug": "muted-slate",
+          "color": "#94A3B8",
+          "name": "Muted Slate Text"
         }
       ]
     },
@@ -25311,12 +25554,25 @@ get_footer();
       "contentSize": "1140px",
       "wideSize": "1440px"
     },
+    "spacing": {
+      "blockGap": true,
+      "padding": true,
+      "margin": true,
+      "units": ["px", "rem", "%", "vw"]
+    },
     "typography": {
       "customFontSize": true,
       "fontStyle": true,
       "fontWeight": true,
       "lineHeight": true,
-      "textDecoration": true
+      "textDecoration": true,
+      "fontFamilies": [
+        {
+          "fontFamily": "Vazirmatn, system-ui, -apple-system, sans-serif",
+          "slug": "vazirmatn",
+          "name": "Vazirmatn Sans"
+        }
+      ]
     }
   },
   "styles": {
@@ -25325,8 +25581,8 @@ get_footer();
       "text": "#E2E8F0"
     },
     "typography": {
-      "fontFamily": "Vazirmatn, system-ui, -apple-system, sans-serif",
-      "lineHeight": "1.6"
+      "fontFamily": "var(--wp--preset--font-family--vazirmatn, Vazirmatn, system-ui, -apple-system, sans-serif)",
+      "lineHeight": "1.65"
     }
   }
 }

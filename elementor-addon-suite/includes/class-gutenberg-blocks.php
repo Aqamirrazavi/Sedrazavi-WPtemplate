@@ -37,6 +37,7 @@ class Gutenberg_Blocks {
         }
 
         add_action('init', [$this, 'register_blocks']);
+        add_action('init', [$this, 'register_block_patterns']);
         add_action('enqueue_block_editor_assets', [$this, 'enqueue_editor_assets']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
     }
@@ -204,12 +205,54 @@ class Gutenberg_Blocks {
             ],
             'render_callback' => [$this, 'render_icon_block'],
         ]);
+        if (function_exists('register_block_pattern_category')) {
+            register_block_pattern_category('sedrazavi-sovereign', [
+                'label' => __('الگوهای بومی سیدرضوی (SedRazavi Sovereign)', 'universal-elementor-suite'),
+            ]);
+        }
+    }
+
+    /**
+     * Register turnkey native WordPress Gutenberg Block Patterns wired to Sovereign blocks
+     */
+    public function register_block_patterns() {
+        if (!function_exists('register_block_pattern')) {
+            return;
+        }
+
+        if (function_exists('register_block_pattern_category')) {
+            register_block_pattern_category('sedrazavi-sovereign', [
+                'label' => __('الگوهای بومی سیدرضوی (SedRazavi Sovereign)', 'universal-elementor-suite'),
+            ]);
+        }
+
+        register_block_pattern('sedrazavi/hero-sovereign', [
+            'title'       => __('بخش هیرو حاکمیتی با پس‌زمینه وکتور', 'universal-elementor-suite'),
+            'description' => __('الگوی آماده هیرو گوتنبرگ با پس‌زمینه وکتور و نشان اعتماد.', 'universal-elementor-suite'),
+            'categories'  => ['sedrazavi-sovereign'],
+            'content'     => '<!-- wp:sedrazavi/sovereign-vector-bg {"presetId":1,"mode":"motion","overlay":"gradient","minHeight":"420px"} /-->' . "\n" . '<!-- wp:sedrazavi/sovereign-badge {"badgeId":1,"size":"md","showLabel":true} /-->',
+        ]);
+
+        register_block_pattern('sedrazavi/services-bento', [
+            'title'       => __('شبکه خدمات و سکشن بنتو سیدرضوی', 'universal-elementor-suite'),
+            'description' => __('ترکیب سکشن آماده و ویجت سازمانی با توکن‌های طراحی یکپارچه.', 'universal-elementor-suite'),
+            'categories'  => ['sedrazavi-sovereign'],
+            'content'     => '<!-- wp:sedrazavi/sovereign-section {"sectionId":1,"colorMode":"dark","padding":"lg"} /-->' . "\n" . '<!-- wp:sedrazavi/sovereign-widget {"widgetId":1,"theme":"dark"} /-->',
+        ]);
+
+        register_block_pattern('sedrazavi/trust-strip', [
+            'title'       => __('نوار اعتماد، آیکون و جداکننده وکتور', 'universal-elementor-suite'),
+            'description' => __('الگوی سبک اعتماد برای صفحات فرود گوتنبرگ.', 'universal-elementor-suite'),
+            'categories'  => ['sedrazavi-sovereign'],
+            'content'     => '<!-- wp:sedrazavi/sovereign-icon {"iconId":1,"size":40} /-->' . "\n" . '<!-- wp:sedrazavi/sovereign-divider {"dividerId":1,"height":64} /-->',
+        ]);
     }
 
     /**
      * Enqueue Gutenberg Editor JavaScript, SSR Preview & Controls
      */
     public function enqueue_editor_assets() {
+        $token_deps = wp_style_is('uas-design-tokens', 'registered') ? ['uas-design-tokens'] : [];
         wp_register_script(
             'sedrazavi-gutenberg-blocks',
             false,
@@ -223,7 +266,7 @@ class Gutenberg_Blocks {
         wp_enqueue_script('sedrazavi-gutenberg-blocks');
 
         $editor_css = $this->generate_editor_css() . "\n" . $this->generate_frontend_css();
-        wp_register_style('sedrazavi-gutenberg-editor-css', false, [], UAS_VERSION);
+        wp_register_style('sedrazavi-gutenberg-editor-css', false, $token_deps, UAS_VERSION);
         wp_add_inline_style('sedrazavi-gutenberg-editor-css', $editor_css);
         wp_enqueue_style('sedrazavi-gutenberg-editor-css');
     }
@@ -234,7 +277,8 @@ class Gutenberg_Blocks {
     public function enqueue_frontend_assets() {
         static $registered = false;
         if (!$registered) {
-            wp_register_style('sedrazavi-gutenberg-frontend-css', false, [], defined('UAS_VERSION') ? UAS_VERSION : '1.0.0');
+            $token_deps = wp_style_is('uas-design-tokens', 'registered') ? ['uas-design-tokens'] : [];
+            wp_register_style('sedrazavi-gutenberg-frontend-css', false, $token_deps, defined('UAS_VERSION') ? UAS_VERSION : '1.0.0');
             wp_add_inline_style('sedrazavi-gutenberg-frontend-css', $this->generate_frontend_css());
             $registered = true;
         }
@@ -332,9 +376,10 @@ class Gutenberg_Blocks {
             }
         }
 
+        $dir = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
         ob_start();
         ?>
-        <div class="sedrazavi-block-widget theme-<?php echo esc_attr($theme); ?>" dir="rtl" data-widget-id="<?php echo esc_attr($widgetId); ?>" style="--widget-accent: <?php echo esc_attr($accent); ?>; padding: 20px; background: <?php echo $theme === 'light' ? '#FFFFFF' : '#0F172A'; ?>; border: 1px solid <?php echo esc_attr($accent); ?>44; border-radius: 12px; margin: 18px 0; color: <?php echo $theme === 'light' ? '#0F172A' : '#F8FAFC'; ?>;">
+        <div class="sedrazavi-block-widget theme-<?php echo esc_attr($theme); ?>" dir="<?php echo esc_attr($dir); ?>" data-widget-id="<?php echo esc_attr($widgetId); ?>" style="--widget-accent: <?php echo esc_attr($accent); ?>; padding: 20px; background: <?php echo $theme === 'light' ? 'var(--uas-surface-light, #FFFFFF)' : 'var(--uas-bg-surface, #0F172A)'; ?>; border: 1px solid <?php echo esc_attr($accent); ?>44; border-radius: 12px; margin: 18px 0; color: <?php echo $theme === 'light' ? '#0F172A' : '#F8FAFC'; ?>;">
             <?php if (!empty($customTitle)) : ?>
                 <h4 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 700; color: <?php echo esc_attr($accent); ?>;"><?php echo esc_html($title); ?></h4>
             <?php endif; ?>
@@ -402,9 +447,10 @@ class Gutenberg_Blocks {
         ];
         $badge_title = $badge_labels[(($badgeId - 1) % count($badge_labels)) + 1] . ' #' . $badgeId;
 
+        $dir = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
         ob_start();
         ?>
-        <div class="sedrazavi-trust-badge size-<?php echo esc_attr($size); ?>" dir="rtl" data-badge-id="<?php echo esc_attr($badgeId); ?>" style="display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; background: rgba(15, 23, 42, 0.85); border: 1px solid <?php echo esc_attr($color); ?>; border-radius: 10px; backdrop-filter: blur(8px);">
+        <div class="sedrazavi-trust-badge size-<?php echo esc_attr($size); ?>" dir="<?php echo esc_attr($dir); ?>" data-badge-id="<?php echo esc_attr($badgeId); ?>" style="display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; background: rgba(15, 23, 42, 0.85); border: 1px solid <?php echo esc_attr($color); ?>; border-radius: 10px; backdrop-filter: blur(8px);">
             <div aria-hidden="true" style="width: <?php echo esc_attr($dims); ?>px; height: <?php echo esc_attr($dims); ?>px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: <?php echo esc_attr($color); ?>;">
                 <svg aria-hidden="true" width="<?php echo esc_attr($dims); ?>" height="<?php echo esc_attr($dims); ?>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -457,9 +503,10 @@ class Gutenberg_Blocks {
         $bg = $colorMode === 'light' ? '#F8FAFC' : '#0B0F19';
         $text_color = $colorMode === 'light' ? '#0F172A' : '#F8FAFC';
 
+        $dir = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
         ob_start();
         ?>
-        <section class="sedrazavi-section-blueprint mode-<?php echo esc_attr($colorMode); ?>" dir="rtl" style="background: <?php echo esc_attr($bg); ?>; color: <?php echo esc_attr($text_color); ?>; padding: <?php echo esc_attr($pad_val); ?>; border-radius: 16px; border: 1px solid rgba(212,175,55,0.2); margin: 30px 0;">
+        <section class="sedrazavi-section-blueprint mode-<?php echo esc_attr($colorMode); ?>" dir="<?php echo esc_attr($dir); ?>" style="background: <?php echo esc_attr($bg); ?>; color: <?php echo esc_attr($text_color); ?>; padding: <?php echo esc_attr($pad_val); ?>; border-radius: 16px; border: 1px solid rgba(212,175,55,0.2); margin: 30px 0;">
             <div style="max-width: 1140px; margin: 0 auto; text-align: center;">
                 <span style="display: inline-block; padding: 6px 14px; background: rgba(212,175,55,0.15); border: 1px solid #D4AF37; border-radius: 9999px; font-size: 12px; color: #D4AF37; margin-bottom: 16px;">سکشن آماده سوییت سیدرضوی #<?php echo esc_html($sectionId); ?></span>
                 <h3 style="font-size: 26px; font-weight: 800; margin: 0 0 14px 0; color: <?php echo esc_attr($text_color); ?>;">طرح‌بندی آماده واکنش‌گرا و مدرن</h3>
@@ -946,10 +993,11 @@ class Gutenberg_Blocks {
     }
 
     private function generate_editor_css() {
+        $dir = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
         return "
         .sedrazavi-editor-box {
-            font-family: inherit;
-            direction: rtl;
+            font-family: var(--uas-font-sans, Vazirmatn, inherit);
+            direction: {$dir};
             margin: 12px 0;
         }
         ";
@@ -968,6 +1016,13 @@ class Gutenberg_Blocks {
         @keyframes sedrazavi-motion-preset-3 {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .sedrazavi-motion-wrapper,
+            .sedrazavi-block-vector-bg animateTransform {
+                animation: none !important;
+                transition: none !important;
+            }
         }
         ";
     }

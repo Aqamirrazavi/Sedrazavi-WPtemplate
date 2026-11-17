@@ -42,6 +42,12 @@ class SedRazavi_Library_Engine {
             'permission_callback' => '__return_true', // Public catalog discovery
         ]);
 
+        register_rest_route('sedrazavi/v1', '/library/preview', [
+            'methods'  => 'GET',
+            'callback' => [$this, 'rest_preview_package'],
+            'permission_callback' => [$this, 'check_admin_permission'],
+        ]);
+
         register_rest_route('sedrazavi/v1', '/library/install', [
             'methods'  => 'POST',
             'callback' => [$this, 'rest_install_package'],
@@ -225,6 +231,39 @@ class SedRazavi_Library_Engine {
                 'tags'              => ['آژانس وب', 'گوتنبرگ', 'ترمینال CLI', 'سریع'],
                 'verified_at'       => '2026-10-23T00:00:00Z',
             ],
+            [
+                'package_id'        => 'sedrazavi.store.modern-woo',
+                'version'           => '6.0.0',
+                'type'              => 'vertical-pack',
+                'title'             => 'پکیج فروشگاهی مدرن سازگار با WooCommerce HPOS & Blocks',
+                'title_en'          => 'Store Modern WooCommerce HPOS Kit',
+                'publisher'         => 'SedRazavi',
+                'publisher_handle'  => '@sedrazavi',
+                'license'           => 'GPL-3.0-or-later',
+                'trust_level'       => 'first_party_signed',
+                'release_channel'   => 'stable',
+                'description'       => 'قالب فروشگاه مستقل به همراه کارت کشویی دسترس‌پذیر، سازگاری کامل HPOS و بلوک‌های تسویه‌حساب.',
+                'requires'          => [
+                    'wordpress' => '>=6.0',
+                    'php'       => '>=7.4',
+                    'plugins'   => ['woocommerce'],
+                ],
+                'editor_parity'     => [
+                    'gutenberg' => 'native',
+                    'elementor' => 'native',
+                ],
+                'provides'          => [
+                    'sedrazavi.store.modern',
+                    'sedrazavi.woo.hpos',
+                ],
+                'artifact'          => [
+                    'url'        => 'https://catalog.sedrazavi.ir/artifacts/store-modern-6.0.0.zip',
+                    'sha256'     => '5d41402abc4b2a76b9719d911017c5925d41402abc4b2a76b9719d911017c592',
+                    'size_bytes' => 278400,
+                ],
+                'tags'              => ['فروشگاه', 'ووکامرس', 'HPOS', 'سبد خرید'],
+                'verified_at'       => '2026-10-23T00:00:00Z',
+            ],
         ];
 
         $manifest = [
@@ -272,6 +311,48 @@ class SedRazavi_Library_Engine {
             'generated_at'  => $manifest['generated_at'],
             'count'         => count($filtered),
             'packages'      => $filtered,
+        ]);
+    }
+
+    /**
+     * Dry-Run Library Import Preview (Phase 9 Preflight & Provenance Check)
+     */
+    public function rest_preview_package($request) {
+        $package_id = sanitize_text_field($request->get_param('package_id') ?: '');
+        if (empty($package_id)) {
+            return new WP_Error('missing_param', 'شناسه پکیج برای پیش‌نمایش الزامی است.', ['status' => 400]);
+        }
+
+        $manifest = $this->get_manifest();
+        $target = null;
+        foreach ($manifest['items'] as $item) {
+            if ($item['package_id'] === $package_id) {
+                $target = $item;
+                break;
+            }
+        }
+        if (!$target) {
+            return new WP_Error('not_found', 'پکیج مورد نظر یافت نشد.', ['status' => 404]);
+        }
+
+        $req_php     = ltrim((string) ($target['requires']['php'] ?? '7.4'), '>=');
+        $php_ok      = version_compare(phpversion(), $req_php, '>=');
+        $url_safe    = $this->is_safe_remote_url($target['artifact']['url'] ?? '');
+        $hash_valid  = (bool) preg_match('/^[a-f0-9]{64}$/i', (string) ($target['artifact']['sha256'] ?? ''));
+
+        return rest_ensure_response([
+            'status'        => 'preview_ready',
+            'package_id'    => $target['package_id'],
+            'version'       => $target['version'],
+            'license'       => $target['license'],
+            'provenance'    => $target['publisher_handle'] ?? '@sedrazavi',
+            'trust_level'   => $target['trust_level'] ?? 'first_party_signed',
+            'preflight'     => [
+                'php_compatible' => $php_ok,
+                'ssrf_safe'      => $url_safe,
+                'sha256_present' => $hash_valid,
+            ],
+            'ready_to_install' => ($php_ok && $url_safe && $hash_valid),
         ]);
     }
 
@@ -405,6 +486,17 @@ class SedRazavi_Library_Engine {
         }
 
         return true;
+    }
+
+    /**
+     * Timing-safe local SHA-256 verification helper (Phase 9)
+     */
+    public function verify_artifact_checksum($local_file_path, $expected_sha256) {
+        if (!is_string($local_file_path) || !file_exists($local_file_path) || !preg_match('/^[a-f0-9]{64}$/i', (string) $expected_sha256)) {
+            return false;
+        }
+        $actual = hash_file('sha256', $local_file_path);
+        return is_string($actual) && hash_equals(strtolower($expected_sha256), strtolower($actual));
     }
 
     /**

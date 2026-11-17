@@ -7,29 +7,9 @@
  * @version 6.0.0
  */
 
-// بررسی سازگاری کامل با المنتور (Elementor Compatibility) — با بازگشت ایمن در صورت غیرفعال بودن المنتور
-if (did_action('elementor/loaded') && class_exists('\Elementor\Plugin') && have_posts()) {
-    while (have_posts()) {
-        the_post();
-        $elementor_data = get_post_meta(get_the_ID(), '_elementor_data', true);
-        $elementor_mode = get_post_meta(get_the_ID(), '_elementor_edit_mode', true);
-        if (!empty($elementor_data) && $elementor_mode === 'builder') {
-            get_header();
-            the_content();
-            get_footer();
-            return;
-        }
-    }
-    rewind_posts();
-}
+// Resolve archetype from query parameter (sandboxed), theme option, or active child theme
+$archetype = isset($_GET['archetype']) ? sanitize_text_field(wp_unslash($_GET['archetype'])) : get_option('sedrazavi_active_archetype', 'agency-designer');
 
-// بارگذاری سربرگ استاندارد وردپرس (هدر، منوها و متادیتا)
-get_header();
-
-// Determine archetype from query parameter (for live previews), theme mod, or option
-$archetype = isset($_GET['archetype']) ? sanitize_text_field($_GET['archetype']) : get_option('sedrazavi_active_archetype', 'agency-designer');
-
-// Fallback to active child theme detection if available
 $current_theme = wp_get_theme();
 $parent_or_child = $current_theme->get('Template');
 if (!empty($parent_or_child)) {
@@ -45,7 +25,39 @@ if (!empty($parent_or_child)) {
     }
 }
 
-// Load corresponding archetype front-page template
+$archetype_template_map = array(
+    'agency-designer' => 'template-designer-landing',
+    'corporate-pro'   => 'template-home-corporate-pro',
+    'store-modern'    => 'template-store-showcase',
+    'legal-firm'      => 'template-home-saas-master',
+);
+$elementor_fallback_slug = isset($archetype_template_map[$archetype]) ? $archetype_template_map[$archetype] : 'template-designer-landing';
+
+// سازگاری اول با المنتور (Elementor-First Rendering) — با بازگشت ایمن در صورت غیرفعال بودن المنتور
+if (did_action('elementor/loaded') && class_exists('\Elementor\Plugin')) {
+    if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content($elementor_fallback_slug)) {
+        return;
+    }
+    if (have_posts()) {
+        while (have_posts()) {
+            the_post();
+            $elementor_data = get_post_meta(get_the_ID(), '_elementor_data', true);
+            $elementor_mode = get_post_meta(get_the_ID(), '_elementor_edit_mode', true);
+            if (!empty($elementor_data) && $elementor_mode === 'builder') {
+                get_header();
+                the_content();
+                get_footer();
+                return;
+            }
+        }
+        rewind_posts();
+    }
+}
+
+// بارگذاری سربرگ استاندارد وردپرس (هدر، منوها و متادیتا)
+get_header();
+
+// Load corresponding archetype front-page fallback template when Elementor is inactive or no template exists
 switch ($archetype) {
     case 'store-modern':
         get_template_part('template-parts/front', 'store');

@@ -42,13 +42,17 @@ class Universal_Before_After_Widget extends Universal_Widget_Base {
             ]
         );
 
+        $default_before = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/saas-dashboard.svg' : '';
+        $default_after  = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '';
+
         $this->add_control(
             'before_image',
             [
                 'label'   => esc_html__('تصویر قبل (Before)', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800',
+                    'url'    => $default_before,
+                    'source' => 'sovereign_local',
                 ],
             ]
         );
@@ -59,7 +63,8 @@ class Universal_Before_After_Widget extends Universal_Widget_Base {
                 'label'   => esc_html__('تصویر بعد (After)', 'universal-elementor-suite'),
                 'type'    => Controls_Manager::MEDIA,
                 'default' => [
-                    'url' => 'https://images.unsplash.com/photo-1541888946425-d0fbb186f5f7?auto=format&fit=crop&q=80&w=800',
+                    'url'    => $default_after,
+                    'source' => 'sovereign_local',
                 ],
             ]
         );
@@ -118,37 +123,41 @@ class Universal_Before_After_Widget extends Universal_Widget_Base {
     }
 
     protected function render() {
-        $settings = $this->get_settings_for_display();
-        $widget_id = $this->get_id();
-        $pos = !empty($settings['initial_position']['size']) ? (int)$settings['initial_position']['size'] : 50;
-        $before_url = !empty($settings['before_image']['url']) ? esc_url($settings['before_image']['url']) : '';
-        $after_url = !empty($settings['after_image']['url']) ? esc_url($settings['after_image']['url']) : '';
+        $settings   = $this->get_settings_for_display();
+        $widget_id  = $this->get_id();
+        $pos        = !empty($settings['initial_position']['size']) ? (int) $settings['initial_position']['size'] : 50;
+        $fallback_b = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/saas-dashboard.svg' : '';
+        $fallback_a = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '';
+        $before_url = !empty($settings['before_image']['url']) ? esc_url($settings['before_image']['url']) : esc_url($fallback_b);
+        $after_url  = !empty($settings['after_image']['url']) ? esc_url($settings['after_image']['url']) : esc_url($fallback_a);
+        $before_lbl = $settings['before_label'] ?? esc_html__('وضعیت قبلی', 'universal-elementor-suite');
+        $after_lbl  = $settings['after_label'] ?? esc_html__('نتیجه بهینه‌سازی', 'universal-elementor-suite');
         ?>
         <div class="uas-ba-container" id="uas-ba-<?php echo esc_attr($widget_id); ?>" style="position:relative; width:100%; max-width:800px; margin:auto; overflow:hidden; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.15); user-select:none; aspect-ratio:16/9; background:#0f172a;">
             
             <!-- After Image (Background) -->
-            <img src="<?php echo $after_url; ?>" alt="After" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; pointer-events:none;">
+            <img src="<?php echo $after_url; ?>" alt="<?php echo esc_attr($after_lbl); ?>" loading="lazy" decoding="async" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; pointer-events:none;">
             <span style="position:absolute; bottom:16px; left:16px; background:rgba(0,0,0,0.65); color:#fff; font-size:12px; font-weight:700; padding:4px 12px; border-radius:6px; backdrop-filter:blur(4px); pointer-events:none; z-index:2;">
-                <?php echo esc_html($settings['after_label']); ?>
+                <?php echo esc_html($after_lbl); ?>
             </span>
 
             <!-- Before Image (Clipped Overlay) -->
             <div class="uas-ba-before" style="position:absolute; top:0; left:0; width:<?php echo $pos; ?>%; height:100%; overflow:hidden; z-index:3;">
-                <img src="<?php echo $before_url; ?>" alt="Before" style="position:absolute; top:0; left:0; width:800px; max-width:none; height:100%; object-fit:cover; pointer-events:none;">
+                <img src="<?php echo $before_url; ?>" alt="<?php echo esc_attr($before_lbl); ?>" loading="lazy" decoding="async" style="position:absolute; top:0; left:0; width:800px; max-width:none; height:100%; object-fit:cover; pointer-events:none;">
                 <span style="position:absolute; bottom:16px; right:16px; background:rgba(0,0,0,0.65); color:#fff; font-size:12px; font-weight:700; padding:4px 12px; border-radius:6px; backdrop-filter:blur(4px); pointer-events:none;">
-                    <?php echo esc_html($settings['before_label']); ?>
+                    <?php echo esc_html($before_lbl); ?>
                 </span>
             </div>
 
             <!-- Draggable Handle Divider -->
-            <div class="uas-ba-handle" style="position:absolute; top:0; bottom:0; left:<?php echo $pos; ?>%; width:4px; background:#8B5CF6; z-index:4; cursor:ew-resize; transform:translateX(-50%);">
+            <div class="uas-ba-handle" aria-hidden="true" style="position:absolute; top:0; bottom:0; left:<?php echo $pos; ?>%; width:4px; background:#8B5CF6; z-index:4; cursor:ew-resize; transform:translateX(-50%);">
                 <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:36px; height:36px; border-radius:50%; background:#8B5CF6; color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(0,0,0,0.3); font-size:14px; font-weight:bold;">
                     ⇄
                 </div>
             </div>
 
             <!-- Native Range Input for seamless Dragging / Accessibility -->
-            <input type="range" min="0" max="100" value="<?php echo $pos; ?>" class="uas-ba-range" aria-label="<?php echo esc_attr__('کنترل اسلایدر مقایسه', 'universal-elementor-suite'); ?>" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:ew-resize; z-index:5; margin:0;">
+            <input type="range" min="0" max="100" value="<?php echo $pos; ?>" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?php echo $pos; ?>" class="uas-ba-range" aria-label="<?php echo esc_attr__('کنترل اسلایدر مقایسه', 'universal-elementor-suite'); ?>" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:ew-resize; z-index:5; margin:0;">
         </div>
         <?php
     }

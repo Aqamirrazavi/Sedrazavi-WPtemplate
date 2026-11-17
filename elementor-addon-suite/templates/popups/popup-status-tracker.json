@@ -32,9 +32,32 @@
         "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 20
+        }
       },
       "elements": [
+        {
+          "id": "uas_popup_wid_email_otp",
+          "elType": "widget",
+          "widgetType": "uas_email_otp",
+          "settings": {
+            "title": "احراز هویت سریع با کد یکبار مصرف ایمیل",
+            "subtitle": "برای مشاهده وضعیت جاری و اطلاعات اختصاصی، ایمیل ثبت‌شده خود را وارد نمایید."
+          }
+        },
+        {
+          "id": "uas_popup_wid_client_portal",
+          "elType": "widget",
+          "widgetType": "uas_client_portal",
+          "settings": {
+            "portal_title": "پورتال رهگیری وضعیت سفارش‌ها و درخواست‌ها",
+            "show_stats": "yes",
+            "card_bg": "#0F172A"
+          }
+        },
         {
           "id": "uas_popup_wid_tracker",
           "elType": "widget",

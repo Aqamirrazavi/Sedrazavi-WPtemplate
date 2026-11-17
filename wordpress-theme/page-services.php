@@ -8,6 +8,11 @@
  */
 
 if (!defined('ABSPATH')) exit;
+
+if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content('template-services-bento')) {
+    return;
+}
+
 get_header();
 ?>
 
@@ -21,7 +26,7 @@ get_header();
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-right">
             <?php
-            $services = new WP_Query(array('post_type' => 'service', 'posts_per_page' => 12));
+            $services = new WP_Query(array('post_type' => array('services', 'service'), 'posts_per_page' => 12, 'post_status' => 'publish'));
             if ($services->have_posts()) :
                 while ($services->have_posts()) : $services->the_post();
             ?>

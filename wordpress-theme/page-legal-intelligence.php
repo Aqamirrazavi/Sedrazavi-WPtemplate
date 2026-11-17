@@ -7,6 +7,14 @@
  * @version 6.0.0
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content('', array('require_explicit_page' => true))) {
+    return;
+}
+
 get_header();
 
 // Sample precedents for SSR fallback
@@ -32,7 +40,7 @@ $precedents = [
 ];
 ?>
 
-<main id="primary" class="site-main py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-[#060B18] text-slate-800 dark:text-slate-100 min-h-screen">
+<div id="primary" class="content-area py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-[#060B18] text-slate-800 dark:text-slate-100 min-h-screen">
     <div class="max-w-7xl mx-auto space-y-8">
         
         <!-- هدر سامانه هوش حقوقی -->
@@ -92,7 +100,7 @@ $precedents = [
         </section>
 
     </div>
-</main>
+</div>
 
 <?php
 get_footer();

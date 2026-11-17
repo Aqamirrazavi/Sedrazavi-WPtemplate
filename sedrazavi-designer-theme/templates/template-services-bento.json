@@ -1,8 +1,54 @@
 {
   "version": "0.4",
   "title": "UAS - گرید بنتو خدمات و قابلیت‌های تخصصی (Services Bento Grid)",
-  "type": "container",
+  "type": "page",
   "content": [
+    {
+      "id": "uas_cnt_bento_hero",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "background_background": "gradient",
+        "background_color": "#0B132B",
+        "background_color_b": "#1C2541",
+        "padding": {
+          "unit": "px",
+          "top": "70",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_bento_hero",
+          "elType": "widget",
+          "widgetType": "uas_hero",
+          "settings": {
+            "badge_text": "حوزه‌های تخصصی خدمات و راهکارهای مهندسی و حقوقی",
+            "hero_title": "خدمات جامع، شفاف و نتیجه‌محور برای سازمان‌ها و موکلان",
+            "hero_desc": "از معماری پلتفرم‌های وب و تحول دیجیتال تا مشاوره تخصصی قراردادها، داوری تجاری و نمایندگی حرفه‌ای.",
+            "primary_btn_text": "درخواست مشاوره و نوبت",
+            "primary_btn_url": {
+              "url": "/contact/",
+              "is_external": false
+            },
+            "secondary_btn_text": "مشاهده فهرست خدمات",
+            "secondary_btn_url": {
+              "url": "#services-catalog",
+              "is_external": false
+            },
+            "hero_preset": "centered-luxury",
+            "title_tag": "h1",
+            "show_media": "no"
+          }
+        }
+      ]
+    },
     {
       "id": "uas_cnt_bento_01",
       "elType": "container",
@@ -10,10 +56,10 @@
       "settings": {
         "padding": {
           "unit": "px",
-          "top": "60",
-          "right": "0",
+          "top": "70",
+          "right": "20",
           "bottom": "60",
-          "left": "0"
+          "left": "20"
         },
         "background_background": "classic",
         "background_color": "#0B132B",
@@ -28,48 +74,120 @@
           "elType": "widget",
           "widgetType": "uas_services_grid",
           "settings": {
-            "section_title": "خدمات راهبردی و قابلیت‌های تخصصی سازمان",
-            "section_subtitle": "ارائه راهکارهای یکپارچه طراحی، مهندسی نرم‌افزار، مشاوره مدیریت و ارتقای مزیت‌های رقابتی",
-            "layout_style": "bento",
+            "subtitle": "دپارتمان‌های محوری و خدمات کلیدی",
+            "title": "سرویس‌های راهبردی و قابلیت‌های تخصصی مجموعه",
             "columns": "3",
-            "services": [
+            "services_list": [
               {
-                "title": "طراحی محصول و تجربه کاربری (UI/UX)",
-                "description": "خلق رابط‌های کاربری چشم‌نواز با هویت بصری اختصاصی، استانداردهای بین‌المللی و حداکثر نرخ تبدیل.",
-                "icon": "eicon-paint-brush",
-                "badge": "طراحی خلاق",
-                "link": {
-                  "url": "#design"
+                "item_title": "طراحی محصول، برندینگ و تجربه کاربری (UI/UX)",
+                "item_desc": "خلق رابط‌های کاربری مدرن، دیزاین سیستم یکپارچه و صفحات فرود با بالاترین نرخ تبدیل و استاندارد دسترس‌پذیری.",
+                "item_link_text": "بررسی نمونه‌کارها ←",
+                "item_link_url": {
+                  "url": "/portfolio/",
+                  "is_external": false
                 }
               },
               {
-                "title": "توسعه و مهندسی سیستم‌های ابری",
-                "description": "پیاده‌سازی پلتفرم‌های مقیاس‌پذیر، پرسرعت و امن با معماری مدرن و بهینه‌سازی شده برای بار ترافیکی بالا.",
-                "icon": "eicon-code",
-                "badge": "فناوری و توسعه",
-                "link": {
-                  "url": "#cloud"
+                "item_title": "مهندسی وردپرس بومی، ووکامرس و المنتور",
+                "item_desc": "پیاده‌سازی پلتفرم‌های پرسرعت و ماژولار با ساختار استاندارد کانتینری، سئوی فنی و امنیت سازمانی.",
+                "item_link_text": "ثبت بریف پروژه ←",
+                "item_link_url": {
+                  "url": "/contact/",
+                  "is_external": false
                 }
               },
               {
-                "title": "استراتژی رشد و تحول دیجیتال",
-                "description": "بهینه‌سازی قیف فروش، بازاریابی داده‌محور و پیاده‌سازی اتوماسیون‌های هوشمند برای رشد پایدار کسب‌وکار.",
-                "icon": "eicon-grow",
-                "badge": "استراتژی و مشاوره",
-                "link": {
-                  "url": "#growth"
-                }
-              },
-              {
-                "title": "امنیت سایبری و مدیریت ریسک",
-                "description": "پایش و ممیزی مستمر، حفاظت از دارایی‌های دیجیتال و رمزنگاری پیشرفته داده‌های سازمانی.",
-                "icon": "eicon-shield-check",
-                "badge": "امنیت و پایایی",
-                "link": {
-                  "url": "#security"
+                "item_title": "مشاوره قراردادها، داوری و تطبیق حقوقی",
+                "item_desc": "تدوین و ممیزی قراردادهای تجاری، فناوری و بین‌المللی همراه با ارزیابی ریسک و پیگیری تخصصی پرونده‌ها.",
+                "item_link_text": "رزرو جلسه تخصصی ←",
+                "item_link_url": {
+                  "url": "/contact/",
+                  "is_external": false
                 }
               }
             ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_bento_dynamic_loop",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0F172A",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_bento_dynamic_heading",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "فهرست پویای خدمات ثبت‌شده در سامانه",
+            "header_size": "h2",
+            "align": "right"
+          }
+        },
+        {
+          "id": "uas_wid_bento_dynamic_grid",
+          "elType": "widget",
+          "widgetType": "uas_dynamic_grid",
+          "settings": {
+            "columns": "3",
+            "query_post_type": "services",
+            "query_posts_per_page": 6,
+            "query_orderby": "date",
+            "query_order": "DESC",
+            "query_cache_ttl": 3600,
+            "btn_text": "مشاهده جزئیات خدمت ←"
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_bento_cta",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0B132B",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_bento_cta",
+          "elType": "widget",
+          "widgetType": "uas_cta",
+          "settings": {
+            "title": "نیاز به دریافت برآورد دقیق یا جلسه مشاوره تخصصی دارید؟",
+            "description": "هم‌اکنون درخواست خود را ثبت کنید تا زمان‌بندی، هزینه و نقشه راه دقیق اجرایی برایتان تدوین گردد.",
+            "button_text": "رزرو جلسه و ارسال بریف ←",
+            "button_url": {
+              "url": "/contact/",
+              "is_external": false
+            }
           }
         }
       ]

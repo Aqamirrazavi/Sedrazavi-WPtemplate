@@ -7,6 +7,14 @@
  * @version 3.1.0
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content('template-portfolio-showcase')) {
+    return;
+}
+
 get_header();
 ?>
 
@@ -52,8 +60,39 @@ get_header();
             </div>
         </div>
 
-        <!-- Case Studies Grid -->
+        <!-- Case Studies Grid (Dynamic portfolio CPT when populated, static showcase fallback otherwise) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <?php
+            $portfolio_q = post_type_exists('portfolio') ? new WP_Query(array('post_type' => 'portfolio', 'posts_per_page' => 6, 'post_status' => 'publish')) : null;
+            if ($portfolio_q && $portfolio_q->have_posts()) :
+                while ($portfolio_q->have_posts()) : $portfolio_q->the_post();
+            ?>
+                <div class="bg-white dark:bg-[#0B132B] rounded-3xl p-6 border border-gray-200 dark:border-gray-800 shadow-xl space-y-5 hover:border-indigo-500/40 transition-all flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="aspect-video rounded-2xl bg-gradient-to-tr from-indigo-950 via-slate-900 to-indigo-900 border border-white/10 flex items-center justify-center text-4xl shadow-inner relative overflow-hidden">
+                            <?php if (has_post_thumbnail()) : ?>
+                                <?php the_post_thumbnail('medium_large', array('class' => 'w-full h-full object-cover')); ?>
+                            <?php else : ?>
+                                <span>🏛️</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="space-y-1">
+                            <h3 class="text-lg font-bold font-serif text-gray-900 dark:text-white"><?php the_title(); ?></h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed"><?php echo wp_trim_words(get_the_excerpt(), 24); ?></p>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                        <span class="text-xs text-emerald-500 font-bold">✓ پروژه منتشرشده</span>
+                        <a href="<?php the_permalink(); ?>" class="sedrazavi-btn-pill px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors">
+                            مشاهده جزئیات پروژه ←
+                        </a>
+                    </div>
+                </div>
+            <?php
+                endwhile;
+                wp_reset_postdata();
+            else :
+            ?>
             
             <!-- Project 1 -->
             <div class="bg-white dark:bg-[#0B132B] rounded-3xl p-6 border border-gray-200 dark:border-gray-800 shadow-xl space-y-5 hover:border-indigo-500/40 transition-all flex flex-col justify-between">
@@ -128,6 +167,7 @@ get_header();
                     </a>
                 </div>
             </div>
+            <?php endif; ?>
 
         </div>
 

@@ -4,6 +4,80 @@
   "type": "header",
   "content": [
     {
+      "id": "uas_cnt_header_ticker_bar",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "background_background": "classic",
+        "background_color": "#0B132B",
+        "padding": {
+          "unit": "px",
+          "top": "8",
+          "right": "24",
+          "bottom": "8",
+          "left": "24"
+        },
+        "content_width": "boxed",
+        "flex_direction": "row",
+        "flex_align_items": "center",
+        "flex_justify_content": "space-between",
+        "flex_wrap": "wrap",
+        "flex_gap": {
+          "unit": "px",
+          "size": 16
+        }
+      },
+      "elements": [
+        {
+          "id": "uas_cnt_sub_header_ticker",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 75
+            },
+            "flex_direction": "column",
+            "flex_align_items": "stretch"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_header_news_ticker",
+              "elType": "widget",
+              "widgetType": "uas_news_ticker",
+              "settings": {
+                "ticker_badge": "اطلاعیه فوری",
+                "posts_count": 5
+              }
+            }
+          ]
+        },
+        {
+          "id": "uas_cnt_sub_header_theme_toggle",
+          "elType": "container",
+          "isInner": true,
+          "settings": {
+            "width": {
+              "unit": "%",
+              "size": 20
+            },
+            "flex_direction": "column",
+            "flex_align_items": "flex-end"
+          },
+          "elements": [
+            {
+              "id": "uas_wid_header_theme_toggle",
+              "elType": "widget",
+              "widgetType": "uas_theme_toggle",
+              "settings": {
+                "label": "حالت شب / روز"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "uas_cnt_header_glass",
       "elType": "container",
       "isInner": false,

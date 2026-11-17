@@ -17,20 +17,50 @@
         },
         "background_background": "classic",
         "background_color": "#070D1E",
-        "content_width": "full",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 28
+        }
       },
       "elements": [
+        {
+          "id": "uas_wid_podcast_hero_split",
+          "elType": "widget",
+          "widgetType": "uas_hero_split",
+          "settings": {
+            "badge_text": "🎙️ رادیو و پادکست‌های تخصصی",
+            "headline": "مرکز شنیداری، تحلیل‌های صوتی و گفت‌وگوهای تخصصی",
+            "description": "پخش برخط اپیزودها، دانلود فایل صوتی با کیفیت بالا و دسترسی به متن کامل پیاده‌سازی‌شده هر قسمت.",
+            "bullets_list": [
+              {
+                "bullet_text": "دسترسی فوری به آرشیو کامل اپیزودهای تحلیلی و آموزشی"
+              },
+              {
+                "bullet_text": "دریافت نسخه متنی و خلاصه نکات کلیدی هر قسمت به صورت PDF"
+              },
+              {
+                "bullet_text": "اطلاع‌رسانی خودکار انتشار قسمت‌های جدید از طریق پیامک یا ایمیل"
+              }
+            ],
+            "lead_title": "عضویت در خبرنامه شنیداری",
+            "lead_desc": "شماره تماس خود را وارد کنید تا لینک دانلود اپیزودهای ویژه برای شما ارسال شود:",
+            "input_placeholder": "شماره همراه (مثلاً ۰۹۱۲...)",
+            "submit_btn_text": "دریافت لینک اپیزودهای ویژه ⚡",
+            "trust_guarantee": "🔒 اطلاعات شما محفوظ است و هرزنامه ارسال نمی‌شود."
+          }
+        },
         {
           "id": "uas_wid_podcast_hero",
           "elType": "widget",
           "widgetType": "uas_hero",
           "settings": {
-            "badge_text": "🎙️ رادیو و پادکست‌های اختصاصی",
-            "hero_title": "مرکز شنیداری و سخنرانی‌های صوتی تخصصی",
-            "hero_desc": "پخش برخط، کنترل سرعت پخش، دانلود مستقیم فایل MP3 و دریافت متن کامل سخنرانی با فرمت PDF.",
+            "badge_text": "🎧 آخرین اپیزود منتشر شده",
+            "hero_title": "آرشیو دسته‌بندی‌شده پادکست‌ها و میزگردهای تخصصی",
+            "hero_desc": "تمامی قسمت‌ها با ساختار استاندارد صوتی، برچسب موضوعی و امکان پخش در تمامی مرورگرها آماده شنیدن هستند.",
             "primary_btn_text": "پخش آخرین اپیزود",
             "primary_btn_url": {
               "url": "#latest-episode",

@@ -17,10 +17,14 @@
         },
         "background_background": "classic",
         "background_color": "#070D1E",
-        "content_width": "full",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
-        "flex_justify_content": "center"
+        "flex_justify_content": "center",
+        "flex_gap": {
+          "unit": "px",
+          "size": 24
+        }
       },
       "elements": [
         {
@@ -28,18 +32,47 @@
           "elType": "widget",
           "widgetType": "uas_hero",
           "settings": {
-            "badge_text": "🎬 رسانه و سخنرانی‌های تخصصی",
-            "hero_title": "مرکز ویدئوها، تحلیل‌های کاربردی و آموزش‌های ویدیویی",
-            "hero_desc": "پخش آنلاین با کیفیت‌های متعدد، امکان دانلود فایل صوتی و دسترسی به سرفصل‌های زمانی تعاملی.",
-            "primary_btn_text": "مشاهده ویدئوی شاخص",
+            "badge_text": "🎬 رسانه و دوره‌های تخصصی ویدیویی",
+            "hero_title": "مرکز ویدئوها، کارگاه‌های کاربردی و آموزش‌های ویدیویی",
+            "hero_desc": "پخش آنلاین با حفاظت استریم، دسترسی به سرفصل‌های زمانی و دریافت بسته‌های آموزشی.",
+            "primary_btn_text": "مشاهده جلسه شاخص",
             "primary_btn_url": {
               "url": "#featured-video",
               "is_external": false
             },
-            "secondary_btn_text": "کانال آپارات و یوتیوب",
+            "secondary_btn_text": "فهرست کامل دوره‌ها",
             "secondary_btn_url": {
-              "url": "#channels",
+              "url": "#courses",
               "is_external": false
+            }
+          }
+        },
+        {
+          "id": "uas_wid_video_spotplayer",
+          "elType": "widget",
+          "widgetType": "uas_spotplayer_course",
+          "settings": {
+            "course_title": "دوره جامع طراحی و بهینه‌سازی معماری دیجیتال",
+            "lesson_title": "فصل ۱ - بخش اول: استانداردسازی ساختار محتوا و تجربه کاربری",
+            "video_url": "",
+            "show_watermark": "yes",
+            "player_bg_color": "#0b132b",
+            "accent_color": "#3b82f6"
+          }
+        },
+        {
+          "id": "uas_wid_video_featured_preview",
+          "elType": "widget",
+          "widgetType": "uas_video",
+          "settings": {
+            "video_title": "خلاصه تصویری سرفصل‌های کارگاه عملی",
+            "video_url": {
+              "url": "#featured-video",
+              "is_external": false
+            },
+            "poster_image": {
+              "url": "saas-dashboard.svg",
+              "source": "sovereign_local"
             }
           }
         }

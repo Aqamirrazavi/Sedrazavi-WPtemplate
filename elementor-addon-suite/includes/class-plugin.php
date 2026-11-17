@@ -61,6 +61,9 @@ class Plugin {
         add_action('elementor/preview/enqueue_styles', [$this, 'enqueue_preview_styles']);
         add_action('elementor/editor/after_enqueue_styles', [$this, 'enqueue_editor_styles']);
 
+        // Performance: non-blocking defer for frontend uas-* scripts outside WP Admin / Elementor Preview
+        add_filter('script_loader_tag', [$this, 'defer_frontend_widget_scripts'], 10, 3);
+
         // AJAX Action for Manual Template Import
         add_action('wp_ajax_uas_import_templates', [$this, 'ajax_import_templates']);
         add_action('wp_ajax_uas_import_single_template', [$this, 'ajax_import_single_template']);
@@ -245,6 +248,27 @@ class Plugin {
         if (class_exists('\UniversalElementorSuite\Asset_Manifest')) {
             Asset_Manifest::instance()->enqueue_scope('editor');
         }
+    }
+
+    /**
+     * Add non-blocking defer attribute to frontend uas-* widget scripts (Performance / Core Web Vitals)
+     *
+     * @param string $tag
+     * @param string $handle
+     * @param string $src
+     * @return string
+     */
+    public function defer_frontend_widget_scripts($tag, $handle, $src = '') {
+        if (is_admin() || strpos((string) $handle, 'uas-') !== 0) {
+            return $tag;
+        }
+        if (class_exists('\Elementor\Plugin') && isset(\Elementor\Plugin::$instance->preview) && \Elementor\Plugin::$instance->preview->is_preview_mode()) {
+            return $tag;
+        }
+        if (strpos($tag, ' defer') !== false) {
+            return $tag;
+        }
+        return str_replace(' src=', ' defer src=', $tag);
     }
 
     /**

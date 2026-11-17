@@ -61,7 +61,8 @@ All **31** widgets in `elementor-addon-suite/includes/widgets/` are genuine PHP 
 
 ---
 
-## 5. Remaining Gaps After Phase 1 (Pre-Conditions for Phase 2–12)
+## 5. Remaining Gaps After Phase 1 (Resolved in Phases 2–12 Static Verification)
 
 1. Live PHP CLI (`php -l`), live WordPress + WP-CLI installation, and live Elementor Editor save/re-open E2E remain `NOT_RUN` / `BLOCKED` inside the Node-only build container and must be executed via `docker compose -f docker-compose.test.yml` or GitHub Actions `workflow_dispatch` (`run_live_e2e: true`).
-2. Only **18 / 31** custom widgets currently appear in prebuilt JSONs, and **most theme frontend pages** remain PHP/HTML layouts; migrating them requires completing Phase 5 (`Golden Widget uas_hero`) and Phase 6 (`Golden Template` + gradual page migration) before touching bulk widget expansion (Phase 10).
+2. *(Resolved in Phases 5, 6a, 6b & 10)* All **31 / 31** registered custom `uas_*` widgets are now actively placed across the **33** Elementor JSON templates & popups (`0` unused custom widgets, `0` external Unsplash/sample MP4 URLs), **8 / 8** standalone vertical themes bundle native Elementor-first routing, and `audit-reconcile-evidence.cjs --check` enforces zero AST-to-CSV drift.
+

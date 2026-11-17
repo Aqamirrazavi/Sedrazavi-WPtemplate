@@ -51,13 +51,16 @@ class SedRazavi_Component_Hub {
     public function rest_get_cloud_catalog() {
         $catalog = get_transient('sedrazavi_cloud_components_cache');
         if (false === $catalog) {
+            $placeholder_base = defined('UAS_URL')
+                ? UAS_URL . 'assets/images/placeholders/'
+                : (function_exists('plugins_url') ? plugins_url('elementor-addon-suite/assets/images/placeholders/') : '');
             $catalog = [
                 [
                     'id'          => 'agency-hero-3d',
                     'title'       => 'هیرو سکشن سه‌بعدی و تایپوگرافی آژانس',
                     'category'    => 'agency',
                     'type'        => 'gutenberg',
-                    'thumbnail'   => 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80',
+                    'thumbnail'   => $placeholder_base . 'hero-showcase.svg',
                     'rating'      => 4.9,
                     'isPro'       => false,
                     'description' => 'سکشن آغازین فوق‌العاده سریع با وکتور متحرک و فرم بریف دو مرحله‌ای.',
@@ -67,7 +70,7 @@ class SedRazavi_Component_Hub {
                     'title'       => 'گرید نمونه‌کارهای فیلتردار با دراور بدون رفرش',
                     'category'    => 'agency',
                     'type'        => 'gutenberg',
-                    'thumbnail'   => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80',
+                    'thumbnail'   => $placeholder_base . 'saas-dashboard.svg',
                     'rating'      => 5.0,
                     'isPro'       => true,
                     'description' => 'نمایش شیک کارهای طراحی شده با پیش‌نمایش دراور جانبی برای حفظ کاربر.',
@@ -77,7 +80,7 @@ class SedRazavi_Component_Hub {
                     'title'       => 'ماتریس حاکمیت شرکتی و ساختار هلدینگ',
                     'category'    => 'corporate',
                     'type'        => 'elementor',
-                    'thumbnail'   => 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=80',
+                    'thumbnail'   => $placeholder_base . 'hero-showcase.svg',
                     'rating'      => 4.8,
                     'isPro'       => true,
                     'description' => 'ویجت کانتینری المنتور برای معرفی هیئت مدیره، سهامداران و ساختار شرکت.',
@@ -87,7 +90,7 @@ class SedRazavi_Component_Hub {
                     'title'       => 'سبد خرید کشویی شناور ووکامرس با تسویه‌حساب فوری',
                     'category'    => 'store',
                     'type'        => 'gutenberg',
-                    'thumbnail'   => 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=800&auto=format&fit=crop&q=80',
+                    'thumbnail'   => $placeholder_base . 'product-studio.svg',
                     'rating'      => 4.9,
                     'isPro'       => false,
                     'description' => 'سبد خرید شناور با اتصال به درگاه‌های زرین‌پال و استرایپ بدون ترک صفحه محصول.',

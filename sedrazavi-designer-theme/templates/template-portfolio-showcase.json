@@ -1,7 +1,7 @@
 {
   "version": "0.4",
   "title": "UAS - نمونه‌کارها و پروژه‌های طراحی وب (Portfolio & Case Studies)",
-  "type": "container",
+  "type": "page",
   "content": [
     {
       "id": "uas_cnt_portfolio_showcase",
@@ -10,14 +10,15 @@
       "settings": {
         "padding": {
           "unit": "px",
-          "top": "50",
+          "top": "80",
           "right": "20",
-          "bottom": "50",
+          "bottom": "70",
           "left": "20"
         },
-        "background_background": "classic",
+        "background_background": "gradient",
         "background_color": "#0A0F1D",
-        "content_width": "full",
+        "background_color_b": "#1E1B4B",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
         "flex_justify_content": "center"
@@ -28,17 +29,168 @@
           "elType": "widget",
           "widgetType": "uas_hero",
           "settings": {
-            "badge_text": "🚀 شوکیس پروژه‌ها و بنچمارک لایت‌هاوس",
+            "badge_text": "ویترین پروژه‌ها و بنچمارک لایت‌هاوس",
             "hero_title": "نمونه‌کارهای تخصصی طراحی سایت با امتیاز سرعت ۱۰۰",
-            "hero_desc": "معماری گوتنبرگ فرست، لودتایم زیر یک ثانیه و تطابق کامل با استانداردهای گوگل Core Web Vitals.",
+            "hero_desc": "معماری کانتینری بومی المنتور و گوتنبرگ، زمان بارگذاری زیر ۵۰۰ میلی‌ثانیه و تطابق کامل با استانداردهای گوگل Core Web Vitals.",
             "primary_btn_text": "ثبت بریف اختصاصی پروژه",
             "primary_btn_url": {
-              "url": "#brief-form",
+              "url": "/contact/",
               "is_external": false
             },
-            "secondary_btn_text": "بررسی بنچمارک سرعت",
+            "secondary_btn_text": "مشاهده خدمات استودیو",
             "secondary_btn_url": {
-              "url": "#metrics",
+              "url": "/services/",
+              "is_external": false
+            },
+            "hero_preset": "split-executive",
+            "title_tag": "h1",
+            "show_media": "yes",
+            "hero_image": {
+              "url": "",
+              "source": "sovereign_local"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_portfolio_dynamic_grid",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "70",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0F172A",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_portfolio_heading",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "آرشیو زنده پروژه‌ها و مطالعات موردی",
+            "header_size": "h2",
+            "align": "right"
+          }
+        },
+        {
+          "id": "uas_wid_portfolio_dynamic_grid",
+          "elType": "widget",
+          "widgetType": "uas_dynamic_grid",
+          "settings": {
+            "columns": "3",
+            "query_post_type": "portfolio",
+            "query_posts_per_page": 6,
+            "query_orderby": "date",
+            "query_order": "DESC",
+            "query_cache_ttl": 3600,
+            "btn_text": "بررسی کیس‌استادی پروژه ↗"
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_portfolio_testimonials",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0B132B",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_portfolio_proof_heading",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "دیدگاه مدیران پروژه‌ها و کارفرمایان",
+            "header_size": "h2",
+            "align": "center"
+          }
+        },
+        {
+          "id": "uas_wid_portfolio_testimonials",
+          "elType": "widget",
+          "widgetType": "uas_testimonials",
+          "settings": {
+            "columns": "2",
+            "testimonials_list": [
+              {
+                "author_name": "مهندس فرهاد شریفی",
+                "author_role": "مدیر محصول پلتفرم سازمانی",
+                "review_text": "مهاجرت وب‌سایت ما به ساختار کانتینری جدید، امتیاز سرعت موبایل را به بالای ۹۸ رساند و نرخ تبدیل فرم‌های فروش را دو برابر کرد.",
+                "rating": "5",
+                "avatar": {
+                  "url": "",
+                  "source": "sovereign_local"
+                }
+              },
+              {
+                "author_name": "دکتر نرگس هاشمی",
+                "author_role": "بنیان‌گذار مجموعه مشاوره حقوقی",
+                "review_text": "یکپارچگی طراحی بصری، راست‌چین دقیق فارسی و ویرایش آسان بدون نیاز به کدنویسی در المنتور تجربه تیم ما را متحول کرد.",
+                "rating": "5",
+                "avatar": {
+                  "url": "",
+                  "source": "sovereign_local"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_portfolio_cta",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0A0F1D",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_portfolio_cta",
+          "elType": "widget",
+          "widgetType": "uas_cta",
+          "settings": {
+            "title": "آماده ساخت پروژه بعدی خود با استاندارد لایت‌هاوس ۱۰۰ هستید؟",
+            "description": "با ارسال مشخصات پروژه، طرح اولیه، زمان‌بندی و برآورد شفاف هزینه را در کمتر از ۲۴ ساعت دریافت نمایید.",
+            "button_text": "ارسال بریف و درخواست مشاوره ←",
+            "button_url": {
+              "url": "/contact/",
               "is_external": false
             }
           }

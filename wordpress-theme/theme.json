@@ -39,6 +39,11 @@
           "slug": "light-canvas",
           "color": "#F8FAFC",
           "name": "Light Canvas"
+        },
+        {
+          "slug": "muted-slate",
+          "color": "#94A3B8",
+          "name": "Muted Slate Text"
         }
       ]
     },
@@ -46,12 +51,25 @@
       "contentSize": "1140px",
       "wideSize": "1440px"
     },
+    "spacing": {
+      "blockGap": true,
+      "padding": true,
+      "margin": true,
+      "units": ["px", "rem", "%", "vw"]
+    },
     "typography": {
       "customFontSize": true,
       "fontStyle": true,
       "fontWeight": true,
       "lineHeight": true,
-      "textDecoration": true
+      "textDecoration": true,
+      "fontFamilies": [
+        {
+          "fontFamily": "Vazirmatn, system-ui, -apple-system, sans-serif",
+          "slug": "vazirmatn",
+          "name": "Vazirmatn Sans"
+        }
+      ]
     }
   },
   "styles": {
@@ -60,8 +78,8 @@
       "text": "#E2E8F0"
     },
     "typography": {
-      "fontFamily": "Vazirmatn, system-ui, -apple-system, sans-serif",
-      "lineHeight": "1.6"
+      "fontFamily": "var(--wp--preset--font-family--vazirmatn, Vazirmatn, system-ui, -apple-system, sans-serif)",
+      "lineHeight": "1.65"
     }
   }
 }

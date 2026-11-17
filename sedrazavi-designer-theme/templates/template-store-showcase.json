@@ -1,10 +1,60 @@
 {
   "version": "0.4",
   "title": "UAS - فروشگاه آنلاین منعطف ووکامرس (Flexible eCommerce Store)",
-  "type": "container",
+  "type": "page",
   "content": [
     {
       "id": "uas_cnt_store_showcase",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "80",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        },
+        "background_background": "gradient",
+        "background_color": "#064E3B",
+        "background_color_b": "#0F172A",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_store_hero",
+          "elType": "widget",
+          "widgetType": "uas_hero",
+          "settings": {
+            "badge_text": "ووکامرس پیشرفته، HPOS و سبد خرید سریع",
+            "hero_title": "فروشگاه آنلاین منعطف با بالاترین سرعت و تجربه خرید مدرن",
+            "hero_desc": "سبد خرید شناور بلادرنگ، اتصال ایمن به درگاه‌های شبکه شتاب، فیلترهای هوشمند ویژگی‌ها و بهینه‌شده برای نرخ تبدیل بالا.",
+            "primary_btn_text": "مشاهده کاتالوگ محصولات",
+            "primary_btn_url": {
+              "url": "#store-products",
+              "is_external": false
+            },
+            "secondary_btn_text": "پشتیبانی و پیگیری سفارش",
+            "secondary_btn_url": {
+              "url": "/contact/",
+              "is_external": false
+            },
+            "hero_preset": "split-executive",
+            "title_tag": "h1",
+            "show_media": "yes",
+            "hero_image": {
+              "url": "",
+              "source": "sovereign_local"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_store_trust",
       "elType": "container",
       "isInner": false,
       "settings": {
@@ -16,29 +66,139 @@
           "left": "20"
         },
         "background_background": "classic",
-        "background_color": "#064E3B",
-        "content_width": "full",
+        "background_color": "#0B132B",
+        "content_width": "boxed",
         "flex_direction": "column",
         "flex_align_items": "stretch",
         "flex_justify_content": "center"
       },
       "elements": [
         {
-          "id": "uas_wid_store_hero",
+          "id": "uas_wid_store_trust_grid",
           "elType": "widget",
-          "widgetType": "uas_hero",
+          "widgetType": "uas_services_grid",
           "settings": {
-            "badge_text": "🛍️ ووکامرس پیشرفته و ادغام وودمارت",
-            "hero_title": "فروشگاه آنلاین منعطف با بالاترین سرعت و تجربه کاربری مدرن",
-            "hero_desc": "سبد خرید شناور بلادرنگ، فیلترهای AJAX هوشمند، درگاه‌های پرداخت متصل و سیستم رهگیری سفارش.",
-            "primary_btn_text": "مشاهده کاتالوگ محصولات",
-            "primary_btn_url": {
-              "url": "#products",
-              "is_external": false
-            },
-            "secondary_btn_text": "پیشنهادات شگفت‌انگیز",
-            "secondary_btn_url": {
-              "url": "#deals",
+            "subtitle": "مزایای خرید از فروشگاه",
+            "title": "تضمین کیفیت، تحویل سریع و پرداخت ایمن",
+            "columns": "4",
+            "services_list": [
+              {
+                "item_title": "ارسال سریع سراسری",
+                "item_desc": "ارسال اکسپرس سفارش‌های فیزیکی و تحویل آنی محصولات دیجیتال.",
+                "item_link_text": "شیوه ارسال ←",
+                "item_link_url": {
+                  "url": "#store-products",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "ضمانت اصالت و بازگشت",
+                "item_desc": "۷ روز ضمانت بررسی فنی و اصالت کامل تمامی کالاها و لایسنس‌ها.",
+                "item_link_text": "شرایط ضمانت ←",
+                "item_link_url": {
+                  "url": "/contact/",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "پرداخت امن شاپرک",
+                "item_desc": "اتصال مستقیم به درگاه‌های معتبر بانکی با تایید خودکار فاکتور.",
+                "item_link_text": "مشاهده محصولات ←",
+                "item_link_url": {
+                  "url": "#store-products",
+                  "is_external": false
+                }
+              },
+              {
+                "item_title": "پشتیبانی تخصصی پس از خرید",
+                "item_desc": "پاسخگویی سریع تیم فنی و خدمات پس از فروش برای تمامی خریدها.",
+                "item_link_text": "ارتباط با پشتیبانی ←",
+                "item_link_url": {
+                  "url": "/contact/",
+                  "is_external": false
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_store_products",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "60",
+          "right": "20",
+          "bottom": "60",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#0F172A",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_store_products_heading",
+          "elType": "widget",
+          "widgetType": "heading",
+          "settings": {
+            "title": "محصولات و بسته‌های برگزیده فروشگاه",
+            "header_size": "h2",
+            "align": "right"
+          }
+        },
+        {
+          "id": "uas_wid_store_products_grid",
+          "elType": "widget",
+          "widgetType": "uas_dynamic_grid",
+          "settings": {
+            "columns": "4",
+            "query_post_type": "product",
+            "query_posts_per_page": 8,
+            "query_orderby": "date",
+            "query_order": "DESC",
+            "query_cache_ttl": 1800,
+            "btn_text": "مشاهده و افزودن به سبد ↗"
+          }
+        }
+      ]
+    },
+    {
+      "id": "uas_cnt_store_cta",
+      "elType": "container",
+      "isInner": false,
+      "settings": {
+        "padding": {
+          "unit": "px",
+          "top": "50",
+          "right": "20",
+          "bottom": "70",
+          "left": "20"
+        },
+        "background_background": "classic",
+        "background_color": "#064E3B",
+        "content_width": "boxed",
+        "flex_direction": "column",
+        "flex_align_items": "stretch",
+        "flex_justify_content": "center"
+      },
+      "elements": [
+        {
+          "id": "uas_wid_store_cta",
+          "elType": "widget",
+          "widgetType": "uas_cta",
+          "settings": {
+            "title": "نیاز به مشاوره پیش از خرید یا صدور پیش‌فاکتور سازمانی دارید؟",
+            "description": "با کارشناسان فروش تماس بگیرید تا مناسب‌ترین بسته یا محصول متناسب با نیاز کسب‌وکارتان معرفی شود.",
+            "button_text": "ارتباط با واحد فروش ←",
+            "button_url": {
+              "url": "/contact/",
               "is_external": false
             }
           }

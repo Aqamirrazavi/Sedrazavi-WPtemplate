@@ -82,10 +82,14 @@ class SedRazavi_Legal_Intake_Appointments {
     }
 
     /**
-     * Staff/Lawyer RBAC Permission check: Strictly require authenticated user with edit_posts or manage_options
+     * Staff/Lawyer RBAC Permission check: Require dedicated legal capabilities (never generic edit_posts)
      */
     public function check_staff_permission($request) {
-        if (!is_user_logged_in() || (!current_user_can('manage_options') && !current_user_can('edit_posts'))) {
+        $has_legal_cap = current_user_can('manage_options')
+            || current_user_can('sedrazavi_manage_cases')
+            || current_user_can('view_sedrazavi_cases');
+
+        if (!is_user_logged_in() || !$has_legal_cap) {
             return new WP_Error(
                 'rest_forbidden',
                 esc_html__('دسترسی غیرمجاز: مشاهده اطلاعات نوبت‌ها و استعلام‌های حقوقی نیازمند مجوز وکالت یا مدیریت است.', 'sedrazavi-companion'),
@@ -170,12 +174,13 @@ class SedRazavi_Legal_Intake_Appointments {
         }
         update_option('sedrazavi_legal_intake_records', $intake_list);
 
-        // 6. Log Audit Event (Without PII in body)
+        // 6. Log Audit Event (Without PII in body) & notify workflow listeners
         $this->log_audit_event('intake_received', [
             'reference_code' => $ref_code,
             'urgency'        => $urgency,
             'topic'          => $topic,
         ]);
+        do_action('sedrazavi_after_intake_submitted', $ref_code, $topic, $urgency);
 
         return rest_ensure_response([
             'status'         => 'success',
@@ -455,15 +460,20 @@ class SedRazavi_Legal_Intake_Appointments {
         $records = get_option('sedrazavi_legal_intake_records', []);
         $now = gmdate('Y-m-d H:i:s');
         $filtered = [];
+        $purged_count = 0;
 
         foreach ($records as $rec) {
             if (!empty($rec['retention_expires']) && $rec['retention_expires'] < $now) {
+                $purged_count++;
                 continue; // Purge expired
             }
             $filtered[] = $rec;
         }
 
-        update_option('sedrazavi_legal_intake_records', $filtered);
+        if ($purged_count > 0) {
+            update_option('sedrazavi_legal_intake_records', $filtered);
+            $this->log_audit_event('intake_retention_purge', ['purged_count' => $purged_count]);
+        }
     }
 
     /**

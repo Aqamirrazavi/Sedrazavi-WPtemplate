@@ -98,8 +98,10 @@ class Universal_Posts_Widget extends Universal_Widget_Base {
         ];
 
         $query = new \WP_Query($args);
+        $dir   = (function_exists('is_rtl') && is_rtl()) ? 'rtl' : 'ltr';
+        $placeholder_thumb = defined('UAS_URL') ? UAS_URL . 'assets/images/placeholders/hero-showcase.svg' : '';
         ?>
-        <div class="uas-posts-wrapper uas-widget-container" dir="rtl">
+        <div class="uas-posts-wrapper uas-widget-container" dir="<?php echo esc_attr($dir); ?>">
             <div class="uas-posts-grid">
                 <?php if ($query->have_posts()) : ?>
                     <?php while ($query->have_posts()) : $query->the_post(); ?>
@@ -107,7 +109,7 @@ class Universal_Posts_Widget extends Universal_Widget_Base {
                             <?php if (has_post_thumbnail()) : ?>
                                 <div class="uas-post-thumb-wrapper">
                                     <a href="<?php the_permalink(); ?>">
-                                        <?php the_post_thumbnail('medium_large', ['class' => 'uas-post-thumb']); ?>
+                                        <?php the_post_thumbnail('medium_large', ['class' => 'uas-post-thumb', 'loading' => 'lazy', 'decoding' => 'async']); ?>
                                     </a>
                                 </div>
                             <?php endif; ?>
@@ -135,9 +137,11 @@ class Universal_Posts_Widget extends Universal_Widget_Base {
                     <!-- Sample Topic-Agnostic Placeholders if no posts exist -->
                     <?php for ($i = 1; $i <= $count; $i++) : ?>
                         <article class="uas-post-card">
-                            <div class="uas-post-thumb-wrapper">
-                                <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&q=80&w=400" alt="Sample post" class="uas-post-thumb" />
-                            </div>
+                            <?php if (!empty($placeholder_thumb)) : ?>
+                                <div class="uas-post-thumb-wrapper">
+                                    <img src="<?php echo esc_url($placeholder_thumb); ?>" alt="<?php echo esc_attr(sprintf('پیش‌نمایش مقاله %d', $i)); ?>" class="uas-post-thumb" loading="lazy" decoding="async" />
+                                </div>
+                            <?php endif; ?>
                             <div class="uas-post-body">
                                 <span class="uas-post-date">امروز</span>
                                 <h3 class="uas-post-title"><a href="#">راهنمای جامع بهره‌وری و تحلیل شاخص‌های عملکرد <?php echo $i; ?></a></h3>

@@ -7,6 +7,14 @@
  * @version 3.1.0
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+if (function_exists('sedrazavi_try_render_elementor_page_content') && sedrazavi_try_render_elementor_page_content('template-store-showcase')) {
+    return;
+}
+
 get_header();
 ?>
 

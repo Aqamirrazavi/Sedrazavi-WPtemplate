@@ -76,5 +76,5 @@ This ledger traces every security, data-integrity, packaging, and documentation 
 
 - **Affected Files:** `scripts/audit-reconcile-evidence.cjs`, `artifacts/evidence/v31.0.0/*-verification.csv`, `qa/*-verification.csv`, `docs/PHASE0_AUDIT_AND_V29_CROSSWALK.md`
 - **Root Cause:** Verification CSVs contained stale hand-typed `widget_ids` claiming 24 used custom widgets, marked Pro Theme Builder JSONs as `pro_required = NO`, and labeled static Node checks as `editor_test = PASS`, `status = VERIFIED`.
-- **Remediation:** Created `scripts/audit-reconcile-evidence.cjs` (`--check` integrated into `npm run test:all`) to compute exact widget usage (`18/31` across `29/33` JSONs, `13/31` unused in JSONs), flag `4` Theme Builder JSONs as `OPTIONAL_PRO`, and enforce strict `STATICALLY_CHECKED` vs `NOT_RUN` labels.
+- **Remediation:** Created `scripts/audit-reconcile-evidence.cjs` (`--check` integrated into `npm run test:all`) to compute exact widget usage (reconciling the Phase 1 baseline of `18/31` across `29/33` JSONs, later expanded in Phase 10 to `31/31` used widgets across all `33` JSONs), flag `4` Theme Builder JSONs as `OPTIONAL_PRO`, and enforce strict `STATICALLY_CHECKED` vs `NOT_RUN` labels.
 

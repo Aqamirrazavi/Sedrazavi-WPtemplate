@@ -215,3 +215,102 @@ class SedRazavi_Elementor_Legal_Suite_Widget extends \Elementor\Widget_Base {
     }
 }
 }
+
+if (!function_exists('sedrazavi_try_render_elementor_page_content')) {
+    /**
+     * Render native Elementor page builder content or imported Elementor Library template
+     * cleanly before falling back to hardcoded PHP markup.
+     *
+     * Guardrails:
+     * - Returns false immediately when Elementor plugin is not active.
+     * - Respects manual Gutenberg block pages unless explicitly saved in Elementor builder.
+     * - Never opens duplicate <main> landmarks (header.php opens #main-content and footer.php closes it).
+     *
+     * @param string $fallback_template_slug Optional _uas_template_slug in elementor_library
+     * @param array  $args                   Optional flags (require_explicit_page)
+     * @return bool True if rendered via Elementor, false if theme fallback should run
+     */
+    function sedrazavi_try_render_elementor_page_content($fallback_template_slug = '', $args = []) {
+        if (!did_action('elementor/loaded') || !class_exists('\Elementor\Plugin')) {
+            return false;
+        }
+
+        $require_explicit = !empty($args['require_explicit_page']);
+        $page_id = function_exists('get_queried_object_id') ? (int) get_queried_object_id() : 0;
+        if ($page_id <= 0 && function_exists('get_the_ID')) {
+            $page_id = (int) get_the_ID();
+        }
+
+        // 1. Direct Elementor Builder page or Elementor editor/preview mode
+        $is_preview_or_edit = false;
+        $elementor_instance = \Elementor\Plugin::$instance ?? null;
+        if ($elementor_instance) {
+            if (isset($elementor_instance->preview) && is_object($elementor_instance->preview) && method_exists($elementor_instance->preview, 'is_preview_mode') && $elementor_instance->preview->is_preview_mode()) {
+                $is_preview_or_edit = true;
+            }
+            if (isset($elementor_instance->editor) && is_object($elementor_instance->editor) && method_exists($elementor_instance->editor, 'is_edit_mode') && $elementor_instance->editor->is_edit_mode()) {
+                $is_preview_or_edit = true;
+            }
+        }
+
+        $elementor_data = $page_id > 0 ? get_post_meta($page_id, '_elementor_data', true) : '';
+        $elementor_mode = $page_id > 0 ? get_post_meta($page_id, '_elementor_edit_mode', true) : '';
+
+        if ($is_preview_or_edit || ($elementor_mode === 'builder' && !empty($elementor_data))) {
+            get_header();
+            echo '<div class="sedrazavi-elementor-migrated-page" data-elementor-source="page">';
+            if (have_posts()) {
+                while (have_posts()) {
+                    the_post();
+                    the_content();
+                }
+                rewind_posts();
+            } elseif ($page_id > 0 && $elementor_instance && isset($elementor_instance->frontend) && method_exists($elementor_instance->frontend, 'get_builder_content_for_display')) {
+                echo $elementor_instance->frontend->get_builder_content_for_display($page_id);
+            }
+            echo '</div>';
+            get_footer();
+            return true;
+        }
+
+        // 2. Imported Elementor Library template by _uas_template_slug (when page uses theme template)
+        if ($require_explicit || empty($fallback_template_slug)) {
+            return false;
+        }
+
+        // Respect manually authored Gutenberg block pages
+        if ($page_id > 0 && function_exists('has_blocks')) {
+            $raw_post_content = (string) get_post_field('post_content', $page_id);
+            if ($raw_post_content !== '' && has_blocks($raw_post_content)) {
+                return false;
+            }
+        }
+
+        $slug = sanitize_key($fallback_template_slug);
+        $templates = get_posts([
+            'post_type'      => 'elementor_library',
+            'post_status'    => 'publish',
+            'posts_per_page' => 1,
+            'meta_key'       => '_uas_template_slug',
+            'meta_value'     => $slug,
+        ]);
+
+        if (empty($templates)) {
+            return false;
+        }
+
+        $tpl_id = (int) $templates[0]->ID;
+        $tpl_data = get_post_meta($tpl_id, '_elementor_data', true);
+        if (empty($tpl_data) || !$elementor_instance || !isset($elementor_instance->frontend) || !method_exists($elementor_instance->frontend, 'get_builder_content_for_display')) {
+            return false;
+        }
+
+        get_header();
+        echo '<div class="sedrazavi-elementor-migrated-page" data-elementor-source="library" data-uas-template="' . esc_attr($slug) . '">';
+        echo $elementor_instance->frontend->get_builder_content_for_display($tpl_id);
+        echo '</div>';
+        get_footer();
+        return true;
+    }
+}
+

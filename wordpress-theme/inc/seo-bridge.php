@@ -122,12 +122,19 @@ function sedrazavi_render_dynamic_seo_tags() {
     <?php if (!$has_third_party_seo && (!function_exists('current_theme_supports') || !current_theme_supports('title-tag'))): ?>
     <title><?php echo $page_title; ?></title>
     <?php endif; ?>
-    <?php if (!$has_third_party_seo): ?>
+    <?php if (!$has_third_party_seo):
+        $is_noindex = is_search() || is_404() || isset($_GET['preview_theme']) || isset($_GET['replytocom']);
+        $robots_content = $is_noindex
+            ? 'noindex, nofollow'
+            : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+    ?>
     <meta name="description" content="<?php echo $meta_desc; ?>" />
     <meta name="keywords" content="<?php echo $keywords; ?>" />
     <meta name="author" content="<?php echo $lawyer_name; ?>" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="robots" content="<?php echo esc_attr($robots_content); ?>" />
+    <?php if (!is_404()): ?>
     <link rel="canonical" href="<?php echo $canonical_url; ?>" />
+    <?php endif; ?>
     <?php endif; ?>
 
     <?php if (!$has_third_party_seo && !$has_companion_og): ?>

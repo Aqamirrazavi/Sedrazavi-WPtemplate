@@ -660,6 +660,36 @@ namespace {
     }
     echo "  PASS: Golden Landing Page imported cleanly into post meta with relinked sovereign SVG media & 6 native Flexbox containers.\n\n";
 
+    // TEST 11: Phase 6b Priority 2 & 3 Migrated Page Templates Import & Dependency Verification
+    echo "[TEST 11] Verifying Phase 6b Priority Page Templates Import & Dependency Checks...\n";
+    foreach (['template-services-bento', 'template-portfolio-showcase', 'template-contact-booking-split', 'template-store-showcase'] as $p6b_slug) {
+        $p6b_meta = [];
+        $p6b_json = $demo_importer->resolve_template_json_data($p6b_slug, $p6b_meta);
+        if (empty($p6b_json) || strpos((string) $p6b_json, 'images.unsplash.com') !== false || !empty($p6b_meta['missing_widgets'])) {
+            fwrite(STDERR, "FAIL: Phase 6b template {$p6b_slug} failed sanitization or widget dependency resolution\n");
+            exit(1);
+        }
+    }
+    echo "  PASS: All Priority Queue Elementor page templates import cleanly with zero external URLs or missing widget classes.\n\n";
+
+    // TEST 12: Phase 7-9 SVG Markup Sanitizer & Motion Reduced-Motion Safety
+    echo "[TEST 12] Verifying Phase 9 SVG Sanitizer & Reduced-Motion CSS...\n";
+    require_once UAS_PATH . 'includes/class-sovereign-svg-icons.php';
+    require_once UAS_PATH . 'includes/class-sovereign-motion-presets.php';
+    $dirty_svg = '<path d="M0 0" onclick="alert(1)"/><script>alert(2)</script><foreignObject>bad</foreignObject>';
+    $clean_svg = \UniversalElementorSuite\Sovereign_Svg_Icons::sanitize_svg_markup($dirty_svg);
+    $motion_css = \UniversalElementorSuite\Sovereign_Motion_Presets::instance()->generate_motion_css();
+    if (
+        strpos($clean_svg, '<script') !== false ||
+        strpos($clean_svg, 'onclick') !== false ||
+        strpos($clean_svg, 'foreignObject') !== false ||
+        strpos($motion_css, 'prefers-reduced-motion: reduce') === false
+    ) {
+        fwrite(STDERR, "FAIL: Phase 9 SVG sanitizer or motion reduced-motion fallback failed\n");
+        exit(1);
+    }
+    echo "  PASS: SVG Sanitizer stripped executable tags/handlers and Motion CSS includes prefers-reduced-motion rules.\n\n";
+
     // Cleanup sandbox
     $it = new \RecursiveDirectoryIterator($sandbox_uploads, \RecursiveDirectoryIterator::SKIP_DOTS);
     $files = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
@@ -673,6 +703,6 @@ namespace {
     @rmdir($sandbox_uploads);
 
     echo "\n========================================================================\n";
-    echo ">>> PHASE 2 & STAGE 4/5/6A ECOSYSTEM HARNESS: 100% PASSED <<<\n";
+    echo ">>> PHASE 2 & STAGE 4/5/6/7-9 ECOSYSTEM HARNESS: 100% PASSED <<<\n";
     echo "========================================================================\n";
 }

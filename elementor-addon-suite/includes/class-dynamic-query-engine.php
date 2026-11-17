@@ -48,6 +48,11 @@ class Dynamic_Query_Engine {
             $post_type = 'case_study'; // Fallback to public case studies
         }
 
+        $post_type_query = $post_type;
+        if ($post_type === 'services' && function_exists('post_type_exists') && post_type_exists('service')) {
+            $post_type_query = ['services', 'service'];
+        }
+
         $posts_per_page = intval($settings['posts_per_page'] ?? 6);
         $orderby        = sanitize_key($settings['orderby'] ?? 'date');
         $order          = (strtoupper($settings['order'] ?? 'DESC') === 'ASC') ? 'ASC' : 'DESC';
@@ -56,7 +61,7 @@ class Dynamic_Query_Engine {
 
         // Build WP_Query args
         $args = [
-            'post_type'           => $post_type,
+            'post_type'           => $post_type_query,
             'post_status'         => 'publish',
             'posts_per_page'      => $posts_per_page,
             'orderby'             => $orderby,
@@ -175,8 +180,11 @@ class Dynamic_Query_Engine {
         if (post_type_exists('portfolio')) {
             $types['portfolio'] = 'پروژه‌ها و نمونه‌کارها (Portfolio)';
         }
+        if (post_type_exists('services')) {
+            $types['services'] = 'خدمات و سرویس‌ها (Services)';
+        }
         if (post_type_exists('service')) {
-            $types['service'] = 'خدمات سازمانی (Services)';
+            $types['service'] = 'خدمات سازمانی (Service CPT)';
         }
         if (post_type_exists('product')) {
             $types['product'] = 'محصولات فروشگاه (WooCommerce Products)';
