@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!class_exists('SedRazavi_Legal_Intelligence')) {
 class SedRazavi_Legal_Intelligence {
 
     public function __construct() {
@@ -130,3 +131,4 @@ class SedRazavi_Legal_Intelligence {
 }
 
 new SedRazavi_Legal_Intelligence();
+}

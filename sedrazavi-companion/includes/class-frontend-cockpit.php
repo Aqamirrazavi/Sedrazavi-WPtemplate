@@ -874,9 +874,10 @@ class Frontend_Cockpit_Engine {
         }
 
         // Auto-activate plugin
+        $this->ensure_wp_plugin_admin_loaded();
         $main_file = $plugin_slug . '/' . $plugin_slug . '.php';
-        if (!is_plugin_active($main_file)) {
-            $act_res = activate_plugin($main_file);
+        if (function_exists('is_plugin_active') && !is_plugin_active($main_file)) {
+            $act_res = function_exists('activate_plugin') ? activate_plugin($main_file) : new \WP_Error('missing_plugin_api', 'Plugin API unavailable');
             if (is_wp_error($act_res)) {
                 wp_send_json_error(['message' => $act_res->get_error_message()]);
             }
@@ -905,15 +906,30 @@ class Frontend_Cockpit_Engine {
         if (!file_exists(WP_PLUGIN_DIR . '/' . $main_file)) {
             wp_send_json_error(['message' => __('افزونه روی سرور نصب نیست.', 'sedrazavi-companion')], 404);
         }
-        if (is_plugin_active($main_file)) {
-            deactivate_plugins($main_file);
+        $this->ensure_wp_plugin_admin_loaded();
+        if (function_exists('is_plugin_active') && is_plugin_active($main_file)) {
+            if (function_exists('deactivate_plugins')) {
+                deactivate_plugins($main_file);
+            }
             wp_send_json_success(['status' => 'inactive', 'message' => __('افزونه غیرفعال شد.', 'sedrazavi-companion')]);
         }
-        $act = activate_plugin($main_file);
+        $act = function_exists('activate_plugin') ? activate_plugin($main_file) : new \WP_Error('missing_plugin_api', 'Plugin API unavailable');
         if (is_wp_error($act)) {
             wp_send_json_error(['message' => $act->get_error_message()]);
         }
         wp_send_json_success(['status' => 'active', 'message' => __('افزونه فعال شد.', 'sedrazavi-companion')]);
+    }
+
+    /**
+     * Ensure WordPress admin plugin functions (is_plugin_active, activate_plugin, deactivate_plugins) are loaded.
+     */
+    private function ensure_wp_plugin_admin_loaded() {
+        if (!function_exists('is_plugin_active') || !function_exists('activate_plugin') || !function_exists('deactivate_plugins')) {
+            if (defined('ABSPATH') && file_exists(ABSPATH . 'wp-admin/includes/plugin.php')) {
+                require_once ABSPATH . 'wp-admin/includes/plugin.php';
+            }
+        }
+        return function_exists('is_plugin_active');
     }
 
     /**
@@ -1498,9 +1514,11 @@ class Frontend_Cockpit_Engine {
                                 'desc' => 'شامل فرم‌های پیشرفته، پورتال و امکانات تعاملی اصناف.',
                             ],
                         ];
+                        $this->ensure_wp_plugin_admin_loaded();
                         foreach ($plugins_catalog as $pkg):
-                            $is_installed = file_exists(WP_PLUGIN_DIR . '/' . $pkg['slug']);
-                            $is_active    = is_plugin_active($pkg['slug'] . '/' . $pkg['slug'] . '.php');
+                            $plugin_root  = defined('WP_PLUGIN_DIR') ? WP_PLUGIN_DIR : (defined('ABSPATH') ? ABSPATH . 'wp-content/plugins' : '');
+                            $is_installed = $plugin_root !== '' && file_exists($plugin_root . '/' . $pkg['slug']);
+                            $is_active    = function_exists('is_plugin_active') && is_plugin_active($pkg['slug'] . '/' . $pkg['slug'] . '.php');
                         ?>
                             <div class="sr-plugin-card">
                                 <h4><?php echo esc_html($pkg['name']); ?></h4>

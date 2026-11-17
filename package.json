@@ -20,6 +20,7 @@
     "test:portability": "node scripts/test-portability-lifecycle.cjs",
     "test:banks": "node scripts/test-phase10-controlled-banks.cjs",
     "test:verticals": "node scripts/test-phase11-vertical-packs.cjs",
+    "test:phase1": "node scripts/test-phase1-php-integrity.cjs",
     "test:phase2": "node scripts/test-phase2-architecture-unification.cjs",
     "test:phase3": "node scripts/test-phase3-clean-install-resilience.cjs",
     "test:phase4-design": "node scripts/test-phase4-design-system.cjs",
@@ -30,7 +31,7 @@
     "test:phase10_12": "node scripts/test-phase10-11-12-release-completion.cjs",
     "test:evidence": "node scripts/test-phase12-release-hardening.cjs && node scripts/audit-reconcile-evidence.cjs --check",
     "test:cockpit": "node scripts/test-frontend-management-cockpit.cjs",
-    "test:all": "node scripts/test-inc-completeness.cjs && node scripts/test-css-coverage.cjs && node scripts/test-phase2-architecture-unification.cjs && node scripts/test-phase3-clean-install-resilience.cjs && node scripts/test-phase4-design-system.cjs && node scripts/test-phase5-golden-widget.cjs && node scripts/test-phase6a-landing-demo-import.cjs && node scripts/test-phase6b-page-migrations.cjs && node scripts/test-phase7-8-9-gutenberg-portability-library.cjs && node scripts/test-phase10-11-12-release-completion.cjs && node scripts/test-phase4-security-popups.cjs && node scripts/test-phase5-phase6-duplicator.cjs && node scripts/test-phase10-gutenberg-sovereign-audit.cjs && node scripts/test-mandatory-audit-remediation.cjs && node scripts/test-mpca-architecture.cjs && node scripts/test-production-hardening.cjs && node scripts/test-portability-lifecycle.cjs && node scripts/test-phase10-controlled-banks.cjs && node scripts/test-phase11-vertical-packs.cjs && node scripts/test-phase12-release-hardening.cjs && node scripts/audit-reconcile-evidence.cjs --check && node scripts/test-frontend-management-cockpit.cjs",
+    "test:all": "node scripts/test-phase1-php-integrity.cjs && node scripts/test-inc-completeness.cjs && node scripts/test-css-coverage.cjs && node scripts/test-phase2-architecture-unification.cjs && node scripts/test-phase3-clean-install-resilience.cjs && node scripts/test-phase4-design-system.cjs && node scripts/test-phase5-golden-widget.cjs && node scripts/test-phase6a-landing-demo-import.cjs && node scripts/test-phase6b-page-migrations.cjs && node scripts/test-phase7-8-9-gutenberg-portability-library.cjs && node scripts/test-phase10-11-12-release-completion.cjs && node scripts/test-phase4-security-popups.cjs && node scripts/test-phase5-phase6-duplicator.cjs && node scripts/test-phase10-gutenberg-sovereign-audit.cjs && node scripts/test-mandatory-audit-remediation.cjs && node scripts/test-mpca-architecture.cjs && node scripts/test-production-hardening.cjs && node scripts/test-portability-lifecycle.cjs && node scripts/test-phase10-controlled-banks.cjs && node scripts/test-phase11-vertical-packs.cjs && node scripts/test-phase12-release-hardening.cjs && node scripts/audit-reconcile-evidence.cjs --check && node scripts/test-frontend-management-cockpit.cjs",
     "clean": "rm -rf dist public/app-dist wordpress-theme/app-dist server.js",
     "lint": "tsc --noEmit"
   },

@@ -38,10 +38,6 @@ add_action('after_setup_theme', function() {
     add_theme_support('html5', ['search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script']);
 });
 
-elseif (file_exists(dirname(get_template_directory()) . '/inc/frontend-cockpit-engine.php')) {
-    require_once dirname(get_template_directory()) . '/inc/frontend-cockpit-engine.php';
-}
-
 if (!function_exists('sedrazavi_standalone_vertical_slug')) {
     function sedrazavi_standalone_vertical_slug() {
         return 'sedrazavi-news-theme';

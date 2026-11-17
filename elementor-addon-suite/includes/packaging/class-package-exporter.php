@@ -461,7 +461,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Category fallback definition if parent suite is not active
-if (!class_exists('\\\\UniversalElementorSuite\\\\Plugin')) {
+if (!class_exists('\\\\UniversalElementorSuite\\\\Plugin') && !class_exists('UniversalElementorSuite_Plugin_Fallback')) {
     class UniversalElementorSuite_Plugin_Fallback {
         const CATEGORY_SLUG = 'universal-addon-suite';
     }
@@ -609,7 +609,7 @@ if (!defined('UAS_VERSION')) {
     define('UAS_VERSION', '{$version}');
 }
 
-if (!class_exists('\\\\UniversalElementorSuite\\\\Plugin')) {
+if (!class_exists('\\\\UniversalElementorSuite\\\\Plugin') && !class_exists('UniversalElementorSuite_Plugin_Fallback')) {
     class UniversalElementorSuite_Plugin_Fallback {
         const CATEGORY_SLUG = 'universal-addon-suite';
     }

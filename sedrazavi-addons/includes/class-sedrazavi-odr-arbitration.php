@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!class_exists('SedRazavi_ODR_Arbitration')) {
 class SedRazavi_ODR_Arbitration {
 
     public function __construct() {
@@ -144,3 +145,4 @@ class SedRazavi_ODR_Arbitration {
 }
 
 new SedRazavi_ODR_Arbitration();
+}

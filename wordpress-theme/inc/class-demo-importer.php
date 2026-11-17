@@ -13,6 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!class_exists('SedRazavi_Demo_Importer')) {
 class SedRazavi_Demo_Importer {
 
     public static function init() {
@@ -133,3 +134,4 @@ class SedRazavi_Demo_Importer {
 }
 
 SedRazavi_Demo_Importer::init();
+}

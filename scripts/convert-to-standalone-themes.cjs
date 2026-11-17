@@ -337,7 +337,9 @@ if (!function_exists('sedrazavi_standalone_try_render_elementor')) {
   }
 
   // Remove any duplicate theme-level Frontend Cockpit engine/assets (canonical engine lives in sedrazavi-companion plugin)
-  funcContent = funcContent.replace(/\/\/ Load Universal Frontend Management Cockpit[\s\S]*?frontend-cockpit-engine\.php['"][\s\S]*?\}\s*/g, '');
+  funcContent = funcContent
+    .replace(/\/\/\s*Load Universal Frontend Management Cockpit[\s\S]*?frontend-cockpit-engine\.php[\s\S]*?\}\s*(?:elseif\s*\([\s\S]*?frontend-cockpit-engine\.php[\s\S]*?\}\s*)*/g, '')
+    .replace(/elseif\s*\([\s\S]*?frontend-cockpit-engine\.php[\s\S]*?\{\s*require_once[\s\S]*?\}\s*/g, '');
 
   // Clean any legacy 'Child Theme' comments in style.css and functions.php
   styleContent = styleContent.replace(/Child Theme/gi, 'Standalone Parent Theme');

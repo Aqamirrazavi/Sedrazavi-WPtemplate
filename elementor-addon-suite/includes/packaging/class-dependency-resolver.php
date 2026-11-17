@@ -98,6 +98,10 @@ class Dependency_Resolver {
         $conflicts = [];
         $conflicts_with = $target['conflicts'] ?? [];
 
+        if (!function_exists('is_plugin_active') && defined('ABSPATH') && file_exists(ABSPATH . 'wp-admin/includes/plugin.php')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
         foreach ($conflicts_with as $conflict_slug) {
             $active = function_exists('is_plugin_active') && is_plugin_active($conflict_slug);
             if ($active || defined(strtoupper(str_replace('-', '_', $conflict_slug)) . '_VERSION')) {

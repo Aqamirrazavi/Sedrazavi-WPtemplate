@@ -27,9 +27,12 @@ class Theme_Builder_Bridge {
     public function do_location($location) {
         // 1. If Elementor Pro is active, let Elementor Pro handle it cleanly
         if (function_exists('elementor_pro_load_plugin') && class_exists('\ElementorPro\Plugin')) {
-            $modules = \ElementorPro\Plugin::instance()->modules_manager->get_modules('theme-builder');
-            if ($modules && method_exists($modules, 'get_locations_manager')) {
-                return $modules->get_locations_manager()->do_location($location);
+            $pro_instance = \ElementorPro\Plugin::instance();
+            if ($pro_instance && isset($pro_instance->modules_manager) && method_exists($pro_instance->modules_manager, 'get_modules')) {
+                $modules = $pro_instance->modules_manager->get_modules('theme-builder');
+                if ($modules && method_exists($modules, 'get_locations_manager')) {
+                    return $modules->get_locations_manager()->do_location($location);
+                }
             }
         }
 
