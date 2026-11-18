@@ -47,6 +47,8 @@ $sedrazavi_companion_modules = [
     'includes/class-snapshot-engine.php',
     'includes/class-vector-patterns.php',
     'includes/class-role-manager.php',
+    'includes/class-case-data-service.php',
+    'includes/class-ecosystem-control-service.php',
     'includes/class-modern-comments.php',
     'includes/class-mega-menu.php',
     'includes/class-woocommerce-kit.php',
@@ -84,6 +86,7 @@ foreach ($sedrazavi_companion_modules as $module_rel) {
  */
 function sedrazavi_companion_init() {
     $singleton_classes = [
+        'SedRazavi_Ecosystem_Control_Service',
         'SedRazavi_License_Manager',
         'SedRazavi_GitHub_Shield',
         'SedRazavi_Component_Hub',
@@ -134,6 +137,10 @@ function sedrazavi_companion_init() {
 
     if (class_exists('\\SedRazavi\\Frontend_Cockpit_Engine') && method_exists('\\SedRazavi\\Frontend_Cockpit_Engine', 'instance')) {
         \SedRazavi\Frontend_Cockpit_Engine::instance();
+    }
+
+    if (class_exists('SedRazavi_Case_Data_Service')) {
+        add_action('init', ['SedRazavi_Case_Data_Service', 'register_legal_capabilities'], 5);
     }
 }
 add_action('plugins_loaded', 'sedrazavi_companion_init');
@@ -194,9 +201,12 @@ add_action('before_woocommerce_init', function () {
 });
 
 /**
- * Register Admin Menu for Agency Engine
+ * Register fallback Admin Menu for Agency Engine only if unified SedRazavi_Admin_Dashboard is absent.
  */
 add_action('admin_menu', function() {
+    if (class_exists('SedRazavi_Admin_Dashboard')) {
+        return;
+    }
     add_menu_page(
         __('سیستم‌عامل SedRazavi OS', 'sedrazavi-companion'),
         __('هسته آژانس SedRazavi', 'sedrazavi-companion'),

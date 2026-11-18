@@ -1,10 +1,16 @@
-/* SedRazavi RTL Stylesheet */
-body {
+/* SedRazavi Logical RTL / LTR Direction Stylesheet */
+body,
+[dir="rtl"] body {
   direction: rtl;
   unicode-bidi: embed;
-  text-align: right;
+  text-align: start;
+}
+
+[dir="ltr"] body {
+  direction: ltr;
+  text-align: start;
 }
 
 .prose {
-  text-align: right;
+  text-align: start;
 }

@@ -45,9 +45,84 @@ if (!function_exists('sedrazavi_add_admin_dashboard_menu')) {
 
 if (!function_exists('sedrazavi_render_admin_dashboard')) {
     function sedrazavi_render_admin_dashboard() {
-        $office_phone = get_option('sedrazavi_office_phone', '۰۲۱-۸۸۹۹۰۰۱۱');
-        $office_email = get_option('sedrazavi_office_email', 'info@sedrazavi-law.ir');
-        $active_cases_count = wp_count_posts('sedrazavi_dashboard')->publish ?? 48;
+        $office_phone = get_option('sedrazavi_office_phone', '');
+        $office_email = get_option('sedrazavi_office_email', '');
+
+        $active_cases_count = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::count_active_cases()
+            : 0;
+        if ($active_cases_count === 0 && post_type_exists('sedrazavi_dashboard')) {
+            $dash_counts = wp_count_posts('sedrazavi_dashboard');
+            $active_cases_count = (int) ($dash_counts->publish ?? 0) + (int) ($dash_counts->private ?? 0);
+        }
+
+        $case_post_types = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::get_case_post_types()
+            : ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'];
+
+        $sessions_query = new WP_Query([
+            'post_type'      => $case_post_types,
+            'post_status'    => ['private', 'publish'],
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            'meta_query'     => [
+                [
+                    'key'     => '_sedrazavi_next_session',
+                    'value'   => '',
+                    'compare' => '!=',
+                ],
+            ],
+        ]);
+        $court_sessions_count = (int) $sessions_query->found_posts;
+
+        $deadlines_query = new WP_Query([
+            'post_type'      => $case_post_types,
+            'post_status'    => ['private', 'publish'],
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            'meta_query'     => [
+                [
+                    'key'     => '_sedrazavi_deadlines',
+                    'value'   => '',
+                    'compare' => '!=',
+                ],
+            ],
+        ]);
+        $upcoming_deadlines_count = (int) $deadlines_query->found_posts;
+
+        $recent_appointments = [];
+        $appt_posts = get_posts([
+            'post_type'      => ['sedrazavi_appointment', 'sedrazavi_booking'],
+            'numberposts'    => 10,
+            'post_status'    => 'any',
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ]);
+        foreach ($appt_posts as $ap) {
+            $recent_appointments[] = [
+                'name'   => get_post_meta($ap->ID, '_client_name', true) ?: $ap->post_title,
+                'topic'  => get_post_meta($ap->ID, '_service_type', true) ?: __('مشاوره حقوقی', 'sedrazavi'),
+                'phone'  => get_post_meta($ap->ID, '_client_phone', true) ?: '',
+                'time'   => get_post_meta($ap->ID, '_booking_date', true) ?: get_the_date('Y-m-d H:i', $ap->ID),
+                'status' => get_post_meta($ap->ID, '_booking_status', true) ?: 'scheduled',
+            ];
+        }
+        $opt_appointments = get_option('sedrazavi_legal_appointments_records', []);
+        if (is_array($opt_appointments)) {
+            foreach (array_reverse($opt_appointments) as $rec) {
+                if (!is_array($rec)) {
+                    continue;
+                }
+                $recent_appointments[] = [
+                    'name'   => $rec['client_name'] ?? '—',
+                    'topic'  => $rec['meeting_type'] ?? __('مشاوره حقوقی', 'sedrazavi'),
+                    'phone'  => $rec['phone'] ?? '',
+                    'time'   => $rec['slot_id'] ?? ($rec['created_at'] ?? '—'),
+                    'status' => $rec['status'] ?? 'scheduled',
+                ];
+            }
+        }
+        $appointments_count = count($recent_appointments);
         ?>
         <div class="wrap sedrazavi-admin-wrap" style="direction: rtl; text-align: right; font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, sans-serif; max-width: 1200px; margin: 20px auto 40px auto;">
             
@@ -160,19 +235,19 @@ if (!function_exists('sedrazavi_render_admin_dashboard')) {
             <div id="tour-step-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px;">
                 <div style="background: #fff; padding: 18px 22px; border-radius: 12px; border-right: 5px solid #D4AF37; box-shadow: 0 3px 10px rgba(0,0,0,0.04);">
                     <h3 style="margin:0; color:#64748B; font-size:13px; font-weight:600;"><?php esc_html_e('کل پرونده‌های ثبت‌شده', 'sedrazavi'); ?></h3>
-                    <p style="font-size: 26px; font-weight: 800; margin: 8px 0 0 0; color: #0B132B;"><?php echo esc_html($active_cases_count); ?> <?php esc_html_e('پرونده', 'sedrazavi'); ?></p>
+                    <p style="font-size: 26px; font-weight: 800; margin: 8px 0 0 0; color: #0B132B;"><?php echo esc_html(number_format_i18n($active_cases_count)); ?> <?php esc_html_e('پرونده', 'sedrazavi'); ?></p>
                 </div>
                 <div style="background: #fff; padding: 18px 22px; border-radius: 12px; border-right: 5px solid #2A9D8F; box-shadow: 0 3px 10px rgba(0,0,0,0.04);">
-                    <h3 style="margin:0; color:#64748B; font-size:13px; font-weight:600;"><?php esc_html_e('جلسات دادگاه این هفته', 'sedrazavi'); ?></h3>
-                    <p style="font-size: 26px; font-weight: 800; margin: 8px 0 0 0; color: #2A9D8F;">۶ <?php esc_html_e('جلسه دادگاه', 'sedrazavi'); ?></p>
+                    <h3 style="margin:0; color:#64748B; font-size:13px; font-weight:600;"><?php esc_html_e('جلسات دادگاه ثبت‌شده', 'sedrazavi'); ?></h3>
+                    <p style="font-size: 26px; font-weight: 800; margin: 8px 0 0 0; color: #2A9D8F;"><?php echo esc_html(number_format_i18n($court_sessions_count)); ?> <?php esc_html_e('جلسه دادگاه', 'sedrazavi'); ?></p>
                 </div>
                 <div style="background: #fff; padding: 18px 22px; border-radius: 12px; border-right: 5px solid #E11D48; box-shadow: 0 3px 10px rgba(0,0,0,0.04);">
-                    <h3 style="margin:0; color:#64748B; font-size:13px; font-weight:600;"><?php esc_html_e('مهلت‌های قانونی نزدیک', 'sedrazavi'); ?></h3>
-                    <p style="font-size: 26px; font-weight: 800; margin: 8px 0 0 0; color: #E11D48;">۲ <?php esc_html_e('اخطاریه ۲۰ روزه', 'sedrazavi'); ?></p>
+                    <h3 style="margin:0; color:#64748B; font-size:13px; font-weight:600;"><?php esc_html_e('مهلت‌های قانونی ثبت‌شده', 'sedrazavi'); ?></h3>
+                    <p style="font-size: 26px; font-weight: 800; margin: 8px 0 0 0; color: #E11D48;"><?php echo esc_html(number_format_i18n($upcoming_deadlines_count)); ?> <?php esc_html_e('پرونده دارای موعد', 'sedrazavi'); ?></p>
                 </div>
                 <div style="background: #fff; padding: 18px 22px; border-radius: 12px; border-right: 5px solid #1C2541; box-shadow: 0 3px 10px rgba(0,0,0,0.04);">
-                    <h3 style="margin:0; color:#64748B; font-size:13px; font-weight:600;"><?php esc_html_e('مشاوره‌های رزرو شده امروز', 'sedrazavi'); ?></h3>
-                    <p style="font-size: 26px; font-weight: 800; margin: 8px 0 0 0; color: #1C2541;">۴ <?php esc_html_e('نوبت آنلاین/حضوری', 'sedrazavi'); ?></p>
+                    <h3 style="margin:0; color:#64748B; font-size:13px; font-weight:600;"><?php esc_html_e('نوبت‌های مشاوره ثبت‌شده', 'sedrazavi'); ?></h3>
+                    <p style="font-size: 26px; font-weight: 800; margin: 8px 0 0 0; color: #1C2541;"><?php echo esc_html(number_format_i18n($appointments_count)); ?> <?php esc_html_e('نوبت آنلاین/حضوری', 'sedrazavi'); ?></p>
                 </div>
             </div>
 
@@ -183,7 +258,7 @@ if (!function_exists('sedrazavi_render_admin_dashboard')) {
                         📋 <?php esc_html_e('آخرین درخواست‌های نوبت و مشاوره موکلین', 'sedrazavi'); ?>
                     </h3>
                     <span style="font-size: 12px; background: #ECFDF5; color: #047857; padding: 4px 10px; border-radius: 20px; font-weight: 600;">
-                        <?php esc_html_e('اتصال مستقیم به سامانه پیامک و تلفن', 'sedrazavi'); ?>
+                        <?php esc_html_e('اتصال مستقیم به پایگاه داده رزرو نوبت', 'sedrazavi'); ?>
                     </span>
                 </div>
 
@@ -199,26 +274,30 @@ if (!function_exists('sedrazavi_render_admin_dashboard')) {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td style="padding: 12px; font-weight: 600;">مهندس رضا تبریزی</td>
-                            <td style="padding: 12px;">دعاوی قراردادهای پیمانکاری و ساختمانی</td>
-                            <td style="padding: 12px; direction: ltr; text-align: right;">0912-345-6789</td>
-                            <td style="padding: 12px;">فردا - ساعت ۱۶:۳۰</td>
-                            <td style="padding: 12px;"><span style="background: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: bold;">در انتظار تایید</span></td>
-                            <td style="padding: 12px; text-align: left;">
-                                <a href="tel:09123456789" class="button button-small" style="background: #D4AF37; color: #0B132B; border: none; font-weight: bold;">تماس مستقیم</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px; font-weight: 600;">خانم دکتر سارا پارسا</td>
-                            <td style="padding: 12px;">انحصار وراثت و تقسیم ترکه تجاری</td>
-                            <td style="padding: 12px; direction: ltr; text-align: right;">0912-876-5432</td>
-                            <td style="padding: 12px;">پنجشنبه - ساعت ۱۱:۰۰</td>
-                            <td style="padding: 12px;"><span style="background: #D1FAE5; color: #065F46; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: bold;">تایید شده</span></td>
-                            <td style="padding: 12px; text-align: left;">
-                                <a href="tel:09128765432" class="button button-small" style="background: #0B132B; color: #fff; border: none; font-weight: bold;">مشاهده پرونده</a>
-                            </td>
-                        </tr>
+                        <?php if (empty($recent_appointments)) : ?>
+                            <tr>
+                                <td colspan="6" style="padding: 24px; text-align: center; color: #64748B;">
+                                    <?php esc_html_e('هیچ نوبت مشاوره‌ای تاکنون ثبت نشده است.', 'sedrazavi'); ?>
+                                </td>
+                            </tr>
+                        <?php else : ?>
+                            <?php foreach (array_slice($recent_appointments, 0, 10) as $appt) : ?>
+                                <tr>
+                                    <td style="padding: 12px; font-weight: 600;"><?php echo esc_html($appt['name']); ?></td>
+                                    <td style="padding: 12px;"><?php echo esc_html($appt['topic']); ?></td>
+                                    <td style="padding: 12px; direction: ltr; text-align: right;"><?php echo esc_html($appt['phone'] ?: '—'); ?></td>
+                                    <td style="padding: 12px;"><?php echo esc_html($appt['time']); ?></td>
+                                    <td style="padding: 12px;"><span style="background: #EFF6FF; color: #1E40AF; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: bold;"><?php echo esc_html($appt['status']); ?></span></td>
+                                    <td style="padding: 12px; text-align: left;">
+                                        <?php if (!empty($appt['phone'])) : ?>
+                                            <a href="<?php echo esc_url('tel:' . preg_replace('/[^0-9+]/', '', $appt['phone'])); ?>" class="button button-small" style="background: #D4AF37; color: #0B132B; border: none; font-weight: bold;"><?php esc_html_e('تماس مستقیم', 'sedrazavi'); ?></a>
+                                        <?php else : ?>
+                                            <span style="color: #64748B; font-size: 12px;">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

@@ -10,7 +10,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!function_exists('sedrazavi_register_arbitration_cpt')) {
 function sedrazavi_register_arbitration_cpt() {
+    if (post_type_exists('arbitration_case')) {
+        return;
+    }
+
     $labels = array(
         'name'                  => 'پرونده‌های داوری',
         'singular_name'         => 'پرونده داوری',
@@ -35,10 +40,12 @@ function sedrazavi_register_arbitration_cpt() {
         'show_in_nav_menus'   => false,
         'menu_icon'           => 'dashicons-hammer',
         'supports'            => array('title', 'editor', 'custom-fields', 'author'),
-        'capability_type'     => 'post',
+        'capability_type'     => array('sedrazavi_case', 'sedrazavi_cases'),
+        'map_meta_cap'        => true,
         'show_in_rest'        => false,
     );
 
     register_post_type('arbitration_case', $args);
 }
 add_action('init', 'sedrazavi_register_arbitration_cpt');
+}

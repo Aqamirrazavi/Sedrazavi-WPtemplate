@@ -69,8 +69,18 @@ class SedRazavi_Design_Tokens {
      * Get all active tokens merged with defaults
      */
     public static function get_all_tokens() {
-        $saved = get_option(self::OPTION_KEY, []);
-        return wp_parse_args($saved, self::get_defaults());
+        $saved    = get_option(self::OPTION_KEY, []);
+        $resolved = wp_parse_args(is_array($saved) ? $saved : [], self::get_defaults());
+
+        $opt_gold = sanitize_hex_color((string) get_option('sedrazavi_primary_gold', ''));
+        $opt_navy = sanitize_hex_color((string) get_option('sedrazavi_secondary_navy', ''));
+        if ($opt_gold) {
+            $resolved['brand.color_gold'] = $opt_gold;
+        }
+        if ($opt_navy) {
+            $resolved['brand.color_navy'] = $opt_navy;
+        }
+        return $resolved;
     }
 
     /**
@@ -78,12 +88,19 @@ class SedRazavi_Design_Tokens {
      */
     public static function inject_css_variables() {
         $tokens = self::get_all_tokens();
+        $font   = sanitize_text_field((string) get_option('sedrazavi_font_family', 'Vazirmatn')) ?: 'Vazirmatn';
+        $is_rtl = function_exists('is_rtl') ? (bool) is_rtl() : true;
         echo '<style id="sedrazavi-design-tokens-vars">' . PHP_EOL;
         echo ':root {' . PHP_EOL;
         echo '  --color-gold-primary: ' . esc_attr($tokens['brand.color_gold']) . ';' . PHP_EOL;
         echo '  --color-navy-dark: ' . esc_attr($tokens['brand.color_navy']) . ';' . PHP_EOL;
+        echo '  --sr-gold-accent: ' . esc_attr($tokens['brand.color_gold']) . ';' . PHP_EOL;
+        echo '  --sr-navy-900: ' . esc_attr($tokens['brand.color_navy']) . ';' . PHP_EOL;
+        echo '  --sr-font-family: "' . esc_attr($font) . '", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Tahoma, Arial, sans-serif;' . PHP_EOL;
         echo '  --uas-accent-color: ' . esc_attr($tokens['brand.color_gold']) . ';' . PHP_EOL;
         echo '  --uas-secondary-color: ' . esc_attr($tokens['brand.color_navy']) . ';' . PHP_EOL;
+        echo '  --uas-font-family: "' . esc_attr($font) . '", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Tahoma, Arial, sans-serif;' . PHP_EOL;
+        echo '  --uas-dir: ' . ($is_rtl ? 'rtl' : 'ltr') . ';' . PHP_EOL;
         echo '  --lawyer-name: "' . esc_attr($tokens['lawyer.name']) . '";' . PHP_EOL;
         echo '  --lawyer-phone: "' . esc_attr($tokens['contact.phone']) . '";' . PHP_EOL;
         echo '  --lawyer-hours: "' . esc_attr($tokens['contact.hours']) . '";' . PHP_EOL;

@@ -49,6 +49,11 @@ class Frontend_Cockpit_Engine {
         add_action('wp_ajax_sr_cockpit_delete_cpt_post', [$this, 'ajax_delete_cpt_post']);
         add_action('wp_ajax_sr_cockpit_get_cpt_data', [$this, 'ajax_get_cpt_data']);
 
+        // Confidential Legal Cases Management (Strict Legal Capabilities + Anti-IDOR)
+        add_action('wp_ajax_sr_cockpit_get_legal_cases', [$this, 'ajax_get_legal_cases']);
+        add_action('wp_ajax_sr_cockpit_save_legal_case', [$this, 'ajax_save_legal_case']);
+        add_action('wp_ajax_sr_cockpit_delete_legal_case', [$this, 'ajax_delete_legal_case']);
+
         // User Account Management
         add_action('wp_ajax_sr_cockpit_create_user', [$this, 'ajax_create_user']);
         add_action('wp_ajax_sr_cockpit_update_user', [$this, 'ajax_update_user']);
@@ -57,9 +62,10 @@ class Frontend_Cockpit_Engine {
         add_action('wp_ajax_sr_cockpit_bulk_import_users', [$this, 'ajax_bulk_import_users']);
         add_action('wp_ajax_sr_cockpit_export_users_csv', [$this, 'ajax_export_users_csv']);
 
-        // In-Dashboard Plugin Installer
+        // In-Dashboard Plugin Installer & Rollback
         add_action('wp_ajax_sr_cockpit_install_plugin', [$this, 'ajax_install_plugin']);
         add_action('wp_ajax_sr_cockpit_toggle_plugin', [$this, 'ajax_toggle_plugin']);
+        add_action('wp_ajax_sr_cockpit_rollback_plugin', [$this, 'ajax_rollback_plugin']);
 
         // Visual Site Kit Builder & Direct Deployment Engine
         add_action('wp_ajax_sr_cockpit_preflight_sitekit', [$this, 'ajax_preflight_sitekit']);
@@ -131,17 +137,57 @@ class Frontend_Cockpit_Engine {
                 : true;
             wp_register_script('sr-cockpit-script', $base_uri . 'assets/js/frontend-cockpit.js', ['jquery'], $ver, $defer_args);
 
+            $tokens_bridge = class_exists('SedRazavi_Ecosystem_Control_Service')
+                ? \SedRazavi_Ecosystem_Control_Service::get_design_tokens_bridge()
+                : [
+                    'mode'     => get_option('sedrazavi_default_mode', 'dark'),
+                    'dir'      => (function_exists('is_rtl') && !is_rtl()) ? 'ltr' : 'rtl',
+                    'is_rtl'   => !function_exists('is_rtl') || is_rtl(),
+                    'css_vars' => [],
+                ];
+
+            if (!empty($tokens_bridge['css_vars'])) {
+                $inline_css = ':root, .sr-cockpit-wrapper {';
+                foreach ($tokens_bridge['css_vars'] as $prop => $val) {
+                    $inline_css .= $prop . ':' . esc_attr($val) . ';';
+                }
+                if (!empty($tokens_bridge['accent_gold'])) {
+                    $inline_css .= '--sr-cockpit-gold:' . esc_attr($tokens_bridge['accent_gold']) . ';';
+                }
+                $inline_css .= '}';
+                wp_add_inline_style('sr-cockpit-style', $inline_css);
+            }
+
+            $role_tier = class_exists('SedRazavi_Ecosystem_Control_Service')
+                ? \SedRazavi_Ecosystem_Control_Service::get_user_role_tier()
+                : (current_user_can('manage_options') ? 'admin' : 'subscriber');
+            $can_legal = class_exists('SedRazavi_Case_Data_Service') && \SedRazavi_Case_Data_Service::can_access_cases_endpoint();
+            $can_manage_legal = class_exists('SedRazavi_Case_Data_Service') && \SedRazavi_Case_Data_Service::can_create_or_manage_cases();
+
             wp_localize_script('sr-cockpit-script', 'srCockpitData', [
-                'ajaxUrl'      => admin_url('admin-ajax.php'),
-                'nonce'        => wp_create_nonce('sr_cockpit_nonce'),
-                'isLoggedIn'   => is_user_logged_in(),
-                'isAdmin'      => current_user_can('manage_options'),
-                'currentUserId'=> get_current_user_id(),
-                'strings'      => [
-                    'confirmDelete'     => __('آیا از حذف این مورد اطمینان دارید؟ این عملیات غیرقابل بازگشت است.', 'sedrazavi-companion'),
-                    'confirmDeleteUser' => __('آیا از حذف این کاربر اطمینان دارید؟', 'sedrazavi-companion'),
-                    'savedSuccess'      => __('اطلاعات با موفقیت در دیتابیس ذخیره شد.', 'sedrazavi-companion'),
-                    'errorOccurred'     => __('خطایی در انجام عملیات رخ داد.', 'sedrazavi-companion'),
+                'ajaxUrl'        => admin_url('admin-ajax.php'),
+                'nonce'          => wp_create_nonce('sr_cockpit_nonce'),
+                'isLoggedIn'     => is_user_logged_in(),
+                'isAdmin'        => current_user_can('manage_options'),
+                'roleTier'       => $role_tier,
+                'canAccessLegal' => $can_legal,
+                'canManageLegal' => $can_manage_legal,
+                'canEditContent' => current_user_can('edit_posts'),
+                'currentUserId'  => get_current_user_id(),
+                'defaultMode'    => $tokens_bridge['mode'],
+                'isRtl'          => !empty($tokens_bridge['is_rtl']),
+                'strings'        => [
+                    'confirmDelete'       => __('آیا از حذف این مورد اطمینان دارید؟ این عملیات غیرقابل بازگشت است.', 'sedrazavi-companion'),
+                    'confirmDeleteUser'   => __('آیا از حذف این کاربر اطمینان دارید؟', 'sedrazavi-companion'),
+                    'confirmLogout'       => __('آیا از خروج از حساب کاربری اطمینان دارید؟', 'sedrazavi-companion'),
+                    'confirmRollbackPkg'  => __('آیا از بازگشت به نسخه قبلی (Rollback) این افزونه اطمینان دارید؟', 'sedrazavi-companion'),
+                    'savedSuccess'        => __('اطلاعات با موفقیت در دیتابیس ذخیره شد.', 'sedrazavi-companion'),
+                    'errorOccurred'       => __('خطایی در انجام عملیات رخ داد.', 'sedrazavi-companion'),
+                    'loadingCases'        => __('در حال بارگذاری کارتابل پرونده‌های محرمانه...', 'sedrazavi-companion'),
+                    'emptyCases'          => __('هیچ پرونده‌ای مطابق فیلتر انتخابی یافت نشد.', 'sedrazavi-companion'),
+                    'errorCases'          => __('خطا در بازیابی فهرست پرونده‌ها از سرور.', 'sedrazavi-companion'),
+                    'invalidDocType'      => __('فرمت فایل مجاز نیست. فرمت‌های مجاز: PDF، JPG، PNG و DOCX.', 'sedrazavi-companion'),
+                    'invalidDocSize'      => __('حجم فایل نباید بیش از ۱۰ مگابایت باشد.', 'sedrazavi-companion'),
                 ],
             ]);
         }
@@ -360,7 +406,122 @@ class Frontend_Cockpit_Engine {
     }
 
     /**
-     * AJAX Save Theme Brand, Design Tokens & Office Settings to WordPress wp_options
+     * AJAX Confidential Legal Cases Read (Scoped via Dedicated Capabilities + Anti-IDOR)
+     */
+    public function ajax_get_legal_cases() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+
+        if (!is_user_logged_in() || !class_exists('SedRazavi_Case_Data_Service') || !\SedRazavi_Case_Data_Service::can_access_cases_endpoint()) {
+            wp_send_json_error(['message' => __('شما مجوز دسترسی به کارتابل پرونده‌های محرمانه را ندارید.', 'sedrazavi-companion')], 403);
+        }
+
+        $cases = class_exists('SedRazavi_Ecosystem_Control_Service')
+            ? \SedRazavi_Ecosystem_Control_Service::get_accessible_legal_cases(get_current_user_id(), 50)
+            : [];
+
+        wp_send_json_success([
+            'cases'      => $cases,
+            'total'      => count($cases),
+            'can_manage' => \SedRazavi_Case_Data_Service::can_create_or_manage_cases(),
+        ]);
+    }
+
+    /**
+     * AJAX Confidential Legal Case Create / Update (Requires sedrazavi_manage_cases/manage_options, Never edit_posts)
+     */
+    public function ajax_save_legal_case() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+
+        if (!is_user_logged_in() || !class_exists('SedRazavi_Case_Data_Service') || !\SedRazavi_Case_Data_Service::can_create_or_manage_cases()) {
+            wp_send_json_error(['message' => __('تنها وکیل مجاز یا مدیر کل می‌تواند پرونده محرمانه ثبت یا ویرایش کند.', 'sedrazavi-companion')], 403);
+        }
+
+        $case_id      = !empty($_POST['case_id']) ? absint($_POST['case_id']) : 0;
+        $title        = sanitize_text_field(wp_unslash($_POST['title'] ?? ''));
+        $case_number  = sanitize_text_field(wp_unslash($_POST['case_number'] ?? ''));
+        $stage        = sanitize_text_field(wp_unslash($_POST['stage'] ?? __('تنظیم دادخواست و ثبت اولیه', 'sedrazavi-companion')));
+        $court_branch = sanitize_text_field(wp_unslash($_POST['court_branch'] ?? ''));
+        $next_hearing = sanitize_text_field(wp_unslash($_POST['next_hearing'] ?? ''));
+        $notes        = wp_kses_post(wp_unslash($_POST['notes'] ?? ''));
+        $client_uid   = absint($_POST['client_user_id'] ?? 0);
+
+        if ($title === '') {
+            wp_send_json_error(['message' => __('عنوان پرونده حقوقی الزامی است.', 'sedrazavi-companion')], 400);
+        }
+
+        if ($case_id > 0) {
+            if (!\SedRazavi_Case_Data_Service::can_user_access_case($case_id, get_current_user_id())) {
+                wp_send_json_error(['message' => __('شما مجوز ویرایش این پرونده محرمانه را ندارید.', 'sedrazavi-companion')], 403);
+            }
+            $saved_id = wp_update_post([
+                'ID'           => $case_id,
+                'post_title'   => $title,
+                'post_content' => $notes,
+                'post_status'  => 'private',
+            ]);
+        } else {
+            $saved_id = wp_insert_post([
+                'post_type'    => \SedRazavi_Case_Data_Service::CANONICAL_CPT,
+                'post_title'   => $title,
+                'post_content' => $notes,
+                'post_status'  => 'private',
+                'post_author'  => get_current_user_id(),
+            ]);
+        }
+
+        if (is_wp_error($saved_id) || !$saved_id) {
+            wp_send_json_error(['message' => __('خطا در ذخیره پرونده محرمانه در پایگاه داده.', 'sedrazavi-companion')], 500);
+        }
+
+        $final_number = $case_number !== '' ? $case_number : ('SR-' . gmdate('Y') . '-' . $saved_id);
+        $attachments_manifest = sanitize_text_field(wp_unslash($_POST['attachments_manifest'] ?? ''));
+        update_post_meta($saved_id, '_sedrazavi_case_number', $final_number);
+        update_post_meta($saved_id, '_sedrazavi_case_stage', $stage);
+        update_post_meta($saved_id, '_sedrazavi_court_branch', $court_branch);
+        update_post_meta($saved_id, '_sedrazavi_next_session', $next_hearing);
+        update_post_meta($saved_id, '_sedrazavi_next_hearing', $next_hearing);
+        update_post_meta($saved_id, '_sedrazavi_assigned_lawyer_id', get_current_user_id());
+        if ($attachments_manifest !== '') {
+            update_post_meta($saved_id, '_sedrazavi_attachments_manifest', $attachments_manifest);
+        }
+
+        if ($client_uid > 0 && get_userdata($client_uid)) {
+            update_post_meta($saved_id, '_sedrazavi_client_user_id', $client_uid);
+            update_post_meta($saved_id, '_sedrazavi_client_portal_id', 'user_' . $client_uid);
+            update_user_meta($client_uid, '_sedrazavi_assigned_case_id', (string) $saved_id);
+        }
+
+        wp_send_json_success([
+            'case_id'     => (int) $saved_id,
+            'case_number' => $final_number,
+            'message'     => __('پرونده محرمانه با وضعیت private و پیوند مالکیت با موفقیت ذخیره شد.', 'sedrazavi-companion'),
+        ]);
+    }
+
+    /**
+     * AJAX Delete Confidential Legal Case (Anti-IDOR + Legal Capability Required)
+     */
+    public function ajax_delete_legal_case() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+
+        if (!is_user_logged_in() || !class_exists('SedRazavi_Case_Data_Service') || !\SedRazavi_Case_Data_Service::can_create_or_manage_cases()) {
+            wp_send_json_error(['message' => __('شما مجوز حذف پرونده‌های محرمانه را ندارید.', 'sedrazavi-companion')], 403);
+        }
+
+        $case_id = absint($_POST['case_id'] ?? 0);
+        if (!$case_id || !\SedRazavi_Case_Data_Service::can_user_access_case($case_id, get_current_user_id())) {
+            wp_send_json_error(['message' => __('پرونده یافت نشد یا مجوز حذف آن وجود ندارد.', 'sedrazavi-companion')], 403);
+        }
+
+        if (!wp_delete_post($case_id, true)) {
+            wp_send_json_error(['message' => __('خطا در حذف پرونده از پایگاه داده.', 'sedrazavi-companion')], 500);
+        }
+
+        wp_send_json_success(['message' => __('پرونده با موفقیت حذف شد.', 'sedrazavi-companion')]);
+    }
+
+    /**
+     * AJAX Save Theme Brand, Design Tokens & Office Settings to WordPress wp_options (Unified via Shared Service)
      */
     public function ajax_save_site_settings() {
         check_ajax_referer('sr_cockpit_nonce', 'nonce');
@@ -376,24 +537,41 @@ class Frontend_Cockpit_Engine {
         $primary_gold    = sanitize_hex_color(wp_unslash($_POST['sedrazavi_primary_gold'] ?? '#D4AF37')) ?: '#D4AF37';
         $secondary_navy  = sanitize_hex_color(wp_unslash($_POST['sedrazavi_secondary_navy'] ?? '#0B132B')) ?: '#0B132B';
         $font_family     = sanitize_text_field(wp_unslash($_POST['sedrazavi_font_family'] ?? 'Vazirmatn')) ?: 'Vazirmatn';
+        $raw_mode        = sanitize_key(wp_unslash($_POST['sedrazavi_default_mode'] ?? 'dark'));
+        $default_mode    = in_array($raw_mode, ['light', 'dark'], true) ? $raw_mode : 'dark';
         $raw_scenario    = sanitize_key(wp_unslash($_POST['sedrazavi_active_scenario'] ?? 'bento-hud'));
         $active_scenario = in_array($raw_scenario, ['bento-hud', 'dense-matrix', 'hybrid-executive'], true) ? $raw_scenario : 'bento-hud';
 
-        update_option('sedrazavi_office_phone', $office_phone);
-        update_option('sedrazavi_office_email', $office_email);
-        update_option('sedrazavi_office_address', $office_address);
-        update_option('sedrazavi_working_hours', $working_hours);
-        update_option('sedrazavi_primary_gold', $primary_gold);
-        update_option('sedrazavi_secondary_navy', $secondary_navy);
-        update_option('sedrazavi_gold_color', $primary_gold);
-        update_option('sedrazavi_navy_color', $secondary_navy);
-        update_option('sedrazavi_font_family', $font_family);
-        update_option('sedrazavi_active_scenario', $active_scenario);
+        if (class_exists('SedRazavi_Ecosystem_Control_Service')) {
+            \SedRazavi_Ecosystem_Control_Service::save_unified_settings([
+                'sedrazavi_office_phone'    => $office_phone,
+                'sedrazavi_office_email'    => $office_email,
+                'sedrazavi_office_address'  => $office_address,
+                'sedrazavi_working_hours'   => $working_hours,
+                'sedrazavi_primary_gold'    => $primary_gold,
+                'sedrazavi_secondary_navy'  => $secondary_navy,
+                'sedrazavi_font_family'     => $font_family,
+                'sedrazavi_default_mode'    => $default_mode,
+                'sedrazavi_active_scenario' => $active_scenario,
+            ]);
+        } else {
+            update_option('sedrazavi_office_phone', $office_phone);
+            update_option('sedrazavi_office_email', $office_email);
+            update_option('sedrazavi_office_address', $office_address);
+            update_option('sedrazavi_working_hours', $working_hours);
+            update_option('sedrazavi_primary_gold', $primary_gold);
+            update_option('sedrazavi_secondary_navy', $secondary_navy);
+            update_option('sedrazavi_gold_color', $primary_gold);
+            update_option('sedrazavi_navy_color', $secondary_navy);
+            update_option('sedrazavi_font_family', $font_family);
+            update_option('sedrazavi_default_mode', $default_mode);
+            update_option('sedrazavi_active_scenario', $active_scenario);
 
-        if (function_exists('set_theme_mod')) {
-            set_theme_mod('sedrazavi_office_phone', $office_phone);
-            set_theme_mod('sedrazavi_office_email', $office_email);
-            set_theme_mod('sedrazavi_office_address', $office_address);
+            if (function_exists('set_theme_mod')) {
+                set_theme_mod('sedrazavi_office_phone', $office_phone);
+                set_theme_mod('sedrazavi_office_email', $office_email);
+                set_theme_mod('sedrazavi_office_address', $office_address);
+            }
         }
 
         wp_send_json_success([
@@ -404,6 +582,7 @@ class Frontend_Cockpit_Engine {
                 'sedrazavi_primary_gold'    => $primary_gold,
                 'sedrazavi_secondary_navy'  => $secondary_navy,
                 'sedrazavi_font_family'     => $font_family,
+                'sedrazavi_default_mode'    => $default_mode,
                 'sedrazavi_active_scenario' => $active_scenario,
             ],
         ]);
@@ -774,7 +953,7 @@ class Frontend_Cockpit_Engine {
     }
 
     /**
-     * AJAX In-Dashboard 1-Click Plugin Installation (Allowlisted Slugs Only, Theme-Independent)
+     * AJAX In-Dashboard 1-Click Plugin Installation (Allowlisted Slugs Only, Pre-Overwrite Backup, SHA-256 & Auto-Rollback)
      */
     public function ajax_install_plugin() {
         check_ajax_referer('sr_cockpit_nonce', 'nonce');
@@ -783,25 +962,50 @@ class Frontend_Cockpit_Engine {
             wp_send_json_error(['message' => __('تنها مدیر کل مجاز به نصب افزونه است.', 'sedrazavi-companion')]);
         }
 
-        $plugin_slug = sanitize_key($_POST['plugin_slug'] ?? 'sedrazavi-designer-core');
+        $plugin_slug    = sanitize_key($_POST['plugin_slug'] ?? 'sedrazavi-designer-core');
+        $remote_url     = sanitize_text_field(wp_unslash($_POST['remote_url'] ?? ''));
+        $expected_hash  = strtolower(trim(sanitize_text_field(wp_unslash($_POST['expected_sha256'] ?? ''))));
         $allowed_plugins = ['sedrazavi-designer-core', 'elementor-addon-suite', 'sedrazavi-addons', 'sedrazavi-companion'];
+
         if (!in_array($plugin_slug, $allowed_plugins, true)) {
             wp_send_json_error(['message' => __('شناسه افزونه انتخاب‌شده در فهرست مجاز اکوسیستم نیست.', 'sedrazavi-companion')], 403);
         }
 
-        $companion_dir = defined('SEDRAZAVI_COMPANION_DIR') ? SEDRAZAVI_COMPANION_DIR : plugin_dir_path(__DIR__);
-        $candidates = [
-            $companion_dir . 'packages/' . $plugin_slug . '.zip',
-            ABSPATH . 'wp-content/uploads/sedrazavi-packages/' . $plugin_slug . '.zip',
-            ABSPATH . 'wp-content/plugins/' . $plugin_slug . '.zip',
-            (function_exists('get_template_directory') ? get_template_directory() . '/inc/plugins/' . $plugin_slug . '.zip' : ''),
-        ];
+        if ($expected_hash !== '' && !preg_match('/^[a-f0-9]{64}$/', $expected_hash)) {
+            wp_send_json_error(['message' => __('فرمت امضای SHA-256 نامعتبر است.', 'sedrazavi-companion')], 400);
+        }
 
-        $zip_file = '';
-        foreach ($candidates as $c) {
-            if (!empty($c) && file_exists($c)) {
-                $zip_file = $c;
-                break;
+        $zip_file       = '';
+        $downloaded_tmp = '';
+
+        if ($remote_url !== '') {
+            if (!class_exists('SedRazavi_Ecosystem_Control_Service')) {
+                wp_send_json_error(['message' => __('سرویس کنترل ریموت بسته در دسترس نیست.', 'sedrazavi-companion')], 500);
+            }
+            $url_check = \SedRazavi_Ecosystem_Control_Service::verify_remote_package_url($remote_url);
+            if (!$url_check['valid']) {
+                wp_send_json_error(['message' => $url_check['error']], 403);
+            }
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            $tmp_dl = download_url($url_check['url'], 60);
+            if (is_wp_error($tmp_dl)) {
+                wp_send_json_error(['message' => $tmp_dl->get_error_message()], 502);
+            }
+            $zip_file       = $tmp_dl;
+            $downloaded_tmp = $tmp_dl;
+        } else {
+            $companion_dir = defined('SEDRAZAVI_COMPANION_DIR') ? SEDRAZAVI_COMPANION_DIR : plugin_dir_path(__DIR__);
+            $candidates = [
+                $companion_dir . 'packages/' . $plugin_slug . '.zip',
+                ABSPATH . 'wp-content/uploads/sedrazavi-packages/' . $plugin_slug . '.zip',
+                ABSPATH . 'wp-content/plugins/' . $plugin_slug . '.zip',
+                (function_exists('get_template_directory') ? get_template_directory() . '/inc/plugins/' . $plugin_slug . '.zip' : ''),
+            ];
+            foreach ($candidates as $c) {
+                if (!empty($c) && file_exists($c)) {
+                    $zip_file = $c;
+                    break;
+                }
             }
         }
 
@@ -809,23 +1013,42 @@ class Frontend_Cockpit_Engine {
             wp_send_json_error(['message' => sprintf(__('بسته زیپ افزونه «%s» در سرور یافت نشد.', 'sedrazavi-companion'), $plugin_slug)]);
         }
 
+        // Optional SHA-256 signature verification
+        $actual_sha256 = hash_file('sha256', $zip_file);
+        if ($expected_hash !== '' && (!is_string($actual_sha256) || !hash_equals($expected_hash, strtolower($actual_sha256)))) {
+            if ($downloaded_tmp !== '' && file_exists($downloaded_tmp)) {
+                @unlink($downloaded_tmp);
+            }
+            wp_send_json_error(['message' => __('عدم تطابق امضای SHA-256 بسته؛ نصب متوقف گردید.', 'sedrazavi-companion')], 400);
+        }
+
         // Pre-extraction ZIP integrity & security gate (Anti-Zip-Slip, Extension Allowlist & Zip Bomb protection)
         if (!class_exists('\ZipArchive')) {
+            if ($downloaded_tmp !== '' && file_exists($downloaded_tmp)) {
+                @unlink($downloaded_tmp);
+            }
             wp_send_json_error(['message' => __('ماژول ZipArchive در سرور PHP فعال نیست.', 'sedrazavi-companion')], 500);
         }
 
         $zip_check = new \ZipArchive();
         if ($zip_check->open($zip_file) !== true) {
+            if ($downloaded_tmp !== '' && file_exists($downloaded_tmp)) {
+                @unlink($downloaded_tmp);
+            }
             wp_send_json_error(['message' => __('فایل فشرده افزونه معتبر نیست یا آسیب دیده است.', 'sedrazavi-companion')], 400);
         }
 
         $allowed_exts = ['php', 'json', 'css', 'js', 'png', 'jpg', 'jpeg', 'svg', 'webp', 'woff', 'woff2', 'ttf', 'eot', 'txt', 'md', 'pot', 'po', 'mo', 'html', 'xml', 'map'];
-        $max_entries = 1500;
-        $max_bytes = 50 * 1024 * 1024;
-        $total_bytes = 0;
+        $max_entries  = 1500;
+        $max_bytes    = 50 * 1024 * 1024;
+        $total_bytes  = 0;
+        $has_manifest = false;
 
         if ($zip_check->numFiles <= 0 || $zip_check->numFiles > $max_entries) {
             $zip_check->close();
+            if ($downloaded_tmp !== '' && file_exists($downloaded_tmp)) {
+                @unlink($downloaded_tmp);
+            }
             wp_send_json_error(['message' => __('تعداد فایل‌های درون بسته افزونه غیرمجاز است.', 'sedrazavi-companion')], 400);
         }
 
@@ -834,10 +1057,13 @@ class Frontend_Cockpit_Engine {
             if (!$stat) {
                 continue;
             }
-            $entry_name = (string) $stat['name'];
+            $entry_name   = (string) $stat['name'];
             $total_bytes += (int) $stat['size'];
             if ($total_bytes > $max_bytes) {
                 $zip_check->close();
+                if ($downloaded_tmp !== '' && file_exists($downloaded_tmp)) {
+                    @unlink($downloaded_tmp);
+                }
                 wp_send_json_error(['message' => __('حجم استخراج‌شده بسته از سقف مجاز ۵۰ مگابایت فراتر رفته است.', 'sedrazavi-companion')], 400);
             }
             if (
@@ -851,41 +1077,108 @@ class Frontend_Cockpit_Engine {
                 strpos($entry_name, '\\') === 0
             ) {
                 $zip_check->close();
+                if ($downloaded_tmp !== '' && file_exists($downloaded_tmp)) {
+                    @unlink($downloaded_tmp);
+                }
                 wp_send_json_error(['message' => __('نقض امنیتی Zip Slip Traversal در بسته شناسایی شد و نصب متوقف گردید.', 'sedrazavi-companion')], 400);
             }
             if (substr($entry_name, -1) === '/' || substr($entry_name, -1) === '\\') {
                 continue;
             }
+            if (basename($entry_name) === 'manifest.json') {
+                $has_manifest = true;
+            }
             $ext = strtolower(pathinfo($entry_name, PATHINFO_EXTENSION));
             if ($ext === '' || !in_array($ext, $allowed_exts, true)) {
                 $zip_check->close();
+                if ($downloaded_tmp !== '' && file_exists($downloaded_tmp)) {
+                    @unlink($downloaded_tmp);
+                }
                 wp_send_json_error(['message' => sprintf(__('پسوند فایل غیرمجاز در بسته افزونه شناسایی شد: %s', 'sedrazavi-companion'), sanitize_text_field($entry_name))], 400);
             }
         }
         $zip_check->close();
 
+        if ($has_manifest && class_exists('\\UniversalElementorSuite\\Packaging\\Archive_Security_Validator')) {
+            $sec_val = new \UniversalElementorSuite\Packaging\Archive_Security_Validator();
+            $sec_res = $sec_val->verify_archive_security($zip_file);
+            if (empty($sec_res['safe'])) {
+                if ($downloaded_tmp !== '' && file_exists($downloaded_tmp)) {
+                    @unlink($downloaded_tmp);
+                }
+                wp_send_json_error(['message' => (string) ($sec_res['error'] ?? __('اعتبارسنجی امنیتی مانیفست ناموفق بود.', 'sedrazavi-companion'))], 400);
+            }
+        }
+
         require_once ABSPATH . 'wp-admin/includes/file.php';
         \WP_Filesystem();
 
-        $unzip_res  = unzip_file($zip_file, WP_PLUGIN_DIR);
+        $this->ensure_wp_plugin_admin_loaded();
+        $main_file        = $plugin_slug . '/' . $plugin_slug . '.php';
+        $target_dir       = trailingslashit(WP_PLUGIN_DIR) . $plugin_slug . '/';
+        $was_active       = function_exists('is_plugin_active') && is_plugin_active($main_file);
+        $pre_existing_dir = is_dir($target_dir);
+        $upload_dir       = wp_upload_dir();
+        $backup_dir       = '';
+
+        // Create pre-overwrite backup snapshot before extracting over existing plugin directory
+        if ($pre_existing_dir && class_exists('SedRazavi_Ecosystem_Control_Service')) {
+            $backup_dir = trailingslashit($upload_dir['basedir']) . 'uas-standalone-packages/backups/' . $plugin_slug . '-plugin-' . gmdate('YmdHis') . '/';
+            if (wp_mkdir_p($backup_dir) && function_exists('copy_dir')) {
+                $copy_res = copy_dir($target_dir, $backup_dir);
+                if (is_wp_error($copy_res)) {
+                    if ($downloaded_tmp !== '' && file_exists($downloaded_tmp)) {
+                        @unlink($downloaded_tmp);
+                    }
+                    wp_send_json_error(['message' => __('تهیه نسخه پشتیبان پیش از نصب ناموفق بود؛ عملیات متوقف شد.', 'sedrazavi-companion')], 500);
+                }
+            }
+        }
+
+        $unzip_res = unzip_file($zip_file, WP_PLUGIN_DIR);
+        if ($downloaded_tmp !== '' && file_exists($downloaded_tmp)) {
+            @unlink($downloaded_tmp);
+        }
 
         if (is_wp_error($unzip_res)) {
+            if ($backup_dir !== '' && is_dir($backup_dir) && function_exists('copy_dir')) {
+                copy_dir($backup_dir, $target_dir);
+            }
             wp_send_json_error(['message' => $unzip_res->get_error_message()]);
         }
 
-        // Auto-activate plugin
-        $this->ensure_wp_plugin_admin_loaded();
-        $main_file = $plugin_slug . '/' . $plugin_slug . '.php';
+        // Auto-activate plugin with fail-closed rollback on failure
         if (function_exists('is_plugin_active') && !is_plugin_active($main_file)) {
             $act_res = function_exists('activate_plugin') ? activate_plugin($main_file) : new \WP_Error('missing_plugin_api', 'Plugin API unavailable');
             if (is_wp_error($act_res)) {
+                if (function_exists('deactivate_plugins') && function_exists('is_plugin_active') && is_plugin_active($main_file)) {
+                    deactivate_plugins($main_file, true);
+                }
+                if ($backup_dir !== '' && is_dir($backup_dir) && function_exists('copy_dir')) {
+                    copy_dir($backup_dir, $target_dir);
+                    if ($was_active && function_exists('activate_plugin')) {
+                        activate_plugin($main_file);
+                    }
+                }
                 wp_send_json_error(['message' => $act_res->get_error_message()]);
             }
         }
 
+        update_option('sr_plugin_rollback_snapshot_' . $plugin_slug, [
+            'slug'              => $plugin_slug,
+            'installed_path'    => $target_dir,
+            'backup_path'       => $backup_dir,
+            'main_file'         => $main_file,
+            'pre_existing_dir'  => $pre_existing_dir,
+            'was_active_before' => $was_active,
+            'sha256'            => (string) $actual_sha256,
+            'timestamp'         => time(),
+        ]);
+
         wp_send_json_success([
-            'message' => sprintf(__('افزونه «%s» با موفقیت نصب و فعال گردید.', 'sedrazavi-companion'), $plugin_slug),
+            'message' => sprintf(__('افزونه «%s» با تأیید امنیتی و بکاپ خودکار نصب و فعال گردید.', 'sedrazavi-companion'), $plugin_slug),
             'status'  => 'active',
+            'sha256'  => (string) $actual_sha256,
         ]);
     }
 
@@ -898,26 +1191,33 @@ class Frontend_Cockpit_Engine {
             wp_send_json_error(['message' => __('مجوز مدیریت افزونه‌ها ندارید.', 'sedrazavi-companion')], 403);
         }
         $plugin_slug = sanitize_key($_POST['plugin_slug'] ?? '');
-        $allowed_plugins = ['sedrazavi-designer-core', 'elementor-addon-suite', 'sedrazavi-addons'];
-        if (!in_array($plugin_slug, $allowed_plugins, true)) {
-            wp_send_json_error(['message' => __('تغییر وضعیت برای این شناسه مجاز نیست.', 'sedrazavi-companion')], 403);
-        }
-        $main_file = $plugin_slug . '/' . $plugin_slug . '.php';
-        if (!file_exists(WP_PLUGIN_DIR . '/' . $main_file)) {
-            wp_send_json_error(['message' => __('افزونه روی سرور نصب نیست.', 'sedrazavi-companion')], 404);
-        }
-        $this->ensure_wp_plugin_admin_loaded();
-        if (function_exists('is_plugin_active') && is_plugin_active($main_file)) {
-            if (function_exists('deactivate_plugins')) {
-                deactivate_plugins($main_file);
+        if (class_exists('SedRazavi_Ecosystem_Control_Service')) {
+            $res = \SedRazavi_Ecosystem_Control_Service::toggle_ecosystem_plugin($plugin_slug);
+            if (!empty($res['success'])) {
+                wp_send_json_success($res);
             }
-            wp_send_json_success(['status' => 'inactive', 'message' => __('افزونه غیرفعال شد.', 'sedrazavi-companion')]);
+            wp_send_json_error(['message' => $res['error'] ?? __('خطا در تغییر وضعیت افزونه.', 'sedrazavi-companion')], (int) ($res['code'] ?? 400));
         }
-        $act = function_exists('activate_plugin') ? activate_plugin($main_file) : new \WP_Error('missing_plugin_api', 'Plugin API unavailable');
-        if (is_wp_error($act)) {
-            wp_send_json_error(['message' => $act->get_error_message()]);
+        wp_send_json_error(['message' => __('سرویس مدیریت افزونه‌ها در دسترس نیست.', 'sedrazavi-companion')], 500);
+    }
+
+    /**
+     * Rollback installed/updated ecosystem plugin to pre-install snapshot
+     */
+    public function ajax_rollback_plugin() {
+        check_ajax_referer('sr_cockpit_nonce', 'nonce');
+        if (!current_user_can('install_plugins') && !current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('مجوز رول‌بک افزونه‌ها ندارید.', 'sedrazavi-companion')], 403);
         }
-        wp_send_json_success(['status' => 'active', 'message' => __('افزونه فعال شد.', 'sedrazavi-companion')]);
+        $plugin_slug = sanitize_key($_POST['plugin_slug'] ?? '');
+        if (!class_exists('SedRazavi_Ecosystem_Control_Service')) {
+            wp_send_json_error(['message' => __('سرویس رول‌بک در دسترس نیست.', 'sedrazavi-companion')], 500);
+        }
+        $res = \SedRazavi_Ecosystem_Control_Service::rollback_ecosystem_plugin($plugin_slug);
+        if (!empty($res['success'])) {
+            wp_send_json_success($res);
+        }
+        wp_send_json_error(['message' => $res['error'] ?? __('خطا در اجرای رول‌بک افزونه.', 'sedrazavi-companion')], (int) ($res['code'] ?? 400));
     }
 
     /**
@@ -1154,9 +1454,15 @@ class Frontend_Cockpit_Engine {
         wp_enqueue_style('sr-cockpit-style');
         wp_enqueue_script('sr-cockpit-script');
 
+        $cockpit_dir  = (function_exists('is_rtl') && !is_rtl()) ? 'ltr' : 'rtl';
+        $cockpit_mode = get_option('sedrazavi_default_mode', 'dark');
+        if (!in_array($cockpit_mode, ['light', 'dark'], true)) {
+            $cockpit_mode = 'dark';
+        }
+
         ob_start();
         ?>
-        <div id="sr-frontend-cockpit-root" class="sr-cockpit-wrapper" dir="rtl">
+        <div id="sr-frontend-cockpit-root" class="sr-cockpit-wrapper" dir="<?php echo esc_attr($cockpit_dir); ?>" data-cockpit-theme="<?php echo esc_attr($cockpit_mode); ?>">
             <?php if (!is_user_logged_in()): ?>
                 <!-- Login View -->
                 <div class="sr-cockpit-login-card">
@@ -1187,21 +1493,55 @@ class Frontend_Cockpit_Engine {
                     </form>
                 </div>
             <?php else: 
-                $current_user = wp_get_current_user();
-                $is_admin = current_user_can('manage_options');
+                $current_user     = wp_get_current_user();
+                $is_admin         = current_user_can('manage_options');
+                $can_edit_content = current_user_can('edit_posts');
+                $can_view_legal   = class_exists('SedRazavi_Case_Data_Service') && \SedRazavi_Case_Data_Service::can_access_cases_endpoint();
+                $can_manage_legal = class_exists('SedRazavi_Case_Data_Service') && \SedRazavi_Case_Data_Service::can_create_or_manage_cases();
+                $role_tier        = class_exists('SedRazavi_Ecosystem_Control_Service')
+                    ? \SedRazavi_Ecosystem_Control_Service::get_user_role_tier()
+                    : ($is_admin ? 'admin' : 'subscriber');
+                $overview_stats   = class_exists('SedRazavi_Ecosystem_Control_Service')
+                    ? \SedRazavi_Ecosystem_Control_Service::get_overview_snapshot()
+                    : [];
+                $role_badge_map   = [
+                    'admin'       => __('مدیر کل سیستم (Full Access)', 'sedrazavi-companion'),
+                    'legal_staff' => __('کادر حقوقی و وکیل (Legal Counsel)', 'sedrazavi-companion'),
+                    'client'      => __('پورتال اختصاصی موکل (Client Self-Service)', 'sedrazavi-companion'),
+                    'editor'      => __('مدیریت محتوای عمومی (Content Editor)', 'sedrazavi-companion'),
+                    'subscriber'  => __('حساب کاربری استاندارد', 'sedrazavi-companion'),
+                ];
             ?>
-                <!-- Main Cockpit Navigation -->
+                <!-- Accessible Inline Confirmation Bar/Modal (Replaces window.confirm) -->
+                <div id="sr-confirm-dialog" class="sr-modal sr-confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="sr-confirm-title" style="display:none;">
+                    <div class="sr-modal-content">
+                        <h4 id="sr-confirm-title"><?php esc_html_e('تأیید عملیات', 'sedrazavi-companion'); ?></h4>
+                        <p id="sr-confirm-message" class="sr-confirm-message"></p>
+                        <div class="sr-modal-actions">
+                            <button type="button" id="sr-confirm-accept" class="sr-btn sr-btn-danger"><?php esc_html_e('بله، تأیید و اجرا', 'sedrazavi-companion'); ?></button>
+                            <button type="button" id="sr-confirm-cancel" class="sr-btn sr-btn-secondary"><?php esc_html_e('انصراف', 'sedrazavi-companion'); ?></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Cockpit Navigation (Role-Separated) -->
                 <div class="sr-cockpit-nav-bar">
                     <div class="sr-user-pill">
                         <span class="sr-user-avatar"><?php echo esc_html(mb_substr($current_user->display_name, 0, 1, 'UTF-8')); ?></span>
                         <div class="sr-user-info">
                             <strong><?php echo esc_html($current_user->display_name); ?></strong>
                             <small><?php echo esc_html(implode(', ', $current_user->roles)); ?></small>
+                            <span class="sr-role-badge sr-role-tier-<?php echo esc_attr($role_tier); ?>"><?php echo esc_html($role_badge_map[$role_tier] ?? $role_tier); ?></span>
                         </div>
                     </div>
                     <div class="sr-cockpit-tabs" role="tablist" aria-label="<?php esc_attr_e('بخش‌های پنل مدیریت', 'sedrazavi-companion'); ?>">
                         <button type="button" id="btn-tab-overview" class="sr-tab-btn active" role="tab" aria-selected="true" aria-controls="tab-overview" data-tab="tab-overview">📊 پیشخوان و آمار</button>
-                        <button type="button" id="btn-tab-cpt" class="sr-tab-btn" role="tab" aria-selected="false" aria-controls="tab-cpt" data-tab="tab-cpt">📑 مدیریت پست‌تایپ‌ها و متاباکس‌ها</button>
+                        <?php if ($can_view_legal): ?>
+                            <button type="button" id="btn-tab-legal" class="sr-tab-btn" role="tab" aria-selected="false" aria-controls="tab-legal" data-tab="tab-legal">⚖️ <?php echo $can_manage_legal ? 'کارتابل پرونده‌های محرمانه' : 'پرونده‌های من (موکل)'; ?></button>
+                        <?php endif; ?>
+                        <?php if ($can_edit_content): ?>
+                            <button type="button" id="btn-tab-cpt" class="sr-tab-btn" role="tab" aria-selected="false" aria-controls="tab-cpt" data-tab="tab-cpt">📑 مدیریت پست‌تایپ‌ها و متاباکس‌ها</button>
+                        <?php endif; ?>
                         <?php if ($is_admin): ?>
                             <button type="button" id="btn-tab-users" class="sr-tab-btn" role="tab" aria-selected="false" aria-controls="tab-users" data-tab="tab-users">👥 مدیریت و پایش کاربران</button>
                             <button type="button" id="btn-tab-plugins" class="sr-tab-btn" role="tab" aria-selected="false" aria-controls="tab-plugins" data-tab="tab-plugins">🔌 هاب نصب افزونه‌ها</button>
@@ -1209,32 +1549,206 @@ class Frontend_Cockpit_Engine {
                             <button type="button" id="btn-tab-settings" class="sr-tab-btn" role="tab" aria-selected="false" aria-controls="tab-settings" data-tab="tab-settings">⚙️ تنظیمات برند و دیتابیس</button>
                         <?php endif; ?>
                     </div>
-                    <button type="button" id="sr-cockpit-logout-btn" class="sr-btn sr-btn-outline">خروج</button>
-                </div>
-
-                <!-- Tab 1: Overview -->
-                <div id="tab-overview" class="sr-tab-pane active" role="tabpanel" aria-labelledby="btn-tab-overview">
-                    <div class="sr-stats-grid">
-                        <div class="sr-stat-card">
-                            <span class="sr-stat-num"><?php echo esc_html(wp_count_posts('portfolio')->publish ?? 0); ?></span>
-                            <span class="sr-stat-label">نمونه‌کارها (Portfolio)</span>
-                        </div>
-                        <div class="sr-stat-card">
-                            <span class="sr-stat-num"><?php echo esc_html(wp_count_posts('services')->publish ?? 0); ?></span>
-                            <span class="sr-stat-label">خدمات ثبت‌شده (Services)</span>
-                        </div>
-                        <div class="sr-stat-card">
-                            <span class="sr-stat-num"><?php echo esc_html(wp_count_posts('post')->publish ?? 0); ?></span>
-                            <span class="sr-stat-label">مقاله‌ها و نوشته‌ها</span>
-                        </div>
-                        <div class="sr-stat-card">
-                            <span class="sr-stat-num"><?php echo esc_html(count_users()['total_users'] ?? 1); ?></span>
-                            <span class="sr-stat-label">کاربران ثبت‌شده</span>
-                        </div>
+                    <div class="sr-cockpit-header-actions">
+                        <button type="button" id="sr-cockpit-theme-toggle" class="sr-btn sr-btn-secondary sr-theme-toggle-btn" aria-pressed="<?php echo $cockpit_mode === 'dark' ? 'true' : 'false'; ?>" aria-label="<?php esc_attr_e('تغییر حالت روشن و تاریک پیشخوان', 'sedrazavi-companion'); ?>">
+                            <?php echo $cockpit_mode === 'dark' ? '☀️ حالت روشن' : '🌙 حالت تاریک'; ?>
+                        </button>
+                        <?php if ($is_admin): ?>
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=sedrazavi-companion-hub')); ?>" class="sr-btn sr-btn-secondary">🎛️ پیشخوان WP-Admin</a>
+                        <?php endif; ?>
+                        <button type="button" id="sr-cockpit-logout-btn" class="sr-btn sr-btn-outline">خروج</button>
                     </div>
                 </div>
 
-                <!-- Tab 2: CPT & Metabox Manager -->
+                <!-- Tab 1: Overview (Role-Scoped Cards) -->
+                <div id="tab-overview" class="sr-tab-pane active" role="tabpanel" aria-labelledby="btn-tab-overview">
+                    <div class="sr-stats-grid">
+                        <?php if ($is_admin || $role_tier === 'editor'): ?>
+                            <div class="sr-stat-card">
+                                <span class="sr-stat-num"><?php echo esc_html($overview_stats['portfolio_count'] ?? (wp_count_posts('portfolio')->publish ?? 0)); ?></span>
+                                <span class="sr-stat-label">نمونه‌کارها (Portfolio)</span>
+                            </div>
+                            <div class="sr-stat-card">
+                                <span class="sr-stat-num"><?php echo esc_html($overview_stats['services_count'] ?? (wp_count_posts('services')->publish ?? 0)); ?></span>
+                                <span class="sr-stat-label">خدمات ثبت‌شده (Services)</span>
+                            </div>
+                            <div class="sr-stat-card">
+                                <span class="sr-stat-num"><?php echo esc_html($overview_stats['posts_count'] ?? (wp_count_posts('post')->publish ?? 0)); ?></span>
+                                <span class="sr-stat-label">مقاله‌ها و نوشته‌ها</span>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($can_view_legal): ?>
+                            <div class="sr-stat-card">
+                                <span class="sr-stat-num"><?php echo esc_html($can_manage_legal ? ($overview_stats['active_cases_count'] ?? 0) : ($overview_stats['own_cases_count'] ?? 0)); ?></span>
+                                <span class="sr-stat-label"><?php echo $can_manage_legal ? 'پرونده‌های فعال محرمانه' : 'پرونده‌های تاییدشده شما'; ?></span>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($can_manage_legal): ?>
+                            <div class="sr-stat-card">
+                                <span class="sr-stat-num"><?php echo esc_html($overview_stats['pending_intake_count'] ?? 0); ?></span>
+                                <span class="sr-stat-label">درخواست‌های پذیرش در صف</span>
+                            </div>
+                            <div class="sr-stat-card">
+                                <span class="sr-stat-num"><?php echo esc_html($overview_stats['appointments_count'] ?? 0); ?></span>
+                                <span class="sr-stat-label">نوبت‌های مشاوره ثبت‌شده</span>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($is_admin): ?>
+                            <div class="sr-stat-card">
+                                <span class="sr-stat-num"><?php echo esc_html($overview_stats['users_count'] ?? (count_users()['total_users'] ?? 1)); ?></span>
+                                <span class="sr-stat-label">کاربران ثبت‌شده</span>
+                            </div>
+                            <div class="sr-stat-card">
+                                <span class="sr-stat-num"><?php echo esc_html($overview_stats['deployed_kits_count'] ?? 0); ?></span>
+                                <span class="sr-stat-label">کیت‌های سایت مستقرشده</span>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Tab 1B: Confidential Legal Dossiers Panel (Strict Legal Capabilities + Anti-IDOR) -->
+                <?php if ($can_view_legal):
+                    $legal_cases = class_exists('SedRazavi_Ecosystem_Control_Service')
+                        ? \SedRazavi_Ecosystem_Control_Service::get_accessible_legal_cases(get_current_user_id(), 30)
+                        : [];
+                ?>
+                <div id="tab-legal" class="sr-tab-pane sr-legal-panel" role="tabpanel" aria-labelledby="btn-tab-legal" hidden>
+                    <div class="sr-panel-header">
+                        <div>
+                            <h3><?php echo $can_manage_legal ? 'مدیریت پرونده‌های محرمانه و کارتابل وکالت (Private / Anti-IDOR)' : 'کارتابل اختصاصی موکل — فقط پرونده‌های متعلق به شما'; ?></h3>
+                            <p class="sr-subdesc">دسترسی به این بخش کاملاً مجزا از <code>edit_posts</code> بوده و بر اساس مالکیت هر پرونده کنترل می‌شود.</p>
+                        </div>
+                        <?php if ($can_manage_legal): ?>
+                            <button type="button" id="sr-btn-new-legal-case" class="sr-btn sr-btn-primary">+ ثبت پرونده محرمانه جدید</button>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if ($can_manage_legal): ?>
+                    <div id="sr-legal-case-modal" class="sr-modal" role="dialog" aria-modal="true" aria-labelledby="sr-legal-modal-title" style="display:none;">
+                        <div class="sr-modal-content">
+                            <button type="button" class="sr-modal-close" aria-label="<?php esc_attr_e('بستن', 'sedrazavi-companion'); ?>">&times;</button>
+                            <h4 id="sr-legal-modal-title">ثبت / ویرایش پرونده محرمانه حقوقی</h4>
+                            <form id="sr-legal-case-form">
+                                <input type="hidden" name="case_id" id="sr_legal_case_id" value="">
+                                <div class="sr-form-group">
+                                    <label for="sr_legal_case_title">عنوان پرونده:</label>
+                                    <input type="text" name="title" id="sr_legal_case_title" required placeholder="مثال: پرونده مطالبه خسارت تجاری">
+                                </div>
+                                <div class="sr-form-group">
+                                    <label for="sr_legal_case_number">شماره کلاسه / پرونده:</label>
+                                    <input type="text" name="case_number" id="sr_legal_case_number" placeholder="اختیاری (در صورت خالی بودن خودکار تولید می‌شود)">
+                                </div>
+                                <div class="sr-form-group">
+                                    <label for="sr_legal_case_stage">مرحله رسیدگی:</label>
+                                    <input type="text" name="stage" id="sr_legal_case_stage" value="تنظیم دادخواست و ثبت اولیه">
+                                </div>
+                                <div class="sr-form-group">
+                                    <label for="sr_legal_court_branch">شعبه مرجع:</label>
+                                    <input type="text" name="court_branch" id="sr_legal_court_branch" placeholder="مثال: شعبه ۳ دادگاه حقوقی تهران">
+                                </div>
+                                <div class="sr-form-group">
+                                    <label for="sr_legal_next_hearing">تاریخ جلسه آینده:</label>
+                                    <input type="text" name="next_hearing" id="sr_legal_next_hearing" placeholder="مثال: 1404/02/15">
+                                </div>
+                                <div class="sr-form-group">
+                                    <label for="sr_legal_client_uid">شناسه کاربری موکل (User ID):</label>
+                                    <input type="number" name="client_user_id" id="sr_legal_client_uid" min="0" placeholder="مثال: 12">
+                                </div>
+                                <div class="sr-form-group">
+                                    <label for="sr_legal_case_notes">خلاصه یادداشت‌های وکالتی (محرمانه):</label>
+                                    <textarea name="notes" id="sr_legal_case_notes" rows="3"></textarea>
+                                </div>
+                                <div class="sr-form-group">
+                                    <label for="sr-legal-doc-input">پیوست مدارک و لایحه پرونده (PDF / تصویر / DOCX — حداکثر ۱۰ مگابایت):</label>
+                                    <div id="sr-legal-doc-dropzone" class="sr-upload-dropzone" tabindex="0" role="button" aria-label="<?php esc_attr_e('انتخاب یا رها کردن سند حقوقی', 'sedrazavi-companion'); ?>">
+                                        <input type="file" id="sr-legal-doc-input" accept=".pdf,.jpg,.jpeg,.png,.docx" multiple hidden>
+                                        <input type="hidden" name="attachments_manifest" id="sr_legal_attachments_manifest" value="">
+                                        <span class="sr-upload-title">📎 فایل لایحه یا مدرک را اینجا رها کنید یا کلیک کنید</span>
+                                        <small class="sr-muted">کنترل اعتبارسنجی نوع فایل و حجم پیش از ثبت انجام می‌شود.</small>
+                                    </div>
+                                    <ul id="sr-legal-doc-list" class="sr-upload-list" aria-live="polite"></ul>
+                                </div>
+                                <div class="sr-modal-actions">
+                                    <button type="submit" class="sr-btn sr-btn-primary">ذخیره محرمانه پرونده</button>
+                                    <button type="button" class="sr-btn sr-btn-secondary sr-modal-cancel">انصراف</button>
+                                </div>
+                                <div class="sr-modal-feedback"></div>
+                            </form>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Legal Dossier Filter & Refresh Toolbar -->
+                    <div class="sr-filter-bar sr-legal-toolbar">
+                        <input type="search" id="sr-legal-search-input" placeholder="جستجو بر اساس شماره کلاسه، عنوان پرونده یا شعبه..." aria-label="<?php esc_attr_e('جستجو در پرونده‌های حقوقی', 'sedrazavi-companion'); ?>">
+                        <select id="sr-legal-stage-filter" aria-label="<?php esc_attr_e('فیلتر مرحله رسیدگی', 'sedrazavi-companion'); ?>">
+                            <option value="">همه مراحل رسیدگی</option>
+                            <option value="تنظیم دادخواست">تنظیم دادخواست و ثبت اولیه</option>
+                            <option value="در حال بررسی">در حال بررسی</option>
+                            <option value="جلسه دادرسی">جلسه دادرسی / کارشناسی</option>
+                            <option value="مختومه">مختومه / حکم قطعی</option>
+                        </select>
+                        <button type="button" id="sr-legal-refresh-btn" class="sr-btn sr-btn-secondary">🔄 بروزرسانی زنده</button>
+                    </div>
+
+                    <!-- Standardized Loading / Empty / Error State Banner -->
+                    <div id="sr-legal-state-banner" class="sr-ux-state <?php echo empty($legal_cases) ? 'sr-ux-state--empty' : ''; ?>" role="status" aria-live="polite" <?php echo empty($legal_cases) ? '' : 'hidden'; ?>>
+                        <div class="sr-ux-state-body">
+                            <span id="sr-legal-state-text">
+                                <?php echo empty($legal_cases)
+                                    ? ($can_manage_legal ? 'هنوز پرونده محرمانه‌ای در کارتابل ثبت نشده است. از دکمه «ثبت پرونده محرمانه جدید» استفاده کنید.' : 'پرونده فعالی برای حساب کاربری شما در سیستم ثبت نشده است.')
+                                    : ''; ?>
+                            </span>
+                            <button type="button" id="sr-legal-retry-btn" class="sr-btn sr-btn-outline" style="display:none;">تلاش مجدد</button>
+                        </div>
+                    </div>
+
+                    <div class="sr-table-responsive">
+                        <table class="sr-cockpit-table" id="sr-legal-cases-table">
+                            <thead>
+                                <tr>
+                                    <th>کلاسه</th>
+                                    <th>عنوان پرونده</th>
+                                    <th>مرحله</th>
+                                    <th>شعبه</th>
+                                    <th>موعد بعدی</th>
+                                    <?php if ($can_manage_legal): ?><th>عملیات</th><?php endif; ?>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($legal_cases)): ?>
+                                    <tr class="sr-legal-empty-row"><td colspan="<?php echo $can_manage_legal ? 6 : 5; ?>" style="text-align:center;">هیچ پرونده‌ای برای نمایش در کارتابل شما یافت نشد.</td></tr>
+                                <?php else: foreach ($legal_cases as $lc): ?>
+                                    <tr data-case-id="<?php echo esc_attr($lc['id']); ?>" data-stage="<?php echo esc_attr($lc['stage']); ?>">
+                                        <td><code><?php echo esc_html($lc['case_number']); ?></code></td>
+                                        <td><strong><?php echo esc_html($lc['title']); ?></strong></td>
+                                        <td><span class="sr-tag"><?php echo esc_html($lc['stage']); ?></span></td>
+                                        <td><?php echo esc_html($lc['court_branch'] ?: '—'); ?></td>
+                                        <td><?php echo esc_html($lc['next_hearing'] ?: '—'); ?></td>
+                                        <?php if ($can_manage_legal): ?>
+                                            <td>
+                                                <button type="button" class="sr-btn-action sr-btn-edit sr-btn-edit-legal-case"
+                                                    data-id="<?php echo esc_attr($lc['id']); ?>"
+                                                    data-title="<?php echo esc_attr($lc['title']); ?>"
+                                                    data-number="<?php echo esc_attr($lc['case_number']); ?>"
+                                                    data-stage="<?php echo esc_attr($lc['stage']); ?>"
+                                                    data-branch="<?php echo esc_attr($lc['court_branch']); ?>"
+                                                    data-hearing="<?php echo esc_attr($lc['next_hearing']); ?>"
+                                                    data-client="<?php echo esc_attr($lc['client_user_id'] ?? 0); ?>"
+                                                    data-notes="<?php echo esc_attr($lc['notes'] ?? ''); ?>">ویرایش</button>
+                                                <button type="button" class="sr-btn-action sr-btn-delete-legal-case" data-id="<?php echo esc_attr($lc['id']); ?>">حذف</button>
+                                            </td>
+                                        <?php endif; ?>
+                                    </tr>
+                                <?php endforeach; endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <!-- Tab 2: CPT & Metabox Manager (Only Public Business CPTs for edit_posts users) -->
+                <?php if ($can_edit_content): ?>
                 <div id="tab-cpt" class="sr-tab-pane" role="tabpanel" aria-labelledby="btn-tab-cpt" hidden>
                     <div class="sr-panel-header">
                         <h3>مدیریت داینامیک پست‌تایپ‌ها و متاباکس‌ها</h3>
@@ -1324,11 +1838,15 @@ class Frontend_Cockpit_Engine {
                             </thead>
                             <tbody>
                                 <?php
-                                $posts_query = new \WP_Query([
+                                $cpt_query_args = [
                                     'post_type'      => ['portfolio', 'services', 'case_study', 'post'],
                                     'posts_per_page' => 20,
                                     'post_status'    => 'any',
-                                ]);
+                                ];
+                                if (!current_user_can('edit_others_posts')) {
+                                    $cpt_query_args['author'] = get_current_user_id();
+                                }
+                                $posts_query = new \WP_Query($cpt_query_args);
                                 if ($posts_query->have_posts()):
                                     while ($posts_query->have_posts()): $posts_query->the_post();
                                 ?>
@@ -1353,9 +1871,14 @@ class Frontend_Cockpit_Engine {
                         </table>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <!-- Tab 3: User Accounts Hub -->
-                <?php if ($is_admin): ?>
+                <?php if ($is_admin):
+                    $ecosystem_roles = class_exists('SedRazavi_Ecosystem_Control_Service')
+                        ? \SedRazavi_Ecosystem_Control_Service::get_ecosystem_role_catalog(true)
+                        : [];
+                ?>
                 <div id="tab-users" class="sr-tab-pane" role="tabpanel" aria-labelledby="btn-tab-users" hidden>
                     <div class="sr-panel-header">
                         <h3>مدیریت و پایش اکانت‌های کاربران</h3>
@@ -1375,7 +1898,7 @@ class Frontend_Cockpit_Engine {
                             <form id="sr-bulk-users-form">
                                 <div class="sr-form-group">
                                     <label for="sr-bulk-users-csv">محتوای CSV کاربران:</label>
-                                    <textarea id="sr-bulk-users-csv" class="sr-bulk-textarea" name="csv_data" rows="6" required placeholder="username,email,display_name,role,domain_tag,phone,password&#10;ali_rezaei,ali@example.com,علی رضایی,client,legal,09120000001,Str0ng!Pass"></textarea>
+                                    <textarea id="sr-bulk-users-csv" class="sr-bulk-textarea" name="csv_data" rows="6" required placeholder="username,email,display_name,role,domain_tag,phone,password&#10;ali_rezaei,ali@example.com,علی رضایی,sedrazavi_client,legal,09120000001,Str0ng!Pass"></textarea>
                                 </div>
                                 <div class="sr-modal-actions">
                                     <button type="submit" class="sr-btn sr-btn-primary">اجرای درون‌ریزی در دیتابیس</button>
@@ -1411,12 +1934,9 @@ class Frontend_Cockpit_Engine {
                                 <div class="sr-form-group">
                                     <label>نقش کاربری (Role):</label>
                                     <select name="role">
-                                        <option value="subscriber">مشترک / کاربر عادی (Subscriber)</option>
-                                        <option value="client">موکل / مشتری (Client)</option>
-                                        <option value="author">نویسنده / محتواگذار (Author)</option>
-                                        <option value="editor">ویرایشگر ارشد (Editor)</option>
-                                        <option value="lawyer">وکیل دادگستری (Lawyer)</option>
-                                        <option value="administrator">مدیر کل سیستم (Administrator)</option>
+                                        <?php foreach ($ecosystem_roles as $r_slug => $r_meta): ?>
+                                            <option value="<?php echo esc_attr($r_slug); ?>" <?php selected($r_slug, 'sedrazavi_client'); ?>><?php echo esc_html($r_meta['label']); ?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
                                 <div class="sr-form-group">
@@ -1441,11 +1961,9 @@ class Frontend_Cockpit_Engine {
                         <input type="text" id="sr-user-search-input" placeholder="جستجو بر اساس نام، نام کاربری یا ایمیل...">
                         <select id="sr-user-role-filter">
                             <option value="">همه نقش‌ها</option>
-                            <option value="administrator">مدیران کل</option>
-                            <option value="editor">ویرایشگران</option>
-                            <option value="author">نویسندگان</option>
-                            <option value="client">مشتریان و موکلین</option>
-                            <option value="subscriber">مشترکان</option>
+                            <?php foreach ($ecosystem_roles as $r_slug => $r_meta): ?>
+                                <option value="<?php echo esc_attr($r_slug); ?>"><?php echo esc_html($r_meta['label']); ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
 
@@ -1489,54 +2007,61 @@ class Frontend_Cockpit_Engine {
                     </div>
                 </div>
 
-                <!-- Tab 4: Plugin Hub -->
+                <!-- Tab 4: Plugin Hub (Hardened Installer, Toggle & Rollback) -->
                 <div id="tab-plugins" class="sr-tab-pane" role="tabpanel" aria-labelledby="btn-tab-plugins" hidden>
                     <div class="sr-panel-header">
-                        <h3>نصب و مدیریت مستقیم افزونه‌ها از داخل پیشخوان</h3>
-                        <p>نصب ۱-کلیکی ماژول‌های مستقل بدون نیاز به خروج از رابط کاربری فرانت‌اند.</p>
+                        <div>
+                            <h3>نصب، فعال‌سازی و رول‌بک افزونه‌ها از داخل پیشخوان</h3>
+                            <p>نصب ۱-کلیکی یا از آدرس مجاز HTTPS گیت‌هاب همراه با بررسی SHA-256، بکاپ پیش از جایگزینی و بازگشت خودکار هنگام خطا.</p>
+                        </div>
                     </div>
                     <div class="sr-plugins-grid">
                         <?php
-                        $plugins_catalog = [
-                            [
-                                'slug' => 'sedrazavi-designer-core',
-                                'name' => 'افزونه هسته اختصاصی طراح (Designer Core)',
-                                'desc' => 'شامل ویجت‌های تعاملی ساعت سه‌گانه، بازی دایناسور نئونی، موزیک پلیر سایبرپانک و ساعت جهانی.',
-                            ],
-                            [
-                                'slug' => 'elementor-addon-suite',
-                                'name' => 'سوئیت ویجت‌ها و قالب‌های المنتور (Addon Suite)',
-                                'desc' => 'شامل ۳۱ ویجت بومی، ۳۳ قالب کانتینری آماده و تم‌بیلدر بریج.',
-                            ],
-                            [
-                                'slug' => 'sedrazavi-addons',
-                                'name' => 'افزونه تخصصی خدمات و وکالت (Vertical Addons)',
-                                'desc' => 'شامل فرم‌های پیشرفته، پورتال و امکانات تعاملی اصناف.',
-                            ],
-                        ];
-                        $this->ensure_wp_plugin_admin_loaded();
+                        $plugins_catalog = class_exists('SedRazavi_Ecosystem_Control_Service')
+                            ? \SedRazavi_Ecosystem_Control_Service::get_plugins_inventory()
+                            : [];
                         foreach ($plugins_catalog as $pkg):
-                            $plugin_root  = defined('WP_PLUGIN_DIR') ? WP_PLUGIN_DIR : (defined('ABSPATH') ? ABSPATH . 'wp-content/plugins' : '');
-                            $is_installed = $plugin_root !== '' && file_exists($plugin_root . '/' . $pkg['slug']);
-                            $is_active    = function_exists('is_plugin_active') && is_plugin_active($pkg['slug'] . '/' . $pkg['slug'] . '.php');
+                            $is_installed = !empty($pkg['installed']);
+                            $is_active    = !empty($pkg['active']);
+                            $has_backup   = !empty($pkg['has_backup']);
+                            $can_toggle   = ($pkg['slug'] !== 'sedrazavi-companion');
                         ?>
-                            <div class="sr-plugin-card">
+                            <div class="sr-plugin-card" data-plugin-slug="<?php echo esc_attr($pkg['slug']); ?>">
                                 <h4><?php echo esc_html($pkg['name']); ?></h4>
                                 <p><?php echo esc_html($pkg['desc']); ?></p>
                                 <div class="sr-plugin-status">
-                                    وضعیت: 
+                                    وضعیت:
                                     <?php if ($is_active): ?>
-                                        <span class="sr-status-active">فعال و آماده به‌کار</span>
+                                        <span class="sr-status-active">فعال و آماده به‌کار<?php echo !empty($pkg['version']) ? ' (v' . esc_html($pkg['version']) . ')' : ''; ?></span>
                                     <?php elseif ($is_installed): ?>
                                         <span class="sr-status-installed">نصب شده (غیرفعال)</span>
                                     <?php else: ?>
                                         <span class="sr-status-missing">آماده نصب ۱-کلیکی</span>
                                     <?php endif; ?>
                                 </div>
+                                <div class="sr-plugin-verify-box">
+                                    <label class="sr-muted">آدرس ریموت مجاز HTTPS یا امضای SHA-256 (اختیاری):</label>
+                                    <input type="url" class="sr-plugin-remote-url" placeholder="https://github.com/Aqamirrazavi/Sedrazavi-WPtemplate/...">
+                                    <input type="text" class="sr-plugin-sha256" maxlength="64" placeholder="SHA-256 Digest (اختیاری — ۶۴ کاراکتر هگز)">
+                                </div>
                                 <div class="sr-plugin-actions">
                                     <?php if (!$is_installed): ?>
                                         <button type="button" class="sr-btn sr-btn-primary sr-btn-install-pkg" data-slug="<?php echo esc_attr($pkg['slug']); ?>">
                                             نصب و فعال‌سازی مستقیم
+                                        </button>
+                                    <?php else: ?>
+                                        <?php if ($can_toggle): ?>
+                                            <button type="button" class="sr-btn sr-btn-secondary sr-btn-toggle-pkg" data-slug="<?php echo esc_attr($pkg['slug']); ?>">
+                                                <?php echo $is_active ? 'غیرفعال‌سازی' : 'فعال‌سازی'; ?>
+                                            </button>
+                                            <button type="button" class="sr-btn sr-btn-primary sr-btn-install-pkg" data-slug="<?php echo esc_attr($pkg['slug']); ?>">
+                                                به‌روزرسانی / نصب مجدد با بکاپ
+                                            </button>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                    <?php if ($can_toggle && $has_backup): ?>
+                                        <button type="button" class="sr-btn sr-btn-danger sr-btn-rollback-pkg" data-slug="<?php echo esc_attr($pkg['slug']); ?>">
+                                            بازگشت به نسخه قبل (Rollback)
                                         </button>
                                     <?php endif; ?>
                                 </div>
@@ -1871,41 +2396,54 @@ class Frontend_Cockpit_Engine {
                 <!-- Tab 6: WordPress DB Brand, Colors & Options Settings -->
                 <div id="tab-settings" class="sr-tab-pane" role="tabpanel" aria-labelledby="btn-tab-settings" hidden>
                     <div class="sr-panel-header">
-                        <h3>تنظیمات برند، توکن‌های رنگی و مشخصات دفتر (ذخیره‌سازی مستقیم در wp_options)</h3>
+                        <h3>تنظیمات برند، توکن‌های رنگی و مشخصات دفتر (همگام با پیشخوان ادمین و wp_options)</h3>
                     </div>
+                    <?php
+                    $unified_settings = class_exists('SedRazavi_Ecosystem_Control_Service')
+                        ? \SedRazavi_Ecosystem_Control_Service::get_unified_settings()
+                        : [];
+                    $cur_sc = $unified_settings['sedrazavi_active_scenario'] ?? get_option('sedrazavi_active_scenario', 'bento-hud');
+                    ?>
                     <form id="sr-site-settings-form" class="sr-sitekit-section">
                         <div class="sr-settings-grid">
                             <div class="sr-form-group">
                                 <label for="sr_opt_phone">شماره تلفن مستقیم دفتر:</label>
-                                <input type="text" id="sr_opt_phone" name="sedrazavi_office_phone" value="<?php echo esc_attr(get_option('sedrazavi_office_phone', '۰۲۱-۸۸۹۹۰۰۱۱')); ?>">
+                                <input type="text" id="sr_opt_phone" name="sedrazavi_office_phone" value="<?php echo esc_attr($unified_settings['sedrazavi_office_phone'] ?? get_option('sedrazavi_office_phone', '۰۲۱-۸۸۹۹۰۰۱۱')); ?>">
                             </div>
                             <div class="sr-form-group">
                                 <label for="sr_opt_email">ایمیل رسمی دفتر:</label>
-                                <input type="email" id="sr_opt_email" name="sedrazavi_office_email" value="<?php echo esc_attr(get_option('sedrazavi_office_email', 'info@sedrazavi-law.ir')); ?>">
+                                <input type="email" id="sr_opt_email" name="sedrazavi_office_email" value="<?php echo esc_attr($unified_settings['sedrazavi_office_email'] ?? get_option('sedrazavi_office_email', 'info@sedrazavi-law.ir')); ?>">
                             </div>
                             <div class="sr-form-group">
                                 <label for="sr_opt_address">نشانی دفتر:</label>
-                                <input type="text" id="sr_opt_address" name="sedrazavi_office_address" value="<?php echo esc_attr(get_option('sedrazavi_office_address', '')); ?>">
+                                <input type="text" id="sr_opt_address" name="sedrazavi_office_address" value="<?php echo esc_attr($unified_settings['sedrazavi_office_address'] ?? get_option('sedrazavi_office_address', '')); ?>">
                             </div>
                             <div class="sr-form-group">
                                 <label for="sr_opt_hours">ساعات پاسخگویی:</label>
-                                <input type="text" id="sr_opt_hours" name="sedrazavi_working_hours" value="<?php echo esc_attr(get_option('sedrazavi_working_hours', 'شنبه تا چهارشنبه ۹ الی ۱۸')); ?>">
+                                <input type="text" id="sr_opt_hours" name="sedrazavi_working_hours" value="<?php echo esc_attr($unified_settings['sedrazavi_working_hours'] ?? get_option('sedrazavi_working_hours', 'شنبه تا چهارشنبه ۹ الی ۱۸')); ?>">
                             </div>
                             <div class="sr-form-group">
                                 <label for="sr_opt_gold">کد رنگ شاخص اصلی (Hex):</label>
-                                <input type="text" id="sr_opt_gold" name="sedrazavi_primary_gold" value="<?php echo esc_attr(get_option('sedrazavi_primary_gold', '#D4AF37')); ?>">
+                                <input type="text" id="sr_opt_gold" name="sedrazavi_primary_gold" value="<?php echo esc_attr($unified_settings['sedrazavi_primary_gold'] ?? get_option('sedrazavi_primary_gold', '#D4AF37')); ?>">
                             </div>
                             <div class="sr-form-group">
                                 <label for="sr_opt_navy">کد رنگ پایه دوم (Hex):</label>
-                                <input type="text" id="sr_opt_navy" name="sedrazavi_secondary_navy" value="<?php echo esc_attr(get_option('sedrazavi_secondary_navy', '#0B132B')); ?>">
+                                <input type="text" id="sr_opt_navy" name="sedrazavi_secondary_navy" value="<?php echo esc_attr($unified_settings['sedrazavi_secondary_navy'] ?? get_option('sedrazavi_secondary_navy', '#0B132B')); ?>">
                             </div>
                             <div class="sr-form-group">
                                 <label for="sr_opt_font">فونت اصلی سامانه:</label>
-                                <input type="text" id="sr_opt_font" name="sedrazavi_font_family" value="<?php echo esc_attr(get_option('sedrazavi_font_family', 'Vazirmatn')); ?>">
+                                <input type="text" id="sr_opt_font" name="sedrazavi_font_family" value="<?php echo esc_attr($unified_settings['sedrazavi_font_family'] ?? get_option('sedrazavi_font_family', 'Vazirmatn')); ?>">
+                            </div>
+                            <div class="sr-form-group">
+                                <label for="sr_opt_mode">حالت رنگ پیش‌فرض (Light / Dark):</label>
+                                <?php $cur_mode = $unified_settings['sedrazavi_default_mode'] ?? get_option('sedrazavi_default_mode', 'dark'); ?>
+                                <select id="sr_opt_mode" name="sedrazavi_default_mode">
+                                    <option value="dark" <?php selected($cur_mode, 'dark'); ?>>تاریک لوکس (Obsidian Dark)</option>
+                                    <option value="light" <?php selected($cur_mode, 'light'); ?>>روشن رسمی (Alabaster Light)</option>
+                                </select>
                             </div>
                             <div class="sr-form-group">
                                 <label for="sr_opt_scenario">سناریوی چیدمان فعال:</label>
-                                <?php $cur_sc = get_option('sedrazavi_active_scenario', 'bento-hud'); ?>
                                 <select id="sr_opt_scenario" name="sedrazavi_active_scenario">
                                     <option value="bento-hud" <?php selected($cur_sc, 'bento-hud'); ?>>Bento HUD (پیش‌فرض مدرن)</option>
                                     <option value="dense-matrix" <?php selected($cur_sc, 'dense-matrix'); ?>>Dense Matrix (داده‌محور متراکم)</option>
@@ -1914,7 +2452,7 @@ class Frontend_Cockpit_Engine {
                             </div>
                         </div>
                         <div class="sr-modal-actions">
-                            <button type="submit" class="sr-btn sr-btn-primary">💾 ذخیره مستقیم در دیتابیس وردپرس (wp_options)</button>
+                            <button type="submit" class="sr-btn sr-btn-primary">💾 ذخیره و همگام‌سازی با وردپرس (wp_options)</button>
                         </div>
                         <div id="sr-site-settings-feedback" class="sr-form-feedback"></div>
                     </form>

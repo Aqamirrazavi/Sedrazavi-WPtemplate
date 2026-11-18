@@ -47,12 +47,13 @@ class SedRazavi_Comprehensive_Dashboard {
             'show_in_nav_menus'   => false,
             'query_var'           => false,
             'rewrite'             => false,
-            'capability_type'     => 'post',
+            'capability_type'     => ['sedrazavi_case', 'sedrazavi_cases'],
+            'map_meta_cap'        => true,
             'has_archive'         => false,
             'hierarchical'        => false,
             'menu_position'       => 2,
             'menu_icon'           => 'dashicons-shield-alt',
-            'supports'            => ['title', 'editor', 'thumbnail', 'custom-fields'],
+            'supports'            => ['title', 'editor', 'thumbnail', 'custom-fields', 'author'],
             'show_in_rest'        => false,
         ];
 
@@ -63,11 +64,13 @@ class SedRazavi_Comprehensive_Dashboard {
      * منوهای جانبی ۷ تب تخصصی در پیشخوان وردپرس
      */
     public function register_admin_submenus() {
+        $legal_cap = 'sedrazavi_manage_cases';
+
         add_submenu_page(
             'edit.php?post_type=sedrazavi_dashboard',
             __('مدیریت پرونده‌ها', 'sedrazavi'),
             __('پرونده‌ها و دادرسی', 'sedrazavi'),
-            'manage_options',
+            $legal_cap,
             'sedrazavi-cases',
             [$this, 'render_cases_tab']
         );
@@ -76,7 +79,7 @@ class SedRazavi_Comprehensive_Dashboard {
             'edit.php?post_type=sedrazavi_dashboard',
             __('تقویم و رزرو نوبت‌ها', 'sedrazavi'),
             __('رزروها و نوبت‌ها', 'sedrazavi'),
-            'manage_options',
+            $legal_cap,
             'sedrazavi-bookings',
             [$this, 'render_bookings_tab']
         );
@@ -85,7 +88,7 @@ class SedRazavi_Comprehensive_Dashboard {
             'edit.php?post_type=sedrazavi_dashboard',
             __('صورتحساب‌ها و سامانه مودیان', 'sedrazavi'),
             __('صورتحساب و مالی', 'sedrazavi'),
-            'manage_options',
+            $legal_cap,
             'sedrazavi-invoices',
             [$this, 'render_invoices_tab']
         );
@@ -94,7 +97,7 @@ class SedRazavi_Comprehensive_Dashboard {
             'edit.php?post_type=sedrazavi_dashboard',
             __('صندوق پیام‌ها و فرم تماس', 'sedrazavi'),
             __('پیام‌های موکلین', 'sedrazavi'),
-            'manage_options',
+            $legal_cap,
             'sedrazavi-emails',
             [$this, 'render_emails_tab']
         );
@@ -298,11 +301,65 @@ class SedRazavi_Comprehensive_Dashboard {
     }
 
     public function render_bookings_tab() {
+        global $wpdb;
+        $rows = [];
+
+        $appointment_posts = get_posts([
+            'post_type'      => ['sedrazavi_appointment', 'sedrazavi_booking'],
+            'numberposts'    => 30,
+            'post_status'    => 'any',
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ]);
+        foreach ($appointment_posts as $ap) {
+            $rows[] = [
+                'code'   => get_post_meta($ap->ID, '_tracking_code', true) ?: ('#APT-' . $ap->ID),
+                'name'   => get_post_meta($ap->ID, '_client_name', true) ?: $ap->post_title,
+                'topic'  => get_post_meta($ap->ID, '_service_type', true) ?: __('مشاوره حقوقی', 'sedrazavi'),
+                'date'   => get_post_meta($ap->ID, '_booking_date', true) ?: get_the_date('Y-m-d H:i', $ap->ID),
+                'phone'  => get_post_meta($ap->ID, '_client_phone', true) ?: '—',
+                'status' => get_post_meta($ap->ID, '_booking_status', true) ?: 'scheduled',
+            ];
+        }
+
+        $opt_appointments = get_option('sedrazavi_legal_appointments_records', []);
+        if (is_array($opt_appointments)) {
+            foreach (array_reverse($opt_appointments) as $rec) {
+                if (!is_array($rec)) {
+                    continue;
+                }
+                $rows[] = [
+                    'code'   => $rec['booking_id'] ?? '—',
+                    'name'   => $rec['client_name'] ?? '—',
+                    'topic'  => $rec['meeting_type'] ?? __('مشاوره حقوقی', 'sedrazavi'),
+                    'date'   => $rec['slot_id'] ?? ($rec['created_at'] ?? '—'),
+                    'phone'  => $rec['phone'] ?? '—',
+                    'status' => $rec['status'] ?? 'scheduled',
+                ];
+            }
+        }
+
+        $consult_table = $wpdb->prefix . 'sedrazavi_consultations';
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $consult_table)) === $consult_table) {
+            $db_rows = $wpdb->get_results("SELECT id, full_name, phone, subject, preferred_date, status FROM {$consult_table} ORDER BY id DESC LIMIT 20", ARRAY_A);
+            if (is_array($db_rows)) {
+                foreach ($db_rows as $dr) {
+                    $rows[] = [
+                        'code'   => '#CON-' . (int) ($dr['id'] ?? 0),
+                        'name'   => $dr['full_name'] ?? '—',
+                        'topic'  => $dr['subject'] ?? __('مشاوره', 'sedrazavi'),
+                        'date'   => $dr['preferred_date'] ?? '—',
+                        'phone'  => $dr['phone'] ?? '—',
+                        'status' => $dr['status'] ?? 'pending',
+                    ];
+                }
+            }
+        }
         ?>
         <div class="wrap" style="direction: rtl; text-align: right; max-width: 1100px; font-family: 'Vazirmatn', sans-serif;">
             <h1 style="color: #0B132B; margin-bottom: 20px;">📅 تقویم نوبت‌ها و یادآوری پیامکی موکلین</h1>
             <div style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                <p style="color: #64748B; font-size: 13px; line-height: 1.6;">این بخش متصل به سیستم هوشمند رزرو وقت مشاوره آنلاین و پیامک اطلاع‌رسانی ۲۴ ساعته و ۲ ساعته قبل از جلسه می‌باشد.</p>
+                <p style="color: #64748B; font-size: 13px; line-height: 1.6;">این بخش متصل به پایگاه داده نوبت‌های مشاوره آنلاین وب‌سایت و سوابق رزرواسیون واقعی است.</p>
                 <table class="widefat fixed striped" style="margin-top: 15px;">
                     <thead>
                         <tr>
@@ -315,22 +372,24 @@ class SedRazavi_Comprehensive_Dashboard {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>#BK-1082</td>
-                            <td>دکتر حمید علوی</td>
-                            <td>تنظیم قرارداد سرمایه‌گذاری بین‌المللی</td>
-                            <td>چهارشنبه ۱۴۰۳/۰۸/۰۲ - ۱۰:۳۰</td>
-                            <td>09121112233</td>
-                            <td><span style="background: #D1FAE5; color: #065F46; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">تایید شده</span></td>
-                        </tr>
-                        <tr>
-                            <td>#BK-1083</td>
-                            <td>سرکار خانم مریم کاظمی</td>
-                            <td>مشاوره ارث و تنظیم وصیت‌نامه رسمی</td>
-                            <td>شنبه ۱۴۰۳/۰۸/۰۵ - ۱۶:۰۰</td>
-                            <td>09124445566</td>
-                            <td><span style="background: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">در انتظار تایید</span></td>
-                        </tr>
+                        <?php if (empty($rows)) : ?>
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 30px; color: #64748B;">
+                                    <?php esc_html_e('هنوز نوبت مشاوره‌ای در پایگاه داده ثبت نشده است.', 'sedrazavi'); ?>
+                                </td>
+                            </tr>
+                        <?php else : ?>
+                            <?php foreach ($rows as $row) : ?>
+                                <tr>
+                                    <td><?php echo esc_html($row['code']); ?></td>
+                                    <td><?php echo esc_html($row['name']); ?></td>
+                                    <td><?php echo esc_html($row['topic']); ?></td>
+                                    <td><?php echo esc_html($row['date']); ?></td>
+                                    <td style="direction: ltr; text-align: right;"><?php echo esc_html($row['phone']); ?></td>
+                                    <td><span style="background: #EFF6FF; color: #1E40AF; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;"><?php echo esc_html($row['status']); ?></span></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -339,23 +398,52 @@ class SedRazavi_Comprehensive_Dashboard {
     }
 
     public function render_invoices_tab() {
+        global $wpdb;
+        $total_amount = 0;
+        $verified_invoices_count = 0;
+
+        $payments_table = $wpdb->prefix . 'sedrazavi_payments';
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $payments_table)) === $payments_table) {
+            $total_amount = (int) $wpdb->get_var("SELECT COALESCE(SUM(amount), 0) FROM {$payments_table} WHERE status IN ('paid','completed','verified')");
+            $verified_invoices_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$payments_table} WHERE status IN ('paid','completed','verified')");
+        }
+
+        $tax_docs_query = new WP_Query([
+            'post_type'      => ['sedrazavi_dashboard', 'sedrazavi_case'],
+            'post_status'    => 'any',
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            'meta_query'     => [
+                [
+                    'key'     => '_tax_unique_id',
+                    'value'   => '',
+                    'compare' => '!=',
+                ],
+            ],
+        ]);
+        $verified_invoices_count += (int) $tax_docs_query->found_posts;
+
+        $merchant_id = get_option('sedrazavi_zarinpal_merchant', '');
+        $gateway_status = !empty($merchant_id)
+            ? esc_html__('زرین‌پال (پیکربندی شده)', 'sedrazavi')
+            : esc_html__('تنظیم نشده (در انتظار مرچنت کد)', 'sedrazavi');
         ?>
         <div class="wrap" style="direction: rtl; text-align: right; max-width: 1100px; font-family: 'Vazirmatn', sans-serif;">
             <h1 style="color: #0B132B; margin-bottom: 20px;">💳 صورتحساب‌های الکترونیک، زرین‌پال و سامانه مودیان</h1>
             <div style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                <p style="color: #64748B; font-size: 13px; line-height: 1.6;">صدور پیش‌فاکتور رسمی حق‌الوکاله، تایید پرداخت‌های آنلاین زرین‌پال و تولید شناسه یکتای صورتحساب مالیاتی سامانه مودیان در این سامانه پشتیبانی می‌شود.</p>
+                <p style="color: #64748B; font-size: 13px; line-height: 1.6;">آمار زیر مستقیماً از جدول پرداخت‌ها و پرونده‌های دارای شناسه مالیاتی سامانه مودیان محاسبه می‌شود.</p>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0;">
                     <div style="background: #F8FAFC; padding: 15px; border-radius: 8px; border-right: 4px solid #10B981;">
-                        <span style="color: #64748B; font-size: 12px;">کل وصولی آنلاین این ماه:</span>
-                        <div style="font-size: 20px; font-weight: bold; color: #0B132B; margin-top: 5px;">۱۸۵,۰۰۰,۰۰۰ تومان</div>
+                        <span style="color: #64748B; font-size: 12px;">کل وصولی آنلاین ثبت‌شده:</span>
+                        <div style="font-size: 20px; font-weight: bold; color: #0B132B; margin-top: 5px;"><?php echo esc_html(number_format_i18n($total_amount)); ?> <?php esc_html_e('تومان', 'sedrazavi'); ?></div>
                     </div>
                     <div style="background: #F8FAFC; padding: 15px; border-radius: 8px; border-right: 4px solid #D4AF37;">
-                        <span style="color: #64748B; font-size: 12px;">صورتحساب‌های مودیان ارسال‌شده:</span>
-                        <div style="font-size: 20px; font-weight: bold; color: #0B132B; margin-top: 5px;">۲۴ فاکتور تایید شده</div>
+                        <span style="color: #64748B; font-size: 12px;">صورتحساب‌های تاییدشده / مودیان:</span>
+                        <div style="font-size: 20px; font-weight: bold; color: #0B132B; margin-top: 5px;"><?php echo esc_html(number_format_i18n($verified_invoices_count)); ?> <?php esc_html_e('فاکتور', 'sedrazavi'); ?></div>
                     </div>
                     <div style="background: #F8FAFC; padding: 15px; border-radius: 8px; border-right: 4px solid #3B82F6;">
-                        <span style="color: #64748B; font-size: 12px;">درگاه پیش‌فرض:</span>
-                        <div style="font-size: 16px; font-weight: bold; color: #0B132B; margin-top: 5px;">زرین‌پال اختصاصی (فعال)</div>
+                        <span style="color: #64748B; font-size: 12px;">وضعیت درگاه پرداخت:</span>
+                        <div style="font-size: 16px; font-weight: bold; color: #0B132B; margin-top: 5px;"><?php echo esc_html($gateway_status); ?></div>
                     </div>
                 </div>
             </div>
@@ -364,11 +452,44 @@ class SedRazavi_Comprehensive_Dashboard {
     }
 
     public function render_emails_tab() {
+        $messages = [];
+        $lead_posts = get_posts([
+            'post_type'      => ['uas_lead', 'sedrazavi_message'],
+            'numberposts'    => 25,
+            'post_status'    => 'any',
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ]);
+        foreach ($lead_posts as $lp) {
+            $messages[] = [
+                'sender'  => get_post_meta($lp->ID, '_lead_client_name', true) ?: $lp->post_title,
+                'contact' => get_post_meta($lp->ID, '_lead_phone', true) ?: get_post_meta($lp->ID, '_sender_email', true) ?: '—',
+                'summary' => wp_trim_words(wp_strip_all_tags($lp->post_content ?: $lp->post_title), 18),
+                'date'    => get_the_date('Y-m-d H:i', $lp->ID),
+                'edit'    => get_edit_post_link($lp->ID),
+            ];
+        }
+
+        $intake_records = get_option('sedrazavi_legal_intake_records', []);
+        if (is_array($intake_records)) {
+            foreach (array_reverse($intake_records) as $ir) {
+                if (!is_array($ir)) {
+                    continue;
+                }
+                $messages[] = [
+                    'sender'  => $ir['client_name'] ?? '—',
+                    'contact' => $ir['phone'] ?? '—',
+                    'summary' => $ir['topic'] ?? ($ir['reference_code'] ?? ''),
+                    'date'    => $ir['created_at'] ?? '—',
+                    'edit'    => '',
+                ];
+            }
+        }
         ?>
         <div class="wrap" style="direction: rtl; text-align: right; max-width: 1100px; font-family: 'Vazirmatn', sans-serif;">
             <h1 style="color: #0B132B; margin-bottom: 20px;">✉️ صندوق پیام‌های فرم تماس و مشاوره آنلاین</h1>
             <div style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                <p style="color: #64748B; font-size: 13px; line-height: 1.6;">پیام‌های ثبت شده از طریق فرم‌های ارتباطی وب‌سایت در این بخش بایگانی شده و یک نسخه نیز به ایمیل رسمی دفتر ارسال می‌شود.</p>
+                <p style="color: #64748B; font-size: 13px; line-height: 1.6;">پیام‌ها و درخواست‌های واقعی ثبت‌شده توسط موکلین از طریق فرم‌های وب‌سایت در این بخش نمایش داده می‌شوند.</p>
                 <table class="widefat fixed striped" style="margin-top: 15px;">
                     <thead>
                         <tr>
@@ -376,17 +497,33 @@ class SedRazavi_Comprehensive_Dashboard {
                             <th style="font-weight: bold;">تلفن / ایمیل</th>
                             <th style="font-weight: bold; width: 40%;">خلاصه پیام</th>
                             <th style="font-weight: bold;">تاریخ ارسال</th>
-                            <th style="font-weight: bold; text-align: left;">پاسخ</th>
+                            <th style="font-weight: bold; text-align: left;">مشاهده</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td style="font-weight: bold;">شرکت توسعه پارس</td>
-                            <td>info@devpars.com</td>
-                            <td>تقاضای تنظیم قرارداد محرمانگی NDA و داوری تجاری برای پروژه نرم‌افزاری...</td>
-                            <td>دیروز ۱۴:۲۰</td>
-                            <td style="text-align: left;"><a href="mailto:info@devpars.com" class="button button-small button-primary" style="background: #0B132B; border-color: #D4AF37;">پاسخ ایمیلی</a></td>
-                        </tr>
+                        <?php if (empty($messages)) : ?>
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 30px; color: #64748B;">
+                                    <?php esc_html_e('صندوق پیام‌ها در حال حاضر خالی است.', 'sedrazavi'); ?>
+                                </td>
+                            </tr>
+                        <?php else : ?>
+                            <?php foreach ($messages as $msg) : ?>
+                                <tr>
+                                    <td style="font-weight: bold;"><?php echo esc_html($msg['sender']); ?></td>
+                                    <td style="direction: ltr; text-align: right;"><?php echo esc_html($msg['contact']); ?></td>
+                                    <td><?php echo esc_html($msg['summary']); ?></td>
+                                    <td><?php echo esc_html($msg['date']); ?></td>
+                                    <td style="text-align: left;">
+                                        <?php if (!empty($msg['edit'])) : ?>
+                                            <a href="<?php echo esc_url($msg['edit']); ?>" class="button button-small">جزئیات</a>
+                                        <?php else : ?>
+                                            <span style="color: #64748B; font-size: 12px;">ثبت تریاژ</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

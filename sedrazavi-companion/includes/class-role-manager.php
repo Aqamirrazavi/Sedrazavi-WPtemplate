@@ -88,14 +88,15 @@ class SedRazavi_Role_Manager {
         }
 
         $user = wp_get_current_user();
-        if (in_array('sr_client', (array)$user->roles, true) && !in_array('administrator', (array)$user->roles, true)) {
-            // Redirect clients to front-end dashboard
+        $roles = (array) $user->roles;
+        if (array_intersect(['sr_client', 'sedrazavi_client'], $roles) && !in_array('administrator', $roles, true) && !in_array('sedrazavi_lawyer', $roles, true)) {
+            // Redirect clients to front-end portal
             $portal_url = home_url('/#portal');
             wp_safe_redirect($portal_url);
             exit;
         }
 
-        if (in_array('sr_staff', (array)$user->roles, true) && !in_array('administrator', (array)$user->roles, true)) {
+        if (in_array('sr_staff', $roles, true) && !in_array('administrator', $roles, true)) {
             // Hide core sensitive admin menus for staff
             remove_menu_page('plugins.php');
             remove_menu_page('themes.php');

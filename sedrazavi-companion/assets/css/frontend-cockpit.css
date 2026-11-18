@@ -513,3 +513,63 @@
   }
 }
 
+/* Phase 3: Role Badges, Inline Confirmation Dialog, Legal Panel & Plugin Verification */
+.sr-cockpit-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.sr-role-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(212, 175, 55, 0.16);
+  color: #FCD34D;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+}
+.sr-role-tier-client {
+  background: rgba(16, 185, 129, 0.16);
+  color: #6EE7B7;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.sr-role-tier-legal_staff {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93C5FD;
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.sr-confirm-dialog .sr-confirm-message {
+  color: var(--sr-cockpit-text);
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 12px 0;
+}
+.sr-legal-panel {
+  border-top: 2px solid rgba(212, 175, 55, 0.25);
+  padding-top: 16px;
+}
+.sr-plugin-verify-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0 12px;
+}
+.sr-plugin-verify-box input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--sr-cockpit-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #fff;
+  font-size: 12px;
+  direction: ltr;
+  text-align: left;
+}
+.sr-plugin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

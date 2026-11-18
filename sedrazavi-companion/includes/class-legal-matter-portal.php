@@ -115,8 +115,8 @@ class SedRazavi_Legal_Matter_Portal {
 
         $client_matters = [];
         foreach ($all_matters as $matter) {
-            // Anti-IDOR: Clients only see matters where client_id matches, staff sees all
-            if ($this->is_staff_user($request) || $matter['client_id'] === $client_id) {
+            // Anti-IDOR: Staff/lead counsel sees all; clients only see owned/assigned matters
+            if ($this->can_access_matter($matter, $request, $client_id)) {
                 $client_matters[] = $matter;
             }
         }
@@ -160,7 +160,7 @@ class SedRazavi_Legal_Matter_Portal {
         }
 
         // CRITICAL ANTI-IDOR CHECK:
-        if (!$this->is_staff_user($request) && $target_matter['client_id'] !== $client_id) {
+        if (!$this->can_access_matter($target_matter, $request, $client_id)) {
             $this->log_matter_access('idor_violation_blocked', [
                 'attempted_by' => $client_id,
                 'target_case'  => $matter_id,
@@ -192,18 +192,29 @@ class SedRazavi_Legal_Matter_Portal {
             return new WP_Error('missing_params', 'شناسه سند و شناسه پرونده الزامی است.', ['status' => 400]);
         }
 
-        // Verify Matter Ownership first
+        // Verify Matter Ownership and Document Binding
         $all_matters = $this->get_all_matters_data();
+        $target_matter = null;
         $is_authorized = false;
         foreach ($all_matters as $m) {
-            if ($m['matter_id'] === $matter_id && ($this->is_staff_user($request) || $m['client_id'] === $client_id)) {
+            if ($m['matter_id'] === $matter_id && $this->can_access_matter($m, $request, $client_id)) {
+                $target_matter = $m;
                 $is_authorized = true;
                 break;
             }
         }
 
-        if (!$is_authorized) {
+        if (!$is_authorized || !$target_matter) {
             return new WP_Error('forbidden_document', 'دسترسی غیرمجاز به اسناد این پرونده.', ['status' => 403]);
+        }
+
+        if (!$this->is_document_bound_to_matter($document_id, $target_matter)) {
+            $this->log_matter_access('document_idor_blocked', [
+                'client_id'   => $client_id,
+                'document_id' => $document_id,
+                'matter_id'   => $matter_id,
+            ]);
+            return new WP_Error('document_not_in_matter', 'سند درخواستی متعلق به این پرونده نمی‌باشد.', ['status' => 403]);
         }
 
         // Create 15-minute expiring signed token
@@ -240,7 +251,7 @@ class SedRazavi_Legal_Matter_Portal {
             return new WP_Error('missing_token', 'توکن دسترسی به فایل موجود نیست.', ['status' => 401]);
         }
 
-        $decoded = base64_decode($token);
+        $decoded = base64_decode($token, true);
         if (!$decoded) {
             return new WP_Error('invalid_token', 'ساختار توکن معتبر نمی‌باشد.', ['status' => 400]);
         }
@@ -269,6 +280,21 @@ class SedRazavi_Legal_Matter_Portal {
             return new WP_Error('tampered_signature', 'امضای دیجیتال سند نامعتبر است.', ['status' => 403]);
         }
 
+        // 3. Re-verify matter exists and document belongs to that matter (and logged-in actor if session active)
+        $target_matter = null;
+        foreach ($this->get_all_matters_data() as $m) {
+            if ($m['matter_id'] === $matter_id) {
+                $target_matter = $m;
+                break;
+            }
+        }
+        if (!$target_matter || !$this->is_document_bound_to_matter($document_id, $target_matter)) {
+            return new WP_Error('forbidden_document', 'پرونده یا سند معتبر در گاوصندوق یافت نشد.', ['status' => 403]);
+        }
+        if (is_user_logged_in() && !$this->can_access_matter($target_matter, $request, 'user_' . get_current_user_id())) {
+            return new WP_Error('forbidden_access', 'نشست کاربری فعلی مجاز به دریافت این سند نمی‌باشد.', ['status' => 403]);
+        }
+
         $this->log_matter_access('document_downloaded', [
             'client_id'   => $client_id,
             'document_id' => $document_id,
@@ -294,7 +320,7 @@ class SedRazavi_Legal_Matter_Portal {
 
         $deadlines = [];
         foreach ($all_matters as $m) {
-            if ($this->is_staff_user($request) || $m['client_id'] === $client_id) {
+            if ($this->can_access_matter($m, $request, $client_id)) {
                 foreach ($m['deadlines'] as $d) {
                     $deadlines[] = array_merge($d, [
                         'matter_id'    => $m['matter_id'],
@@ -327,8 +353,12 @@ class SedRazavi_Legal_Matter_Portal {
         }
 
         if (function_exists('get_posts')) {
+            $case_post_types = class_exists('SedRazavi_Case_Data_Service')
+                ? SedRazavi_Case_Data_Service::get_case_post_types()
+                : ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'];
+
             $case_posts = get_posts([
-                'post_type'      => ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard'],
+                'post_type'      => $case_post_types,
                 'post_status'    => ['publish', 'private'],
                 'posts_per_page' => 100,
                 'orderby'        => 'date',
@@ -340,10 +370,12 @@ class SedRazavi_Legal_Matter_Portal {
                 $matter_id = get_post_meta($pid, '_sedrazavi_case_number', true)
                     ?: get_post_meta($pid, '_case_number', true)
                     ?: ('CASE-' . $pid);
-                $client_uid = (int) get_post_meta($pid, '_client_user_id', true);
+                $client_uid = (int) (get_post_meta($pid, '_sedrazavi_client_user_id', true)
+                    ?: get_post_meta($pid, '_client_user_id', true));
                 if ($client_uid <= 0) {
                     $client_uid = (int) $post->post_author;
                 }
+                $assigned_lawyer_id = (int) get_post_meta($pid, '_sedrazavi_assigned_lawyer_id', true);
                 $client_id = get_post_meta($pid, '_sedrazavi_client_portal_id', true)
                     ?: ('user_' . $client_uid);
 
@@ -356,6 +388,8 @@ class SedRazavi_Legal_Matter_Portal {
                     'post_id'            => $pid,
                     'title'              => $post->post_title,
                     'client_id'          => (string) $client_id,
+                    'client_user_id'     => $client_uid,
+                    'assigned_lawyer_id' => $assigned_lawyer_id,
                     'client_name'        => get_post_meta($pid, '_sedrazavi_client_name', true) ?: get_post_meta($pid, '_client_name', true) ?: '',
                     'status'             => get_post_meta($pid, '_sedrazavi_case_status', true) ?: 'active',
                     'status_fa'          => get_post_meta($pid, '_sedrazavi_case_status', true) ?: 'در حال رسیدگی',
@@ -371,6 +405,23 @@ class SedRazavi_Legal_Matter_Portal {
         }
 
         return array_values($matters);
+    }
+
+    /**
+     * Resolve numeric WP user ID from logged-in session or verified HMAC client token
+     */
+    private function resolve_user_id($request) {
+        if (is_user_logged_in()) {
+            return (int) get_current_user_id();
+        }
+        $header = $request ? $request->get_header('x-sedrazavi-client-token') : '';
+        if (!empty($header)) {
+            $verified_uid = $this->verify_hmac_client_token($header);
+            if ($verified_uid && preg_match('/^(?:user_)?(\d+)$/', $verified_uid, $m)) {
+                return (int) $m[1];
+            }
+        }
+        return 0;
     }
 
     /**
@@ -410,12 +461,68 @@ class SedRazavi_Legal_Matter_Portal {
         return false;
     }
 
-    private function is_staff_user($request) {
-        // Enforce strict WordPress capability checks. Client-sent headers are untrusted and rejected.
-        if (is_user_logged_in() && (current_user_can('manage_options') || current_user_can('edit_posts'))) {
+    /**
+     * Unified per-object Anti-IDOR matter access check via SedRazavi_Case_Data_Service
+     */
+    private function can_access_matter(array $matter, $request, $client_id = '') {
+        if ($this->is_staff_user($request)) {
+            return true;
+        }
+        $resolved_uid = $this->resolve_user_id($request);
+        if ($resolved_uid > 0 && class_exists('SedRazavi_Case_Data_Service')) {
+            if (SedRazavi_Case_Data_Service::can_user_access_matter_record($matter, $resolved_uid)) {
+                return true;
+            }
+        }
+        if ($client_id !== '' && isset($matter['client_id']) && hash_equals((string) $matter['client_id'], (string) $client_id)) {
+            return true;
+        }
+        if ($resolved_uid > 0 && isset($matter['client_id']) && hash_equals((string) $matter['client_id'], 'user_' . $resolved_uid)) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Ensure requested document belongs to the target matter ledger or attached CPT post
+     */
+    private function is_document_bound_to_matter($document_id, array $matter) {
+        $docs = isset($matter['documents']) && is_array($matter['documents']) ? $matter['documents'] : [];
+        if (!empty($docs)) {
+            foreach ($docs as $doc) {
+                if (is_array($doc)) {
+                    $did = (string) ($doc['id'] ?? $doc['document_id'] ?? $doc['file_id'] ?? '');
+                    if ($did !== '' && hash_equals($did, (string) $document_id)) {
+                        return true;
+                    }
+                } elseif ((string) $doc === (string) $document_id) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        if (is_numeric($document_id) && function_exists('get_post')) {
+            $attachment = get_post(absint($document_id));
+            if ($attachment && $attachment->post_type === 'attachment' && !empty($matter['post_id'])) {
+                return (int) $attachment->post_parent === (int) $matter['post_id'];
+            }
+        }
+
+        return true;
+    }
+
+    private function is_staff_user($request) {
+        // Strict dedicated legal capabilities only (never generic edit_posts; HMAC tokens are client-scoped)
+        if (!is_user_logged_in()) {
+            return false;
+        }
+        if (class_exists('SedRazavi_Case_Data_Service')) {
+            return SedRazavi_Case_Data_Service::is_privileged_legal_staff();
+        }
+        return current_user_can('manage_options')
+            || current_user_can('sedrazavi_manage_cases')
+            || current_user_can('sedrazavi_view_all_cases');
     }
 
     /**

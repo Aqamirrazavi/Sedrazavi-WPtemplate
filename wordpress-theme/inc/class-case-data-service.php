@@ -14,6 +14,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!class_exists('SedRazavi_Case_Data_Service')) {
+
 class SedRazavi_Case_Data_Service {
 
     /**
@@ -37,6 +39,23 @@ class SedRazavi_Case_Data_Service {
      */
     public static function get_litigation_post_types() {
         return array('sedrazavi_case', 'case');
+    }
+
+    /**
+     * Confidential CPT slugs that must never appear in unauthenticated search or Elementor grids.
+     *
+     * @return array
+     */
+    public static function get_confidential_cpts() {
+        return array(
+            'sedrazavi_case',
+            'case',
+            'arbitration_case',
+            'sedrazavi_dashboard',
+            'sedrazavi_appointment',
+            'sedrazavi_booking',
+            'uas_lead',
+        );
     }
 
     /**
@@ -219,12 +238,14 @@ class SedRazavi_Case_Data_Service {
         $assigned_lawyer_id = (int) get_post_meta($pid, '_sedrazavi_assigned_lawyer_id', true);
         $client_uid_primary = (int) get_post_meta($pid, '_sedrazavi_client_user_id', true);
         $client_uid_legacy  = (int) get_post_meta($pid, '_client_user_id', true);
+        $client_portal_id   = (string) get_post_meta($pid, '_sedrazavi_client_portal_id', true);
 
         if (
             $post_author === $uid ||
             $assigned_lawyer_id === $uid ||
             $client_uid_primary === $uid ||
-            $client_uid_legacy === $uid
+            $client_uid_legacy === $uid ||
+            ($client_portal_id !== '' && hash_equals($client_portal_id, 'user_' . $uid))
         ) {
             return true;
         }
@@ -235,6 +256,42 @@ class SedRazavi_Case_Data_Service {
             $assigned_dossier !== '' &&
             ($assigned_dossier === (string) $pid || ($case_number !== '' && hash_equals($assigned_dossier, $case_number)))
         ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Unified ownership verification for Matter Portal records (CPT-backed or option ledger).
+     *
+     * @param array $matter
+     * @param int   $user_id
+     * @return bool
+     */
+    public static function can_user_access_matter_record(array $matter, $user_id = 0) {
+        $uid = $user_id ? absint($user_id) : get_current_user_id();
+        if ($uid <= 0) {
+            return false;
+        }
+
+        if (self::is_privileged_legal_staff($uid)) {
+            return true;
+        }
+
+        if (!empty($matter['post_id'])) {
+            return self::can_user_access_case((int) $matter['post_id'], $uid);
+        }
+
+        $matter_client_uid = isset($matter['client_user_id']) ? (int) $matter['client_user_id'] : 0;
+        $matter_lawyer_uid = isset($matter['assigned_lawyer_id']) ? (int) $matter['assigned_lawyer_id'] : 0;
+        $matter_client_id  = isset($matter['client_id']) ? (string) $matter['client_id'] : '';
+
+        if ($matter_client_uid === $uid || $matter_lawyer_uid === $uid) {
+            return true;
+        }
+
+        if ($matter_client_id !== '' && hash_equals($matter_client_id, 'user_' . $uid)) {
             return true;
         }
 
@@ -284,3 +341,6 @@ class SedRazavi_Case_Data_Service {
         return $total;
     }
 }
+
+}
+

@@ -51,11 +51,20 @@ class SedRazavi_Instant_Search {
             return rest_ensure_response(['success' => true, 'results' => []]);
         }
 
+        $confidential = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::get_confidential_cpts()
+            : ['sedrazavi_case', 'case', 'arbitration_case', 'sedrazavi_dashboard', 'sedrazavi_appointment', 'sedrazavi_booking', 'uas_lead'];
+
+        $searchable_types = array_values(array_diff(
+            ['post', 'page', 'product', 'service', 'services', 'article', 'case_study', 'legal_precedent', 'portfolio'],
+            $confidential
+        ));
+
         $args = [
             's'              => $q,
             'posts_per_page' => 12,
             'post_status'    => 'publish',
-            'post_type'      => ['post', 'page', 'product', 'sr_course', 'sr_case', 'sr_service'],
+            'post_type'      => $searchable_types,
         ];
 
         $query = new WP_Query($args);
@@ -65,12 +74,15 @@ class SedRazavi_Instant_Search {
             while ($query->have_posts()) {
                 $query->the_post();
                 $pt = get_post_type();
+                if (in_array($pt, $confidential, true)) {
+                    continue;
+                }
                 $type_label = 'برگه';
-                if ($pt === 'post') $type_label = 'مقاله';
+                if ($pt === 'post' || $pt === 'article') $type_label = 'مقاله';
                 elseif ($pt === 'product') $type_label = 'محصول فروشگاه';
-                elseif ($pt === 'sr_course') $type_label = 'دوره آموزشی';
-                elseif ($pt === 'sr_case') $type_label = 'پرونده حقوقی';
-                elseif ($pt === 'sr_service') $type_label = 'خدمت تخصصی';
+                elseif ($pt === 'service' || $pt === 'services') $type_label = 'خدمت تخصصی';
+                elseif ($pt === 'legal_precedent') $type_label = 'رویه قضایی';
+                elseif ($pt === 'case_study' || $pt === 'portfolio') $type_label = 'سوابق علمی و حرفه‌ای';
 
                 $results[] = [
                     'id'        => get_the_ID(),

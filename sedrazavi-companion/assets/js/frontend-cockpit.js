@@ -29,6 +29,35 @@
       }, 4800));
     }
 
+    let pendingConfirmCallback = null;
+    function openConfirmDialog(message, onConfirm) {
+      const $dlg = $('#sr-confirm-dialog');
+      if (!$dlg.length) {
+        if (typeof onConfirm === 'function') {
+          onConfirm();
+        }
+        return;
+      }
+      pendingConfirmCallback = typeof onConfirm === 'function' ? onConfirm : null;
+      $('#sr-confirm-message').text(message || 'آیا از انجام این عملیات اطمینان دارید؟');
+      $dlg.fadeIn(160);
+      $('#sr-confirm-accept').trigger('focus');
+    }
+
+    $('#sr-confirm-accept').on('click', function() {
+      const cb = pendingConfirmCallback;
+      pendingConfirmCallback = null;
+      $('#sr-confirm-dialog').fadeOut(140);
+      if (cb) {
+        cb();
+      }
+    });
+
+    $('#sr-confirm-cancel').on('click', function() {
+      pendingConfirmCallback = null;
+      $('#sr-confirm-dialog').fadeOut(140);
+    });
+
     // 1. Tab Switching (with ARIA sync)
     $('.sr-tab-btn').on('click', function() {
       const target = $(this).data('tab');
@@ -71,16 +100,17 @@
       });
     });
 
-    // 3. Logout Button
+    // 3. Logout Button (Non-blocking confirmation)
     $('#sr-cockpit-logout-btn').on('click', function() {
-      if (confirm('آیا از خروج از حساب کاربری اطمینان دارید؟')) {
+      const msg = (data.strings && data.strings.confirmLogout) || 'آیا از خروج از حساب کاربری اطمینان دارید؟';
+      openConfirmDialog(msg, function() {
         $.post(ajaxUrl, {
           action: 'sr_cockpit_db_logout',
           nonce: nonce
         }, function() {
           window.location.reload();
         });
-      }
+      });
     });
 
     // 4. Modal Open & Close Controls
@@ -96,18 +126,32 @@
       $('#sr-user-modal').fadeIn(200);
     });
 
+    $('#sr-btn-new-legal-case').on('click', function() {
+      $('#sr_legal_case_id').val('');
+      const $form = $('#sr-legal-case-form');
+      if ($form.length && $form[0]) {
+        $form[0].reset();
+      }
+      $('#sr-legal-modal-title').text('ثبت پرونده محرمانه حقوقی');
+      $('#sr-legal-case-modal .sr-modal-feedback').text('');
+      $('#sr-legal-case-modal').fadeIn(200);
+    });
+
     $('.sr-modal-close, .sr-modal-cancel').on('click', function() {
+      pendingConfirmCallback = null;
       $('.sr-modal').fadeOut(200);
     });
 
     $(window).on('click', function(e) {
       if ($(e.target).hasClass('sr-modal')) {
+        pendingConfirmCallback = null;
         $('.sr-modal').fadeOut(200);
       }
     });
 
     $(document).on('keydown', function(e) {
       if (e.key === 'Escape') {
+        pendingConfirmCallback = null;
         $('.sr-modal:visible').fadeOut(200);
       }
     });
@@ -171,12 +215,69 @@
       });
     });
 
+    // 5B. Confidential Legal Case Edit / Save / Delete
+    $(document).on('click', '.sr-btn-edit-legal-case', function() {
+      const $b = $(this);
+      $('#sr_legal_case_id').val($b.data('id'));
+      $('#sr_legal_case_title').val($b.data('title') || '');
+      $('#sr_legal_case_number').val($b.data('number') || '');
+      $('#sr_legal_case_stage').val($b.data('stage') || '');
+      $('#sr_legal_court_branch').val($b.data('branch') || '');
+      $('#sr_legal_next_hearing').val($b.data('hearing') || '');
+      $('#sr_legal_client_uid').val($b.data('client') || '');
+      $('#sr_legal_case_notes').val($b.data('notes') || '');
+      $('#sr-legal-modal-title').text('ویرایش پرونده محرمانه (#' + $b.data('id') + ')');
+      $('#sr-legal-case-modal .sr-modal-feedback').text('');
+      $('#sr-legal-case-modal').fadeIn(200);
+    });
+
+    $('#sr-legal-case-form').on('submit', function(e) {
+      e.preventDefault();
+      const $form = $(this);
+      const $feedback = $form.find('.sr-modal-feedback');
+      const formData = $form.serializeArray();
+      formData.push({ name: 'action', value: 'sr_cockpit_save_legal_case' });
+      formData.push({ name: 'nonce', value: nonce });
+
+      $.post(ajaxUrl, formData, function(res) {
+        if (res.success) {
+          $feedback.text(res.data.message).css('color', '#10B981');
+          setTimeout(() => {
+            window.location.reload();
+          }, 900);
+        } else {
+          $feedback.text((res.data && res.data.message) || 'خطا در ذخیره پرونده').css('color', '#EF4444');
+        }
+      }).fail(function() {
+        $feedback.text('خطای ارتباط با سرور در ثبت پرونده.').css('color', '#EF4444');
+      });
+    });
+
+    $(document).on('click', '.sr-btn-delete-legal-case', function() {
+      const caseId = $(this).data('id');
+      const $row = $(this).closest('tr');
+      openConfirmDialog(data.strings ? data.strings.confirmDelete : 'حذف این پرونده تأیید می‌شود؟', function() {
+        $.post(ajaxUrl, {
+          action: 'sr_cockpit_delete_legal_case',
+          case_id: caseId,
+          nonce: nonce
+        }, function(res) {
+          if (res.success) {
+            $row.fadeOut(300, function() { $(this).remove(); });
+            showCockpitToast('پرونده با موفقیت حذف شد.', true);
+          } else {
+            showCockpitToast((res.data && res.data.message) || 'خطا در حذف پرونده', false);
+          }
+        });
+      });
+    });
+
     // 6. Delete CPT Post
     $('.sr-btn-delete-cpt').on('click', function() {
       const postId = $(this).data('id');
       const $row = $(this).closest('tr');
 
-      if (confirm(data.strings ? data.strings.confirmDelete : 'حذف این مورد تأیید می‌شود؟')) {
+      openConfirmDialog(data.strings ? data.strings.confirmDelete : 'حذف این مورد تأیید می‌شود؟', function() {
         $.post(ajaxUrl, {
           action: 'sr_cockpit_delete_cpt_post',
           post_id: postId,
@@ -189,7 +290,7 @@
             showCockpitToast((res.data && res.data.message) || 'خطا در حذف', false);
           }
         });
-      }
+      });
     });
 
     // 7. Create User Account (Administrator)
@@ -219,7 +320,7 @@
       const userId = $(this).data('id');
       const $row = $(this).closest('tr');
 
-      if (confirm(data.strings ? data.strings.confirmDeleteUser : 'آیا از حذف این کاربر اطمینان دارید؟')) {
+      openConfirmDialog(data.strings ? data.strings.confirmDeleteUser : 'آیا از حذف این کاربر اطمینان دارید؟', function() {
         $.post(ajaxUrl, {
           action: 'sr_cockpit_delete_user',
           user_id: userId,
@@ -232,31 +333,91 @@
             showCockpitToast((res.data && res.data.message) || 'خطا در حذف کاربر', false);
           }
         });
-      }
+      });
     });
 
-    // 9. In-Dashboard 1-Click Plugin Installation
+    // 9. In-Dashboard Hardened Plugin Installation, Toggle & Rollback
     $('.sr-btn-install-pkg').on('click', function() {
       const $btn = $(this);
+      const $card = $btn.closest('.sr-plugin-card');
       const slug = $btn.data('slug');
+      const remoteUrl = ($card.find('.sr-plugin-remote-url').val() || '').trim();
+      const expectedSha256 = ($card.find('.sr-plugin-sha256').val() || '').trim();
+      const prevText = $btn.text();
 
-      $btn.prop('disabled', true).text('در حال استخراج و فعال‌سازی...');
+      $btn.prop('disabled', true).text('در حال بررسی امضا، بکاپ و نصب...');
 
       $.post(ajaxUrl, {
         action: 'sr_cockpit_install_plugin',
         plugin_slug: slug,
+        remote_url: remoteUrl,
+        expected_sha256: expectedSha256,
         nonce: nonce
       }, function(res) {
         if (res.success) {
           $btn.text('فعال شد').css('background', '#10B981');
-          showCockpitToast('افزونه با موفقیت فعال شد.', true);
+          showCockpitToast((res.data && res.data.message) || 'افزونه با موفقیت فعال شد.', true);
           setTimeout(() => {
             window.location.reload();
           }, 1000);
         } else {
-          $btn.prop('disabled', false).text('تلاش مجدد');
+          $btn.prop('disabled', false).text(prevText || 'تلاش مجدد');
           showCockpitToast((res.data && res.data.message) || 'خطا در نصب افزونه', false);
         }
+      }).fail(function() {
+        $btn.prop('disabled', false).text(prevText || 'تلاش مجدد');
+        showCockpitToast('خطای ارتباط با سرور هنگام نصب افزونه.', false);
+      });
+    });
+
+    $('.sr-btn-toggle-pkg').on('click', function() {
+      const $btn = $(this);
+      const slug = $btn.data('slug');
+      $btn.prop('disabled', true);
+      $.post(ajaxUrl, {
+        action: 'sr_cockpit_toggle_plugin',
+        plugin_slug: slug,
+        nonce: nonce
+      }, function(res) {
+        if (res.success) {
+          showCockpitToast((res.data && res.data.message) || 'وضعیت افزونه تغییر یافت.', true);
+          setTimeout(() => {
+            window.location.reload();
+          }, 800);
+        } else {
+          $btn.prop('disabled', false);
+          showCockpitToast((res.data && res.data.message) || 'خطا در تغییر وضعیت افزونه.', false);
+        }
+      }).fail(function() {
+        $btn.prop('disabled', false);
+        showCockpitToast('خطای ارتباط با سرور هنگام تغییر وضعیت افزونه.', false);
+      });
+    });
+
+    $('.sr-btn-rollback-pkg').on('click', function() {
+      const $btn = $(this);
+      const slug = $btn.data('slug');
+      const msg = (data.strings && data.strings.confirmRollbackPkg) || `آیا از بازگشت افزونه «${slug}» به نسخه قبل اطمینان دارید؟`;
+      openConfirmDialog(msg, function() {
+        $btn.prop('disabled', true).text('در حال بازگشت...');
+        $.post(ajaxUrl, {
+          action: 'sr_cockpit_rollback_plugin',
+          plugin_slug: slug,
+          nonce: nonce
+        }, function(res) {
+          if (res.success) {
+            showCockpitToast((res.data && res.data.message) || 'رول‌بک افزونه انجام شد.', true);
+            setTimeout(() => {
+              window.location.reload();
+            }, 900);
+          } else {
+            $btn.prop('disabled', false).text('بازگشت به نسخه قبل (Rollback)');
+            showCockpitToast((res.data && res.data.message) || 'خطا در رول‌بک افزونه.', false);
+          }
+        }).fail(function() {
+          $btn.prop('disabled', false).text('بازگشت به نسخه قبل (Rollback)');
+          showCockpitToast('خطای سرور هنگام اجرای رول‌بک افزونه.', false);
+        });
       });
     });
 
@@ -535,37 +696,35 @@
       const blocks = getSelectedBlocks();
       const cpts = getSelectedCpts();
 
-      if (!confirm(`آیا از استقرار مستقیم کیت «${name}» در افزونه‌های همین سایت اطمینان دارید؟`)) {
-        return;
-      }
+      openConfirmDialog(`آیا از استقرار مستقیم کیت «${name}» در افزونه‌های همین سایت اطمینان دارید؟`, function() {
+        $btn.prop('disabled', true).text('در حال استقرار، فعال‌سازی و تزریق قالب‌ها...');
 
-      $btn.prop('disabled', true).text('در حال استقرار، فعال‌سازی و تزریق قالب‌ها...');
-
-      $.post(ajaxUrl, {
-        action: 'sr_cockpit_install_sitekit_bundle',
-        nonce: nonce,
-        project_name: name,
-        project_slug: slug,
-        niche: niche,
-        widgets: widgets,
-        templates: templates,
-        blocks: blocks,
-        cpts: cpts,
-        include_theme_bridge: 1,
-        include_query_engine: 1
-      }, function(res) {
-        $btn.prop('disabled', false).text('🚀 نصب و فعال‌سازی مستقیم در همین وردپرس');
-        if (res.success) {
-          showSitekitFeedback(res.data.message, true);
-          setTimeout(() => {
-            window.location.reload();
-          }, 1800);
-        } else {
-          showSitekitFeedback(res.data.message || 'خطا در نصب مستقیم بسته', false);
-        }
-      }).fail(function() {
-        $btn.prop('disabled', false).text('🚀 نصب و فعال‌سازی مستقیم در همین وردپرس');
-        showSitekitFeedback('خطای سرور در استقرار مستقیم افزونه.', false);
+        $.post(ajaxUrl, {
+          action: 'sr_cockpit_install_sitekit_bundle',
+          nonce: nonce,
+          project_name: name,
+          project_slug: slug,
+          niche: niche,
+          widgets: widgets,
+          templates: templates,
+          blocks: blocks,
+          cpts: cpts,
+          include_theme_bridge: 1,
+          include_query_engine: 1
+        }, function(res) {
+          $btn.prop('disabled', false).text('🚀 نصب و فعال‌سازی مستقیم در همین وردپرس');
+          if (res.success) {
+            showSitekitFeedback(res.data.message, true);
+            setTimeout(() => {
+              window.location.reload();
+            }, 1800);
+          } else {
+            showSitekitFeedback(res.data.message || 'خطا در نصب مستقیم بسته', false);
+          }
+        }).fail(function() {
+          $btn.prop('disabled', false).text('🚀 نصب و فعال‌سازی مستقیم در همین وردپرس');
+          showSitekitFeedback('خطای سرور در استقرار مستقیم افزونه.', false);
+        });
       });
     });
 
@@ -577,28 +736,26 @@
         showSitekitFeedback('شناسه انگلیسی بسته (Slug) برای عملیات رول‌بک الزامی است.', false);
         return;
       }
-      if (!confirm(`آیا از رول‌بک کامل کیت «${slug}» (غیرفعال‌سازی افزونه، حذف فایل‌ها و پاک‌سازی قالب‌های کتابخانه المنتور) اطمینان دارید؟`)) {
-        return;
-      }
-
-      $btn.prop('disabled', true).text('در حال اجرای رول‌بک کامل...');
-      $.post(ajaxUrl, {
-        action: 'sr_cockpit_rollback_sitekit',
-        nonce: nonce,
-        project_slug: slug
-      }, function(res) {
-        $btn.prop('disabled', false).text('🔄 رول‌بک کامل کیت مستقرشده (Rollback)');
-        if (res.success) {
-          showSitekitFeedback(res.data.message || 'رول‌بک کامل با موفقیت انجام شد.', true);
-          setTimeout(() => {
-            window.location.reload();
-          }, 1500);
-        } else {
-          showSitekitFeedback((res.data && res.data.message) || 'خطا در اجرای رول‌بک کیت.', false);
-        }
-      }).fail(function() {
-        $btn.prop('disabled', false).text('🔄 رول‌بک کامل کیت مستقرشده (Rollback)');
-        showSitekitFeedback('خطای ارتباط با سرور هنگام اجرای رول‌بک.', false);
+      openConfirmDialog(`آیا از رول‌بک کامل کیت «${slug}» (غیرفعال‌سازی افزونه، حذف فایل‌ها و پاک‌سازی قالب‌های کتابخانه المنتور) اطمینان دارید؟`, function() {
+        $btn.prop('disabled', true).text('در حال اجرای رول‌بک کامل...');
+        $.post(ajaxUrl, {
+          action: 'sr_cockpit_rollback_sitekit',
+          nonce: nonce,
+          project_slug: slug
+        }, function(res) {
+          $btn.prop('disabled', false).text('🔄 رول‌بک کامل کیت مستقرشده (Rollback)');
+          if (res.success) {
+            showSitekitFeedback(res.data.message || 'رول‌بک کامل با موفقیت انجام شد.', true);
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          } else {
+            showSitekitFeedback((res.data && res.data.message) || 'خطا در اجرای رول‌بک کیت.', false);
+          }
+        }).fail(function() {
+          $btn.prop('disabled', false).text('🔄 رول‌بک کامل کیت مستقرشده (Rollback)');
+          showSitekitFeedback('خطای ارتباط با سرور هنگام اجرای رول‌بک.', false);
+        });
       });
     });
 

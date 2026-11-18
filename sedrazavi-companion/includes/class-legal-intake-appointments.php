@@ -85,9 +85,14 @@ class SedRazavi_Legal_Intake_Appointments {
      * Staff/Lawyer RBAC Permission check: Require dedicated legal capabilities (never generic edit_posts)
      */
     public function check_staff_permission($request) {
-        $has_legal_cap = current_user_can('manage_options')
-            || current_user_can('sedrazavi_manage_cases')
-            || current_user_can('view_sedrazavi_cases');
+        $is_legal_staff = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::is_privileged_legal_staff()
+            : (current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases'));
+
+        $has_legal_cap = $is_legal_staff
+            || current_user_can('sedrazavi_view_cases')
+            || current_user_can('view_sedrazavi_cases')
+            || current_user_can('manage_appointments');
 
         if (!is_user_logged_in() || !$has_legal_cap) {
             return new WP_Error(
@@ -150,7 +155,7 @@ class SedRazavi_Legal_Intake_Appointments {
         }
 
         // 4. Cryptographic Reference Token Generation (Non-leaking ID)
-        $ref_code = 'LEG-' . strtoupper(wp_generate_password(6, false, false)) . '-' . date('d');
+        $ref_code = 'LEG-' . strtoupper(wp_generate_password(6, false, false)) . '-' . gmdate('d');
 
         // 5. Store Intake in DB
         $intake_record = [
@@ -235,48 +240,8 @@ class SedRazavi_Legal_Intake_Appointments {
      */
     public function rest_get_triage_queue($request) {
         $records = get_option('sedrazavi_legal_intake_records', []);
-        
-        // Seed initial demo data if empty
-        if (empty($records)) {
-            $records = [
-                [
-                    'reference_code'    => 'LEG-92418-23',
-                    'client_name'       => 'مهندس آرش طاهری',
-                    'phone'             => '09121112233',
-                    'topic'             => 'داوری تجاری و قراردادهای بین‌المللی',
-                    'urgency'           => 'critical',
-                    'status'            => 'new',
-                    'assigned_to'       => 'دکتر سیده مریم رضوی',
-                    'consent_recorded'  => 1,
-                    'retention_expires' => '2026-12-31 23:59:59',
-                    'created_at'        => date('Y-m-d H:i:s', strtotime('-2 hours')),
-                ],
-                [
-                    'reference_code'    => 'LEG-81042-23',
-                    'client_name'       => 'خانم نگار کریمی',
-                    'phone'             => '09194445566',
-                    'topic'             => 'دعاوی ملکی، ثبتی و سرقفلی',
-                    'urgency'           => 'high',
-                    'status'            => 'under_review',
-                    'assigned_to'       => 'وکیل پایه یک همکار',
-                    'consent_recorded'  => 1,
-                    'retention_expires' => '2026-12-31 23:59:59',
-                    'created_at'        => date('Y-m-d H:i:s', strtotime('-5 hours')),
-                ],
-                [
-                    'reference_code'    => 'LEG-70193-22',
-                    'client_name'       => 'شرکت فناوران آریا',
-                    'phone'             => '09357778899',
-                    'topic'             => 'تنظیم قرارداد محرمانگی NDA و مالکیت فکری',
-                    'urgency'           => 'normal',
-                    'status'            => 'consultation_scheduled',
-                    'assigned_to'       => 'دکتر سیده مریم رضوی',
-                    'consent_recorded'  => 1,
-                    'retention_expires' => '2026-12-31 23:59:59',
-                    'created_at'        => date('Y-m-d H:i:s', strtotime('-1 day')),
-                ],
-            ];
-            update_option('sedrazavi_legal_intake_records', $records);
+        if (!is_array($records)) {
+            $records = [];
         }
 
         return rest_ensure_response([
@@ -290,21 +255,38 @@ class SedRazavi_Legal_Intake_Appointments {
      * REST: Update Intake Status & Triage Assignment
      */
     public function rest_update_intake_status($request) {
-        $ref_code = sanitize_text_field($request->get_param('reference_code') ?: '');
-        $new_status = sanitize_text_field($request->get_param('status') ?: '');
-        $assigned = sanitize_text_field($request->get_param('assigned_to') ?: '');
+        $ref_code   = sanitize_text_field($request->get_param('reference_code') ?: '');
+        $new_status = sanitize_key($request->get_param('status') ?: '');
+        $assigned   = sanitize_text_field($request->get_param('assigned_to') ?: '');
+
+        $allowed_statuses = ['new', 'under_review', 'consultation_scheduled', 'completed', 'archived'];
+        if ($new_status !== '' && !in_array($new_status, $allowed_statuses, true)) {
+            return new WP_Error(
+                'invalid_status',
+                esc_html__('وضعیت ارسالی نامعتبر است.', 'sedrazavi-companion'),
+                ['status' => 400]
+            );
+        }
 
         $records = get_option('sedrazavi_legal_intake_records', []);
+        if (!is_array($records)) {
+            $records = [];
+        }
         $updated = false;
 
         foreach ($records as &$rec) {
-            if ($rec['reference_code'] === $ref_code) {
-                if ($new_status) $rec['status'] = $new_status;
-                if ($assigned) $rec['assigned_to'] = $assigned;
+            if (isset($rec['reference_code']) && $rec['reference_code'] === $ref_code) {
+                if ($new_status !== '') {
+                    $rec['status'] = $new_status;
+                }
+                if ($assigned !== '') {
+                    $rec['assigned_to'] = $assigned;
+                }
                 $updated = true;
                 break;
             }
         }
+        unset($rec);
 
         if (!$updated) {
             return new WP_Error('not_found', 'پرونده با این کد رهگیری یافت نشد.', ['status' => 404]);
@@ -355,8 +337,11 @@ class SedRazavi_Legal_Intake_Appointments {
         }
         set_transient($lock_key, 'booked', 30 * MINUTE_IN_SECONDS);
 
-        $booking_id = 'APT-' . date('Ymd') . '-' . wp_generate_password(4, false, false);
+        $booking_id = 'APT-' . gmdate('Ymd') . '-' . wp_generate_password(4, false, false);
         $appointments = get_option('sedrazavi_legal_appointments_records', []);
+        if (!is_array($appointments)) {
+            $appointments = [];
+        }
         $appointments[] = [
             'booking_id'   => $booking_id,
             'slot_id'      => $slot_id,

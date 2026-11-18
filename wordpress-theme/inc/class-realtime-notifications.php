@@ -44,14 +44,28 @@ class SedRazavi_Realtime_Notifications {
                 'all_items'          => __('همه درخواست‌ها', 'sedrazavi'),
             ),
             'public'              => false,
+            'publicly_queryable'  => false,
+            'exclude_from_search' => true,
             'show_ui'             => true,
             'show_in_menu'        => true,
             'menu_icon'           => 'dashicons-bell',
-            'capability_type'     => 'post',
+            'capability_type'     => array('sedrazavi_case', 'sedrazavi_cases'),
+            'map_meta_cap'        => true,
             'hierarchical'        => false,
             'supports'            => array('title', 'editor', 'custom-fields'),
-            'show_in_rest'        => true,
+            'show_in_rest'        => false,
         ));
+    }
+
+    private function can_manage_leads() {
+        if (!is_user_logged_in()) {
+            return false;
+        }
+        $is_legal_staff = class_exists('SedRazavi_Case_Data_Service')
+            ? SedRazavi_Case_Data_Service::is_privileged_legal_staff()
+            : (current_user_can('manage_options') || current_user_can('sedrazavi_manage_cases'));
+
+        return $is_legal_staff || current_user_can('manage_appointments');
     }
 
     public function ajax_submit_lead() {
@@ -94,8 +108,8 @@ class SedRazavi_Realtime_Notifications {
     }
 
     public function ajax_poll_leads() {
-        if (!current_user_can('edit_posts')) {
-            wp_send_json_error(array('message' => __('عدم دسترسی کافی.', 'sedrazavi')));
+        if (!$this->can_manage_leads()) {
+            wp_send_json_error(array('message' => __('عدم دسترسی کافی.', 'sedrazavi')), 403);
         }
 
         $since_id = isset($_GET['since_id']) ? intval($_GET['since_id']) : 0;
@@ -139,8 +153,8 @@ class SedRazavi_Realtime_Notifications {
     }
 
     public function ajax_mark_lead_read() {
-        if (!current_user_can('edit_posts')) {
-            wp_send_json_error();
+        if (!$this->can_manage_leads()) {
+            wp_send_json_error(array('message' => __('عدم دسترسی کافی.', 'sedrazavi')), 403);
         }
 
         $lead_id = isset($_POST['lead_id']) ? intval($_POST['lead_id']) : 0;
@@ -152,7 +166,7 @@ class SedRazavi_Realtime_Notifications {
     }
 
     public function add_realtime_admin_bar_bell($admin_bar) {
-        if (!current_user_can('edit_posts')) {
+        if (!$this->can_manage_leads()) {
             return;
         }
 
